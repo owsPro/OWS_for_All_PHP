@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "../module.dtd">
+<module version="1.0.0">
+  <actions>
+	<action id="choose-team" controller="ChooseTeamController" role="user">
+		<param id="teamId" type="number" required="true" />
+	</action>
+	<action id="choose-additional-team" controller="ChooseAdditionalTeamController" role="user">
+		<param id="teamId" type="number" required="true" />
+	</action>
+  </actions>
+</module>

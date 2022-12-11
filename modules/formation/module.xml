@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "../module.dtd">
+<module version="1.0.0">
+  <actions>
+	<action id="save-formation" controller="SaveFormationController" role="user" log="true">
+	    <param id="id" type="number" required="true" />
+		<param id="offensive" type="number" required="true" min="1" max="100" />
+		<param id="setup" type="text" required="true" />
+		<param id="longpasses" type="boolean" />
+		<param id="counterattacks" type="boolean" />
+		<param id="freekickplayer" type="number" />
+		<param id="player1" type="number" required="true" />
+		<param id="player2" type="number" required="true" />
+		<param id="player3" type="number" required="true" />
+		<param id="player4" type="number" required="true" />
+		<param id="player5" type="number" required="true" />
+		<param id="player6" type="number" required="true" />
+		<param id="player7" type="number" required="true" />
+		<param id="player8" type="number" required="true" />
+		<param id="player9" type="number" required="true" />
+		<param id="player10" type="number" required="true" />
+		<param id="player11" type="number" required="true" />
+		<param id="bench1" type="number" />
+		<param id="bench2" type="number" />
+		<param id="bench3" type="number" />
+		<param id="bench4" type="number" />
+		<param id="bench5" type="number" />
+		<param id="player1_pos" type="text" required="true" />
+		<param id="player2_pos" type="text" required="true" />
+		<param id="player3_pos" type="text" required="true" />
+		<param id="player4_pos" type="text" required="true" />
+		<param id="player5_pos" type="text" required="true" />
+		<param id="player6_pos" type="text" required="true" />
+		<param id="player7_pos" type="text" required="true" />
+		<param id="player8_pos" type="text" required="true" />
+		<param id="player9_pos" type="text" required="true" />
+		<param id="player10_pos" type="text" required="true" />
+		<param id="player11_pos" type="text" required="true" />
+		<param id="sub1_out" type="number" />
+		<param id="sub1_in" type="number" />
+		<param id="sub1_minute" type="number"/>
+		<param id="sub1_condition" type="text" />
+		<param id="sub1_position" type="text" />
+		<param id="sub2_out" type="number" />
+		<param id="sub2_in" type="number" />
+		<param id="sub2_minute" type="number" />
+		<param id="sub2_condition" type="text" />
+		<param id="sub2_position" type="text" />
+		<param id="sub3_out" type="number" />
+		<param id="sub3_in" type="number" />
+		<param id="sub3_minute" type="number" />
+		<param id="sub3_condition" type="text" />
+		<param id="sub3_position" type="text" />
+		<param id="templatename" type="text" max="24" />
+	</action>
+	<action id="remove-formation-template" controller="RemoveFormationTemplateController" role="user">
+	    <param id="templateid" type="number" required="true" />
+	</action>
+  </actions>
+</module>

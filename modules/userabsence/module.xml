@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "../module.dtd">
+<module version="1.0.0">
+    <actions>
+        <action id="report-absence"
+            controller="ReportAbsenceController"
+            role="user"
+            log="true">
+            <param id="days" type="number" required="true" min="2" max="30" />
+            <param id="deputynick" type="text" required="true" />
+        </action>
+        <action id="return-from-absence"
+            controller="ReturnFromAbsenceController"
+            role="user"
+            log="true"/>
+    </actions>
+</module>

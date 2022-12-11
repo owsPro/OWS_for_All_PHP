@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "../module.dtd">
+<module version="1.0.0">
+  <actions>
+	<action id="delete-message" controller="DeleteMessageController" role="user">
+	    <param id="id" type="number" required="true" min="1" max="2000000000" />
+	</action>
+	<action id="send-message" controller="SendMessageController" role="user">
+	    <param id="nick" type="text" required="true" min="1" max="50" />
+		<param id="subject" type="text" required="true" min="3" max="50" />
+		<param id="msgcontent" type="text" required="true" min="3" max="1024" />
+	</action>
+  </actions>
+</module>

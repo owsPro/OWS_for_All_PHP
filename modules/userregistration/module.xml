@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "../module.dtd">
+<module version="1.0.0">
+  <actions>
+	<action id="userregistration" controller="RegisterFormController" role="guest">
+		<param id="nick" type="text" required="true" min="3" max="24" />
+		<param id="email" type="text" required="true" validator="EmailValidator"/>
+		<param id="email_repeat" type="text" required="true"/>
+		<param id="pswd" type="text" required="true" min="6" max="32" validator="PasswordValidator"/>
+		<param id="pswd_repeat" type="text" required="true" />
+		<param id="termsandconditions" type="boolean" required="true" />
+	</action>
+  </actions>
+</module>

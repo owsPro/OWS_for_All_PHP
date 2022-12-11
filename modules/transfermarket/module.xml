@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "../module.dtd">
+<module version="1.0.0">
+  <actions>
+	<action id="sell-player" controller="SellPlayerController" role="user" log="true">
+		<param id="min_bid" type="number" required="true" max="1000000000" />
+		<param id="id" type="number" required="true" />
+	</action>
+	<action id="transfer-bid" controller="TransferBidController" role="user" log="true">
+		<param id="amount" type="number" max="1000000000" min="1" />
+		<param id="handmoney" type="number" max="1000000000" min="1" />
+		<param id="contract_salary" type="number" max="1000000000" required="true" />
+		<param id="contract_goal_bonus" type="number" max="1000000000" min="1"/>
+		<param id="contract_matches" type="number" min="20" max="100" required="true" />
+		<param id="id" type="number" required="true" />
+	</action>
+	<action id="remove-player-from-transfermarket" controller="RemovePlayerFromTransfermarketController" role="user">
+		<param id="id" type="number" required="true" />
+	</action>
+  </actions>
+</module>

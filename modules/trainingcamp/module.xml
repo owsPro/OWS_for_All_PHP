@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "../module.dtd">
+<module version="1.0.0">
+  <actions>
+	<action id="book-camp" controller="BookCampController" role="user" log="true">
+	    <param id="id" type="number" required="true" min="1" max="2000000000" />
+		<param id="start_date" type="date" required="true" min="5" max="20" />
+		<param id="days" type="number" required="true" min="1" />
+	</action>
+	<action id="cancel-camp" controller="CancelCampController" role="user">
+	    <param id="bookingid" type="number" required="true" min="1" max="2000000000" />
+	</action>
+  </actions>
+</module>
