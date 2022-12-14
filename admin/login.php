@@ -1,121 +1,76 @@
 <?php
+/*This file is part of "OWS for All PHP" (Rolf Joseph)
+  https://github.com/owsPro/OWS_for_All_PHP/
+  A spinn-off for PHP Versions 5.4 to 8.2 from:
+  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
-/******************************************************
+  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
 
-  This file is part of OpenWebSoccer-Sim.
+  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
-  OpenWebSoccer-Sim is free software: you can redistribute it
-  and/or modify it under the terms of the
-  GNU Lesser General Public License
-  as published by the Free Software Foundation, either version 3 of
-  the License, or any later version.
-
-  OpenWebSoccer-Sim is distributed in the hope that it will be
-  useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with OpenWebSoccer-Sim.
-  If not, see <http://www.gnu.org/licenses/>.
-
-******************************************************/
+*****************************************************************************/
 define('BASE_FOLDER', __DIR__ .'/..');
 include(BASE_FOLDER . '/admin/config/global.inc.php');
 include(BASE_FOLDER . '/admin/functions.inc.php');
-
 include(CONFIGCACHE_FILE_ADMIN);
-
-// include messages
 $i18n = I18n::getInstance($website->getConfig('supported_languages'));
-
-if (isset($_GET['lang'])) {
-	$i18n->setCurrentLanguage($_GET['lang']);
-}
-
+if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
 include(sprintf(CONFIGCACHE_ADMINMESSAGES, $i18n->getCurrentLanguage()));
+
+//+ owsPro - Include set language file
 include(sprintf(BASE_FOLDER . '/languages/messages_%s.php', $i18n->getCurrentLanguage()));
+
 $errors = array();
 $inputUser = (isset($_POST['inputUser'])) ? $_POST['inputUser'] : FALSE;
 $inputPassword = (isset($_POST['inputPassword'])) ? $_POST['inputPassword'] : FALSE;
 $forwarded = (isset($_GET['forwarded']) && $_GET['forwarded'] == 1) ? TRUE : FALSE;
 $loggedout = (isset($_GET['loggedout']) && $_GET['loggedout'] == 1) ? TRUE : FALSE;
 $newpwd = (isset($_GET['newpwd']) && $_GET['newpwd'] == 1) ? TRUE : FALSE;
-
-// process form
 if ($inputUser or $inputPassword) {
-	if (!$inputUser) {
-		$errors['inputUser'] = $i18n->getMessage('login_error_nousername');
-	}
-	if (!$inputPassword) {
-		$errors['inputPassword'] = $i18n->getMessage('login_error_nopassword');
-	}
-
+	if (!$inputUser) $errors['inputUser'] = $i18n->getMessage('login_error_nousername');
+	if (!$inputPassword) $errors['inputPassword'] = $i18n->getMessage('login_error_nopassword');
 	if (count($errors) == 0) {
-
-		// correct Pwd?
 		$columns = array('id', 'passwort', 'passwort_salt', 'passwort_neu', 'name');
 		$fromTable = $conf['db_prefix'] .'_admin';
 		$whereCondition = 'name = \'%s\'';
 		$parameters = $inputUser;
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $parameters);
-
-
-		if($result->num_rows < 1) {
-			$errors['inputUser'] = $i18n->getMessage('login_error_unknownusername');
-		} else {
+		if($result->num_rows < 1) $errors['inputUser'] = $i18n->getMessage('login_error_unknownusername');
+		else {
 			$admin = $result->fetch_array();
-
 			$hashedPw = SecurityUtil::hashPassword($inputPassword, $admin['passwort_salt']);
 			if ($admin['passwort'] == $hashedPw || $admin['passwort_neu'] == $hashedPw) {
+
+				//- owsPro - Error: session_regenerate_id(): Cannot regenerate session id - session is not active at PHP 8 prevent with session_start();
 				//- session_regenerate_id();
 				session_start();
+
 				$_SESSION['valid'] = 1;
 				$_SESSION['userid'] = $admin['id'];
-
-				// update new PW
 				if ($admin['passwort_neu'] == $hashedPw) {
 					$columns = array('passwort' => $hashedPw, 'passwort_neu_angefordert' => 0, 'passwort_neu' => '');
 					$fromTable = $conf['db_prefix'] .'_admin';
 					$whereCondition = 'id = %d';
 					$parameter = $admin['id'];
-					$db->queryUpdate($columns, $fromTable, $whereCondition, $parameter);
-				}
-
-				// write log
+					$db->queryUpdate($columns, $fromTable, $whereCondition, $parameter); }
 				  if ($admin['name']) {
-
 					$ip = getenv('REMOTE_ADDR');
 					$content = $admin['name'] .', '. $ip .', '. date('d.m.y - H:i:s');
 					$content .= "\n";
-
 					$datei = '../generated/adminlog.php';
 					$fp = fopen($datei, 'a+');
-
-					if (filesize($datei)) {
-						$inhalt = fread($fp, filesize($datei));
-					} else {
-						$inhalt = '';
-					}
-
+					if (filesize($datei)) $inhalt = fread($fp, filesize($datei));
+					else $inhalt = '';
 					$inhalt .= $content;
 					fwrite($fp, $content);
-					fclose($fp);
-
-				  }
-
-				header('location: index.php');
-			} else {
+					fclose($fp); }
+				header('location: index.php'); }
+			else {
 				$errors['inputPassword'] = $i18n->getMessage('login_error_invalidpassword');
-				sleep(5);
-			}
-
-		}
-		$result->free();
-
-	}
-}
-
+				sleep(5); }}
+		$result->free(); }}
 header('Content-type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
@@ -133,21 +88,15 @@ header('Content-type: text/html; charset=utf-8');
     </style>
   </head>
   <body>
-
 	<div class='container'>
-
 		<h1><?php echo $i18n->getMessage('login_title');?></h1>
-
 <?php
-if ($forwarded) {
-	echo createWarningMessage($i18n->getMessage('login_alert_accessdenied_title'), $i18n->getMessage('login_alert_accessdenied_content'));
-} else if ($loggedout) {
-	echo createSuccessMessage($i18n->getMessage('login_alert_logoutsuccess_title'), $i18n->getMessage('login_alert_logoutsuccess_content'));
-} else if ($newpwd) {
-	echo createSuccessMessage($i18n->getMessage('login_alert_sentpassword_title'), $i18n->getMessage('login_alert_sentpassword_content'));
-} else if (count($errors) > 0) {
-	echo createErrorMessage($i18n->getMessage('login_alert_error_title'), $i18n->getMessage('login_alert_error_content'));
-}
+if ($forwarded) echo createWarningMessage($i18n->getMessage('login_alert_accessdenied_title'), $i18n->getMessage('login_alert_accessdenied_content'));
+elseif ($loggedout) echo createSuccessMessage($i18n->getMessage('login_alert_logoutsuccess_title'), $i18n->getMessage('login_alert_logoutsuccess_content'));
+elseif ($newpwd) echo createSuccessMessage($i18n->getMessage('login_alert_sentpassword_title'), $i18n->getMessage('login_alert_sentpassword_content'));
+elseif (count($errors) > 0) echo createErrorMessage($i18n->getMessage('login_alert_error_title'), $i18n->getMessage('login_alert_error_content'))
+
+//+ owsPro - Flags to select languages
 ?>
 	<a href="/admin/login.php?lang=de"><img src="/img/flags/de.png" width="24" height="24" alt="Deutsch" title="Deutsch" /></a>
 	<a href="/admin/login.php?lang=en"><img src="/img/flags/en.png" width="24" height="24" alt="English" title="English" /></a>
@@ -192,17 +141,12 @@ if ($forwarded) {
 			</div>
 		  </div>
 		</form>
-
 		<p><a href='forgot-password.php'><?php echo $i18n->getMessage('login_link_forgotpassword');?></a>
-
       <hr>
-
       <footer>
         <p>Powered by <a href='https://github.com/owsPro/OWS_for_All_PHP' target='_blank'>OWS_for_All_PHP</a></p>
       </footer>
 	</div>
-
-
     <script src='https://code.jquery.com/jquery-latest.min.js'></script>
     <script src='bootstrap/js/bootstrap.min.js'></script>
   </body>

@@ -4,19 +4,19 @@
 
   This file is part of OpenWebSoccer-Sim.
 
-  OpenWebSoccer-Sim is free software: you can redistribute it
-  and/or modify it under the terms of the
-  GNU Lesser General Public License
+  OpenWebSoccer-Sim is free software: you can redistribute it 
+  and/or modify it under the terms of the 
+  GNU Lesser General Public License 
   as published by the Free Software Foundation, either version 3 of
   the License, or any later version.
 
   OpenWebSoccer-Sim is distributed in the hope that it will be
   useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
   See the GNU Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with OpenWebSoccer-Sim.
+  You should have received a copy of the GNU Lesser General Public 
+  License along with OpenWebSoccer-Sim.  
   If not, see <http://www.gnu.org/licenses/>.
 
 ******************************************************/
@@ -39,11 +39,11 @@ $inputEmail = (isset($_POST['inputEmail'])) ? trim($_POST['inputEmail']) : FALSE
 
 // process form
 if ($inputEmail) {
-
+	
 	$now = $website->getNowAsTimestamp();
-
+	
 	if (count($errors) == 0) {
-
+		
 		// correct Pwd?
 		$columns = array('id', 'passwort_neu_angefordert', 'name', 'passwort_salt');
 		$fromTable = $conf['db_prefix'] .'_admin';
@@ -51,7 +51,7 @@ if ($inputEmail) {
 		$parameters = $inputEmail;
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $parameters);
 		$admin = $result->fetch_array();
-
+		
 		if($result->num_rows < 1) {
 			$errors['inputEmail'] = $i18n->getMessage('sendpassword_admin_usernotfound');
 		} elseif ($admin['passwort_neu_angefordert'] > ($now-120*60)) {
@@ -59,9 +59,9 @@ if ($inputEmail) {
 		} else {
 			$newPassword = SecurityUtil::generatePassword();
 			$hashedPw = SecurityUtil::hashPassword($newPassword, $admin['passwort_salt']);
-
+			
 			// store new PW
-			$columns = array('passwort_neu' => $hashedPw,
+			$columns = array('passwort_neu' => $hashedPw, 
 							'passwort_neu_angefordert' => $now);
 			$fromTable = $conf['db_prefix'] .'_admin';
 			$whereCondition = 'id = %d';
@@ -70,16 +70,16 @@ if ($inputEmail) {
 
             try {
             	_sendEmail($inputEmail, $newPassword, $website, $i18n);
-
+            	
             	header('location: login.php?newpwd=1');
             	die();
             } catch(Exception $e) {
             	$errors['inputEmail'] = $e->getMessage();
             }
-
+		
 		}
 		$result->free();
-
+		
 	}
 }
 
@@ -108,17 +108,17 @@ function _sendEmail($email, $password, $website, $i18n) {
     </style>
   </head>
   <body>
-
+  
 	<div class='container'>
-
+	
 		<h1><?php echo $i18n->getMessage('sendpassword_admin_title'); ?></h1>
-
+		
 <?php
 if (count($errors) > 0) {
 	foreach($errors as $key => $message) {
 		echo createErrorMessage($i18n->getMessage('subpage_error_title'), $message);
 	}
-
+	
 }
 ?>
 		<p><?php echo $i18n->getMessage('sendpassword_admin_intro'); ?></p>
@@ -134,17 +134,17 @@ if (count($errors) > 0) {
 			  <button type='submit' class='btn'><?php echo $i18n->getMessage('sendpassword_admin_button'); ?></button>
 			</div>
 		  </div>
-		</form>
-
+		</form>		
+		
 		<p><a href='login.php'><?php echo $i18n->getMessage('sendpassword_admin_loginlink'); ?></a>
-
+	  
       <hr>
 
       <footer>
-        <p>Powered by <a href='https://github.com/owsPro/OWS_for_All_PHP' target='_blank'>OWS_for_All_PHP</a></p>
-      </footer>
+        <p>Powered by <a href='http://www.websoccer-sim.com' target='_blank'>OpenWebSoccer-Sim</a></p>
+      </footer>		  
 	</div>
-
+	
 
     <script src='https://code.jquery.com/jquery-latest.min.js'></script>
     <script src='bootstrap/js/bootstrap.min.js'></script>
