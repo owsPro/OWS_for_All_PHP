@@ -149,17 +149,14 @@ interface ISimulationStrategy {
 	function tackle(SimulationMatch $match);
 	function shoot(SimulationMatch $match);
 	function penaltyShooting(SimulationMatch $match); }
-
 interface ISimulatorObserver {
 	function onSubstitution(SimulationMatch $match, SimulationSubstitution $substitution);
 	function onMatchCompleted(SimulationMatch $match);
 	function onBeforeMatchStarts(SimulationMatch $match); }
-
 interface IUserAuthentication {
 	function __construct(WebSoccer $website);
 	function verifyAndUpdateCurrentUser(User $currentUser);
 	function logoutUser(User $currentUser); }
-
 interface ISimulationObserver {
 	function onGoal(SimulationMatch $match, SimulationPlayer $scorer, SimulationPlayer $goaly);
 	function onShootFailure(SimulationMatch $match, SimulationPlayer $scorer, SimulationPlayer $goaly);
@@ -172,22 +169,18 @@ interface ISimulationObserver {
 	function onPenaltyShoot(SimulationMatch $match, SimulationPlayer $player, SimulationPlayer $goaly, $successful);
 	function onCorner(SimulationMatch $match, SimulationPlayer $concededByPlayer, SimulationPlayer $targetPlayer);
 	function onFreeKick(SimulationMatch $match, SimulationPlayer $player, SimulationPlayer $goaly, $successful); }
-
 interface IActionController {
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db);
 	function executeAction($parameters); }
-
 interface IConverter {
 	function __construct($i18n, $websoccer);
 	function toHtml($value);
 	function toText($value);
 	function toDbValue($value); }
-
 interface IUserLoginMethod {
 	function __construct(WebSoccer $websoccer, DbConnection $db);
 	function authenticateWithEmail($email, $password);
 	function authenticateWithUsername($nick, $password); }
-
 interface ISkin {
 	function __construct($websoccer);
 	function getTemplatesSubDirectory();
@@ -195,12 +188,10 @@ interface ISkin {
 	function getJavaScriptSources();
 	function getTemplate($templateName);
 	function getImage($fileName); }
-
 interface IValidator {
 	function __construct($i18n, $websoccer, $value);
 	function isValid();
 	function getMessage(); }
-
 interface IModel {
 	function __construct($db, $i18n, $websoccer);
 	function renderView();
@@ -712,8 +703,6 @@ class CookieHelper {
 		setcookie(COOKIE_PREFIX . $name, '', time()-86400); }}
 
 class DataUpdateSimulatorObserver {
-	private $_websoccer;
-	private $_db;
 	private $_teamsWithSoonEndingContracts;
 	function __construct(WebSoccer $websoccer, DbConnection $db) {
 		$this->_websoccer = $websoccer;
@@ -1137,8 +1126,6 @@ class DbConnection {
 		return $queryResult; }}
 
 class DbSessionManager{
-	private $_db;
-	private $_websoccer;
 	function __construct(DbConnection $db, WebSoccer $websoccer) {
 		$this->_db = $db;
 		$this->_websoccer = $websoccer;}
@@ -1862,8 +1849,6 @@ class I18n {
 
 class MatchReportSimulationObserver {
 	private $_availableTexts;
-	private $_websoccer;
-	private $_db;
 	function __construct(WebSoccer $websoccer, DbConnection $db) {
 		$this->_availableTexts = array();
 		$this->_websoccer = $websoccer;
@@ -1918,8 +1903,6 @@ class MatchReportSimulationObserver {
 
 class MatchReportSimulatorObserver {
 	private $_availableTexts;
-	private $_websoccer;
-	private $_db;
 	function __construct(WebSoccer $websoccer, DbConnection $db) {
 		$this->_availableTexts = array();
 		$this->_websoccer = $websoccer;
@@ -3362,8 +3345,6 @@ class SimulationTeam {
     	unset($this->removedPlayers); }}
 
 class Simulator {
-	private $_db;
-	private $_websoccer;
 	private $_simStrategy;
 	private $_observers;
 	function getSimulationStrategy() { return $this->_simStrategy; }
@@ -3560,9 +3541,6 @@ class ValidationException extends Exception {
     function getMessages() { return $this->_messages; }}
 
 class ViewHandler {
-	private $_website;
-	private $_db;
-	private $_i18n;
 	private $_pages;
 	private $_blocks;
 	private $_validationMessages;
@@ -3651,8 +3629,6 @@ class ViewHandler {
 		return $a['weight'] - $b['weight']; }}
 
 class YouthMatchDataUpdateSimulatorObserver {
-	private $_websoccer;
-	private $_db;
 	function __construct(WebSoccer $websoccer, DbConnection $db) {
 		$this->_websoccer = $websoccer;
 		$this->_db = $db; }
@@ -3711,8 +3687,6 @@ class YouthMatchDataUpdateSimulatorObserver {
 		return 0; }}
 
 class YouthMatchReportSimulationObserver {
-	private $_websoccer;
-	private $_db;
 	function __construct(WebSoccer $websoccer, DbConnection $db) {
 		$this->_websoccer = $websoccer;
 		$this->_db = $db; }
@@ -3831,9 +3805,6 @@ class YouthMatchSimulationExecutor {
 		return false; }}
 
 class AcceptStadiumConstructionWorkController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -3864,9 +3835,6 @@ class AcceptStadiumConstructionWorkController {
 		return null; }}
 
 class AcceptYouthMatchRequestController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -3897,9 +3865,7 @@ class AcceptYouthMatchRequestController {
 		return "youth-matches"; }}
 
 class AddNationalPlayerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -3931,9 +3897,7 @@ class AddNationalPlayerController {
 		return "nationalteam"; }}
 
 class BookCampController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -3972,9 +3936,7 @@ class BookCampController {
 		return "trainingcamp"; }}
 
 class BorrowPlayerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4011,9 +3973,7 @@ class BorrowPlayerController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $playerId); }}
 
 class BuyYouthPlayerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4041,9 +4001,7 @@ class BuyYouthPlayerController {
 		return "youth-team"; }}
 
 class CancelCampController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4064,9 +4022,7 @@ class CancelCampController {
 		return "trainingcamp"; }}
 
 class CancelYouthMatchRequestController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4086,9 +4042,7 @@ class CancelYouthMatchRequestController {
 		return "youth-matchrequests"; }}
 
 class ChooseAdditionalTeamController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4121,9 +4075,7 @@ class ChooseAdditionalTeamController {
 		return 'office'; }}
 
 class ChooseSponsorController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4152,9 +4104,7 @@ class ChooseSponsorController {
 		return null; }}
 
 class ChooseTeamController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4178,9 +4128,7 @@ class ChooseTeamController {
 		return "office"; }}
 
 class ChooseTrainerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4206,9 +4154,7 @@ class ChooseTrainerController {
 		return "training"; }}
 
 class CreateYouthMatchRequestController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4245,9 +4191,7 @@ class CreateYouthMatchRequestController {
 		return "youth-matchrequests"; }}
 
 class DeleteMessageController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4263,9 +4207,7 @@ class DeleteMessageController {
 		return null; }}
 
 class DeleteProfilePictureController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4285,9 +4227,7 @@ class DeleteProfilePictureController {
 		return "user"; }}
 
 class DeleteShoutBoxMessageController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4297,9 +4237,7 @@ class DeleteShoutBoxMessageController {
 		return null; }}
 
 class DirectTransferAcceptController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4334,9 +4272,7 @@ class DirectTransferAcceptController {
 		if ($teamBudget < $minBudget) throw new Exception($this->_i18n->getMessage("transferoffer_accept_err_exchangeplayer_salarytoohigh", $playerName)); }}
 
 class DirectTransferCancelController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4353,9 +4289,7 @@ class DirectTransferCancelController {
 		return null; }}
 
 class DirectTransferOfferController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4424,9 +4358,7 @@ class DirectTransferOfferController {
 		return 0; }}
 
 class DirectTransferRejectController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4449,9 +4381,7 @@ class DirectTransferRejectController {
 		return null; }}
 
 class DisableAccountController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4470,9 +4400,7 @@ class DisableAccountController {
 		return "home"; }}
 
 class ExchangePremiumController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4493,9 +4421,7 @@ class ExchangePremiumController {
 		return "premiumaccount"; }}
 
 class ExecuteTrainingController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4581,9 +4507,7 @@ class ExecuteTrainingController {
 		$this->_websoccer->addContextParameter("trainingEffects", $trainingEffects); }}
 
 class ExtendContractController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4645,9 +4569,7 @@ class ExtendContractController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters); }}
 
 class ExtendStadiumController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4687,9 +4609,7 @@ class ExtendStadiumController {
 		return "stadium"; }}
 
 class FacebookLoginController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4707,9 +4627,7 @@ class FacebookLoginController {
 		return (strlen($this->_websoccer->getUser()->username)) ? "office" : "enter-username"; }}
 
 class FacebookLogoutController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4722,9 +4640,7 @@ class FacebookLogoutController {
 		return "home"; }}
 
 class FirePlayerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4763,9 +4679,7 @@ class FirePlayerController {
 		return $players["number"]; }}
 
 class FireYouthPlayerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4781,9 +4695,7 @@ class FireYouthPlayerController {
 		return "youth-team"; }}
 
 class FormLoginController {
-	private $_i18n;
-	private $_db;
-	private $_websoccer;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4814,9 +4726,7 @@ class FormLoginController {
 		return (strlen($this->_websoccer->getUser()->username)) ? "office" : "enter-username"; }}
 
 class GoogleplusLoginController {
-	private $_i18n;
-	private $_db;
-	private $_websoccer;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4834,9 +4744,7 @@ class GoogleplusLoginController {
 		return (strlen($this->_websoccer->getUser()->username)) ? "office" : "enter-username"; }}
 
 class LanguageSwitcherController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4858,9 +4766,7 @@ class LanguageSwitcherController {
 		return null; }}
 
 class LendPlayerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4889,9 +4795,7 @@ class LendPlayerController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters); }}
 
 class LogoutController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4907,9 +4811,7 @@ class LogoutController {
 		return "home"; }}
 
 class MarkAsUnsellableController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4928,9 +4830,7 @@ class MarkAsUnsellableController {
 		return null; }}
 
 class MicropaymentRedirectController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -4971,9 +4871,7 @@ class MicropaymentRedirectController {
 		return null; }}
 
 class MoveYouthPlayerToProfessionalController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5006,9 +4904,7 @@ class MoveYouthPlayerToProfessionalController {
 		$this->_db->queryDelete($this->_websoccer->getConfig("db_prefix") ."_youthplayer", "id = %d", $player["id"]); }}
 
 class OrderBuildingController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5049,9 +4945,7 @@ class OrderBuildingController {
 		return null; }}
 
 class PaypalPaymentNotificationController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5091,9 +4985,7 @@ class PaypalPaymentNotificationController {
 		return null; }}
 
 class PremiumActionDummyController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5103,9 +4995,7 @@ class PremiumActionDummyController {
 		return null; }}
 
 class RegisterFormController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5161,9 +5051,7 @@ class RegisterFormController {
 		PluginMediator::dispatchEvent($event); }}
 
 class RemoveFormationTemplateController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5179,9 +5067,7 @@ class RemoveFormationTemplateController {
 		return null; }}
 
 class RemoveNationalPlayerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5204,9 +5090,7 @@ class RemoveNationalPlayerController {
 		return "nationalteam"; }}
 
 class RemovePlayerFromTransfermarketController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5224,9 +5108,7 @@ class RemovePlayerFromTransfermarketController {
 		return "myteam"; }}
 
 class RemoveYouthPlayerFromMarketController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5247,9 +5129,7 @@ class RemoveYouthPlayerFromMarketController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $playerId); }}
 
 class RenameClubController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5267,9 +5147,7 @@ class RenameClubController {
 		return 'league'; }}
 
 class ReportAbsenceController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5284,9 +5162,7 @@ class ReportAbsenceController {
 		return null; }}
 
 class ReturnFromAbsenceController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5298,9 +5174,7 @@ class ReturnFromAbsenceController {
 		return "office"; }}
 
 class SaveFormationController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	private $_addedPlayers;
 	private $_isNationalTeam;
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
@@ -5407,9 +5281,7 @@ class SaveFormationController {
 				$this->_db->queryInsert($columns, $fromTable); }}}}
 
 class SaveMatchChangesController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	private $_addedPlayers;
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
@@ -5517,9 +5389,7 @@ class SaveMatchChangesController {
 		$this->_db->queryInsert(array('match_id' => $matchId, 'message_id' => $messageId, 'minute' => $minute, 'active_home' => $isHomeTeam, 'playernames' => $user->username ), $this->_websoccer->getConfig('db_prefix') . '_matchreport'); }}
 
 class SaveProfileController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5565,9 +5435,7 @@ class SaveProfileController {
 		return "profile"; }}
 
 class SaveTicketsController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5589,9 +5457,7 @@ class SaveTicketsController {
 		return null; }}
 
 class SaveUsernameController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5611,9 +5477,7 @@ class SaveUsernameController {
 		return "office"; }}
 
 class SaveYouthFormationController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	private $_addedPlayers;
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
@@ -5740,9 +5604,7 @@ class SaveYouthFormationController {
 		$this->_db->queryInsert($columns, $this->_websoccer->getConfig("db_prefix") ."_youthmatch_player"); }}
 
 class ScoutYouthPlayerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5799,9 +5661,7 @@ class ScoutYouthPlayerController {
 		return $items[mt_rand(0, $itemsCount - 1)]; }}
 
 class SelectCaptainController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5824,9 +5684,7 @@ class SelectCaptainController {
 		return null; }}
 
 class SelectTeamController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5845,9 +5703,7 @@ class SelectTeamController {
 		return null; }}
 
 class SellPlayerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5879,9 +5735,7 @@ class SellPlayerController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters); }}
 
 class SellYouthPlayerController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5903,9 +5757,7 @@ class SellYouthPlayerController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $playerId); }}
 
 class SendMessageController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5937,9 +5789,7 @@ class SendMessageController {
 		return null; }}
 
 class SendPasswordController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -5979,9 +5829,7 @@ class SendPasswordController {
 		EmailHelper::sendSystemEmailFromTemplate($this->_websoccer, $this->_i18n, $email, $this->_i18n->getMessage("sendpassword_email_subject"), "sendpassword", $tplparameters); }}
 
 class SendShoutBoxMessageController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -6002,9 +5850,7 @@ class SendShoutBoxMessageController {
 require_once(dirname(__DIR__).'/lib/SofortLib-PHP-Payment-2.0.1/core/sofortLibNotification.inc.php');
 require_once(dirname(__DIR__).'/lib/SofortLib-PHP-Payment-2.0.1/core/sofortLibTransactionData.inc.php');
 class SofortComPaymentNotificationController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -6035,9 +5881,7 @@ class SofortComPaymentNotificationController {
 
 require_once(dirname(__DIR__) . '/lib/SofortLib-PHP-Payment-2.0.1/payment/sofortLibSofortueberweisung.inc.php');
 class SofortComRedirectController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -6072,9 +5916,7 @@ class SofortComRedirectController {
 		return null; }}
 
 class TransferBidController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -6138,9 +5980,7 @@ class TransferBidController {
 		$this->_db->queryInsert($columns, $fromTable); }}
 
 class UnmarkLendableController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -6160,9 +6000,7 @@ class UnmarkLendableController {
 		return null; }}
 
 class UnmarkUnsellableController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -6181,9 +6019,7 @@ class UnmarkUnsellableController {
 		return null; }}
 
 class UpgradeStadiumController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -6208,9 +6044,7 @@ class UpgradeStadiumController {
 		return "stadium"; }}
 
 class UploadClubPictureController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -6257,9 +6091,7 @@ class UploadClubPictureController {
 		else imagepng($target, $file); }}
 
 class UploadProfilePictureController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -6306,9 +6138,7 @@ class UploadProfilePictureController {
 		else imagepng($target, $file); }}
 
 class UserActivationController {
-	private $_i18n;
-	private $_websoccer;
-	private $_db;
+
 	function __construct(I18n $i18n, WebSoccer $websoccer, DbConnection $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
@@ -6839,8 +6669,7 @@ class UserInactivityCheckJob extends AbstractJob {
 		foreach ($users as $user) UserInactivityDataService::computeUserInactivity($this->_websoccer, $this->_db, $user['id']); }}
 
 class DefaultUserLoginMethod {
-	private $_websoccer;
-	private $_db;
+
 	function __construct(WebSoccer $website, DbConnection $db) {
 		$this->_websoccer = $website;
 		$this->_db = $db; }
@@ -6865,8 +6694,7 @@ class DefaultUserLoginMethod {
 		return $userdata['id']; }}
 
 class DemoUserLoginMethod {
-	private $_websoccer;
-	private $_db;
+
 	function __construct(WebSoccer $website, DbConnection $db) {
 		$this->_websoccer = $website;
 		$this->_db = $db; }
@@ -7043,9 +6871,7 @@ class UniqueCupNameValidator {
 	function getMessage() { return $this->_i18n->getMessage('validation_error_uniquecupname'); }}
 
 class AbsenceAlertModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7055,9 +6881,7 @@ class AbsenceAlertModel {
 	function getTemplateParameters() { return array('absence' => $this->_absence); }}
 
 class AbsenceModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7074,9 +6898,7 @@ class AbsenceModel {
 		return array('currentAbsence' => $absence, 'deputyName' => $deputyName); }}
 
 class AdsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7085,9 +6907,7 @@ class AdsModel {
 	function getTemplateParameters() { return array(); }}
 
 class AlltimeTableModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_leagueId;
 	private $_type;
 	function __construct($db, $i18n, $websoccer) {
@@ -7108,9 +6928,7 @@ class AlltimeTableModel {
 		return array("leagueId" => $this->_leagueId, "teams" => $teams); }}
 
 class AllUserActivitiesModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_userId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -7120,9 +6938,7 @@ class AllUserActivitiesModel {
 	function getTemplateParameters() { return array("activities" => ActionLogDataService::getLatestActionLogs($this->_websoccer, $this->_db, 5)); }}
 
 class BadgesModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7136,9 +6952,7 @@ class BadgesModel {
 		return array("badges" => $badges); }}
 
 class ClubSearchModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7150,9 +6964,7 @@ class ClubSearchModel {
 		return array("items" => $teams); }}
 
 class CupGroupDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7171,9 +6983,7 @@ class CupGroupDetailsModel {
 		return array("matches" => $matches, "groupteams" => CupsDataService::getTeamsOfCupGroupInRankingOrder($this->_websoccer, $this->_db, $cupRoundId, $cupGroup));}}
 
 class CupResultsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7211,9 +7021,7 @@ class CupResultsModel {
 		return array('matches' => $matches, 'round' => $round, 'groups' => $groups, 'preSelectedGroup' => $preSelectedGroup); }}
 
 class CupsListModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7222,9 +7030,7 @@ class CupsListModel {
 	function getTemplateParameters() { return array('cups' => MatchesDataService::getCupRoundsByCupname($this->_websoccer, $this->_db)); }}
 
 class DirectTransferOfferModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_player;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -7242,9 +7048,7 @@ class DirectTransferOfferModel {
 		return array("players" => $players, "player" => $this->_player); }}
 
 class FacebookLoginModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7253,9 +7057,7 @@ class FacebookLoginModel {
 	function getTemplateParameters() { return array("loginurl" => FacebookSdk::getInstance($this->_websoccer)->getLoginUrl()); }}
 
 class FinancesModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7273,9 +7075,7 @@ class FinancesModel {
 		return array("budget" => $team["team_budget"], "statements" => $statements, "paginator" => $paginator); }}
 
 class FinancesSummaryModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_teamId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -7293,9 +7093,7 @@ class FinancesSummaryModel {
 		return array('majorPositions' => $majorPositions); }}
 
 class FindNationalPlayersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7340,9 +7138,7 @@ class ForgotPasswordModel {
 		return $parameters; }}
 
 class FormationModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_nationalteam;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -7466,9 +7262,7 @@ class FormationModel {
 		return $setup; }}
 
 class FormationTemplatesModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7483,9 +7277,7 @@ class FormationTemplatesModel {
 		return array('templates' => $templates); }}
 
 class FreeClubsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7494,9 +7286,7 @@ class FreeClubsModel {
 	function getTemplateParameters() { return array("countries" => TeamsDataService::getTeamsWithoutUser($this->_websoccer, $this->_db)); }}
 
 class GoogleplusLoginModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7505,9 +7295,7 @@ class GoogleplusLoginModel {
 	function getTemplateParameters() { return array("loginurl" => GoogleplusSdk::getInstance($this->_websoccer)->getLoginUrl()); }}
 
 class HallOfFameModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7534,9 +7322,7 @@ class HallOfFameModel {
 		return array('leagues' => $leagues, 'cups' => $cups); }}
 
 class HighscoreModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7560,9 +7346,7 @@ class ImprintModel {
 		return array("imprint_content" => $filecontent); }}
 
 class LanguageSwitcherModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7571,9 +7355,7 @@ class LanguageSwitcherModel {
 	function getTemplateParameters() { return array(); }}
 
 class LastMatchModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7584,9 +7366,7 @@ class LastMatchModel {
 		return array("last_match" => $matchinfo); }}
 
 class LastTransfersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7598,9 +7378,7 @@ class LastTransfersModel {
 		return array("completedtransfers" => $transfers); }}
 
 class LatestResultsBlockModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7611,9 +7389,7 @@ class LatestResultsBlockModel {
 		return array('matches' => $matches); }}
 
 class LatestResultsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7624,9 +7400,7 @@ class LatestResultsModel {
 		return array("matches" => $matches); }}
 
 class LeagueDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7648,9 +7422,7 @@ class LeagueDetailsModel {
 		return array("league" => $league, "leagues" => LeagueDataService::getLeaguesSortedByCountry($this->_websoccer, $this->_db)); }}
 
 class LeagueSelectionModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_country;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -7669,9 +7441,7 @@ class LeagueSelectionModel {
 		return array("leagues" => $leagues); }}
 
 class LeaguesListModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7687,9 +7457,7 @@ class LeaguesListModel {
 		return array("countries" => $leagues); }}
 
 class LeaguesOverviewModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7707,9 +7475,7 @@ class LeaguesOverviewModel {
 		return array("countries" => $countries); }}
 
 class LeagueTableModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_leagueId;
 	private $_seasonId;
 	private $_type;
@@ -7757,9 +7523,7 @@ class LeagueTableModel {
 		return array("leagueId" => $this->_leagueId, "teams" => $teams, "markers" => $markers, "seasons" => $seasons); }}
 
 class LentPlayersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7785,9 +7549,7 @@ class LentPlayersModel {
 		return array('lentplayers' => $players); }}
 
 class LiveMatchBlockModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_match;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -7799,9 +7561,7 @@ class LiveMatchBlockModel {
 	function getTemplateParameters() { return array("match" => $this->_match); }}
 
 class MatchChangesModel extends FormationModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7868,9 +7628,7 @@ class MatchChangesModel extends FormationModel {
 		return array('setup' => $setup, 'players' => $players, 'formation' => $formation, 'minute' => $match['match_minutes']); }}
 
 class MatchDayResultsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_seasonId;
 	private $_matchday;
 	function __construct($db, $i18n, $websoccer) {
@@ -7886,9 +7644,7 @@ class MatchDayResultsModel {
 		return array("matches" => $matches); }}
 
 class MatchDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7917,9 +7673,7 @@ class MatchDetailsModel {
 		return array('match' => $match, 'reportmessages' => $reportmessages, 'allowTacticChanges' => $allowTacticChanges, 'homeStrikerMessages' => $homeStrikerMessages, 'guestStrikerMessages' => $guestStrikerMessages); }}
 
 class MatchPlayersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -7944,9 +7698,7 @@ class MatchPlayersModel {
 		return array("match" => $match, "home_players" => $home_players, "guest_players" => $guest_players); }}
 
 class MatchPreviewModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_match;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -7982,9 +7734,7 @@ class MatchPreviewModel {
 		return $user; }}
 
 class MatchStatisticsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8012,9 +7762,7 @@ class MatchStatisticsModel {
 		return array("match" => $match, "homeStatistics" => $homeStatistics, "guestStatistics" => $guestStatistics); }}
 
 class MessageDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8031,9 +7779,7 @@ class MessageDetailsModel {
 		return array("message" => $message); }}
 
 class MessagesInboxModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8048,9 +7794,7 @@ class MessagesInboxModel {
 		return array("messages" => $messages, "paginator" => $paginator); }}
 
 class MessagesOutboxModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8066,9 +7810,7 @@ class MessagesOutboxModel {
 		return array("messages" => $messages, "paginator" => $paginator); }}
 
 class MyScheduleModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_teamId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -8094,9 +7836,7 @@ class MyScheduleModel {
 		return array("matches" => $matches, "paginator" => $paginator); }}
 
 class MyTeamModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8110,9 +7850,7 @@ class MyTeamModel {
 		return array("players" => $players, "captain_id" => $captain_id); }}
 
 class MyTransferBidsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8124,9 +7862,7 @@ class MyTransferBidsModel {
 		return array("bids" => $bids); }}
 
 class MyTransfersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8138,9 +7874,7 @@ class MyTransfersModel {
 		return array("completedtransfers" => $transfers); }}
 
 class MyYouthTeamModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8156,9 +7890,7 @@ class MyYouthTeamModel {
 		return array("players" => $players); }}
 
 class NationalMatchResultsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8176,9 +7908,7 @@ class NationalMatchResultsModel {
 		return array("paginator" => $paginator, "matches" => $matches); }}
 
 class NationalNextMatchesModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8196,9 +7926,7 @@ class NationalNextMatchesModel {
 		return array("paginator" => $paginator, "matches" => $matches); }}
 
 class NationalNextMatchModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_teamId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -8216,9 +7944,7 @@ class NationalNextMatchModel {
 		return array('match' => $matches[0]); }}
 
 class NationalPlayersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8233,9 +7959,7 @@ class NationalPlayersModel {
 		return array("team_name" => $team["name"], "players" => NationalteamsDataService::getNationalPlayersOfTeamByPosition($this->_websoccer, $this->_db, $teamId)); }}
 
 class NationalTeamMatchesModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8247,9 +7971,7 @@ class NationalTeamMatchesModel {
 		return array(); }}
 
 class NewsDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8280,9 +8002,7 @@ class NewsDetailsModel {
 	  return $str; }}
 
 class NewsListModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8312,9 +8032,7 @@ class NewsListModel {
 		return $message; }}
 
 class NextMatchModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8328,9 +8046,7 @@ class NextMatchModel {
 		return $matchinfo; }}
 
 class NotificationsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8343,9 +8059,7 @@ class NotificationsModel {
 		return array("notifications" => $notifications); }}
 
 class OfficeModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8358,9 +8072,7 @@ class OfficeModel {
 		return array(); }}
 
 class PaypalLinkModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8375,9 +8087,7 @@ class PaypalLinkModel {
 		return array("linkCode" => $linkCode); }}
 
 class PlayerDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8391,9 +8101,7 @@ class PlayerDetailsModel {
 		return array("player" => $player); }}
 
 class PlayerDetailsWithDependenciesModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8419,9 +8127,7 @@ class PlayerDetailsWithDependenciesModel {
 		return $grades; }}
 
 class PlayersSearchModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_firstName;
 	private $_lastName;
 	private $_club;
@@ -8456,9 +8162,7 @@ class PlayersSearchModel {
 		return array("playersCount" => $playersCount, "players" => $players, "paginator" => $paginator); }}
 
 class PlayerStatisticsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8485,9 +8189,7 @@ class PlayerStatisticsModel {
 		return array('leagueStatistics' => $leagueStatistics, 'cupStatistics' => $cupStatistics); }}
 
 class PremiumAccountModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8503,9 +8205,7 @@ class PremiumAccountModel {
 		return array("statements" => $statements, "paginator" => $paginator, "payments" => PremiumDataService::getPaymentsOfUser($this->_websoccer, $this->_db, $userId, 5)); }}
 
 class ProfileBlockModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8527,9 +8227,7 @@ class ProfileBlockModel {
 		return array("profile" => $userinfo, "userteam" => $team, "unseenMessages" => $unseenMessages, "unseenNotifications" => $unseenNotifications); }}
 
 class ProfileModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8558,9 +8256,7 @@ class ProfileModel {
 		return array("user" => $userinfo); }}
 
 class ProjectStatisticsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8588,9 +8284,7 @@ class RegisterFormModel {
 		return $parameters; }}
 
 class RssResultsOfUserModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8605,9 +8299,7 @@ class RssResultsOfUserModel {
 		return array('items' => $items); }}
 
 class SeasonsOfLeagueModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_leagueId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -8643,9 +8335,7 @@ class SeasonsOfLeagueModel {
 		return array("seasons" => $seasons, "league_name" => $league_name, "currentMatchDay" => $currentMatchDay, "maxMatchDay" => $maxMatchDay); }}
 
 class ShoutboxLeagueModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_leagueId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -8672,9 +8362,7 @@ class ShoutboxLeagueModel {
 		return array("messages" => $messages, "hidesubmit" => TRUE); }}
 
 class ShoutboxModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_matchId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -8701,9 +8389,7 @@ class ShoutboxModel {
 		return array("messages" => $messages); }}
 
 class SponsorModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8721,9 +8407,7 @@ class SponsorModel {
 		return array("sponsor" => $sponsor, "sponsors" => $sponsors, "teamMatchday" => $teamMatchday); }}
 
 class StadiumEnvironmentModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8751,9 +8435,7 @@ class StadiumEnvironmentModel {
 		return array('existingBuildings' => $existingBuildings, 'availableBuildings' => $availableBuildings); }}
 
 class StadiumExtensionModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8770,9 +8452,7 @@ class StadiumExtensionModel {
 		return array("offers" => $offers); }}
 
 class StadiumModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8791,9 +8471,7 @@ class StadiumModel {
 		return array("stadium" => $stadium, "construction" => $construction, "upgradeCosts" => $upgradeCosts); }}
 
 class TableHistoryModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8820,9 +8498,7 @@ class TableHistoryModel {
 		return array('teamName' => $team['team_name'], 'history' => $history, 'noOfTeamsInLeague' => $teams['cnt'], 'leagueid' => $team['team_league_id']); }}
 
 class TeamDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -8910,9 +8586,7 @@ class TeamDetailsModel {
 		return $totalStrength * $this->_websoccer->getConfig('transfermarket_value_per_strength'); }}
 
 class TeamHistoryModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_teamId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -8943,9 +8617,7 @@ class TeamHistoryModel {
 		return array("leagues" => $leagues, "cups" => $cups); }}
 
 class TeamOfTheDayModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9052,9 +8724,7 @@ class TeamOfTheDayModel {
 		$result->free(); }}
 
 class TeamPlayersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_teamid;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -9069,9 +8739,7 @@ class TeamPlayersModel {
 		return array("players" => $players); }}
 
 class TeamResultsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_teamId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -9085,9 +8753,7 @@ class TeamResultsModel {
 		return array("matches" => $matches); }}
 
 class TeamTransfersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9099,9 +8765,7 @@ class TeamTransfersModel {
 		return array("completedtransfers" => $transfers); }}
 
 class TermsAndConditionsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9117,9 +8781,7 @@ class TermsAndConditionsModel {
 		return array("terms" => nl2br($terms)); }}
 
 class TicketsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9158,9 +8820,7 @@ class TicketsModel {
 		return array("tickets" => $tickets); }}
 
 class TodaysMatchesModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_teamId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -9178,9 +8838,7 @@ class TodaysMatchesModel {
 		return array("matches" => $matches, "paginator" => $paginator); }}
 
 class TopNewsListModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9197,9 +8855,7 @@ class TopNewsListModel {
 		return array("topnews" => $articles); }}
 
 class TopScorersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9209,9 +8865,7 @@ class TopScorersModel {
 		return array('players' => PlayersDataService::getTopScorers($this->_websoccer, $this->_db, NUMBER_OF_PLAYERS, $this->_websoccer->getRequestParameter('leagueid')), 'leagues' => LeagueDataService::getLeaguesSortedByCountry($this->_websoccer, $this->_db)); }}
 
 class TopStrikersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9221,9 +8875,7 @@ class TopStrikersModel {
 		return array("players" => PlayersDataService::getTopStrikers($this->_websoccer, $this->_db, NUMBER_OF_PLAYERS, $this->_websoccer->getRequestParameter("leagueid")), "leagues" => LeagueDataService::getLeaguesSortedByCountry($this->_websoccer, $this->_db)); }}
 
 class TrainerDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9236,9 +8888,7 @@ class TrainerDetailsModel {
 		return array("trainer" => $trainer); }}
 
 class TrainingCampsDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9251,9 +8901,7 @@ class TrainingCampsDetailsModel {
 		return array("camp" => $camp, "defaultDate" => $defaultDate); }}
 
 class TrainingCampsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9277,9 +8925,7 @@ class TrainingCampsModel {
 		return array("bookedCamp" => $bookedCamp, "camps" => $camps); }}
 
 class TrainingModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9304,9 +8950,7 @@ class TrainingModel {
 		return array("unitsCount" => $unitsCount, "lastExecution" => $lastExecution, "training_unit" => $training_unit, "trainers" => $trainers, "paginator" => $paginator, "trainingEffects" => $trainingEffects); }}
 
 class TransferBidModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_player;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -9322,9 +8966,7 @@ class TransferBidModel {
 		return array("player" => $this->_player, "highestbid" => $highestBid); }}
 
 class TransfermarketOverviewModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9348,9 +8990,7 @@ class TransfermarketOverviewModel {
 		return array("transferplayers" => $players, "playerscount" => $count, "paginator" => $paginator); }}
 
 class TransferOffersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9367,9 +9007,7 @@ class TransferOffersModel {
 		return array("offers" => $offers, "paginator" => $paginator); }}
 
 class TransferOffersSentModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9388,9 +9026,7 @@ class TransferOffersSentModel {
 		return array("offers" => $offers, "paginator" => $paginator); }}
 
 class UserActivitiesModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_userId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -9400,9 +9036,7 @@ class UserActivitiesModel {
 	function getTemplateParameters() { return array("activities" => ActionLogDataService::getActionLogsOfUser($this->_websoccer, $this->_db, $this->_websoccer->getRequestParameter('userid'))); }}
 
 class UserClubsSelectionModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9417,9 +9051,7 @@ class UserClubsSelectionModel {
 		return array("userteams" => $teams); }}
 
 class UserDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9453,9 +9085,7 @@ class UserDetailsModel {
 		return array('user' => $user, 'userteams' => $teams, 'absence' => AbsencesDataService::getCurrentAbsenceOfUser($this->_websoccer, $this->_db, $userId), 'badges' => $badges); }}
 
 class UserHistoryModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_userId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -9487,9 +9117,7 @@ class UserHistoryModel {
 		return array("leagues" => $leagues, "cups" => $cups); }}
 
 class UserNickSearchModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9501,9 +9129,7 @@ class UserNickSearchModel {
 		return array("items" => $users); }}
 
 class UserResultsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	private $_userId;
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
@@ -9517,9 +9143,7 @@ class UserResultsModel {
 		return array("matches" => $matches); }}
 
 class UserTransfersModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9531,9 +9155,7 @@ class UserTransfersModel {
 		return array("completedtransfers" => $transfers); }}
 
 class WhoIsOnlineModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9548,9 +9170,7 @@ class WhoIsOnlineModel {
 		return array("users" => $users, "paginator" => $paginator); }}
 
 class YouthMarketplaceModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9567,9 +9187,7 @@ class YouthMarketplaceModel {
 		return array("players" => $players, "paginator" => $paginator); }}
 
 class YouthMatchesModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9584,9 +9202,7 @@ class YouthMatchesModel {
 		return array("matches" => $matches, "paginator" => $paginator); }}
 
 class YouthMatchFormationModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9690,9 +9306,7 @@ class YouthMatchFormationModel {
 		return $formation; }}
 
 class YouthMatchReportModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9736,9 +9350,7 @@ class YouthMatchReportModel {
 		return array("match" => $match, "players" => $players, "statistics" => $statistics, "reportMessages" => $reportMessages); }}
 
 class YouthMatchRequestsCreateModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9763,9 +9375,7 @@ class YouthMatchRequestsCreateModel {
 		return array("dateOptions" => $dateOptions); }}
 
 class YouthMatchRequestsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9780,9 +9390,7 @@ class YouthMatchRequestsModel {
 		return array("requests" => $requests, "paginator" => $paginator); }}
 
 class YouthPlayerDetailsModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9795,9 +9403,7 @@ class YouthPlayerDetailsModel {
 		return array("player" => $player); }}
 
 class YouthPlayersOfTeamModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
@@ -9810,9 +9416,7 @@ class YouthPlayersOfTeamModel {
 		return array("players" => $players); }}
 
 class YouthScoutingModel {
-	private $_db;
-	private $_i18n;
-	private $_websoccer;
+
 	function __construct($db, $i18n, $websoccer) {
 		$this->_db = $db;
 		$this->_i18n = $i18n;
