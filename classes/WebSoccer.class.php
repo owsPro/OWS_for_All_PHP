@@ -711,7 +711,7 @@ class CookieHelper {
 		if (!isset($_COOKIE[COOKIE_PREFIX . $name])) return;
 		setcookie(COOKIE_PREFIX . $name, '', time()-86400); }}
 
-class DataUpdateSimulatorObserver implements ISimulatorObserver {
+class DataUpdateSimulatorObserver {
 	private $_websoccer;
 	private $_db;
 	private $_teamsWithSoonEndingContracts;
@@ -1136,7 +1136,7 @@ class DbConnection {
 		if (!$queryResult) throw new Exception('Database Query Error: ' . $this->connection->error);
 		return $queryResult; }}
 
-class DbSessionManager implements SessionHandlerInterface {
+class DbSessionManager{
 	private $_db;
 	private $_websoccer;
 	function __construct(DbConnection $db, WebSoccer $websoccer) {
@@ -1223,7 +1223,7 @@ class DbSessionManager implements SessionHandlerInterface {
 		$whereCondition = 'expires < %d';
 		$this->_db->queryDelete($fromTable, $whereCondition, $this->_websoccer->getNowAsTimestamp());}}
 
-class DefaultSimulationObserver implements ISimulationObserver {
+class DefaultSimulationObserver {
 	function onGoal(SimulationMatch $match, SimulationPlayer $scorer, SimulationPlayer $goaly) {
 		$assistPlayer = ($match->getPreviousPlayerWithBall() !== NULL && $match->getPreviousPlayerWithBall()->team->id == $scorer->team->id) ? $match->getPreviousPlayerWithBall() : '';
 		$scorer->improveMark(MARK_IMPROVE_GOAL_SCORER);
@@ -1285,7 +1285,7 @@ class DefaultSimulationObserver implements ISimulationObserver {
 			$player->downgradeMark(MARK_DOWNGRADE_SHOOTFAILURE);
 			$goaly->improveMark(MARK_IMPROVE_SHOOTFAILURE_GOALY); }}}
 
-class DefaultSimulationStrategy implements ISimulationStrategy {
+class DefaultSimulationStrategy {
 	private $_websoccer;
 	private $_passTargetProbPerPosition;
 	private $_opponentPositions;
@@ -1860,7 +1860,7 @@ class I18n {
 	function getNavigationLabel($pageId) { return $this->getMessage($pageId . PAGE_NAV_LABEL_SUFFIX); }
 	function getSupportedLanguages() { return $this->_supportedLanguages; }}
 
-class MatchReportSimulationObserver implements ISimulationObserver {
+class MatchReportSimulationObserver {
 	private $_availableTexts;
 	private $_websoccer;
 	private $_db;
@@ -1916,7 +1916,7 @@ class MatchReportSimulationObserver implements ISimulationObserver {
 		$columns['active_home'] = $isHomeActive;
 		$this->_db->queryInsert($columns, $fromTable); }}
 
-class MatchReportSimulatorObserver implements ISimulatorObserver {
+class MatchReportSimulatorObserver {
 	private $_availableTexts;
 	private $_websoccer;
 	private $_db;
@@ -2402,7 +2402,7 @@ class SecurityUtil {
 		$userProvider = new SessionBasedUserAuthentication($websoccer);
 		$userProvider->verifyAndUpdateCurrentUser($websoccer->getUser()); }}
 
-class SessionBasedUserAuthentication implements IUserAuthentication {
+class SessionBasedUserAuthentication {
 	private $_website;
 	function __construct(WebSoccer $website) { $this->_website = $website; }
 	function verifyAndUpdateCurrentUser(User $currentUser) {
@@ -3650,7 +3650,7 @@ class ViewHandler {
 		if (!isset($a['weight']) || !isset($b['weight'])) return 0;
 		return $a['weight'] - $b['weight']; }}
 
-class YouthMatchDataUpdateSimulatorObserver implements ISimulatorObserver {
+class YouthMatchDataUpdateSimulatorObserver {
 	private $_websoccer;
 	private $_db;
 	function __construct(WebSoccer $websoccer, DbConnection $db) {
@@ -3710,7 +3710,7 @@ class YouthMatchDataUpdateSimulatorObserver implements ISimulatorObserver {
 		elseif ($mark > 5) return $this->_websoccer->getConfig('youth_strengthchange_verybad');
 		return 0; }}
 
-class YouthMatchReportSimulationObserver implements ISimulationObserver {
+class YouthMatchReportSimulationObserver {
 	private $_websoccer;
 	private $_db;
 	function __construct(WebSoccer $websoccer, DbConnection $db) {
@@ -3830,7 +3830,7 @@ class YouthMatchSimulationExecutor {
 				if ($player->id == $playerId) return $player; }}
 		return false; }}
 
-class AcceptStadiumConstructionWorkController implements IActionController {
+class AcceptStadiumConstructionWorkController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -3863,7 +3863,7 @@ class AcceptStadiumConstructionWorkController implements IActionController {
 			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("stadium_acceptconstruction_completed_title"), $this->_i18n->getMessage("stadium_acceptconstruction_completed_details"))); }
 		return null; }}
 
-class AcceptYouthMatchRequestController implements IActionController {
+class AcceptYouthMatchRequestController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -3896,7 +3896,7 @@ class AcceptYouthMatchRequestController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("youthteam_matchrequest_accept_success"), $this->_i18n->getMessage("youthteam_matchrequest_accept_success_details")));
 		return "youth-matches"; }}
 
-class AddNationalPlayerController implements IActionController {
+class AddNationalPlayerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -3930,7 +3930,7 @@ class AddNationalPlayerController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("nationalteams_addplayer_success"), ""));
 		return "nationalteam"; }}
 
-class BookCampController implements IActionController {
+class BookCampController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -3971,7 +3971,7 @@ class BookCampController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("trainingcamp_booking_success"), ""));
 		return "trainingcamp"; }}
 
-class BorrowPlayerController implements IActionController {
+class BorrowPlayerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4010,7 +4010,7 @@ class BorrowPlayerController implements IActionController {
 		$whereCondition = "id = %d";
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $playerId); }}
 
-class BuyYouthPlayerController implements IActionController {
+class BuyYouthPlayerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4040,7 +4040,7 @@ class BuyYouthPlayerController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("youthteam_buy_success"), ""));
 		return "youth-team"; }}
 
-class CancelCampController implements IActionController {
+class CancelCampController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4063,7 +4063,7 @@ class CancelCampController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("trainingcamp_cancel_success"), ""));
 		return "trainingcamp"; }}
 
-class CancelYouthMatchRequestController implements IActionController {
+class CancelYouthMatchRequestController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4085,7 +4085,7 @@ class CancelYouthMatchRequestController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("youthteam_matchrequest_cancel_success"), ""));
 		return "youth-matchrequests"; }}
 
-class ChooseAdditionalTeamController implements IActionController {
+class ChooseAdditionalTeamController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4120,7 +4120,7 @@ class ChooseAdditionalTeamController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage('freeclubs_msg_success'), ''));
 		return 'office'; }}
 
-class ChooseSponsorController implements IActionController {
+class ChooseSponsorController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4151,7 +4151,7 @@ class ChooseSponsorController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("sponsor_choose_success"), ""));
 		return null; }}
 
-class ChooseTeamController implements IActionController {
+class ChooseTeamController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4177,7 +4177,7 @@ class ChooseTeamController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("freeclubs_msg_success"), ""));
 		return "office"; }}
 
-class ChooseTrainerController implements IActionController {
+class ChooseTrainerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4205,7 +4205,7 @@ class ChooseTrainerController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("saved_message_title"), ""));
 		return "training"; }}
 
-class CreateYouthMatchRequestController implements IActionController {
+class CreateYouthMatchRequestController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4244,7 +4244,7 @@ class CreateYouthMatchRequestController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("youthteam_matchrequest_create_success"), ""));
 		return "youth-matchrequests"; }}
 
-class DeleteMessageController implements IActionController {
+class DeleteMessageController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4262,7 +4262,7 @@ class DeleteMessageController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("messages_delete_success"), ""));
 		return null; }}
 
-class DeleteProfilePictureController implements IActionController {
+class DeleteProfilePictureController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4284,7 +4284,7 @@ class DeleteProfilePictureController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("delete-profile-picture_success"), ""));
 		return "user"; }}
 
-class DeleteShoutBoxMessageController implements IActionController {
+class DeleteShoutBoxMessageController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4296,7 +4296,7 @@ class DeleteShoutBoxMessageController implements IActionController {
 		$this->_db->queryDelete($this->_websoccer->getConfig('db_prefix') . '_shoutmessage', 'id = %d', $parameters['mid']);
 		return null; }}
 
-class DirectTransferAcceptController implements IActionController {
+class DirectTransferAcceptController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4333,7 +4333,7 @@ class DirectTransferAcceptController implements IActionController {
 		$minBudget = 40 * $player["player_contract_salary"];
 		if ($teamBudget < $minBudget) throw new Exception($this->_i18n->getMessage("transferoffer_accept_err_exchangeplayer_salarytoohigh", $playerName)); }}
 
-class DirectTransferCancelController implements IActionController {
+class DirectTransferCancelController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4352,7 +4352,7 @@ class DirectTransferCancelController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("transferoffers_offer_cancellation_success"), ""));
 		return null; }}
 
-class DirectTransferOfferController implements IActionController {
+class DirectTransferOfferController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4423,7 +4423,7 @@ class DirectTransferOfferController implements IActionController {
 		if ($sum["amount"]) return $sum["amount"];
 		return 0; }}
 
-class DirectTransferRejectController implements IActionController {
+class DirectTransferRejectController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4448,7 +4448,7 @@ class DirectTransferRejectController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("transferoffers_offer_reject_success"), ""));
 		return null; }}
 
-class DisableAccountController implements IActionController {
+class DisableAccountController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4469,7 +4469,7 @@ class DisableAccountController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("cancellation_success"), ""));
 		return "home"; }}
 
-class ExchangePremiumController implements IActionController {
+class ExchangePremiumController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4492,7 +4492,7 @@ class ExchangePremiumController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("premium-exchange_success"), ""));
 		return "premiumaccount"; }}
 
-class ExecuteTrainingController implements IActionController {
+class ExecuteTrainingController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4580,7 +4580,7 @@ class ExecuteTrainingController implements IActionController {
 				"satisfaction" => $effectSatisfaction); }
 		$this->_websoccer->addContextParameter("trainingEffects", $trainingEffects); }}
 
-class ExtendContractController implements IActionController {
+class ExtendContractController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4644,7 +4644,7 @@ class ExtendContractController implements IActionController {
 		$parameters = $playerId;
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters); }}
 
-class ExtendStadiumController implements IActionController {
+class ExtendStadiumController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4686,7 +4686,7 @@ class ExtendStadiumController implements IActionController {
 		BadgesDataService::awardBadgeIfApplicable($this->_websoccer, $this->_db, $user->id, 'stadium_construction_by_x', $seats);
 		return "stadium"; }}
 
-class FacebookLoginController implements IActionController {
+class FacebookLoginController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4706,7 +4706,7 @@ class FacebookLoginController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("facebooklogin_success"), ""));
 		return (strlen($this->_websoccer->getUser()->username)) ? "office" : "enter-username"; }}
 
-class FacebookLogoutController implements IActionController {
+class FacebookLogoutController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4721,7 +4721,7 @@ class FacebookLogoutController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("facebooklogout_success"), $this->_i18n->getMessage("facebooklogout_success_details")));
 		return "home"; }}
 
-class FirePlayerController implements IActionController {
+class FirePlayerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4762,7 +4762,7 @@ class FirePlayerController implements IActionController {
 		$result->free();
 		return $players["number"]; }}
 
-class FireYouthPlayerController implements IActionController {
+class FireYouthPlayerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4780,7 +4780,7 @@ class FireYouthPlayerController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("youthteam_fire_success"), ""));
 		return "youth-team"; }}
 
-class FormLoginController implements IActionController {
+class FormLoginController {
 	private $_i18n;
 	private $_db;
 	private $_websoccer;
@@ -4813,7 +4813,7 @@ class FormLoginController implements IActionController {
 			CookieHelper::createCookie("user", $sessionToken, REMEMBERME_COOKIE_LIFETIME_DAYS); }
 		return (strlen($this->_websoccer->getUser()->username)) ? "office" : "enter-username"; }}
 
-class GoogleplusLoginController implements IActionController {
+class GoogleplusLoginController {
 	private $_i18n;
 	private $_db;
 	private $_websoccer;
@@ -4833,7 +4833,7 @@ class GoogleplusLoginController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("googlepluslogin_success"), ""));
 		return (strlen($this->_websoccer->getUser()->username)) ? "office" : "enter-username"; }}
 
-class LanguageSwitcherController implements IActionController {
+class LanguageSwitcherController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4857,7 +4857,7 @@ class LanguageSwitcherController implements IActionController {
 		include(sprintf(BASE_FOLDER . '/languages/messages_%s.php', $lang));
 		return null; }}
 
-class LendPlayerController implements IActionController {
+class LendPlayerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4888,7 +4888,7 @@ class LendPlayerController implements IActionController {
 		$parameters = $playerId;
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters); }}
 
-class LogoutController implements IActionController {
+class LogoutController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4906,7 +4906,7 @@ class LogoutController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("logout_message_title"), ""));
 		return "home"; }}
 
-class MarkAsUnsellableController implements IActionController {
+class MarkAsUnsellableController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4927,7 +4927,7 @@ class MarkAsUnsellableController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("myteam_unsellable_player_success"), ""));
 		return null; }}
 
-class MicropaymentRedirectController implements IActionController {
+class MicropaymentRedirectController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -4970,7 +4970,7 @@ class MicropaymentRedirectController implements IActionController {
 		exit;
 		return null; }}
 
-class MoveYouthPlayerToProfessionalController implements IActionController {
+class MoveYouthPlayerToProfessionalController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5005,7 +5005,7 @@ class MoveYouthPlayerToProfessionalController implements IActionController {
 		$this->_db->queryInsert($columns, $this->_websoccer->getConfig("db_prefix") ."_spieler");
 		$this->_db->queryDelete($this->_websoccer->getConfig("db_prefix") ."_youthplayer", "id = %d", $player["id"]); }}
 
-class OrderBuildingController implements IActionController {
+class OrderBuildingController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5048,7 +5048,7 @@ class OrderBuildingController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("stadiumenvironment_build_success"), ""));
 		return null; }}
 
-class PaypalPaymentNotificationController implements IActionController {
+class PaypalPaymentNotificationController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5090,7 +5090,7 @@ class PaypalPaymentNotificationController implements IActionController {
 			die('X-Error-Message: invalid paypal response: ' . $response); }
 		return null; }}
 
-class PremiumActionDummyController implements IActionController {
+class PremiumActionDummyController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5102,7 +5102,7 @@ class PremiumActionDummyController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, "Premium action completed", "testparam1: " . $parameters["testparam1"] . " - testparam2: " . $parameters["testparam2"]));
 		return null; }}
 
-class RegisterFormController implements IActionController {
+class RegisterFormController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5160,7 +5160,7 @@ class RegisterFormController implements IActionController {
 		$event = new UserRegisteredEvent($this->_websoccer, $this->_db, $this->_i18n, $newuser["id"], $dbcolumns["nick"], $dbcolumns["email"]);
 		PluginMediator::dispatchEvent($event); }}
 
-class RemoveFormationTemplateController implements IActionController {
+class RemoveFormationTemplateController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5178,7 +5178,7 @@ class RemoveFormationTemplateController implements IActionController {
 		$this->_db->queryDelete($dbTable, 'id = %d', $parameters['templateid']);
 		return null; }}
 
-class RemoveNationalPlayerController implements IActionController {
+class RemoveNationalPlayerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5203,7 +5203,7 @@ class RemoveNationalPlayerController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("nationalteams_removeplayer_success"), ""));
 		return "nationalteam"; }}
 
-class RemovePlayerFromTransfermarketController implements IActionController {
+class RemovePlayerFromTransfermarketController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5223,7 +5223,7 @@ class RemovePlayerFromTransfermarketController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("transfermarket_remove_success"), ""));
 		return "myteam"; }}
 
-class RemoveYouthPlayerFromMarketController implements IActionController {
+class RemoveYouthPlayerFromMarketController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5246,7 +5246,7 @@ class RemoveYouthPlayerFromMarketController implements IActionController {
 		$whereCondition = "id = %d";
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $playerId); }}
 
-class RenameClubController implements IActionController {
+class RenameClubController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5266,7 +5266,7 @@ class RenameClubController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("rename-club_success"), ""));
 		return 'league'; }}
 
-class ReportAbsenceController implements IActionController {
+class ReportAbsenceController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5283,7 +5283,7 @@ class ReportAbsenceController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("absence_report_success"), ""));
 		return null; }}
 
-class ReturnFromAbsenceController implements IActionController {
+class ReturnFromAbsenceController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5297,7 +5297,7 @@ class ReturnFromAbsenceController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("absence_return_success"), ""));
 		return "office"; }}
 
-class SaveFormationController implements IActionController {
+class SaveFormationController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5406,7 +5406,7 @@ class SaveFormationController implements IActionController {
 				$columns['templatename'] = $parameters['templatename'];
 				$this->_db->queryInsert($columns, $fromTable); }}}}
 
-class SaveMatchChangesController implements IActionController {
+class SaveMatchChangesController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5516,7 +5516,7 @@ class SaveMatchChangesController implements IActionController {
 		$messageId = $messages[array_rand($messages)];
 		$this->_db->queryInsert(array('match_id' => $matchId, 'message_id' => $messageId, 'minute' => $minute, 'active_home' => $isHomeTeam, 'playernames' => $user->username ), $this->_websoccer->getConfig('db_prefix') . '_matchreport'); }}
 
-class SaveProfileController implements IActionController {
+class SaveProfileController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5564,7 +5564,7 @@ class SaveProfileController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("saved_message_title"), ""));
 		return "profile"; }}
 
-class SaveTicketsController implements IActionController {
+class SaveTicketsController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5588,7 +5588,7 @@ class SaveTicketsController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("saved_message_title"), ""));
 		return null; }}
 
-class SaveUsernameController implements IActionController {
+class SaveUsernameController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5610,7 +5610,7 @@ class SaveUsernameController implements IActionController {
 		$this->_websoccer->getUser()->username = $parameters["nick"];
 		return "office"; }}
 
-class SaveYouthFormationController implements IActionController {
+class SaveYouthFormationController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5739,7 +5739,7 @@ class SaveYouthFormationController implements IActionController {
 		$columns = array("match_id" => $matchId,"team_id" => $teamId,"player_id" => $playerId,"playernumber" => $playerNumber,"position" => $position,"position_main" => $mainPosition,"state" => ($onBench) ? "Ersatzbank" : "1","strength" => 0,"name" => $playerId );
 		$this->_db->queryInsert($columns, $this->_websoccer->getConfig("db_prefix") ."_youthmatch_player"); }}
 
-class ScoutYouthPlayerController implements IActionController {
+class ScoutYouthPlayerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5798,7 +5798,7 @@ class ScoutYouthPlayerController implements IActionController {
 		if (!$itemsCount) throw new Exception($this->_i18n->getMessage("youthteam_scouting_err_invalidcountry"));
 		return $items[mt_rand(0, $itemsCount - 1)]; }}
 
-class SelectCaptainController implements IActionController {
+class SelectCaptainController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5823,7 +5823,7 @@ class SelectCaptainController implements IActionController {
 				$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING, $this->_i18n->getMessage("myteam_player_select_as_captain_warning_old_captain", $playername), "")); }}
 		return null; }}
 
-class SelectTeamController implements IActionController {
+class SelectTeamController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5844,7 +5844,7 @@ class SelectTeamController implements IActionController {
 		$user->setClubId($teamId);
 		return null; }}
 
-class SellPlayerController implements IActionController {
+class SellPlayerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5878,7 +5878,7 @@ class SellPlayerController implements IActionController {
 		$parameters = $playerId;
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters); }}
 
-class SellYouthPlayerController implements IActionController {
+class SellYouthPlayerController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5902,7 +5902,7 @@ class SellYouthPlayerController implements IActionController {
 		$whereCondition = "id = %d";
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $playerId); }}
 
-class SendMessageController implements IActionController {
+class SendMessageController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5936,7 +5936,7 @@ class SendMessageController implements IActionController {
 		$_REQUEST["nick"] = "";
 		return null; }}
 
-class SendPasswordController implements IActionController {
+class SendPasswordController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -5978,7 +5978,7 @@ class SendPasswordController implements IActionController {
 		$tplparameters["newpassword"] = $password;
 		EmailHelper::sendSystemEmailFromTemplate($this->_websoccer, $this->_i18n, $email, $this->_i18n->getMessage("sendpassword_email_subject"), "sendpassword", $tplparameters); }}
 
-class SendShoutBoxMessageController implements IActionController {
+class SendShoutBoxMessageController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -6001,7 +6001,7 @@ class SendShoutBoxMessageController implements IActionController {
 
 require_once(dirname(__DIR__).'/lib/SofortLib-PHP-Payment-2.0.1/core/sofortLibNotification.inc.php');
 require_once(dirname(__DIR__).'/lib/SofortLib-PHP-Payment-2.0.1/core/sofortLibTransactionData.inc.php');
-class SofortComPaymentNotificationController implements IActionController {
+class SofortComPaymentNotificationController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -6034,7 +6034,7 @@ class SofortComPaymentNotificationController implements IActionController {
 		return null; }}
 
 require_once(dirname(__DIR__) . '/lib/SofortLib-PHP-Payment-2.0.1/payment/sofortLibSofortueberweisung.inc.php');
-class SofortComRedirectController implements IActionController {
+class SofortComRedirectController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -6071,7 +6071,7 @@ class SofortComRedirectController implements IActionController {
 			exit; }
 		return null; }}
 
-class TransferBidController implements IActionController {
+class TransferBidController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -6137,7 +6137,7 @@ class TransferBidController implements IActionController {
 		$fromTable = $this->_websoccer->getConfig('db_prefix') .'_transfer_angebot';
 		$this->_db->queryInsert($columns, $fromTable); }}
 
-class UnmarkLendableController implements IActionController {
+class UnmarkLendableController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -6159,7 +6159,7 @@ class UnmarkLendableController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("lending_lendable_unmark_success"), ""));
 		return null; }}
 
-class UnmarkUnsellableController implements IActionController {
+class UnmarkUnsellableController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -6180,7 +6180,7 @@ class UnmarkUnsellableController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("myteam_remove_unsellable_player_success"), ""));
 		return null; }}
 
-class UpgradeStadiumController implements IActionController {
+class UpgradeStadiumController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -6207,7 +6207,7 @@ class UpgradeStadiumController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("stadium_upgrade_success"), $this->_i18n->getMessage("stadium_upgrade_success_details")));
 		return "stadium"; }}
 
-class UploadClubPictureController implements IActionController {
+class UploadClubPictureController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -6256,7 +6256,7 @@ class UploadClubPictureController implements IActionController {
 		if (!$isPng) imagejpeg($target, $file);
 		else imagepng($target, $file); }}
 
-class UploadProfilePictureController implements IActionController {
+class UploadProfilePictureController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -6305,7 +6305,7 @@ class UploadProfilePictureController implements IActionController {
 		if (!$isPng) imagejpeg($target, $file);
 		else imagepng($target, $file); }}
 
-class UserActivationController implements IActionController {
+class UserActivationController {
 	private $_i18n;
 	private $_websoccer;
 	private $_db;
@@ -6333,7 +6333,7 @@ class UserActivationController implements IActionController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("activate-user_message_title"), $this->_i18n->getMessage("activate-user_message_content")));
 		return null; }}
 
-class CupRoundsLinkConverter implements IConverter {
+class CupRoundsLinkConverter {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($i18n, $websoccer) {
@@ -6345,7 +6345,7 @@ class CupRoundsLinkConverter implements IConverter {
 	function toText($value) { return $value; }
 	function toDbValue($value) { return $this->toText($value); }}
 
-class AdminPasswordConverter implements IConverter {
+class AdminPasswordConverter {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($i18n, $websoccer) {
@@ -6367,7 +6367,7 @@ class AdminPasswordConverter implements IConverter {
 		else $passwort = SecurityUtil::hashPassword($value, '');
 		return $passwort; }}
 
-class InactivityConverter implements IConverter {
+class InactivityConverter {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($i18n, $websoccer) {
@@ -6436,7 +6436,7 @@ class InactivityConverter implements IConverter {
 		elseif ($rate > 100) $rate = 100;
 		return $rate; }}
 
-class MatchReportLinkConverter implements IConverter {
+class MatchReportLinkConverter {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($i18n, $websoccer) {
@@ -6457,7 +6457,7 @@ class MatchReportLinkConverter implements IConverter {
 	function toText($value) { return $value; }
 	function toDbValue($value) { return $this->toText($value); }}
 
-class MoneyTransactionConverter implements IConverter {
+class MoneyTransactionConverter {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($i18n, $websoccer) {
@@ -6480,7 +6480,7 @@ class MoneyTransactionConverter implements IConverter {
 			$db->queryUpdate($updatecolumns, $fromTable, $whereCondition, $_POST['verein_id']); }
 		return $amount; }}
 
-class PaymentSenderMessageConverter implements IConverter {
+class PaymentSenderMessageConverter {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($i18n, $websoccer) {
@@ -6493,7 +6493,7 @@ class PaymentSenderMessageConverter implements IConverter {
 	function toText($value) { return $value; }
 	function toDbValue($value) { return $this->toText($value); }}
 
-class PaymentSubjectMessageConverter implements IConverter {
+class PaymentSubjectMessageConverter {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($i18n, $websoccer) {
@@ -6506,7 +6506,7 @@ class PaymentSubjectMessageConverter implements IConverter {
 	function toText($value) { return $value; }
 	function toDbValue($value) { return $this->toText($value); }}
 
-class PremiumTransactionConverter implements IConverter {
+class PremiumTransactionConverter {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($i18n, $websoccer) {
@@ -6529,7 +6529,7 @@ class PremiumTransactionConverter implements IConverter {
 			$db->queryUpdate($updatecolumns, $fromTable, $whereCondition, $_POST['user_id']); }
 		return $amount; }}
 
-class TransferOfferApprovalLinkConverter implements IConverter {
+class TransferOfferApprovalLinkConverter {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($i18n, $websoccer) {
@@ -6543,7 +6543,7 @@ class TransferOfferApprovalLinkConverter implements IConverter {
 	function toText($value) { return $value; }
 	function toDbValue($value) { return $this->toText($value); }}
 
-class UserPasswordConverter implements IConverter {
+class UserPasswordConverter {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($i18n, $websoccer) {
@@ -6838,7 +6838,7 @@ class UserInactivityCheckJob extends AbstractJob {
 		$users = UsersDataService::getActiveUsersWithHighscore($this->_websoccer, $this->_db, 0, 1000);
 		foreach ($users as $user) UserInactivityDataService::computeUserInactivity($this->_websoccer, $this->_db, $user['id']); }}
 
-class DefaultUserLoginMethod implements IUserLoginMethod {
+class DefaultUserLoginMethod {
 	private $_websoccer;
 	private $_db;
 	function __construct(WebSoccer $website, DbConnection $db) {
@@ -6864,7 +6864,7 @@ class DefaultUserLoginMethod implements IUserLoginMethod {
 			$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameter); }
 		return $userdata['id']; }}
 
-class DemoUserLoginMethod implements IUserLoginMethod {
+class DemoUserLoginMethod {
 	private $_websoccer;
 	private $_db;
 	function __construct(WebSoccer $website, DbConnection $db) {
@@ -6942,7 +6942,7 @@ class StadiumEnvironmentPlugin {
 		if ($resArray) return $resArray['attrSum'];
 		return 0; }}
 
-class DefaultBootstrapSkin implements ISkin {
+class DefaultBootstrapSkin {
 	protected $_websoccer;
 	function __construct($websoccer) { $this->_websoccer = $websoccer; }
 	function getTemplatesSubDirectory() { return 'default'; }
@@ -6995,7 +6995,7 @@ class SchedioartFootballSkin extends DefaultBootstrapSkin {
 		$files[] = '//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css';
 		return $files; }}
 
-class EmailValidator implements IValidator {
+class EmailValidator {
 	private $_i18n;
 	private $_websoccer;
 	private $_value;
@@ -7006,7 +7006,7 @@ class EmailValidator implements IValidator {
 	function isValid() { return filter_var($this->_value, FILTER_VALIDATE_EMAIL); }
 	function getMessage() { return $this->_i18n->getMessage('validation_error_email'); }}
 
-class PasswordValidator implements IValidator {
+class PasswordValidator {
 	private $_i18n;
 	private $_websoccer;
 	private $_value;
@@ -7021,7 +7021,7 @@ class PasswordValidator implements IValidator {
 		return TRUE; }
 	function getMessage() { return $this->_i18n->getMessage('validation_error_password'); }}
 
-class UniqueCupNameValidator implements IValidator {
+class UniqueCupNameValidator {
 	private $_i18n;
 	private $_websoccer;
 	private $_value;
@@ -7042,7 +7042,7 @@ class UniqueCupNameValidator implements IValidator {
 		return TRUE; }
 	function getMessage() { return $this->_i18n->getMessage('validation_error_uniquecupname'); }}
 
-class AbsenceAlertModel implements IModel {
+class AbsenceAlertModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7054,7 +7054,7 @@ class AbsenceAlertModel implements IModel {
 	function renderView() { return ($this->_absence != NULL); }
 	function getTemplateParameters() { return array('absence' => $this->_absence); }}
 
-class AbsenceModel implements IModel {
+class AbsenceModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7073,7 +7073,7 @@ class AbsenceModel implements IModel {
 			$deputyName = $deputy['nick']; }
 		return array('currentAbsence' => $absence, 'deputyName' => $deputyName); }}
 
-class AdsModel implements IModel {
+class AdsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7084,7 +7084,7 @@ class AdsModel implements IModel {
 	function renderView() { return ($this->_websoccer->getUser()->premiumBalance == 0 || !$this->_websoccer->getConfig('frontend_ads_hide_for_premiumusers')); }
 	function getTemplateParameters() { return array(); }}
 
-class AlltimeTableModel implements IModel {
+class AlltimeTableModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7107,7 +7107,7 @@ class AlltimeTableModel implements IModel {
 		$teams = TeamsDataService::getTeamsOfLeagueOrderedByAlltimeTableCriteria($this->_websoccer, $this->_db, $this->_leagueId, $this->_type);
 		return array("leagueId" => $this->_leagueId, "teams" => $teams); }}
 
-class AllUserActivitiesModel implements IModel {
+class AllUserActivitiesModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7119,7 +7119,7 @@ class AllUserActivitiesModel implements IModel {
 	function renderView() { return TRUE; }
 	function getTemplateParameters() { return array("activities" => ActionLogDataService::getLatestActionLogs($this->_websoccer, $this->_db, 5)); }}
 
-class BadgesModel implements IModel {
+class BadgesModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7135,7 +7135,7 @@ class BadgesModel implements IModel {
 		$result->free();
 		return array("badges" => $badges); }}
 
-class ClubSearchModel implements IModel {
+class ClubSearchModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7149,7 +7149,7 @@ class ClubSearchModel implements IModel {
 		$teams = TeamsDataService::findTeamNames($this->_websoccer, $this->_db, $query);
 		return array("items" => $teams); }}
 
-class CupGroupDetailsModel implements IModel {
+class CupGroupDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7170,7 +7170,7 @@ class CupGroupDetailsModel implements IModel {
 		$matches = MatchesDataService::getMatchesByCupRoundAndGroup($this->_websoccer, $this->_db, $round["cup_name"], $round["round_name"], $cupGroup);
 		return array("matches" => $matches, "groupteams" => CupsDataService::getTeamsOfCupGroupInRankingOrder($this->_websoccer, $this->_db, $cupRoundId, $cupGroup));}}
 
-class CupResultsModel implements IModel {
+class CupResultsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7210,7 +7210,7 @@ class CupResultsModel implements IModel {
 		else $matches = MatchesDataService::getMatchesByCupRound($this->_websoccer, $this->_db, $cupName, $cupRound);
 		return array('matches' => $matches, 'round' => $round, 'groups' => $groups, 'preSelectedGroup' => $preSelectedGroup); }}
 
-class CupsListModel implements IModel {
+class CupsListModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7221,7 +7221,7 @@ class CupsListModel implements IModel {
 	function renderView() { return TRUE; }
 	function getTemplateParameters() { return array('cups' => MatchesDataService::getCupRoundsByCupname($this->_websoccer, $this->_db)); }}
 
-class DirectTransferOfferModel implements IModel {
+class DirectTransferOfferModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7241,7 +7241,7 @@ class DirectTransferOfferModel implements IModel {
 		if ($this->_websoccer->getRequestParameter("loadformdata")) $players = PlayersDataService::getPlayersOfTeamByPosition($this->_websoccer, $this->_db, $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db));
 		return array("players" => $players, "player" => $this->_player); }}
 
-class FacebookLoginModel implements IModel {
+class FacebookLoginModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7252,7 +7252,7 @@ class FacebookLoginModel implements IModel {
 	function renderView() { return $this->_websoccer->getConfig("facebook_enable_login"); }
 	function getTemplateParameters() { return array("loginurl" => FacebookSdk::getInstance($this->_websoccer)->getLoginUrl()); }}
 
-class FinancesModel implements IModel {
+class FinancesModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7272,7 +7272,7 @@ class FinancesModel implements IModel {
 		else $statements = array();
 		return array("budget" => $team["team_budget"], "statements" => $statements, "paginator" => $paginator); }}
 
-class FinancesSummaryModel implements IModel {
+class FinancesSummaryModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7292,7 +7292,7 @@ class FinancesSummaryModel implements IModel {
 		$result->free();
 		return array('majorPositions' => $majorPositions); }}
 
-class FindNationalPlayersModel implements IModel {
+class FindNationalPlayersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7323,7 +7323,7 @@ class FindNationalPlayersModel implements IModel {
 		else $players = array();
 		return array("team_name" => $team["name"], "playersCount" => $playersCount, "players" => $players, "paginator" => $paginator); }}
 
-class ForgotPasswordModel implements IModel {
+class ForgotPasswordModel {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($db, $i18n, $websoccer) {
@@ -7339,7 +7339,7 @@ class ForgotPasswordModel implements IModel {
 			$parameters["captchaCode"] = $captchaCode; }
 		return $parameters; }}
 
-class FormationModel implements IModel {
+class FormationModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7465,7 +7465,7 @@ class FormationModel implements IModel {
 		if ($altered) $this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING, $this->_i18n->getMessage('formation_setup_altered_warn_title'), $this->_i18n->getMessage('formation_setup_altered_warn_details')));
 		return $setup; }}
 
-class FormationTemplatesModel implements IModel {
+class FormationTemplatesModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7482,7 +7482,7 @@ class FormationTemplatesModel implements IModel {
 		$result->free();
 		return array('templates' => $templates); }}
 
-class FreeClubsModel implements IModel {
+class FreeClubsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7493,7 +7493,7 @@ class FreeClubsModel implements IModel {
 	function renderView() { return TRUE; }
 	function getTemplateParameters() { return array("countries" => TeamsDataService::getTeamsWithoutUser($this->_websoccer, $this->_db)); }}
 
-class GoogleplusLoginModel implements IModel {
+class GoogleplusLoginModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7504,7 +7504,7 @@ class GoogleplusLoginModel implements IModel {
 	function renderView() { return $this->_websoccer->getConfig("googleplus_enable_login"); }
 	function getTemplateParameters() { return array("loginurl" => GoogleplusSdk::getInstance($this->_websoccer)->getLoginUrl()); }}
 
-class HallOfFameModel implements IModel {
+class HallOfFameModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7533,7 +7533,7 @@ class HallOfFameModel implements IModel {
 		$result->free();
 		return array('leagues' => $leagues, 'cups' => $cups); }}
 
-class HighscoreModel implements IModel {
+class HighscoreModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7550,7 +7550,7 @@ class HighscoreModel implements IModel {
 		else $users = array();
 		return array("users" => $users, "paginator" => $paginator); }}
 
-class ImprintModel implements IModel {
+class ImprintModel {
 	private $_websoccer;
 	function __construct($db, $i18n, $websoccer) { $this->_websoccer = $websoccer; }
 	function renderView() { return TRUE; }
@@ -7559,7 +7559,7 @@ class ImprintModel implements IModel {
 		if (file_exists(IMPRINT_FILE)) $filecontent = file_get_contents(IMPRINT_FILE);
 		return array("imprint_content" => $filecontent); }}
 
-class LanguageSwitcherModel implements IModel {
+class LanguageSwitcherModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7570,7 +7570,7 @@ class LanguageSwitcherModel implements IModel {
 	function renderView() { return (count($this->_i18n->getSupportedLanguages()) > 1); }
 	function getTemplateParameters() { return array(); }}
 
-class LastMatchModel implements IModel {
+class LastMatchModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7583,7 +7583,7 @@ class LastMatchModel implements IModel {
 		$matchinfo = MatchesDataService::getLastMatch($this->_websoccer, $this->_db);
 		return array("last_match" => $matchinfo); }}
 
-class LastTransfersModel implements IModel {
+class LastTransfersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7597,7 +7597,7 @@ class LastTransfersModel implements IModel {
 		$transfers = TransfermarketDataService::getLastCompletedTransfers($this->_websoccer, $this->_db, $teamId);
 		return array("completedtransfers" => $transfers); }}
 
-class LatestResultsBlockModel implements IModel {
+class LatestResultsBlockModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7610,7 +7610,7 @@ class LatestResultsBlockModel implements IModel {
 		$matches = MatchesDataService::getLatestMatches($this->_websoccer, $this->_db, 5, TRUE);
 		return array('matches' => $matches); }}
 
-class LatestResultsModel implements IModel {
+class LatestResultsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7623,7 +7623,7 @@ class LatestResultsModel implements IModel {
 		$matches = MatchesDataService::getLatestMatches($this->_websoccer, $this->_db);
 		return array("matches" => $matches); }}
 
-class LeagueDetailsModel implements IModel {
+class LeagueDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7647,7 +7647,7 @@ class LeagueDetailsModel implements IModel {
 			if (!isset($league["league_id"])) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND)); }
 		return array("league" => $league, "leagues" => LeagueDataService::getLeaguesSortedByCountry($this->_websoccer, $this->_db)); }}
 
-class LeagueSelectionModel implements IModel {
+class LeagueSelectionModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7668,7 +7668,7 @@ class LeagueSelectionModel implements IModel {
 		$result->free();
 		return array("leagues" => $leagues); }}
 
-class LeaguesListModel implements IModel {
+class LeaguesListModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7686,7 +7686,7 @@ class LeaguesListModel implements IModel {
 		$result->free();
 		return array("countries" => $leagues); }}
 
-class LeaguesOverviewModel implements IModel {
+class LeaguesOverviewModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7706,7 +7706,7 @@ class LeaguesOverviewModel implements IModel {
 		$result->free();
 		return array("countries" => $countries); }}
 
-class LeagueTableModel implements IModel {
+class LeagueTableModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7756,7 +7756,7 @@ class LeagueTableModel implements IModel {
 		$result->free();
 		return array("leagueId" => $this->_leagueId, "teams" => $teams, "markers" => $markers, "seasons" => $seasons); }}
 
-class LentPlayersModel implements IModel {
+class LentPlayersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7784,7 +7784,7 @@ class LentPlayersModel implements IModel {
 		$result->free();
 		return array('lentplayers' => $players); }}
 
-class LiveMatchBlockModel implements IModel {
+class LiveMatchBlockModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7867,7 +7867,7 @@ class MatchChangesModel extends FormationModel {
 				$formation['sub' . $subNo .'_position'] = ''; }}
 		return array('setup' => $setup, 'players' => $players, 'formation' => $formation, 'minute' => $match['match_minutes']); }}
 
-class MatchDayResultsModel implements IModel {
+class MatchDayResultsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7885,7 +7885,7 @@ class MatchDayResultsModel implements IModel {
 		$matches = MatchesDataService::getMatchesByMatchday($this->_websoccer, $this->_db, $this->_seasonId, $this->_matchday);
 		return array("matches" => $matches); }}
 
-class MatchDetailsModel implements IModel {
+class MatchDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7916,7 +7916,7 @@ class MatchDetailsModel implements IModel {
 				else array_unshift($guestStrikerMessages, $reportMessage); }}
 		return array('match' => $match, 'reportmessages' => $reportmessages, 'allowTacticChanges' => $allowTacticChanges, 'homeStrikerMessages' => $homeStrikerMessages, 'guestStrikerMessages' => $guestStrikerMessages); }}
 
-class MatchPlayersModel implements IModel {
+class MatchPlayersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7943,7 +7943,7 @@ class MatchPlayersModel implements IModel {
 					if (in_array($guest_players[$playerIndex]["id"], $topPlayerIds)) $guest_players[$playerIndex]["is_best_player_of_day"] = TRUE; }}}
 		return array("match" => $match, "home_players" => $home_players, "guest_players" => $guest_players); }}
 
-class MatchPreviewModel implements IModel {
+class MatchPreviewModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -7981,7 +7981,7 @@ class MatchPreviewModel implements IModel {
 		if ($user) $user['picture'] = UsersDataService::getUserProfilePicture($this->_websoccer, $user['picture'], $user['email'], 120);
 		return $user; }}
 
-class MatchStatisticsModel implements IModel {
+class MatchStatisticsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8011,7 +8011,7 @@ class MatchStatisticsModel implements IModel {
 		$result->free();
 		return array("match" => $match, "homeStatistics" => $homeStatistics, "guestStatistics" => $guestStatistics); }}
 
-class MessageDetailsModel implements IModel {
+class MessageDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8030,7 +8030,7 @@ class MessageDetailsModel implements IModel {
 			$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $id); }
 		return array("message" => $message); }}
 
-class MessagesInboxModel implements IModel {
+class MessagesInboxModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8047,7 +8047,7 @@ class MessagesInboxModel implements IModel {
 		else $messages = array();
 		return array("messages" => $messages, "paginator" => $paginator); }}
 
-class MessagesOutboxModel implements IModel {
+class MessagesOutboxModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8065,7 +8065,7 @@ class MessagesOutboxModel implements IModel {
 		else $messages = array();
 		return array("messages" => $messages, "paginator" => $paginator); }}
 
-class MyScheduleModel implements IModel {
+class MyScheduleModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8093,7 +8093,7 @@ class MyScheduleModel implements IModel {
 			$matches = MatchesDataService::getMatchesByCondition($this->_websoccer, $this->_db, $whereCondition, $parameters, $paginator->getFirstIndex() . ',' . $eps); }
 		return array("matches" => $matches, "paginator" => $paginator); }}
 
-class MyTeamModel implements IModel {
+class MyTeamModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8109,7 +8109,7 @@ class MyTeamModel implements IModel {
 		if ($teamId > 0) $players = PlayersDataService::getPlayersOfTeamById($this->_websoccer, $this->_db, $teamId);
 		return array("players" => $players, "captain_id" => $captain_id); }}
 
-class MyTransferBidsModel implements IModel {
+class MyTransferBidsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8123,7 +8123,7 @@ class MyTransferBidsModel implements IModel {
 		$bids = TransfermarketDataService::getCurrentBidsOfTeam($this->_websoccer, $this->_db, $teamId);
 		return array("bids" => $bids); }}
 
-class MyTransfersModel implements IModel {
+class MyTransfersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8137,7 +8137,7 @@ class MyTransfersModel implements IModel {
 		$transfers = TransfermarketDataService::getCompletedTransfersOfTeam($this->_websoccer, $this->_db, $teamId);
 		return array("completedtransfers" => $transfers); }}
 
-class MyYouthTeamModel implements IModel {
+class MyYouthTeamModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8155,7 +8155,7 @@ class MyYouthTeamModel implements IModel {
 			for ($playerIndex = 0; $playerIndex < $noOfPlayers; $playerIndex++) $players[$playerIndex]["nation_flagfile"] = PlayersDataService::getFlagFilename($players[$playerIndex]["nation"]); }
 		return array("players" => $players); }}
 
-class NationalMatchResultsModel implements IModel {
+class NationalMatchResultsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8175,7 +8175,7 @@ class NationalMatchResultsModel implements IModel {
 		if ($matchesCount) $matches = NationalteamsDataService::getSimulatedMatches($this->_websoccer, $this->_db, $teamId, $paginator->getFirstIndex(), $eps);
 		return array("paginator" => $paginator, "matches" => $matches); }}
 
-class NationalNextMatchesModel implements IModel {
+class NationalNextMatchesModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8195,7 +8195,7 @@ class NationalNextMatchesModel implements IModel {
 		if ($matchesCount) $matches = NationalteamsDataService::getNextMatches($this->_websoccer, $this->_db, $teamId, $paginator->getFirstIndex(), $eps);
 		return array("paginator" => $paginator, "matches" => $matches); }}
 
-class NationalNextMatchModel implements IModel {
+class NationalNextMatchModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8215,7 +8215,7 @@ class NationalNextMatchModel implements IModel {
 		$matches = NationalteamsDataService::getNextMatches($this->_websoccer, $this->_db, $this->_teamId, 0, 1);
 		return array('match' => $matches[0]); }}
 
-class NationalPlayersModel implements IModel {
+class NationalPlayersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8232,7 +8232,7 @@ class NationalPlayersModel implements IModel {
 		$result->free();
 		return array("team_name" => $team["name"], "players" => NationalteamsDataService::getNationalPlayersOfTeamByPosition($this->_websoccer, $this->_db, $teamId)); }}
 
-class NationalTeamMatchesModel implements IModel {
+class NationalTeamMatchesModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8246,7 +8246,7 @@ class NationalTeamMatchesModel implements IModel {
 		if (!$teamId) throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
 		return array(); }}
 
-class NewsDetailsModel implements IModel {
+class NewsDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8279,7 +8279,7 @@ class NewsDetailsModel implements IModel {
 	  $str = preg_replace("#([\n ])([a-z0-9\-_.]+?)@([\w\-]+\.([\w\-\.]+\.)*[\w]+)#i", "\\1<a href=\"mailto:\\2@\\3\">\\2@\\3</a>", $str);
 	  return $str; }}
 
-class NewsListModel implements IModel {
+class NewsListModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8311,7 +8311,7 @@ class NewsListModel implements IModel {
 			$message = substr($message, 0, strpos($message, "\n")) . "..."; }
 		return $message; }}
 
-class NextMatchModel implements IModel {
+class NextMatchModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8327,7 +8327,7 @@ class NextMatchModel implements IModel {
 		if (count($matchinfo)) $matchinfo["previous_matches"] = MatchesDataService::getPreviousMatches($matchinfo, $this->_websoccer, $this->_db);
 		return $matchinfo; }}
 
-class NotificationsModel implements IModel {
+class NotificationsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8342,7 +8342,7 @@ class NotificationsModel implements IModel {
 		$this->_db->queryUpdate(array("seen" => "1"), $this->_websoccer->getConfig("db_prefix") . "_notification", "user_id = %d", $this->_websoccer->getUser()->id);
 		return array("notifications" => $notifications); }}
 
-class OfficeModel implements IModel {
+class OfficeModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8357,7 +8357,7 @@ class OfficeModel implements IModel {
 		if ($clubId) RandomEventsDataService::createEventIfRequired($this->_websoccer, $this->_db, $user->id);
 		return array(); }}
 
-class PaypalLinkModel implements IModel {
+class PaypalLinkModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8374,7 +8374,7 @@ class PaypalLinkModel implements IModel {
 		$linkCode = str_replace("</form>", $notifyUrlField . $customField . "</form>", $linkCode);
 		return array("linkCode" => $linkCode); }}
 
-class PlayerDetailsModel implements IModel {
+class PlayerDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8390,7 +8390,7 @@ class PlayerDetailsModel implements IModel {
 		if (!isset($player["player_id"])) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
 		return array("player" => $player); }}
 
-class PlayerDetailsWithDependenciesModel implements IModel {
+class PlayerDetailsWithDependenciesModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8418,7 +8418,7 @@ class PlayerDetailsWithDependenciesModel implements IModel {
 		$grades = array_reverse($grades);
 		return $grades; }}
 
-class PlayersSearchModel implements IModel {
+class PlayersSearchModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8455,7 +8455,7 @@ class PlayersSearchModel implements IModel {
 		else $players = array();
 		return array("playersCount" => $playersCount, "players" => $players, "paginator" => $paginator); }}
 
-class PlayerStatisticsModel implements IModel {
+class PlayerStatisticsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8484,7 +8484,7 @@ class PlayerStatisticsModel implements IModel {
 		$result->free();
 		return array('leagueStatistics' => $leagueStatistics, 'cupStatistics' => $cupStatistics); }}
 
-class PremiumAccountModel implements IModel {
+class PremiumAccountModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8502,7 +8502,7 @@ class PremiumAccountModel implements IModel {
 		else $statements = array();
 		return array("statements" => $statements, "paginator" => $paginator, "payments" => PremiumDataService::getPaymentsOfUser($this->_websoccer, $this->_db, $userId, 5)); }}
 
-class ProfileBlockModel implements IModel {
+class ProfileBlockModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8526,7 +8526,7 @@ class ProfileBlockModel implements IModel {
 		$unseenNotifications = NotificationsDataService::countUnseenNotifications($this->_websoccer, $this->_db, $user->id, $clubId);
 		return array("profile" => $userinfo, "userteam" => $team, "unseenMessages" => $unseenMessages, "unseenNotifications" => $unseenNotifications); }}
 
-class ProfileModel implements IModel {
+class ProfileModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8557,7 +8557,7 @@ class ProfileModel implements IModel {
 			if ($this->_websoccer->getRequestParameter($dbColumn)) $userinfo[$dbColumn] = $this->_websoccer->getRequestParameter($dbColumn); }
 		return array("user" => $userinfo); }}
 
-class ProjectStatisticsModel implements IModel {
+class ProjectStatisticsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8570,7 +8570,7 @@ class ProjectStatisticsModel implements IModel {
 		return array("usersOnline" => UsersDataService::countOnlineUsers($this->_websoccer, $this->_db), "usersTotal" => UsersDataService::countTotalUsers($this->_websoccer, $this->_db), "numberOfLeagues" => LeagueDataService::countTotalLeagues($this->_websoccer,
 			$this->_db), "numberOfFreeTeams" => TeamsDataService::countTeamsWithoutManager($this->_websoccer, $this->_db)); }}
 
-class RegisterFormModel implements IModel {
+class RegisterFormModel {
 	private $_i18n;
 	private $_websoccer;
 	function __construct($db, $i18n, $websoccer) {
@@ -8587,7 +8587,7 @@ class RegisterFormModel implements IModel {
 			$parameters["captchaCode"] = $captchaCode; }
 		return $parameters; }}
 
-class RssResultsOfUserModel implements IModel {
+class RssResultsOfUserModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8604,7 +8604,7 @@ class RssResultsOfUserModel implements IModel {
 			'date' => gmdate(DATE_RSS, $match['date']));
 		return array('items' => $items); }}
 
-class SeasonsOfLeagueModel implements IModel {
+class SeasonsOfLeagueModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8642,7 +8642,7 @@ class SeasonsOfLeagueModel implements IModel {
 			$currentMatchDay = $match["currentMatchday"]; }
 		return array("seasons" => $seasons, "league_name" => $league_name, "currentMatchDay" => $currentMatchDay, "maxMatchDay" => $maxMatchDay); }}
 
-class ShoutboxLeagueModel implements IModel {
+class ShoutboxLeagueModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8671,7 +8671,7 @@ class ShoutboxLeagueModel implements IModel {
 		$result->free();
 		return array("messages" => $messages, "hidesubmit" => TRUE); }}
 
-class ShoutboxModel implements IModel {
+class ShoutboxModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8700,7 +8700,7 @@ class ShoutboxModel implements IModel {
 		$result->free();
 		return array("messages" => $messages); }}
 
-class SponsorModel implements IModel {
+class SponsorModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8720,7 +8720,7 @@ class SponsorModel implements IModel {
 			if ($teamMatchday >= $this->_websoccer->getConfig("sponsor_earliest_matchday")) $sponsors = SponsorsDataService::getSponsorOffers($this->_websoccer, $this->_db, $teamId); }
 		return array("sponsor" => $sponsor, "sponsors" => $sponsors, "teamMatchday" => $teamMatchday); }}
 
-class StadiumEnvironmentModel implements IModel {
+class StadiumEnvironmentModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8750,7 +8750,7 @@ class StadiumEnvironmentModel implements IModel {
 		$result->free();
 		return array('existingBuildings' => $existingBuildings, 'availableBuildings' => $availableBuildings); }}
 
-class StadiumExtensionModel implements IModel {
+class StadiumExtensionModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8769,7 +8769,7 @@ class StadiumExtensionModel implements IModel {
 				(int) $this->_websoccer->getRequestParameter("vip"));
 		return array("offers" => $offers); }}
 
-class StadiumModel implements IModel {
+class StadiumModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8790,7 +8790,7 @@ class StadiumModel implements IModel {
 			$upgradeCosts["vipquality"] = StadiumsDataService::computeUpgradeCosts($this->_websoccer, "vipquality", $stadium); }
 		return array("stadium" => $stadium, "construction" => $construction, "upgradeCosts" => $upgradeCosts); }}
 
-class TableHistoryModel implements IModel {
+class TableHistoryModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8819,7 +8819,7 @@ class TableHistoryModel implements IModel {
 		$result->free();
 		return array('teamName' => $team['team_name'], 'history' => $history, 'noOfTeamsInLeague' => $teams['cnt'], 'leagueid' => $team['team_league_id']); }}
 
-class TeamDetailsModel implements IModel {
+class TeamDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8909,7 +8909,7 @@ class TeamDetailsModel implements IModel {
 		$totalStrength /= $weightStrength + $weightTech + $weightStamina + $weightFreshness + $weightSatisfaction;
 		return $totalStrength * $this->_websoccer->getConfig('transfermarket_value_per_strength'); }}
 
-class TeamHistoryModel implements IModel {
+class TeamHistoryModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -8942,7 +8942,7 @@ class TeamHistoryModel implements IModel {
 		$result->free();
 		return array("leagues" => $leagues, "cups" => $cups); }}
 
-class TeamOfTheDayModel implements IModel {
+class TeamOfTheDayModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9051,7 +9051,7 @@ class TeamOfTheDayModel implements IModel {
 			$players[] = $player; }
 		$result->free(); }}
 
-class TeamPlayersModel implements IModel {
+class TeamPlayersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9068,7 +9068,7 @@ class TeamPlayersModel implements IModel {
 		$players = PlayersDataService::getPlayersOfTeamById($this->_websoccer, $this->_db, $this->_teamid, $isNationalTeam);
 		return array("players" => $players); }}
 
-class TeamResultsModel implements IModel {
+class TeamResultsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9084,7 +9084,7 @@ class TeamResultsModel implements IModel {
 		$matches = MatchesDataService::getLatestMatchesByTeam($this->_websoccer, $this->_db, $this->_teamId);
 		return array("matches" => $matches); }}
 
-class TeamTransfersModel implements IModel {
+class TeamTransfersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9098,7 +9098,7 @@ class TeamTransfersModel implements IModel {
 		if ($teamId > 0) $transfers = TransfermarketDataService::getCompletedTransfersOfTeam($this->_websoccer, $this->_db, $teamId);
 		return array("completedtransfers" => $transfers); }}
 
-class TermsAndConditionsModel implements IModel {
+class TermsAndConditionsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9116,7 +9116,7 @@ class TermsAndConditionsModel implements IModel {
 		$terms = (string) $termsConfig[0];
 		return array("terms" => nl2br($terms)); }}
 
-class TicketsModel implements IModel {
+class TicketsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9157,7 +9157,7 @@ class TicketsModel implements IModel {
 		if ($this->_websoccer->getRequestParameter("p_vip")) $tickets["p_vip"] =  $this->_websoccer->getRequestParameter("p_vip");
 		return array("tickets" => $tickets); }}
 
-class TodaysMatchesModel implements IModel {
+class TodaysMatchesModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9177,7 +9177,7 @@ class TodaysMatchesModel implements IModel {
 			$matches = MatchesDataService::getTodaysMatches($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps); }
 		return array("matches" => $matches, "paginator" => $paginator); }}
 
-class TopNewsListModel implements IModel {
+class TopNewsListModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9196,7 +9196,7 @@ class TopNewsListModel implements IModel {
 		$result->free();
 		return array("topnews" => $articles); }}
 
-class TopScorersModel implements IModel {
+class TopScorersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9208,7 +9208,7 @@ class TopScorersModel implements IModel {
 	function getTemplateParameters() {
 		return array('players' => PlayersDataService::getTopScorers($this->_websoccer, $this->_db, NUMBER_OF_PLAYERS, $this->_websoccer->getRequestParameter('leagueid')), 'leagues' => LeagueDataService::getLeaguesSortedByCountry($this->_websoccer, $this->_db)); }}
 
-class TopStrikersModel implements IModel {
+class TopStrikersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9220,7 +9220,7 @@ class TopStrikersModel implements IModel {
 	function getTemplateParameters() {
 		return array("players" => PlayersDataService::getTopStrikers($this->_websoccer, $this->_db, NUMBER_OF_PLAYERS, $this->_websoccer->getRequestParameter("leagueid")), "leagues" => LeagueDataService::getLeaguesSortedByCountry($this->_websoccer, $this->_db)); }}
 
-class TrainerDetailsModel implements IModel {
+class TrainerDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9235,7 +9235,7 @@ class TrainerDetailsModel implements IModel {
 		if (!isset($trainer["id"])) throw new Exception(MSG_KEY_ERROR_PAGENOTFOUND);
 		return array("trainer" => $trainer); }}
 
-class TrainingCampsDetailsModel implements IModel {
+class TrainingCampsDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9250,7 +9250,7 @@ class TrainingCampsDetailsModel implements IModel {
 		$defaultDate = $this->_websoccer->getNowAsTimestamp() + 24 * 3600;
 		return array("camp" => $camp, "defaultDate" => $defaultDate); }}
 
-class TrainingCampsModel implements IModel {
+class TrainingCampsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9276,7 +9276,7 @@ class TrainingCampsModel implements IModel {
 		if ($listCamps) $camps = TrainingcampsDataService::getCamps($this->_websoccer, $this->_db);
 		return array("bookedCamp" => $bookedCamp, "camps" => $camps); }}
 
-class TrainingModel implements IModel {
+class TrainingModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9303,7 +9303,7 @@ class TrainingModel implements IModel {
 		if (isset($contextParameters["trainingEffects"])) $trainingEffects = $contextParameters["trainingEffects"];
 		return array("unitsCount" => $unitsCount, "lastExecution" => $lastExecution, "training_unit" => $training_unit, "trainers" => $trainers, "paginator" => $paginator, "trainingEffects" => $trainingEffects); }}
 
-class TransferBidModel implements IModel {
+class TransferBidModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9321,7 +9321,7 @@ class TransferBidModel implements IModel {
 		$highestBid = TransfermarketDataService::getHighestBidForPlayer($this->_websoccer, $this->_db, $this->_player["player_id"], $this->_player["transfer_start"], $this->_player["transfer_end"]);
 		return array("player" => $this->_player, "highestbid" => $highestBid); }}
 
-class TransfermarketOverviewModel implements IModel {
+class TransfermarketOverviewModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9347,7 +9347,7 @@ class TransfermarketOverviewModel implements IModel {
 		else $players = array();
 		return array("transferplayers" => $players, "playerscount" => $count, "paginator" => $paginator); }}
 
-class TransferOffersModel implements IModel {
+class TransferOffersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9366,7 +9366,7 @@ class TransferOffersModel implements IModel {
 		else $offers = array();
 		return array("offers" => $offers, "paginator" => $paginator); }}
 
-class TransferOffersSentModel implements IModel {
+class TransferOffersSentModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9387,7 +9387,7 @@ class TransferOffersSentModel implements IModel {
 		else $offers = array();
 		return array("offers" => $offers, "paginator" => $paginator); }}
 
-class UserActivitiesModel implements IModel {
+class UserActivitiesModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9399,7 +9399,7 @@ class UserActivitiesModel implements IModel {
 	function renderView() { return TRUE; }
 	function getTemplateParameters() { return array("activities" => ActionLogDataService::getActionLogsOfUser($this->_websoccer, $this->_db, $this->_websoccer->getRequestParameter('userid'))); }}
 
-class UserClubsSelectionModel implements IModel {
+class UserClubsSelectionModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9416,7 +9416,7 @@ class UserClubsSelectionModel implements IModel {
 		$result->free();
 		return array("userteams" => $teams); }}
 
-class UserDetailsModel implements IModel {
+class UserDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9452,7 +9452,7 @@ class UserDetailsModel implements IModel {
 		$result->free();
 		return array('user' => $user, 'userteams' => $teams, 'absence' => AbsencesDataService::getCurrentAbsenceOfUser($this->_websoccer, $this->_db, $userId), 'badges' => $badges); }}
 
-class UserHistoryModel implements IModel {
+class UserHistoryModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9486,7 +9486,7 @@ class UserHistoryModel implements IModel {
 		$result->free();
 		return array("leagues" => $leagues, "cups" => $cups); }}
 
-class UserNickSearchModel implements IModel {
+class UserNickSearchModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9500,7 +9500,7 @@ class UserNickSearchModel implements IModel {
 		$users = UsersDataService::findUsernames($this->_websoccer, $this->_db, $query);
 		return array("items" => $users); }}
 
-class UserResultsModel implements IModel {
+class UserResultsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9516,7 +9516,7 @@ class UserResultsModel implements IModel {
 		$matches = MatchesDataService::getLatestMatchesByUser($this->_websoccer, $this->_db, $this->_userId);
 		return array("matches" => $matches); }}
 
-class UserTransfersModel implements IModel {
+class UserTransfersModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9530,7 +9530,7 @@ class UserTransfersModel implements IModel {
 		if ($userId > 0) $transfers = TransfermarketDataService::getCompletedTransfersOfUser($this->_websoccer, $this->_db, $userId);
 		return array("completedtransfers" => $transfers); }}
 
-class WhoIsOnlineModel implements IModel {
+class WhoIsOnlineModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9547,7 +9547,7 @@ class WhoIsOnlineModel implements IModel {
 		else $users = array();
 		return array("users" => $users, "paginator" => $paginator); }}
 
-class YouthMarketplaceModel implements IModel {
+class YouthMarketplaceModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9566,7 +9566,7 @@ class YouthMarketplaceModel implements IModel {
 		$players = YouthPlayersDataService::getTransferableYouthPlayers($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps,  $positionFilter);
 		return array("players" => $players, "paginator" => $paginator); }}
 
-class YouthMatchesModel implements IModel {
+class YouthMatchesModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9583,7 +9583,7 @@ class YouthMatchesModel implements IModel {
 		$matches = YouthMatchesDataService::getMatchesOfTeam($this->_websoccer, $this->_db, $clubId, $paginator->getFirstIndex(), $eps);
 		return array("matches" => $matches, "paginator" => $paginator); }}
 
-class YouthMatchFormationModel implements IModel {
+class YouthMatchFormationModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9689,7 +9689,7 @@ class YouthMatchFormationModel implements IModel {
 		if ($setPlayers > 0) $formation["setup"] = $setup["defense"] . "-" . $setup["dm"] . "-" . $setup["midfield"] . "-" . $setup["om"] . "-" . $setup["striker"];
 		return $formation; }}
 
-class YouthMatchReportModel implements IModel {
+class YouthMatchReportModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9735,7 +9735,7 @@ class YouthMatchReportModel implements IModel {
 		$reportMessages = YouthMatchesDataService::getMatchReportItems($this->_websoccer, $this->_db, $this->_i18n, $match["id"]);
 		return array("match" => $match, "players" => $players, "statistics" => $statistics, "reportMessages" => $reportMessages); }}
 
-class YouthMatchRequestsCreateModel implements IModel {
+class YouthMatchRequestsCreateModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9762,7 +9762,7 @@ class YouthMatchRequestsCreateModel implements IModel {
 				$dateOptions[$dateObj->getTimestamp()] = $dateObj->format($dateFormat); }}
 		return array("dateOptions" => $dateOptions); }}
 
-class YouthMatchRequestsModel implements IModel {
+class YouthMatchRequestsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9779,7 +9779,7 @@ class YouthMatchRequestsModel implements IModel {
 		$requests = YouthPlayersDataService::getMatchRequests($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps);
 		return array("requests" => $requests, "paginator" => $paginator); }}
 
-class YouthPlayerDetailsModel implements IModel {
+class YouthPlayerDetailsModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9794,7 +9794,7 @@ class YouthPlayerDetailsModel implements IModel {
 		$player = YouthPlayersDataService::getYouthPlayerById($this->_websoccer, $this->_db, $this->_i18n, $playerId);
 		return array("player" => $player); }}
 
-class YouthPlayersOfTeamModel implements IModel {
+class YouthPlayersOfTeamModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
@@ -9809,7 +9809,7 @@ class YouthPlayersOfTeamModel implements IModel {
 		if ($teamId > 0) $players = YouthPlayersDataService::getYouthPlayersOfTeam($this->_websoccer, $this->_db, $teamId);
 		return array("players" => $players); }}
 
-class YouthScoutingModel implements IModel {
+class YouthScoutingModel {
 	private $_db;
 	private $_i18n;
 	private $_websoccer;
