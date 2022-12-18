@@ -24,7 +24,7 @@
  - The installation is from "owsPro", so that there is a high level of compatibility.
  - Additional configuration and settings, e.g. through add-ons and basic configuration and settings, which are supplemented or overwritten by '/cache/wsconfigadmin.inc.php'.
  - Terms and conditions translated into many languages.
- 
+
  This version can still be used with the database prefix, which is removed in "owsPro"!
  There will be no updates ( only language translations are updated ),
  but possible bug fixes for this version!
@@ -111,6 +111,25 @@ define('YOUTH_MATCH_TYPE','Youth');
 define('YOUTH_STRENGTH_FRESHNESS',100);
 define('YOUTH_STRENGTH_SATISFACTION',100);
 define('YOUTH_STRENGTH_STAMINA',100);
+
+//+ owsPro - we don´t need the PHP extension mbstring with this alternative
+if (!function_exists('mb_strlen')) {
+    function mb_strlen($str = '') {
+    	preg_match_all("/./u", $str, $char);
+    	return sizeof($char[0]); }}
+if (!function_exists('mb_substr')) {
+	//- Deprecated: Optional parameter declared before required parameter is implicitly treated as a required parameter
+	//- function mb_substr($str = "", $maxstr, $length) {
+	function mb_substr($maxstr, $length, $str = "") {
+		if (!is_numeric($maxstr)) $strsize = 0;
+		if (!is_numeric($length) && $length != NULL) $length = 0;
+		preg_match_all("/./u", $str, $char);
+		if ($length == NULL) $length = sizeof($char[0]);
+		else {
+			if ($length < 0) $length = sizeof($char[0]) + $length;
+			else $length = $maxstr + $length; }
+		for ($i = $maxstr; $i < $length; ++$i) $result .= $char[0][$i];
+		return $result; }}
 
 //+ owsPro - Minimum requirements
 if(version_compare('5.4.0',phpversion(),'>=')){
@@ -375,7 +394,7 @@ class WebSoccer {
 
 		if ($fullUrl) {
 			$url = $this->getConfig('homepage') . $this->getConfig('context_root');
-			
+
 			//- owsPro - Fatal error: Uncaught TypeError: strlen() expects parameter 1 to be string, null given
 			//- if ($pageId != 'home' || strlen($queryString)) {
 			if ($pageId != 'home' || strlen((string)$queryString)) $url .= '/?page=' . $pageId . $queryString; }
@@ -1123,29 +1142,29 @@ class DbSessionManager implements SessionHandlerInterface {
 	function __construct(DbConnection $db, WebSoccer $websoccer) {
 		$this->_db = $db;
 		$this->_websoccer = $websoccer;}
-	
+
 	//- owsPro -Deprecated: Return type of class function should either be compatibl
 	#[ReturnTypeWillChange]
-	
+
 	function open($save_path, $session_name) { return TRUE; }
-	
+
 	//- owsPro - Deprecated: Return type of class function should either be compatibl
 	#[ReturnTypeWillChange]
-	
+
 	function close() { return TRUE; }
-	
+
 	//- owsPro - Deprecated: Return type of class function should either be compatibl
 	#[ReturnTypeWillChange]
-	
+
 	function destroy($sessionId) {
 		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_session';
 		$whereCondition = 'session_id = \'%s\'';
 		$this->_db->queryDelete($fromTable, $whereCondition, $sessionId);
 		return TRUE;}
-	
+
 	//- owsPro - Deprecated: Return type of class function should either be compatibl
 	#[ReturnTypeWillChange]
-	
+
 	function read($sessionId) {
 		$columns = 'expires, session_data';
 		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_session';
@@ -1173,10 +1192,10 @@ class DbSessionManager implements SessionHandlerInterface {
 				return true;}}
 		$result->free();
 		return FALSE;}
-	
+
 	//- owsPro - Deprecated: Return type of class function should either be compatibl
 	#[ReturnTypeWillChange]
-	
+
 	function write($sessionId, $data) {
 		$lifetime = (int) $this->_websoccer->getConfig('session_lifetime');
 		$expiry = $this->_websoccer->getNowAsTimestamp() + $lifetime;
@@ -1189,8 +1208,8 @@ class DbSessionManager implements SessionHandlerInterface {
 		elseif(!empty($data)) {
 			$columns['session_id'] = $sessionId;
 			$this->_db->queryInsert($columns, $fromTable);}
-		
-		//+ owsPro - return with FALSE ist nessesary at PHP 8 
+
+		//+ owsPro - return with FALSE ist nessesary at PHP 8
 		return FALSE;}
 
 	//- owsPro - Deprecated: Return type of class function should either be compatibl
