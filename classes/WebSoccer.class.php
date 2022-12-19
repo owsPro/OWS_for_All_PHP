@@ -3673,11 +3673,12 @@ class YouthMatchSimulationExecutor {
 			foreach ($players as $player) {
 				if ($player->id == $playerId) return $player; }}
 		return false; }}
-class AcceptStadiumConstructionWorkController {
+class Controller {
 	function __construct($i18n, $websoccer, $db) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+		$this->_db = $db; }}
+class AcceptStadiumConstructionWorkController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$clubId = $user->getClubId($this->_websoccer, $this->_db);
@@ -3702,11 +3703,7 @@ class AcceptStadiumConstructionWorkController {
 			$this->_db->queryDelete($this->_websoccer->getConfig("db_prefix") . "_stadium_construction", "id = %d", $construction["id"]);
 			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("stadium_acceptconstruction_completed_title"), $this->_i18n->getMessage("stadium_acceptconstruction_completed_details"))); }
 		return null; }}
-class AcceptYouthMatchRequestController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class AcceptYouthMatchRequestController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("youth_enabled") || !$this->_websoccer->getConfig("youth_matchrequests_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -3730,11 +3727,7 @@ class AcceptYouthMatchRequestController {
 			"youthmatch_accept", "youth-matches", null, $request["team_id"]);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("youthteam_matchrequest_accept_success"), $this->_i18n->getMessage("youthteam_matchrequest_accept_success_details")));
 		return "youth-matches"; }}
-class AddNationalPlayerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db;}
+class AddNationalPlayerController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("nationalteams_enabled")) return NULL;
 		$teamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
@@ -3756,11 +3749,7 @@ class AddNationalPlayerController {
 		$this->_db->queryInsert(array("team_id" => $teamId, "player_id" => $parameters["id"] ), $fromTable);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("nationalteams_addplayer_success"), ""));
 		return "nationalteam"; }}
-class BookCampController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class BookCampController extends Controller {
 	function executeAction($parameters) {
 		$now = $this->_websoccer->getNowAsTimestamp();
 		$user = $this->_websoccer->getUser();
@@ -3793,11 +3782,7 @@ class BookCampController {
 		$this->_db->queryInsert($columns, $this->_websoccer->getConfig("db_prefix") . "_trainingslager_belegung");
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("trainingcamp_booking_success"), ""));
 		return "trainingcamp"; }}
-class BorrowPlayerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class BorrowPlayerController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("lending_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -3828,11 +3813,7 @@ class BorrowPlayerController {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") ."_spieler";
 		$whereCondition = "id = %d";
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $playerId); }}
-class BuyYouthPlayerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db;}
+class BuyYouthPlayerController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("youth_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -3854,11 +3835,7 @@ class BuyYouthPlayerController {
 			"id=" . $clubId);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("youthteam_buy_success"), ""));
 		return "youth-team"; }}
-class CancelCampController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class CancelCampController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$teamId = $user->getClubId($this->_websoccer, $this->_db);
@@ -3873,11 +3850,7 @@ class CancelCampController {
 		if (!$deleted) throw new Exception($this->_i18n->getMessage("trainingcamp_cancel_illegalid"));
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("trainingcamp_cancel_success"), ""));
 		return "trainingcamp"; }}
-class CancelYouthMatchRequestController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class CancelYouthMatchRequestController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("youth_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -3890,11 +3863,7 @@ class CancelYouthMatchRequestController {
 		$this->_db->queryDelete($fromTable, "id = %d", $parameters["id"]);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("youthteam_matchrequest_cancel_success"), ""));
 		return "youth-matchrequests"; }}
-class ChooseAdditionalTeamController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ChooseAdditionalTeamController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$maxTeams = (int) $this->_websoccer->getConfig('max_number_teams_per_user');
@@ -3919,11 +3888,7 @@ class ChooseAdditionalTeamController {
 		$user->setClubId($teamId);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage('freeclubs_msg_success'), ''));
 		return 'office'; }}
-class ChooseSponsorController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ChooseSponsorController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$teamId = $user->getClubId($this->_websoccer, $this->_db);
@@ -3946,11 +3911,7 @@ class ChooseSponsorController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $teamId);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("sponsor_choose_success"), ""));
 		return null; }}
-class ChooseTeamController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ChooseTeamController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		if (!$this->_websoccer->getConfig("assign_team_automatically")) throw new Exception($this->_i18n->getMessage("freeclubs_msg_error"));
@@ -3967,11 +3928,7 @@ class ChooseTeamController {
 		if (count($columns)) $this->_db->queryUpdate($columns, $fromTable, $whereCondition, $teamId);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("freeclubs_msg_success"), ""));
 		return "office"; }}
-class ChooseTrainerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ChooseTrainerController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$teamId = $user->getClubId($this->_websoccer, $this->_db);
@@ -3991,11 +3948,7 @@ class ChooseTrainerController {
 		for ($unitNo = 1; $unitNo <= $numberOfUnits; $unitNo++) $this->_db->queryInsert($columns, $fromTable);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("saved_message_title"), ""));
 		return "training"; }}
-class CreateYouthMatchRequestController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class CreateYouthMatchRequestController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("youth_enabled") || !$this->_websoccer->getConfig("youth_matchrequests_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -4025,11 +3978,7 @@ class CreateYouthMatchRequestController {
 		$this->_db->queryInsert($columns, $fromTable);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("youthteam_matchrequest_create_success"), ""));
 		return "youth-matchrequests"; }}
-class DeleteMessageController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class DeleteMessageController extends Controller {
 	function executeAction($parameters) {
 		$id = $parameters["id"];
 		$message = MessagesDataService::getMessageById($this->_websoccer, $this->_db, $id);
@@ -4039,11 +3988,7 @@ class DeleteMessageController {
 		$this->_db->queryDelete($fromTable, $whereCondition, $id);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("messages_delete_success"), ""));
 		return null; }}
-class DeleteProfilePictureController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class DeleteProfilePictureController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("user_picture_upload_enabled")) throw new Exception("feature is not enabled.");
 		$userId = $this->_websoccer->getUser()->id;
@@ -4056,19 +4001,11 @@ class DeleteProfilePictureController {
 		$this->_websoccer->getUser()->setProfilePicture($this->_websoccer, null);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("delete-profile-picture_success"), ""));
 		return "user"; }}
-class DeleteShoutBoxMessageController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class DeleteShoutBoxMessageController extends Controller {
 	function executeAction($parameters) {
 		$this->_db->queryDelete($this->_websoccer->getConfig('db_prefix') . '_shoutmessage', 'id = %d', $parameters['mid']);
 		return null; }}
-class DirectTransferAcceptController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class DirectTransferAcceptController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("transferoffers_enabled")) return;
 		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
@@ -4096,11 +4033,7 @@ class DirectTransferAcceptController {
 		if ($player["team_user_id"] != $userId) throw new Exception($this->_i18n->getMessage("transferoffer_accept_err_exchangeplayer_notinteam", $playerName));
 		$minBudget = 40 * $player["player_contract_salary"];
 		if ($teamBudget < $minBudget) throw new Exception($this->_i18n->getMessage("transferoffer_accept_err_exchangeplayer_salarytoohigh", $playerName)); }}
-class DirectTransferCancelController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db;}
+class DirectTransferCancelController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("transferoffers_enabled")) return;
 		$userId = $this->_websoccer->getUser()->id;
@@ -4110,11 +4043,7 @@ class DirectTransferCancelController {
 		$this->_db->queryDelete($this->_websoccer->getConfig("db_prefix") . "_transfer_offer", "id = %d", $offer["id"]);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("transferoffers_offer_cancellation_success"), ""));
 		return null; }}
-class DirectTransferOfferController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class DirectTransferOfferController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("transferoffers_enabled")) return;
 		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
@@ -4172,11 +4101,7 @@ class DirectTransferOfferController {
 		$sum = $result->fetch_array();
 		if ($sum["amount"]) return $sum["amount"];
 		return 0; }}
-class DirectTransferRejectController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class DirectTransferRejectController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("transferoffers_enabled")) return;
 		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
@@ -4192,11 +4117,7 @@ class DirectTransferRejectController {
 			"transferoffers#sent");
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("transferoffers_offer_reject_success"), ""));
 		return null; }}
-class DisableAccountController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class DisableAccountController extends Controller {
 	function executeAction($parameters) {
 		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		if ($clubId) $this->_db->queryUpdate(array("user_id" => '', "captain_id" => ''), $this->_websoccer->getConfig("db_prefix") . "_verein", "user_id = %d", $this->_websoccer->getUser()->id);
@@ -4209,11 +4130,7 @@ class DisableAccountController {
 			$authenticator->logoutUser($this->_websoccer->getUser()); }
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("cancellation_success"), ""));
 		return "home"; }}
-class ExchangePremiumController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ExchangePremiumController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$exchangeRate = (int) $this->_websoccer->getConfig("premium_exchangerate_gamecurrency");
@@ -4228,11 +4145,7 @@ class ExchangePremiumController {
 		PremiumDataService::debitAmount($this->_websoccer, $this->_db, $user->id, $amount, "exchange-premium");
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("premium-exchange_success"), ""));
 		return "premiumaccount"; }}
-class ExecuteTrainingController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ExecuteTrainingController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$teamId = $user->getClubId($this->_websoccer, $this->_db);
@@ -4312,11 +4225,7 @@ class ExecuteTrainingController {
 			$trainingEffects[$player["id"]] = array("name" => ($player["pseudonym"]) ? $player["pseudonym"] : $player["firstname"] . " " . $player["lastname"], "freshness" => $effectFreshness, "technique" => $effectTechnique, "stamina" => $effectStamina,
 				"satisfaction" => $effectSatisfaction); }
 		$this->_websoccer->addContextParameter("trainingEffects", $trainingEffects); }}
-class ExtendContractController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ExtendContractController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$clubId = $user->getClubId($this->_websoccer, $this->_db);
@@ -4371,11 +4280,7 @@ class ExtendContractController {
 		$whereCondition = "id = %d";
 		$parameters = $playerId;
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters); }}
-class ExtendStadiumController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ExtendStadiumController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$teamId = $user->getClubId($this->_websoccer, $this->_db);
@@ -4409,11 +4314,7 @@ class ExtendStadiumController {
 		$seats = $parameters["side_standing"] + $parameters["side_seats"] + $parameters["grand_standing"] + $parameters["grand_seats"] + $parameters["vip"];
 		BadgesDataService::awardBadgeIfApplicable($this->_websoccer, $this->_db, $user->id, 'stadium_construction_by_x', $seats);
 		return "stadium"; }}
-class FacebookLoginController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class FacebookLoginController extends Controller {
 	function executeAction($parameters) {
 		$userEmail = FacebookSdk::getInstance($this->_websoccer)->getUserEmail();
 		if (!strlen($userEmail)) {
@@ -4425,22 +4326,14 @@ class FacebookLoginController {
 		SecurityUtil::loginFrontUserUsingApplicationSession($this->_websoccer, $userId);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("facebooklogin_success"), ""));
 		return (strlen($this->_websoccer->getUser()->username)) ? "office" : "enter-username"; }}
-class FacebookLogoutController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class FacebookLogoutController extends Controller {
 	function executeAction($parameters) {
 		if (strlen(FacebookSdk::getInstance($this->_websoccer)->getUserEmail())) {
 			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_ERROR, $this->_i18n->getMessage("facebooklogout_failure"), ""));
 			return null; }
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("facebooklogout_success"), $this->_i18n->getMessage("facebooklogout_success_details")));
 		return "home"; }}
-class FirePlayerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class FirePlayerController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("enable_player_resignation")) return;
 		$user = $this->_websoccer->getUser();
@@ -4472,11 +4365,7 @@ class FirePlayerController {
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $parameters);
 		$players = $result->fetch_array();
 		return $players["number"]; }}
-class FireYouthPlayerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class FireYouthPlayerController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("youth_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -4486,11 +4375,7 @@ class FireYouthPlayerController {
 		$this->_db->queryDelete($this->_websoccer->getConfig("db_prefix") . "_youthplayer", "id = %d", $parameters["id"]);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("youthteam_fire_success"), ""));
 		return "youth-team"; }}
-class FormLoginController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class FormLoginController extends Controller {
 	function executeAction($parameters) {
 		$loginMethodClass = $this->_websoccer->getConfig("login_method");
 		if (!class_exists($loginMethodClass)) throw new Exception("Login method class does not exist: " . $loginMethodClass);
@@ -4514,11 +4399,7 @@ class FormLoginController {
 			$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameter);
 			CookieHelper::createCookie("user", $sessionToken, REMEMBERME_COOKIE_LIFETIME_DAYS); }
 		return (strlen($this->_websoccer->getUser()->username)) ? "office" : "enter-username"; }}
-class GoogleplusLoginController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class GoogleplusLoginController extends Controller {
 	function executeAction($parameters) {
 		$userEmail = GoogleplusSdk::getInstance($this->_websoccer)->authenticateUser();
 		if (!$userEmail) {
@@ -4530,11 +4411,7 @@ class GoogleplusLoginController {
 		SecurityUtil::loginFrontUserUsingApplicationSession($this->_websoccer, $userId);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("googlepluslogin_success"), ""));
 		return (strlen($this->_websoccer->getUser()->username)) ? "office" : "enter-username"; }}
-class LanguageSwitcherController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class LanguageSwitcherController extends Controller {
 	function executeAction($parameters) {
 		$lang = strtolower($parameters["lang"]);
 		$this->_i18n->setCurrentLanguage($lang);
@@ -4550,11 +4427,7 @@ class LanguageSwitcherController {
 		include(sprintf(CONFIGCACHE_ENTITYMESSAGES, $lang));
 		include(sprintf(BASE_FOLDER . '/languages/messages_%s.php', $lang));
 		return null; }}
-class LendPlayerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class LendPlayerController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("lending_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -4577,11 +4450,7 @@ class LendPlayerController {
 		$whereCondition = "id = %d";
 		$parameters = $playerId;
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters); }}
-class LogoutController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class LogoutController extends Controller {
 	function executeAction($parameters) {
 		$authenticatorClasses = explode(",", $this->_websoccer->getConfig("authentication_mechanism"));
 		foreach ($authenticatorClasses as $authenticatorClass) {
@@ -4591,11 +4460,7 @@ class LogoutController {
 			$authenticator->logoutUser($this->_websoccer->getUser()); }
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("logout_message_title"), ""));
 		return "home"; }}
-class MarkAsUnsellableController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class MarkAsUnsellableController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$clubId = $user->getClubId($this->_websoccer, $this->_db);
@@ -4608,11 +4473,7 @@ class MarkAsUnsellableController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("myteam_unsellable_player_success"), ""));
 		return null; }}
-class MicropaymentRedirectController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class MicropaymentRedirectController extends Controller {
 	function executeAction($parameters) {
 		$projectId = trim($this->_websoccer->getConfig("micropayment_project"));
 		if (!strlen($projectId)) throw new Exception("Configuration error: micropayment.de project ID is not specified.");
@@ -4647,11 +4508,7 @@ class MicropaymentRedirectController {
 		header('Location: '.$paymentUrl);
 		exit;
 		return null; }}
-class MoveYouthPlayerToProfessionalController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class MoveYouthPlayerToProfessionalController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("youth_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -4678,11 +4535,7 @@ class MoveYouthPlayerToProfessionalController {
 			"vertrag_gehalt" => $this->_websoccer->getConfig("youth_salary_per_strength") * $player["strength"], "vertrag_spiele" => $this->_websoccer->getConfig("youth_professionalmove_matches"), "vertrag_torpraemie" => 0, "status" => "1" );
 		$this->_db->queryInsert($columns, $this->_websoccer->getConfig("db_prefix") ."_spieler");
 		$this->_db->queryDelete($this->_websoccer->getConfig("db_prefix") ."_youthplayer", "id = %d", $player["id"]); }}
-class OrderBuildingController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class OrderBuildingController extends Controller {
 	function executeAction($parameters) {
 		$buildingId = $parameters['id'];
 		$user = $this->_websoccer->getUser();
@@ -4713,11 +4566,7 @@ class OrderBuildingController {
 			$this->_db->queryUpdate(array('fanbeliebtheit' => $popularity), $dbPrefix . '_user', 'id = %d', $user->id); }
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("stadiumenvironment_build_success"), ""));
 		return null; }}
-class PaypalPaymentNotificationController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class PaypalPaymentNotificationController extends Controller {
 	function executeAction($parameters) {
 		$req = 'cmd=_notify-validate';
 		foreach ($_POST as $key => $value) {
@@ -4751,19 +4600,11 @@ class PaypalPaymentNotificationController {
 			header('X-Error-Message: invalid paypal response: ' . $response, true, 500);
 			die('X-Error-Message: invalid paypal response: ' . $response); }
 		return null; }}
-class PremiumActionDummyController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class PremiumActionDummyController extends Controller {
 	function executeAction($parameters) {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, "Premium action completed", "testparam1: " . $parameters["testparam1"] . " - testparam2: " . $parameters["testparam2"]));
 		return null; }}
-class RegisterFormController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class RegisterFormController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("allow_userregistration")) throw new Exception($this->_i18n->getMessage("registration_disabled"));
 		$illegalUsernames = explode(",", strtolower(str_replace(", ", ",", $this->_websoccer->getConfig("illegal_usernames"))));
@@ -4810,11 +4651,7 @@ class RegisterFormController {
 		EmailHelper::sendSystemEmailFromTemplate($this->_websoccer, $this->_i18n, $dbcolumns["email"], $this->_i18n->getMessage("activation_email_subject"), "useractivation", $tplparameters);
 		$event = new UserRegisteredEvent($this->_websoccer, $this->_db, $this->_i18n, $newuser["id"], $dbcolumns["nick"], $dbcolumns["email"]);
 		PluginMediator::dispatchEvent($event); }}
-class RemoveFormationTemplateController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class RemoveFormationTemplateController extends Controller {
 	function executeAction($parameters) {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$dbTable = $this->_websoccer->getConfig('db_prefix') . '_aufstellung';
@@ -4823,11 +4660,7 @@ class RemoveFormationTemplateController {
 		if (!$template || $template['verein_id'] != $teamId) throw new Exception('illegal template ID');
 		$this->_db->queryDelete($dbTable, 'id = %d', $parameters['templateid']);
 		return null; }}
-class RemoveNationalPlayerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class RemoveNationalPlayerController extends Controller{
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("nationalteams_enabled")) return NULL;
 		$teamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
@@ -4842,11 +4675,7 @@ class RemoveNationalPlayerController {
 		$this->_db->queryDelete($this->_websoccer->getConfig("db_prefix") . "_nationalplayer", "player_id = %d AND team_id = %d", array($parameters["id"], $teamId));
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("nationalteams_removeplayer_success"), ""));
 		return "nationalteam"; }}
-class RemovePlayerFromTransfermarketController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class RemovePlayerFromTransfermarketController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("transfermarket_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -4858,11 +4687,7 @@ class RemovePlayerFromTransfermarketController {
 		$this->_db->queryUpdate(array('transfermarkt' => '0', 'transfer_start' => 0, 'transfer_ende' => 0 ), $this->_websoccer->getConfig('db_prefix') . '_spieler', 'id = %d', $parameters['id']);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("transfermarket_remove_success"), ""));
 		return "myteam"; }}
-class RemoveYouthPlayerFromMarketController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class RemoveYouthPlayerFromMarketController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("youth_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -4877,11 +4702,7 @@ class RemoveYouthPlayerFromMarketController {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") ."_youthplayer";
 		$whereCondition = "id = %d";
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $playerId); }}
-class RenameClubController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class RenameClubController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig('rename_club_enabled')) throw new Exceltion("feature is disabled");
 		$user = $this->_websoccer->getUser();
@@ -4893,11 +4714,7 @@ class RenameClubController {
 		$this->_db->queryUpdate(array('S.name' => $parameters['stadium']), $this->_websoccer->getConfig('db_prefix') . '_verein AS C INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_stadion AS S ON S.id = C.stadion_id', 'C.id = %d', $clubId);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("rename-club_success"), ""));
 		return 'league'; }}
-class ReportAbsenceController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ReportAbsenceController extends Controller {
 	function executeAction($parameters) {
 		$userId = $this->_websoccer->getUser()->id;
 		$deputyId = UsersDataService::getUserIdByNick($this->_websoccer, $this->_db, $parameters["deputynick"]);
@@ -4906,26 +4723,15 @@ class ReportAbsenceController {
 		AbsencesDataService::makeUserAbsent($this->_websoccer, $this->_db, $userId, $deputyId, $parameters['days']);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("absence_report_success"), ""));
 		return null; }}
-class ReturnFromAbsenceController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ReturnFromAbsenceController extends Controller {
 	function executeAction($parameters) {
 		$userId = $this->_websoccer->getUser()->id;
 		AbsencesDataService::confirmComeback($this->_websoccer, $this->_db, $userId);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("absence_return_success"), ""));
 		return "office"; }}
-class SaveFormationController {
-	private $_addedPlayers;
-	private $_isNationalTeam;
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db;
-		$this->_addedPlayers = array();
-		$this->_isNationalTeam = ($websoccer->getRequestParameter('nationalteam')) ? TRUE : FALSE; }
+class SaveFormationController extends Controller {
 	function executeAction($parameters) {
+		$this->_isNationalTeam = ($websoccer->getRequestParameter('nationalteam')) ? TRUE : FALSE;
 		$user = $this->_websoccer->getUser();
 		if ($this->_isNationalTeam) $teamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
 		else $teamId = $user->getClubId($this->_websoccer, $this->_db);
@@ -5019,14 +4825,9 @@ class SaveFormationController {
 				$columns['match_id'] = NULL;
 				$columns['templatename'] = $parameters['templatename'];
 				$this->_db->queryInsert($columns, $fromTable); }}}}
-class SaveMatchChangesController {
-	private $_addedPlayers;
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db;
-		$this->_addedPlayers = array(); }
+class SaveMatchChangesController extends Controller {
 	function executeAction($parameters) {
+		$this->_addedPlayers = array();
 		$user = $this->_websoccer->getUser();
 		$teamId = $user->getClubId($this->_websoccer, $this->_db);
 		$nationalTeamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
@@ -5124,11 +4925,7 @@ class SaveMatchChangesController {
 		if (!count($messages)) return;
 		$messageId = $messages[array_rand($messages)];
 		$this->_db->queryInsert(array('match_id' => $matchId, 'message_id' => $messageId, 'minute' => $minute, 'active_home' => $isHomeTeam, 'playernames' => $user->username ), $this->_websoccer->getConfig('db_prefix') . '_matchreport'); }}
-class SaveProfileController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SaveProfileController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$columns = array();
@@ -5168,11 +4965,7 @@ class SaveProfileController {
 			$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $user->id); }
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("saved_message_title"), ""));
 		return "profile"; }}
-class SaveTicketsController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SaveTicketsController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$clubId = $user->getClubId($this->_websoccer, $this->_db);
@@ -5188,11 +4981,7 @@ class SaveTicketsController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("saved_message_title"), ""));
 		return null; }}
-class SaveUsernameController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SaveUsernameController extends Controller {
 	function executeAction($parameters) {
 		if (strlen($this->_websoccer->getUser()->username)) throw new Exception("user name is already set.");
 		$illegalUsernames = explode(",", strtolower(str_replace(", ", ",", $this->_websoccer->getConfig("illegal_usernames"))));
@@ -5205,12 +4994,7 @@ class SaveUsernameController {
 		$this->_db->queryUpdate(array("nick" => $parameters["nick"]), $fromTable, "id = %d", $this->_websoccer->getUser()->id);
 		$this->_websoccer->getUser()->username = $parameters["nick"];
 		return "office"; }}
-class SaveYouthFormationController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db;
-		$this->_addedPlayers = array(); }
+class SaveYouthFormationController extends Controller{
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$teamId = $user->getClubId($this->_websoccer, $this->_db);
@@ -5247,6 +5031,7 @@ class SaveYouthFormationController {
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("saved_message_title"), ""));
 		return null; }
 	function validatePlayer($playerId) {
+		$this->_addedPlayers = array();
 		if ($playerId == null || $playerId == 0) return;
 		if (isset($this->_addedPlayers[$playerId])) throw new Exception($this->_i18n->getMessage("formation_err_duplicateplayer"));
 		$this->_addedPlayers[$playerId] = TRUE; }
@@ -5329,11 +5114,7 @@ class SaveYouthFormationController {
 	function savePlayer($matchId, $teamId, $playerId, $playerNumber, $position, $mainPosition, $onBench) {
 		$columns = array("match_id" => $matchId,"team_id" => $teamId,"player_id" => $playerId,"playernumber" => $playerNumber,"position" => $position,"position_main" => $mainPosition,"state" => ($onBench) ? "Ersatzbank" : "1","strength" => 0,"name" => $playerId );
 		$this->_db->queryInsert($columns, $this->_websoccer->getConfig("db_prefix") ."_youthmatch_player"); }}
-class ScoutYouthPlayerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class ScoutYouthPlayerController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("youth_enabled") && $this->_websoccer->getConfig("youth_scouting_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -5384,11 +5165,7 @@ class ScoutYouthPlayerController {
 		$itemsCount = count($items);
 		if (!$itemsCount) throw new Exception($this->_i18n->getMessage("youthteam_scouting_err_invalidcountry"));
 		return $items[mt_rand(0, $itemsCount - 1)]; }}
-class SelectCaptainController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SelectCaptainController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$clubId = $user->getClubId($this->_websoccer, $this->_db);
@@ -5405,11 +5182,7 @@ class SelectCaptainController {
 				$playername = (strlen($oldPlayer["player_pseudonym"])) ? $oldPlayer["player_pseudonym"] : $oldPlayer["player_firstname"] . " " . $oldPlayer["player_lastname"];
 				$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING, $this->_i18n->getMessage("myteam_player_select_as_captain_warning_old_captain", $playername), "")); }}
 		return null; }}
-class SelectTeamController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SelectTeamController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$teamId = $parameters['id'];
@@ -5421,11 +5194,7 @@ class SelectTeamController {
 		if (!isset($club["id"])) throw new Exception("illegal club ID");
 		$user->setClubId($teamId);
 		return null; }}
-class SellPlayerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SellPlayerController extends Controller{
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("transfermarket_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -5451,11 +5220,7 @@ class SellPlayerController {
 		$whereCondition = "id = %d";
 		$parameters = $playerId;
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters); }}
-class SellYouthPlayerController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SellYouthPlayerController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("youth_enabled")) return NULL;
 		$user = $this->_websoccer->getUser();
@@ -5471,11 +5236,7 @@ class SellYouthPlayerController {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") ."_youthplayer";
 		$whereCondition = "id = %d";
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $playerId); }}
-class SendMessageController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SendMessageController extends Controller {
 	function executeAction($parameters) {
 		$senderId = $this->_websoccer->getUser()->id;
 		if (!$this->_websoccer->getConfig("messages_enabled")) throw new Exception($this->_i18n->getMessage("messages_err_messagesdisabled"));
@@ -5501,11 +5262,7 @@ class SendMessageController {
 		$_REQUEST["msgcontent"] = "";
 		$_REQUEST["nick"] = "";
 		return null; }}
-class SendPasswordController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SendPasswordController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("login_allow_sendingpassword")) throw new Exception("Action is disabled.");
 		if ($this->_websoccer->getConfig("register_use_captcha") && strlen($this->_websoccer->getConfig("register_captcha_publickey")) && strlen($this->_websoccer->getConfig("register_captcha_privatekey"))) {
@@ -5538,11 +5295,7 @@ class SendPasswordController {
 	function _sendEmail($email, $password) {
 		$tplparameters["newpassword"] = $password;
 		EmailHelper::sendSystemEmailFromTemplate($this->_websoccer, $this->_i18n, $email, $this->_i18n->getMessage("sendpassword_email_subject"), "sendpassword", $tplparameters); }}
-class SendShoutBoxMessageController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SendShoutBoxMessageController extends Controller {
 	function executeAction($parameters) {
 		$userId = $this->_websoccer->getUser()->id;
 		$message = $parameters['msgtext'];
@@ -5557,11 +5310,7 @@ class SendShoutBoxMessageController {
 		return null; }}
 require_once(dirname(__DIR__).'/lib/SofortLib-PHP-Payment-2.0.1/core/sofortLibNotification.inc.php');
 require_once(dirname(__DIR__).'/lib/SofortLib-PHP-Payment-2.0.1/core/sofortLibTransactionData.inc.php');
-class SofortComPaymentNotificationController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SofortComPaymentNotificationController extends Controller {
 	function executeAction($parameters) {
 		$configKey = trim($this->_websoccer->getConfig("sofortcom_configkey"));
 		if (!strlen($configKey)) throw new Exception("Sofort.com configuration key is not configured.");
@@ -5585,11 +5334,7 @@ class SofortComPaymentNotificationController {
 			PremiumDataService::createPaymentAndCreditPremium($this->_websoccer, $this->_db, $userId, $amount, "sofortcom-notify"); }
 		return null; }}
 require_once(dirname(__DIR__) . '/lib/SofortLib-PHP-Payment-2.0.1/payment/sofortLibSofortueberweisung.inc.php');
-class SofortComRedirectController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class SofortComRedirectController extends Controller {
 	function executeAction($parameters) {
 		$configKey = trim($this->_websoccer->getConfig("sofortcom_configkey"));
 		if (!strlen($configKey)) throw new Exception("Sofort.com configuration key is not configured.");
@@ -5618,11 +5363,7 @@ class SofortComRedirectController {
 			header('Location: '.$paymentUrl);
 			exit; }
 		return null; }}
-class TransferBidController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class TransferBidController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig('transfermarket_enabled')) return;
 		$user = $this->_websoccer->getUser();
@@ -5679,11 +5420,7 @@ class TransferBidController {
 		$columns['ishighest'] = '1';
 		$fromTable = $this->_websoccer->getConfig('db_prefix') .'_transfer_angebot';
 		$this->_db->queryInsert($columns, $fromTable); }}
-class UnmarkLendableController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db;}
+class UnmarkLendableController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$clubId = $user->getClubId($this->_websoccer, $this->_db);
@@ -5697,11 +5434,7 @@ class UnmarkLendableController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("lending_lendable_unmark_success"), ""));
 		return null; }}
-class UnmarkUnsellableController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class UnmarkUnsellableController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$clubId = $user->getClubId($this->_websoccer, $this->_db);
@@ -5714,11 +5447,7 @@ class UnmarkUnsellableController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameters);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("myteam_remove_unsellable_player_success"), ""));
 		return null; }}
-class UpgradeStadiumController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class UpgradeStadiumController extends Controller {
 	function executeAction($parameters) {
 		$user = $this->_websoccer->getUser();
 		$teamId = $user->getClubId($this->_websoccer, $this->_db);
@@ -5737,11 +5466,7 @@ class UpgradeStadiumController {
 		$this->_db->queryUpdate(array("level_" . $type => $existingLevel + 1, "maintenance_" . $type => $maintenanceDue ), $this->_websoccer->getConfig("db_prefix") . "_stadion", "id = %d", $stadium["stadium_id"]);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("stadium_upgrade_success"), $this->_i18n->getMessage("stadium_upgrade_success_details")));
 		return "stadium"; }}
-class UploadClubPictureController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class UploadClubPictureController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("upload_clublogo_max_size")) throw new Exception("feature is not enabled.");
 		$clubId = $this->_websoccer->getUser()->getClubId();
@@ -5781,11 +5506,7 @@ class UploadClubPictureController {
 		imagecopyresampled($target, $src, 0, 0, 0, 0, $width, $width, $oldWidth, $oldHeight);
 		if (!$isPng) imagejpeg($target, $file);
 		else imagepng($target, $file); }}
-class UploadProfilePictureController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class UploadProfilePictureController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("user_picture_upload_enabled")) throw new Exception("feature is not enabled.");
 		if (!isset($_FILES["picture"])) throw new Exception($this->_->getMessage("change-profile-picture_err_notprovied"));
@@ -5825,11 +5546,7 @@ class UploadProfilePictureController {
 		imagecopyresampled($target, $src, 0, 0, 0, 0, $width, $width, $oldWidth, $oldHeight);
 		if (!$isPng) imagejpeg($target, $file);
 		else imagepng($target, $file); }}
-class UserActivationController {
-	function __construct($i18n, $websoccer, $db) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_db = $db; }
+class UserActivationController extends Controller {
 	function executeAction($parameters) {
 		$key = $parameters["key"];
 		$userid = $parameters["userid"];
@@ -5848,25 +5565,18 @@ class UserActivationController {
 		$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameter);
 		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS, $this->_i18n->getMessage("activate-user_message_title"), $this->_i18n->getMessage("activate-user_message_content")));
 		return null; }}
-class CupRoundsLinkConverter {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function toHtml($row) {
-		$output = ' <a href=\'?site=managecuprounds&cup='. $row['id']. '\' title=\''. $this->_i18n->getMessage('manage_show_details') . '\' >'. $row['entity_cup_rounds'] .' <i class=\'icon-tasks\'></i></a>';
-		return $output; }
-	function toText($value) { return $value; }
-	function toDbValue($value) { return $this->toText($value); }}
-class AdminPasswordConverter {
-	private $_i18n;
-	private $_websoccer;
+class Converter {
 	function __construct($i18n, $websoccer) {
 		$this->_i18n = $i18n;
 		$this->_websoccer = $websoccer; }
 	function toHtml($value) { return $this->toText($value); }
 	function toText($value) { return $value; }
+	function toDbValue($value) { return $this->toText($value); }}
+class CupRoundsLinkConverter extends Converter {
+	function toHtml($row) {
+		$output = ' <a href=\'?site=managecuprounds&cup='. $row['id']. '\' title=\''. $this->_i18n->getMessage('manage_show_details') . '\' >'. $row['entity_cup_rounds'] .' <i class=\'icon-tasks\'></i></a>';
+		return $output; }}
+class AdminPasswordConverter extends Converter {
 	function toDbValue($value) {
 		if (isset($_POST['id']) && $_POST['id']) {
 			$db = DbConnection::getInstance();
@@ -5879,12 +5589,7 @@ class AdminPasswordConverter {
 			else $passwort = $admin['passwort']; }
 		else $passwort = SecurityUtil::hashPassword($value, '');
 		return $passwort; }}
-class InactivityConverter {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+class InactivityConverter extends Converter{
 	function toHtml($row) {
 		if (!is_array($row)) return (int)$value . '%';
 		$rate = (int)$this->_format($row['entity_user_inactivity']);
@@ -5892,8 +5597,6 @@ class InactivityConverter {
 		$output = '<a href=\'#actPopup'. $row['id']. '\' role=\'button\' data-toggle=\'modal\' title=\''. $this->_i18n->getMessage('manage_show_details') . '\' style=\'color: '. $color .'\'>'.$rate .' %</a>';
 		$output .= $this->_renderInActivityPopup($row);
 		return $output; }
-	function toText($value) { return $value; }
-	function toDbValue($value) { return $this->toText($value); }
 	function _color($rate) {
 		if ($rate <= 10) return 'green';
 		elseif ($rate <= 40) return 'black';
@@ -5947,12 +5650,7 @@ class InactivityConverter {
 		if ($rate < 0) $rate = 0;
 		elseif ($rate > 100) $rate = 100;
 		return $rate; }}
-class MatchReportLinkConverter {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+class MatchReportLinkConverter extends Converter {
 	function toHtml($row) {
 		$output = '<div class=\'btn-group\'>';
 		$output .= '<a class=\'btn btn-small dropdown-toggle\' data-toggle=\'dropdown\' href=\'#\'>';
@@ -5964,17 +5662,8 @@ class MatchReportLinkConverter {
 		if (!$row['entity_match_berechnet']) $output .= '<li><a href=\'?site=manage-match-complete&match='. $row['id']. '\'><i class=\'icon-ok-sign\'></i> '. $this->_i18n->getMessage('match_manage_complete') .'</a></li>';
 		$output .= '</ul>';
 		$output .= '</div>';
-		return $output; }
-	function toText($value) { return $value; }
-	function toDbValue($value) { return $this->toText($value); }}
-class MoneyTransactionConverter {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function toHtml($value) { return $this->toText($value); }
-	function toText($value) { return $value; }
+		return $output; }}
+class MoneyTransactionConverter extends Converter {
 	function toDbValue($value) {
 		$amount = (int) $value;
 		if (isset($_POST['verein_id']) && $_POST['verein_id']) {
@@ -5988,38 +5677,17 @@ class MoneyTransactionConverter {
 			$updatecolumns = array('finanz_budget' => $budget);
 			$db->queryUpdate($updatecolumns, $fromTable, $whereCondition, $_POST['verein_id']); }
 		return $amount; }}
-class PaymentSenderMessageConverter {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+class PaymentSenderMessageConverter extends Converter {
 	function toHtml($row) {
 		include(sprintf(CONFIGCACHE_MESSAGES, $this->_i18n->getCurrentLanguage()));
 		if (isset($msg[$row['entity_transaction_absender']])) return $msg[$row['entity_transaction_absender']];
-		return $row['entity_transaction_absender']; }
-	function toText($value) { return $value; }
-	function toDbValue($value) { return $this->toText($value); }}
-class PaymentSubjectMessageConverter {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+		return $row['entity_transaction_absender']; }}
+class PaymentSubjectMessageConverter extends Converter {
 	function toHtml($row) {
 		include(sprintf(CONFIGCACHE_MESSAGES, $this->_i18n->getCurrentLanguage()));
 		if (isset($msg[$row['entity_transaction_verwendung']])) return $msg[$row['entity_transaction_verwendung']];
-		return $row['entity_transaction_verwendung']; }
-	function toText($value) { return $value; }
-	function toDbValue($value) { return $this->toText($value); }}
-class PremiumTransactionConverter {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function toHtml($value) { return $this->toText($value); }
-	function toText($value) { return $value; }
+		return $row['entity_transaction_verwendung']; }}
+class PremiumTransactionConverter extends Converter {
 	function toDbValue($value) {
 		$amount = (int) $value;
 		if (isset($_POST['user_id']) && $_POST['user_id']) {
@@ -6033,27 +5701,13 @@ class PremiumTransactionConverter {
 			$updatecolumns = array('premium_balance' => $budget);
 			$db->queryUpdate($updatecolumns, $fromTable, $whereCondition, $_POST['user_id']); }
 		return $amount; }}
-class TransferOfferApprovalLinkConverter {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+class TransferOfferApprovalLinkConverter extends Converter {
 	function toHtml($row) {
 		if ($row['entity_transfer_offer_admin_approval_pending']) {
 			$output = ' <a href=\'?site=manage&entity=transfer_offer&action=transferofferapprove&id='. $row['id']. '\' class=\'btn btn-small btn-success\'><i class=\'icon-ok icon-white\'></i> '. $this->_i18n->getMessage('button_approve') .'</a>'; }
 		else $output = '<i class=\'icon-ban-circle\'></i>';
-		return $output; }
-	function toText($value) { return $value; }
-	function toDbValue($value) { return $this->toText($value); }}
-class UserPasswordConverter {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function toHtml($value) { return $this->toText($value); }
-	function toText($value) { return $value; }
+		return $output; }}
+class UserPasswordConverter extends Converter {
 	function toDbValue($value) {
 		if (isset($_POST['id']) && $_POST['id']) {
 			$db = DbConnection::getInstance();
@@ -6067,26 +5721,15 @@ class UserPasswordConverter {
 		else $passwort = SecurityUtil::hashPassword($value, '');
 		return $passwort; }}
 abstract class AbstractEvent {
-	public $websoccer;
-	public $db;
-	public $i18n;
 	function __construct($websoccer, $db, $i18n) {
 		$this->websoccer = $websoccer;
 		$this->db = $db;
 		$this->i18n = $i18n; }}
 class MatchCompletedEvent extends AbstractEvent {
-	public $match;
 	function __construct($websoccer, $db, $i18n, SimulationMatch $match) {
 		parent::__construct($websoccer, $db, $i18n);
 		$this->match = $match; }}
 class PlayerTrainedEvent extends AbstractEvent {
-	public $playerId;
-	public $teamId;
-	public $trainerId;
-	public $effectFreshness;
-	public $effectTechnique;
-	public $effectStamina;
-	public $effectSatisfaction;
 	function __construct($websoccer, $db, $i18n, $playerId, $teamId, $trainerId, &$effectFreshness, &$effectTechnique, &$effectStamina, &$effectSatisfaction) {
 		parent::__construct($websoccer, $db, $i18n);
 		$this->playerId = $playerId;
@@ -6097,22 +5740,12 @@ class PlayerTrainedEvent extends AbstractEvent {
 		$this->effectStamina =& $effectStamina;
 		$this->effectSatisfaction =& $effectSatisfaction; }}
 class SeasonOfTeamCompletedEvent extends AbstractEvent {
-	public $teamId;
-	public $seasonId;
-	public $rank;
 	function __construct($websoccer, $db, $i18n, $teamId, $seasonId, $rank) {
 		parent::__construct($websoccer, $db, $i18n);
 		$this->teamId = $teamId;
 		$this->seasonId = $seasonId;
 		$this->rank = $rank; }}
 class TicketsComputedEvent extends AbstractEvent {
-	public $match;
-	public $stadiumId;
-	public $rateStands;
-	public $rateSeats;
-	public $rateStandsGrand;
-	public $rateSeatsGrand;
-	public $rateVip;
 	function __construct($websoccer, $db, $i18n, SimulationMatch $match, $stadiumId, &$rateStands, &$rateSeats, &$rateStandsGrand, &$rateSeatsGrand, &$rateVip) {
 		parent::__construct($websoccer, $db, $i18n);
 		$this->match = $match;
@@ -6123,36 +5756,23 @@ class TicketsComputedEvent extends AbstractEvent {
 		$this->rateSeatsGrand =& $rateSeatsGrand;
 		$this->rateVip =& $rateVip; }}
 class UserRegisteredEvent extends AbstractEvent {
-	public $userId;
-	public $username;
-	public $email;
 	function __construct($websoccer, $db, $i18n, $userid, $username, $email) {
 		parent::__construct($websoccer, $db, $i18n);
 		$this->userId = $userid;
 		$this->username = $username;
 		$this->email = $email; }}
 class YouthPlayerPlayedEvent extends AbstractEvent {
-	public $player;
-	public $strengthChange;
 	function __construct($websoccer, $db, $i18n, SimulationPlayer $player, &$strengthChange) {
 		parent::__construct($websoccer, $db, $i18n);
 		$this->player = $player;
 		$this->strengthChange =& $strengthChange; }}
 class YouthPlayerScoutedEvent extends AbstractEvent {
-	public $teamId;
-	public $scoutId;
-	public $playerId;
 	function __construct($websoccer, $db, $i18n, $teamId, $scoutId, $playerId) {
 		parent::__construct($websoccer, $db, $i18n);
 		$this->teamId = $teamId;
 		$this->scoutId = $scoutId;
 		$this->playerId = $playerId; }}
 abstract class AbstractJob {
-	protected $_websoccer;
-	protected $_db;
-	protected $_i18n;
-	private $_id;
-	private $_interval;
 	function __construct($websoccer, $db, $i18n, $jobId, $errorOnAlreadyRunning = TRUE) {
 		$this->_websoccer = $websoccer;
 		$this->_db = $db;
@@ -6326,10 +5946,8 @@ class UserInactivityCheckJob extends AbstractJob {
 	function execute() {
 		$users = UsersDataService::getActiveUsersWithHighscore($this->_websoccer, $this->_db, 0, 1000);
 		foreach ($users as $user) UserInactivityDataService::computeUserInactivity($this->_websoccer, $this->_db, $user['id']); }}
-class DefaultUserLoginMethod {
-	function __construct($website, $db) {
-		$this->_websoccer = $website;
-		$this->_db = $db; }
+class Method { function __construct($websoccer, $db){ $this->_websoccer=$websoccer; $this->_db=$db; }}
+class DefaultUserLoginMethod extends Method{
 	function authenticateWithEmail($email, $password) { return $this->authenticate('UPPER(email)', strtoupper($email), $password); }
 	function authenticateWithUsername($nick, $password) { return $this->authenticate('nick', $nick, $password); }
 	function authenticate($column, $loginstr, $password) {
@@ -6348,10 +5966,7 @@ class DefaultUserLoginMethod {
 			$parameter = $userdata['id'];
 			$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $parameter); }
 		return $userdata['id']; }}
-class DemoUserLoginMethod {
-	function __construct($website, $db) {
-		$this->_websoccer = $website;
-		$this->_db = $db; }
+class DemoUserLoginMethod extends Method{
 	function authenticateWithEmail($email, $password) {
 		$mysqli = new mysqli($this->_websoccer->getConfig('db_host'), $this->_websoccer->getConfig('db_user'), $this->_websoccer->getConfig('db_passwort'), $this->_websoccer->getConfig('db_name'));
 		$escapedEMail = $mysqli->real_escape_string($email);
@@ -6470,38 +6085,21 @@ class SchedioartFootballSkin extends DefaultBootstrapSkin {
 		$files[] = '//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css';
 		return $files; }}
 class EmailValidator {
-	private $_i18n;
-	private $_websoccer;
-	private $_value;
-	function __construct($i18n, $websoccer, $value) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_value = $value; }
-	function isValid() { return filter_var($this->_value, FILTER_VALIDATE_EMAIL); }
+	function isValid() {
+		$this->_value = $value;
+		return filter_var($this->_value, FILTER_VALIDATE_EMAIL); }
 	function getMessage() { return $this->_i18n->getMessage('validation_error_email'); }}
 class PasswordValidator {
-	private $_i18n;
-	private $_websoccer;
-	private $_value;
-	function __construct($i18n, $websoccer, $value) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_value = $value; }
 	function isValid() {
+		$this->_value = $value;
 		if (!preg_match('/[A-Za-z]/', $this->_value) || !preg_match('/[0-9]/', $this->_value)) return FALSE;
 		$blacklist = array('test123', 'abc123', 'passw0rd', 'passw0rt');
 		if (in_array(strtolower($this->_value), $blacklist)) return FALSE;
 		return TRUE; }
 	function getMessage() { return $this->_i18n->getMessage('validation_error_password'); }}
 class UniqueCupNameValidator {
-	private $_i18n;
-	private $_websoccer;
-	private $_value;
-	function __construct($i18n, $websoccer, $value) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_value = $value; }
 	function isValid() {
+		$this->_value = $value;
 		$db = DbConnection::getInstance();
 		$result = $db->querySelect('id', $this->_websoccer->getConfig('db_prefix') . '_cup', 'name = \'%s\'', $this->_value, 1);
 		$cups = $result->fetch_array();
