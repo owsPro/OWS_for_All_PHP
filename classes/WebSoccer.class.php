@@ -879,9 +879,8 @@ class DataUpdateSimulatorObserver {
 		$this->_db->queryUpdate($homeColumns, $fromTable, $whereCondition, $match->homeTeam->id);
 		$this->_db->queryUpdate($guestColumns, $fromTable, $whereCondition, $match->guestTeam->id); }
 	function updateTeamsOfCupGroupMatch(SimulationMatch $match) {
-		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_cup_round_group AS G';
-		$fromTable .= ' INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_cup_round AS R ON R.id = G.cup_round_id';
-		$fromTable .= ' INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_cup AS C ON C.id = R.cup_id';
+		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_cup_round_group AS G INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_cup_round AS R ON R.id = G.cup_round_id INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') .
+			'_cup AS C ON C.id = R.cup_id';
 		$whereCondition = 'C.name = \'%s\' AND R.name = \'%s\' AND G.name = \'%s\' AND G.team_id = %d';
 		$tcolumns = array( 'G.tab_points' => 'tab_points', 'G.tab_goals' => 'tab_goals', 'G.tab_goalsreceived' => 'tab_goalsreceived', 'G.tab_wins' => 'tab_wins', 'G.tab_draws' => 'tab_draws', 'G.tab_losses' => 'tab_losses' );
 		$homeParameters = array($match->cupName, $match->cupRoundName, $match->cupRoundGroup, $match->homeTeam->id);
@@ -913,8 +912,7 @@ class DataUpdateSimulatorObserver {
 		$this->_db->queryUpdate($guestColumns, $fromTable, $whereCondition, $guestParameters); }
 	function creditSponsorPayments(SimulationTeam $team, $isHomeTeam, $teamIsWinner) {
 		$columns = 'S.name AS sponsor_name, b_spiel,b_heimzuschlag,b_sieg,T.sponsor_spiele AS sponsor_matches';
-		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_verein AS T';
-		$fromTable .= ' INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_sponsor AS S ON S.id = T.sponsor_id';
+		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_verein AS T INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_sponsor AS S ON S.id = T.sponsor_id';
 		$whereCondition = 'T.id = %d AND T.sponsor_spiele > 0';
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $team->id);
 		$sponsor = $result->fetch_array();
@@ -933,8 +931,7 @@ class DataUpdateSimulatorObserver {
 		$highscoreLoss = $this->_websoccer->getConfig('highscore_loss');
 		$highscoreDraw = $this->_websoccer->getConfig('highscore_draw');
 		$columns = 'U.id AS u_id, U.highscore AS highscore, U.fanbeliebtheit AS popularity';
-		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_verein AS T';
-		$fromTable .= ' INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_user AS U ON U.id = T.user_id';
+		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_verein AS T INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_user AS U ON U.id = T.user_id';
 		$whereCondition = 'T.id = %d';
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $match->homeTeam->id);
 		$homeUser = $result->fetch_array();
@@ -1872,11 +1869,9 @@ class MatchSimulationExecutor {
 		foreach ($simulatorObservers as $observerClassName) {
 			$observerClass = trim($observerClassName);
 			if (strlen($observerClass)) $simulator->attachObserver(new $observerClass($websoccer, $db)); }
-		$fromTable = $websoccer->getConfig('db_prefix') .'_spiel AS M';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') .'_verein AS HOME_T ON HOME_T.id = M.home_verein';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') .'_verein AS GUEST_T ON GUEST_T.id = M.gast_verein';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') .'_aufstellung AS HOME_F ON HOME_F.match_id = M.id AND HOME_F.verein_id = M.home_verein';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') .'_aufstellung AS GUEST_F ON GUEST_F.match_id = M.id AND GUEST_F.verein_id = M.gast_verein';
+		$fromTable = $websoccer->getConfig('db_prefix') .'_spiel AS M INNER JOIN ' . $websoccer->getConfig('db_prefix') .'_verein AS HOME_T ON HOME_T.id = M.home_verein INNER JOIN ' . $websoccer->getConfig('db_prefix') .
+			'_verein AS GUEST_T ON GUEST_T.id = M.gast_verein LEFT JOIN ' . $websoccer->getConfig('db_prefix') .'_aufstellung AS HOME_F ON HOME_F.match_id = M.id AND HOME_F.verein_id = M.home_verein LEFT JOIN ' . $websoccer->getConfig('db_prefix') .
+			'_aufstellung AS GUEST_F ON GUEST_F.match_id = M.id AND GUEST_F.verein_id = M.gast_verein';
 		$columns['M.id'] = 'match_id';
 		$columns['M.spieltyp'] = 'type';
 		$columns['M.home_verein'] = 'home_id';
@@ -2409,10 +2404,8 @@ class SimulationAudienceCalculator {
 		self::weakenPlayersDueToGrassQuality($websoccer, $homeInfo, $match);
 		self::updateMaintenanceStatus($websoccer, $db, $homeInfo); }
 	static function getHomeInfo($websoccer, $db, $teamId) {
-		$fromTable = $websoccer->getConfig('db_prefix') . '_verein AS T';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_stadion AS S ON S.id = T.stadion_id';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_liga AS L ON L.id = T.liga_id';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON U.id = T.user_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_verein AS T INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_stadion AS S ON S.id = T.stadion_id INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_liga AS L ON L.id = T.liga_id LEFT JOIN ' .
+			$websoccer->getConfig('db_prefix') . '_user AS U ON U.id = T.user_id';
 		$whereCondition = 'T.id = %d';
 		$columns['S.id'] = 'stadium_id';
 		$columns['S.p_steh'] = 'places_stands';
@@ -2515,8 +2508,7 @@ class SimulationCupMatchHelper {
 		$columns['C.perround_award'] = 'cup_perround_award';
 		$columns['R.id'] = 'round_id';
 		$columns['R.finalround'] = 'is_finalround';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_cup_round AS R';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_cup AS C ON C.id = R.cup_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_cup_round AS R INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_cup AS C ON C.id = R.cup_id';
 		$result = $db->querySelect($columns, $fromTable, 'C.name = \'%s\' AND R.name = \'%s\'', array($cupName, $cupRound), 1);
 		$round = $result->fetch_array();
 		if (!$round) return;
@@ -2556,9 +2548,7 @@ class SimulationCupMatchHelper {
 		$columns['N.groupname'] = 'groupname';
 		$columns['N.rank'] = 'rank';
 		$columns['N.target_cup_round_id'] = 'target_cup_round_id';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_cup_round_group_next AS N';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_cup_round AS R ON N.cup_round_id = R.id';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_cup AS C ON R.cup_id = C.id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_cup_round_group_next AS N INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_cup_round AS R ON N.cup_round_id = R.id INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_cup AS C ON R.cup_id = C.id';
 		$result = $db->querySelect($columns, $fromTable, 'C.name = \'%s\' AND R.name = \'%s\'', array($match->cupName, $match->cupRoundName));
 		$nextConfigs = array();
 		while ($nextConfig = $result->fetch_array()) {
@@ -3608,8 +3598,7 @@ class YouthMatchSimulationExecutor {
 		self::_addSubstitutions($websoccer, $db, $match, $guestTeam, $matchinfo, 'guest');
 		return $match; }
 	static function _addPlayers($websoccer, $db, SimulationMatch $match, SimulationTeam $team) {
-		$fromTable = $websoccer->getConfig('db_prefix') . '_youthmatch_player AS MP';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_youthplayer AS P ON P.id = MP.player_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_youthmatch_player AS MP INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_youthplayer AS P ON P.id = MP.player_id';
 		$whereCondition = 'MP.match_id = %d AND MP.team_id = %d AND P.team_id = %d ORDER BY playernumber ASC';
 		$parameters = array($match->id, $team->id, $team->id);
 		$columns = array( 'P.id' => 'id', 'P.strength' => 'player_strength', 'P.firstname' => 'firstname', 'P.lastname' => 'lastname', 'P.position' => 'player_position', 'MP.position' => 'match_position', 'MP.position_main' => 'match_position_main',
@@ -5866,8 +5855,7 @@ class AcceptStadiumConstructionWorkJob extends AbstractJob {
 				$this->_db->queryDelete($this->_websoccer->getConfig('db_prefix') . '_stadium_construction', 'id = %d', $construction['id']);
 				if ($construction['user_id']) NotificationsDataService::createNotification($this->_websoccer, $this->_db, $construction['user_id'], 'stadium_construction_notification_completed', null, 'stadium_construction', 'stadium'); }}}
 	function checkTrainingCamps() {
-		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_trainingslager_belegung AS B';
-		$fromTable .= ' INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_trainingslager AS C ON C.id = B.lager_id';
+		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_trainingslager_belegung AS B INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_trainingslager AS C ON C.id = B.lager_id';
 		$columns['B.id'] = 'id';
 		$columns['B.datum_start'] = 'date_start';
 		$columns['B.datum_ende'] = 'date_end';
@@ -6160,8 +6148,7 @@ class CupGroupDetailsModel extends Model{
 		$cupRoundId = $this->_websoccer->getRequestParameter("roundid");
 		$cupGroup = $this->_websoccer->getRequestParameter("group");
 		$columns = "C.name AS cup_name, R.name AS round_name";
-		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_cup_round AS R";
-		$fromTable .= " INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_cup AS C ON C.id = R.cup_id";
+		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_cup_round AS R INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_cup AS C ON C.id = R.cup_id";
 		$result = $this->_db->querySelect($columns, $fromTable, "R.id = %d", $cupRoundId);
 		$round = $result->fetch_array();
 		$matches = MatchesDataService::getMatchesByCupRoundAndGroup($this->_websoccer, $this->_db, $round["cup_name"], $round["round_name"], $cupGroup);
@@ -6178,10 +6165,8 @@ class CupResultsModel extends Model {
 		$columns['R.groupmatches'] = 'is_groupround';
 		$columns['PREVWINNERS.name'] = 'prev_round_winners';
 		$columns['PREVLOOSERS.name'] = 'prev_round_loosers';
-		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_cup_round AS R';
-		$fromTable .= ' INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_cup AS C ON C.id = R.cup_id';
-		$fromTable .= ' LEFT JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_cup_round AS PREVWINNERS ON PREVWINNERS.id = R.from_winners_round_id';
-		$fromTable .= ' LEFT JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_cup_round AS PREVLOOSERS ON PREVLOOSERS.id = R.from_loosers_round_id';
+		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_cup_round AS R INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_cup AS C ON C.id = R.cup_id LEFT JOIN ' . $this->_websoccer->getConfig('db_prefix') .
+			'_cup_round AS PREVWINNERS ON PREVWINNERS.id = R.from_winners_round_id LEFT JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_cup_round AS PREVLOOSERS ON PREVLOOSERS.id = R.from_loosers_round_id';
 		$result = $this->_db->querySelect($columns, $fromTable, 'C.name = \'%s\' AND R.name = \'%s\'', array($cupName, $cupRound), 1);
 		$round = $result->fetch_array();
 		$groups = array();
@@ -6399,15 +6384,12 @@ class HallOfFameModel extends Model {
 		$leagues = array();
 		$cups = array();
 		$columns = array('L.name' => 'league_name', 'L.land' => 'league_country', 'S.name' => 'season_name', 'C.id' => 'team_id', 'C.name' => 'team_name', 'C.bild' => 'team_picture' );
-		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_saison AS S';
-		$fromTable .= ' INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_liga AS L ON L.id = S.liga_id';
-		$fromTable .= ' INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = S.platz_1_id';
+		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_saison AS S INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_liga AS L ON L.id = S.liga_id INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = S.platz_1_id';
 		$whereCondition = 'S.beendet = \'1\' ORDER BY L.land ASC, L.name ASC, S.id DESC';
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition);
 		while ($season = $result->fetch_array()) $leagues[$season['league_name']][] = $season;
 		$columns = array('CUP.name' => 'cup_name', 'C.id' => 'team_id', 'C.name' => 'team_name', 'C.bild' => 'team_picture' );
-		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_cup AS CUP';
-		$fromTable .= ' INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = CUP.winner_id';
+		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_cup AS CUP INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = CUP.winner_id';
 		$whereCondition = 'CUP.winner_id IS NOT NULL ORDER BY CUP.id DESC';
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition);
 		while ($cup = $result->fetch_array()) $cups[] = $cup;
@@ -6825,8 +6807,7 @@ class NationalTeamMatchesModel extends Model {
 class NewsDetailsModel extends Model {
 	function getTemplateParameters() {
 		$tablePrefix = $this->_websoccer->getConfig("db_prefix") . "_";
-		$fromTable = $tablePrefix . "news AS NewsTab";
-		$fromTable .= " LEFT JOIN " . $tablePrefix . "admin AS AdminTab ON NewsTab.autor_id = AdminTab.id";
+		$fromTable = $tablePrefix . "news AS NewsTab LEFT JOIN " . $tablePrefix . "admin AS AdminTab ON NewsTab.autor_id = AdminTab.id";
 		$whereCondition = "NewsTab.id = %d AND status = 1";
 		$parameters = (int) $this->_websoccer->getRequestParameter("id");
 		$result = $this->_db->querySelect("NewsTab.*, AdminTab.name AS author_name", $fromTable, $whereCondition, $parameters);
@@ -6951,10 +6932,8 @@ class PlayerStatisticsModel extends Model {
 		$cupStatistics = array();
 		$columns = array('L.name' => 'league_name', 'SEAS.name' => 'season_name', 'M.pokalname' => 'cup_name', 'COUNT(S.id)' => 'matches', 'SUM(S.assists)' => 'assists', 'AVG(S.note)' => 'grade', 'SUM(S.tore)' => 'goals', 'SUM(S.karte_gelb)' => 'yellowcards',
 			'SUM(S.karte_rot)' => 'redcards', 'SUM(S.shoots)' => 'shoots', 'SUM(S.passes_successed)' => 'passes_successed', 'SUM(S.passes_failed)' => 'passes_failed' );
-		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_spiel_berechnung AS S';
-		$fromTable .= ' INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_spiel AS M ON M.id = S.spiel_id';
-		$fromTable .= ' LEFT JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_saison AS SEAS ON SEAS.id = M.saison_id';
-		$fromTable .= ' LEFT JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_liga AS L ON SEAS.liga_id = L.id';
+		$fromTable = $this->_websoccer->getConfig('db_prefix') . '_spiel_berechnung AS S INNER JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_spiel AS M ON M.id = S.spiel_id LEFT JOIN ' . $this->_websoccer->getConfig('db_prefix') .
+			'_saison AS SEAS ON SEAS.id = M.saison_id LEFT JOIN ' . $this->_websoccer->getConfig('db_prefix') . '_liga AS L ON SEAS.liga_id = L.id';
 		$whereCondition = 'S.spieler_id = %d AND S.minuten_gespielt > 0 AND ((M.spieltyp = \'Pokalspiel\' AND M.pokalname IS NOT NULL AND M.pokalname != \'\') OR (M.spieltyp = \'Ligaspiel\' AND SEAS.id IS NOT NULL)) GROUP BY IFNULL(M.pokalname,\'\'),
 			SEAS.id ORDER BY L.name ASC, SEAS.id ASC, M.pokalname ASC';
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $playerId);
@@ -7031,8 +7010,7 @@ class RssResultsOfUserModel extends Model {
 		return array('items' => $items); }}
 class SeasonsOfLeagueModel extends Model {
 	function getTemplateParameters() {
-		$fromTable = $this->_websoccer->getConfig("db_prefix") ."_saison AS S";
-		$fromTable .= " INNER JOIN " . $this->_websoccer->getConfig("db_prefix") ."_liga AS L ON L.id = S.liga_id";
+		$fromTable = $this->_websoccer->getConfig("db_prefix") ."_saison AS S INNER JOIN " . $this->_websoccer->getConfig("db_prefix") ."_liga AS L ON L.id = S.liga_id";
 		$whereCondition = "S.liga_id = %d ORDER BY beendet DESC, name ASC";
 		$seasons = array();
 		$result = $this->_db->querySelect("S.id AS id, S.name AS name, L.name AS league_name", $fromTable, $whereCondition, $this->_leagueId);
@@ -7059,13 +7037,9 @@ class ShoutboxLeagueModel extends Model {
 	function getTemplateParameters() {
 		$messages = array();
 		$tablePrefix = $this->_websoccer->getConfig('db_prefix');
-		$fromTable = $tablePrefix . '_shoutmessage AS MESSAGE';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_user AS U ON U.id = MESSAGE.user_id';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_spiel AS M ON M.id = MESSAGE.match_id';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_verein AS HOME ON HOME.id = M.home_verein';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_verein AS GUEST ON GUEST.id = M.gast_verein';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_saison AS SEASON ON (M.saison_id = SEASON.id)';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_liga AS L ON (L.id = SEASON.liga_id)';
+		$fromTable = $tablePrefix . '_shoutmessage AS MESSAGE INNER JOIN ' . $tablePrefix . '_user AS U ON U.id = MESSAGE.user_id INNER JOIN ' . $tablePrefix . '_spiel AS M ON M.id = MESSAGE.match_id INNER JOIN ' . $tablePrefix .
+			'_verein AS HOME ON HOME.id = M.home_verein INNER JOIN ' . $tablePrefix . '_verein AS GUEST ON GUEST.id = M.gast_verein INNER JOIN ' . $tablePrefix . '_saison AS SEASON ON (M.saison_id = SEASON.id) INNER JOIN ' . $tablePrefix .
+			'_liga AS L ON (L.id = SEASON.liga_id)';
 		$whereCondition = 'L.id = %d ORDER BY MESSAGE.created_date DESC';
 		$columns = array('MESSAGE.id' => 'message_id', 'MESSAGE.message' => 'message', 'MESSAGE.created_date' => 'date', 'U.id' => 'user_id', 'U.nick' => 'user_name', 'HOME.name' => 'home_name', 'GUEST.name' => 'guest_name', 'M.id' => 'match_id' );
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $this->_leagueId, 20);
@@ -7078,13 +7052,9 @@ class ShoutboxModel extends Model {
 	function getTemplateParameters() {
 		$messages = array();
 		$tablePrefix = $this->_websoccer->getConfig('db_prefix');
-		$fromTable = $tablePrefix . '_shoutmessage AS MESSAGE';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_user AS U ON U.id = MESSAGE.user_id';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_spiel AS M ON M.id = MESSAGE.match_id';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_verein AS HOME ON HOME.id = M.home_verein';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_verein AS GUEST ON GUEST.id = M.gast_verein';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_spiel AS REFERENCE ON (M.saison_id IS NOT NULL AND M.saison_id = REFERENCE.saison_id OR M.pokalname IS NOT NULL AND M.pokalname != \'\' AND  M.pokalname
-			= REFERENCE.pokalname OR REFERENCE.spieltyp = \'Freundschaft\' AND M.spieltyp = REFERENCE.spieltyp)';
+		$fromTable = $tablePrefix . '_shoutmessage AS MESSAGE INNER JOIN ' . $tablePrefix . '_user AS U ON U.id = MESSAGE.user_id INNER JOIN ' . $tablePrefix . '_spiel AS M ON M.id = MESSAGE.match_id INNER JOIN ' . $tablePrefix .
+			'_verein AS HOME ON HOME.id = M.home_verein INNER JOIN ' . $tablePrefix . '_verein AS GUEST ON GUEST.id = M.gast_verein INNER JOIN ' . $tablePrefix .
+			'_spiel AS REFERENCE ON (M.saison_id IS NOT NULL AND M.saison_id = REFERENCE.saison_id OR M.pokalname IS NOT NULL AND M.pokalname != \'\' AND  M.pokalname = REFERENCE.pokalname OR REFERENCE.spieltyp = \'Freundschaft\' AND M.spieltyp = REFERENCE.spieltyp)';
 		$whereCondition = 'REFERENCE.id = %d ORDER BY MESSAGE.created_date DESC';
 		$columns = array( 'MESSAGE.id' => 'message_id', 'MESSAGE.message' => 'message', 'MESSAGE.created_date' => 'date', 'U.id' => 'user_id', 'U.nick' => 'user_name', 'HOME.name' => 'home_name', 'GUEST.name' => 'guest_name', 				'M.id' => 'match_id' );
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $this->_matchId, 20);
@@ -7240,12 +7210,8 @@ class TeamHistoryModel extends Model {
 		$columns = array('U.id' => 'user_id', 'U.nick' => 'user_name', 'L.name' => 'league_name', 'SEASON.name' => 'season_name', 'A.rank' => 'season_rank', 'A.id' => 'achievement_id', 'A.date_recorded' => 'achievement_date', 'CUP.name' => 'cup_name',
 			'CUPROUND.name' => 'cup_round_name' );
 		$tablePrefix = $this->_websoccer->getConfig('db_prefix');
-		$fromTable = $tablePrefix . '_achievement AS A';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_saison AS SEASON ON SEASON.id = A.season_id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_liga AS L ON SEASON.liga_id = L.id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_cup_round AS CUPROUND ON CUPROUND.id = A.cup_round_id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_cup AS CUP ON CUP.id = CUPROUND.cup_id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_user AS U ON U.id = A.user_id';
+		$fromTable = $tablePrefix . '_achievement AS A LEFT JOIN ' . $tablePrefix . '_saison AS SEASON ON SEASON.id = A.season_id LEFT JOIN ' . $tablePrefix . '_liga AS L ON SEASON.liga_id = L.id LEFT JOIN ' . $tablePrefix .
+			'_cup_round AS CUPROUND ON CUPROUND.id = A.cup_round_id LEFT JOIN ' . $tablePrefix . '_cup AS CUP ON CUP.id = CUPROUND.cup_id LEFT JOIN ' . $tablePrefix . '_user AS U ON U.id = A.user_id';
 		$whereCondition = 'A.team_id = %d ORDER BY A.date_recorded DESC';
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $this->_teamId);
 		$leagues = array();
@@ -7307,11 +7273,8 @@ class TeamOfTheDayModel extends Model {
 			return; }
 		$columns = array( "S.id" => "statistic_id", "S.spieler_id" => "player_id", "S.name" => "player_name", "P.picture" => "picture", "S.position" => "position", "S.position_main" => "position_main", "S.note" => "grade", "S.tore" => "goals", "S.assists" => "assists",
 			"T.name" => "team_name", "T.bild" => "team_picture", "(SELECT COUNT(*) FROM ". $this->_websoccer->getConfig("db_prefix") . "_teamoftheday AS STAT WHERE STAT.season_id = $seasonId AND STAT.player_id = S.spieler_id)" => "memberoftopteam" );
-		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_teamoftheday AS C";
-		$fromTable .= " INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spiel_berechnung AS S ON S.id = C.statistic_id";
-		$fromTable .= " INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spiel AS M ON M.id = S.spiel_id";
-		$fromTable .= " INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_verein AS T ON T.id = S.team_id";
-		$fromTable .= " LEFT JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spieler AS P ON P.id = S.spieler_id";
+		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_teamoftheday AS C INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spiel_berechnung AS S ON S.id = C.statistic_id INNER JOIN " . $this->_websoccer->getConfig("db_prefix") .
+			"_spiel AS M ON M.id = S.spiel_id INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_verein AS T ON T.id = S.team_id LEFT JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spieler AS P ON P.id = S.spieler_id";
 		$result = $this->_db->querySelect($columns, $fromTable, "C.season_id = %d AND C.matchday = %d", array($seasonId, $matchday));
 		while ($player = $result->fetch_array()) $players[] = $player;
 		if (!count($players)) {
@@ -7324,10 +7287,8 @@ class TeamOfTheDayModel extends Model {
 			$this->findPlayers($columns, $seasonId, $matchday, array("RM"), 1, $players);
 			$this->findPlayers($columns, $seasonId, $matchday, array("LS", "MS", "RS"), 2, $players); }}
 	function findPlayers($columns, $seasonId, $matchday, $mainPositions, $limit, &$players) {
-		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_spiel_berechnung AS S";
-		$fromTable .= " INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spiel AS M ON M.id = S.spiel_id";
-		$fromTable .= " INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_verein AS T ON T.id = S.team_id";
-		$fromTable .= " LEFT JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spieler AS P ON P.id = S.spieler_id";
+		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_spiel_berechnung AS S INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spiel AS M ON M.id = S.spiel_id INNER JOIN " . $this->_websoccer->getConfig("db_prefix") .
+			"_verein AS T ON T.id = S.team_id LEFT JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spieler AS P ON P.id = S.spieler_id";
 		$whereCondition = "M.saison_id = %d AND M.spieltag = %d AND (S.position_main = '";
 		$whereCondition .= implode("' OR S.position_main = '", $mainPositions);
 		$whereCondition .= "') ORDER BY S.note ASC, S.tore DESC, S.assists DESC, S.wontackles DESC";
@@ -7339,9 +7300,8 @@ class TeamOfTheDayModel extends Model {
 	function findPlayersForTeamOfSeason($seasonId, $mainPositions, $limit, &$players) {
 		$columns = array( "P.id" => "player_id", "P.vorname" => "firstname", "P.nachname" => "lastname", "P.kunstname" => "pseudonym", "P.picture" => "picture", "P.position" => "position", "C.position_main" => "position_main", "T.name" => "team_name",
 			"T.bild" => "team_picture", "(SELECT COUNT(*) FROM ". $this->_websoccer->getConfig("db_prefix") . "_teamoftheday AS STAT WHERE STAT.season_id = $seasonId AND STAT.player_id = P.id)" => "memberoftopteam" );
-		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_teamoftheday AS C";
-		$fromTable .= " INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spieler AS P ON P.id = C.player_id";
-		$fromTable .= " LEFT JOIN " . $this->_websoccer->getConfig("db_prefix") . "_verein AS T ON T.id = P.verein_id";
+		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_teamoftheday AS C INNER JOIN " . $this->_websoccer->getConfig("db_prefix") . "_spieler AS P ON P.id = C.player_id LEFT JOIN " . $this->_websoccer->getConfig("db_prefix") .
+			"_verein AS T ON T.id = P.verein_id";
 		$whereCondition = "C.season_id = %d AND (C.position_main = '";
 		$whereCondition .= implode("' OR C.position_main = '", $mainPositions);
 		$whereCondition .= "') ";
@@ -7399,8 +7359,7 @@ class TicketsModel extends Model {
 		$columns["S.p_haupt_steh"] = "s_stands_grand";
 		$columns["S.p_haupt_sitz"] = "s_seats_grand";
 		$columns["S.p_vip"] = "s_vip";
-		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_verein AS T";
-		$fromTable .= " LEFT JOIN " . $this->_websoccer->getConfig("db_prefix") . "_stadion AS S ON S.id = T.stadion_id";
+		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_verein AS T LEFT JOIN " . $this->_websoccer->getConfig("db_prefix") . "_stadion AS S ON S.id = T.stadion_id";
 		$whereCondition = "T.id = %d";
 		$parameters = $teamId;
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $parameters);
@@ -7572,12 +7531,8 @@ class UserHistoryModel extends Model {
 		$columns = array('TEAM.id' => 'team_id', 'TEAM.name' => 'team_name', 'L.name' => 'league_name', 'SEASON.name' => 'season_name', 'A.rank' => 'season_rank', 'A.id' => 'achievement_id', 'A.date_recorded' => 'achievement_date', 'CUP.name' => 'cup_name',
 			'CUPROUND.name' => 'cup_round_name' );
 		$tablePrefix = $this->_websoccer->getConfig('db_prefix');
-		$fromTable = $tablePrefix . '_achievement AS A';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_verein AS TEAM ON TEAM.id = A.team_id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_saison AS SEASON ON SEASON.id = A.season_id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_liga AS L ON SEASON.liga_id = L.id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_cup_round AS CUPROUND ON CUPROUND.id = A.cup_round_id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_cup AS CUP ON CUP.id = CUPROUND.cup_id';
+		$fromTable = $tablePrefix . '_achievement AS A INNER JOIN ' . $tablePrefix . '_verein AS TEAM ON TEAM.id = A.team_id LEFT JOIN ' . $tablePrefix . '_saison AS SEASON ON SEASON.id = A.season_id LEFT JOIN ' . $tablePrefix .
+			'_liga AS L ON SEASON.liga_id = L.id LEFT JOIN ' . $tablePrefix . '_cup_round AS CUPROUND ON CUPROUND.id = A.cup_round_id LEFT JOIN ' . $tablePrefix . '_cup AS CUP ON CUP.id = CUPROUND.cup_id';
 		$whereCondition = 'A.user_id = %d ORDER BY A.date_recorded DESC';
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $this->_userId);
 		$leagues = array();
@@ -7845,16 +7800,14 @@ class AbsencesDataService {
 			NotificationsDataService::createNotification($websoccer, $db, $absence['deputy_id'], 'absence_comeback_notification', array('user' => $user['nick']), 'absence', 'user'); }}}
 class ActionLogDataService {
 	static function getActionLogsOfUser($websoccer, $db, $userId, $limit = 10) {
-		$fromTable = $websoccer->getConfig('db_prefix') . '_useractionlog AS L';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON U.id = L.user_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_useractionlog AS L INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON U.id = L.user_id';
 		$columns = array('L.id' => 'log_id', 'L.action_id' => 'action_id', 'L.user_id' => 'user_id', 'L.created_date' => 'created_date', 'U.nick' => 'user_name' );
 		$result = $db->querySelect($columns, $fromTable, 'L.user_id = %d ORDER BY L.created_date DESC', $userId, $limit);
 		$logs = array();
 		while ($log = $result->fetch_array()) $logs[] = $log;
 		return $logs; }
 	static function getLatestActionLogs($websoccer, $db, $limit = 10) {
-		$fromTable = $websoccer->getConfig('db_prefix') . '_useractionlog AS L';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON U.id = L.user_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_useractionlog AS L INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON U.id = L.user_id';
 		$columns = array('L.id' => 'log_id', 'L.action_id' => 'action_id', 'L.user_id' => 'user_id', 'L.created_date' => 'created_date', 'U.nick' => 'user_name' );
 		$result = $db->querySelect($columns, $fromTable, '1 ORDER BY L.id DESC', null, $limit);
 		$logs = array();
@@ -7945,9 +7898,7 @@ class BankAccountDataService {
 		$db->queryUpdate($updateColumns, $fromTable, $whereCondition, $parameters); }}
 class CupsDataService {
 	static function getTeamsOfCupGroupInRankingOrder($websoccer, $db, $roundId, $groupName) {
-		$fromTable = $websoccer->getConfig("db_prefix") . "_cup_round_group AS G";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS T ON T.id = G.team_id";
-		$fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_user AS U ON U.id = T.user_id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_cup_round_group AS G INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS T ON T.id = G.team_id LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_user AS U ON U.id = T.user_id";
 		$whereCondition = "G.cup_round_id = %d AND G.name = '%s'";
 		$whereCondition .= "ORDER BY G.tab_points DESC, (G.tab_goals - G.tab_goalsreceived) DESC, G.tab_wins DESC, T.st_punkte DESC";
 		$parameters = array($roundId, $groupName);
@@ -7982,8 +7933,7 @@ class DataGeneratorService {
 	static function generatePlayers($websoccer, $db, $teamId, $age, $ageDeviation, $salary, $contractDuration, $strengths, $positions, $maxDeviation, $nationality = NULL) {
 		if (strlen($nationality)) $country = $nationality;
 		else {
-			$fromTable = $websoccer->getConfig('db_prefix') . '_verein AS T';
-			$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_liga AS L ON L.id = T.liga_id';
+			$fromTable = $websoccer->getConfig('db_prefix') . '_verein AS T INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_liga AS L ON L.id = T.liga_id';
 			$result = $db->querySelect('L.land AS country', $fromTable, 'T.id = %d', $teamId);
 			$league = $result->fetch_array();
 			if (!$league) throw new Exception('illegal team ID');
@@ -8144,14 +8094,10 @@ class DirectTransfersDataService {
 			"P.w_frische" => "player_strength_freshness", "P.w_zufriedenheit" => "player_strength_satisfaction", "P.position_main" => "player_position_main", "SU.id" => "sender_user_id", "SU.nick" => "sender_user_name", "SC.id" => "sender_club_id",
 			"SC.name" => "sender_club_name", "RU.id" => "receiver_user_id", "RU.nick" => "receiver_user_name", "RC.id" => "receiver_club_id", "RC.name" => "receiver_club_name", "EP1.id" => "explayer1_id", "EP1.vorname" => "explayer1_firstname",
 			"EP1.nachname" => "explayer1_lastname", "EP1.kunstname" => "explayer1_pseudonym", "EP2.id" => "explayer2_id", "EP2.vorname" => "explayer2_firstname", "EP2.nachname" => "explayer2_lastname", "EP2.kunstname" => "explayer2_pseudonym" );
-		$fromTable = $websoccer->getConfig("db_prefix") . "_transfer_offer AS O";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_spieler AS P ON P.id = O.player_id";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_user AS SU ON SU.id = O.sender_user_id";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS SC ON SC.id = O.sender_club_id";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS RC ON RC.id = O.receiver_club_id";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_user AS RU ON RU.id = RC.user_id";
-		$fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_spieler AS EP1 ON EP1.id = O.offer_player1";
-		$fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_spieler AS EP2 ON EP2.id = O.offer_player2";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_transfer_offer AS O INNER JOIN " . $websoccer->getConfig("db_prefix") . "_spieler AS P ON P.id = O.player_id INNER JOIN " . $websoccer->getConfig("db_prefix") .
+			"_user AS SU ON SU.id = O.sender_user_id INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS SC ON SC.id = O.sender_club_id INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS RC ON RC.id = O.receiver_club_id INNER JOIN " .
+			$websoccer->getConfig("db_prefix") . "_user AS RU ON RU.id = RC.user_id LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_spieler AS EP1 ON EP1.id = O.offer_player1 LEFT JOIN " . $websoccer->getConfig("db_prefix") .
+			"_spieler AS EP2 ON EP2.id = O.offer_player2";
 		$whereCondition .= " ORDER BY O.submitted_date DESC";
 		$limit = $startIndex .",". $entries_per_page;
 		$offers = array();
@@ -8200,8 +8146,7 @@ class FormationDataService {
 			if ($isCupMatch) $whereCondition .= '_cups';
 			$whereCondition .= ' = 0 AND verletzt = 0 AND status = 1'; }
 		else {
-			$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P';
-			$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_nationalplayer AS NP ON NP.player_id = P.id';
+			$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_nationalplayer AS NP ON NP.player_id = P.id';
 			$whereCondition = 'NP.team_id = %d AND gesperrt_nationalteam = 0 AND verletzt = 0 AND status = 1'; }
 		$whereCondition .=	' ORDER BY '. $sortColumn . ' ' . $sortDirection;
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $teamId);
@@ -8314,8 +8259,7 @@ class MatchesDataService {
 	static function getNextMatch($websoccer, $db, $clubId) {
 		$fromTable = self::_getFromPart($websoccer);
 		$formationTable = $websoccer->getConfig('db_prefix') . '_aufstellung';
-		$fromTable .= ' LEFT JOIN ' . $formationTable . ' AS HOME_F ON HOME_F.verein_id = HOME.id AND HOME_F.match_id = M.id';
-		$fromTable .= ' LEFT JOIN ' . $formationTable . ' AS GUEST_F ON GUEST_F.verein_id = GUEST.id AND GUEST_F.match_id = M.id';
+		$fromTable .= ' LEFT JOIN ' . $formationTable . ' AS HOME_F ON HOME_F.verein_id = HOME.id AND HOME_F.match_id = M.id LEFT JOIN ' . $formationTable . ' AS GUEST_F ON GUEST_F.verein_id = GUEST.id AND GUEST_F.match_id = M.id';
 		$whereCondition = 'M.berechnet != \'1\' AND (HOME.id = %d OR GUEST.id = %d) AND M.datum > %d ORDER BY M.datum ASC';
 		$parameters = array($clubId, $clubId, $websoccer->getNowAsTimestamp());
 		$columns['M.id'] = 'match_id';
@@ -8480,8 +8424,7 @@ class MatchesDataService {
 		$columns['C.name'] = 'cup';
 		$columns['R.name'] = 'round';
 		$columns['R.firstround_date'] = 'round_date';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_cup_round AS R ';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_cup AS C ON C.id = R.cup_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_cup_round AS R INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_cup AS C ON C.id = R.cup_id';
 		$result = $db->querySelect($columns, $fromTable, 'archived != \'1\' ORDER BY cup ASC, round_date ASC');
 		$cuprounds = array();
 		while ($cup = $result->fetch_array()) $cuprounds[$cup['cup']][] = $cup['round'];
@@ -8542,8 +8485,7 @@ class MatchesDataService {
 		if ($matches) return (int) $matches['matchday'];
 		return 0; }
 	static function getMatchReportPlayerRecords($websoccer, $db, $matchId, $teamId) {
-		$fromTable = $websoccer->getConfig('db_prefix') . '_spiel_berechnung AS M';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_spieler AS P ON P.id = M.spieler_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_spiel_berechnung AS M INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_spieler AS P ON P.id = M.spieler_id';
 		$columns['P.id'] = 'id';
 		$columns['P.vorname'] = 'firstName';
 		$columns['P.nachname'] = 'lastName';
@@ -8573,8 +8515,7 @@ class MatchesDataService {
 		$players = $db->queryCachedSelect($columns, $fromTable, $whereCondition, $parameters);
 		return $players; }
 	static function getMatchPlayerRecordsByField($websoccer, $db, $matchId, $teamId) {
-		$fromTable = $websoccer->getConfig('db_prefix') . '_spiel_berechnung AS M';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_spieler AS P ON P.id = M.spieler_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_spiel_berechnung AS M INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_spieler AS P ON P.id = M.spieler_id';
 		$columns = array('P.id' => 'id', 'P.vorname' => 'firstname', 'P.nachname' => 'lastname', 'P.kunstname' => 'pseudonym', 'P.verletzt' => 'matches_injured', 'P.position' => 'position', 'P.position_main' => 'position_main', 'P.position_second' => 'position_second',
 			'P.w_staerke' => 'strength', 'P.w_technik' => 'strength_technique', 'P.w_kondition' => 'strength_stamina', 'P.w_frische' => 'strength_freshness', 'P.w_zufriedenheit' => 'strength_satisfaction', 'P.nation' => 'player_nationality', 'P.picture' => 'picture',
 			'P.sa_tore' => 'st_goals', 'P.sa_spiele' => 'st_matches', 'P.sa_karten_gelb' => 'st_cards_yellow', 'P.sa_karten_gelb_rot' => 'st_cards_yellow_red', 'P.sa_karten_rot' => 'st_cards_red', 'M.id' => 'match_record_id', 'M.position' => 'match_position',
@@ -8592,8 +8533,7 @@ class MatchesDataService {
 			$players[$field][] = $player; }
 		return $players; }
 	static function getMatchReportMessages($websoccer, $db, $i18n, $matchId) {
-		$fromTable = $websoccer->getConfig('db_prefix') . '_matchreport AS R';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_spiel_text AS T ON R.message_id = T.id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_matchreport AS R INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_spiel_text AS T ON R.message_id = T.id';
 		$columns['R.id'] = 'report_id';
 		$columns['R.minute'] = 'minute';
 		$columns['R.playernames'] = 'playerNames';
@@ -8665,11 +8605,7 @@ class MatchesDataService {
 		return $matches; }
 	static function _getFromPart($websoccer) {
 		$tablePrefix = $websoccer->getConfig('db_prefix');
-		$fromTable = $tablePrefix . '_spiel AS M';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_verein AS HOME ON M.home_verein = HOME.id';
-		$fromTable .= ' INNER JOIN ' . $tablePrefix . '_verein AS GUEST ON M.gast_verein = GUEST.id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_user AS HOMEUSER ON M.home_user_id = HOMEUSER.id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_user AS GUESTUSER ON M.gast_user_id = GUESTUSER.id';
+		$fromTable = $tablePrefix . '_spiel AS M INNER JOIN ' . $tablePrefix . '_verein AS HOME ON M.home_verein = HOME.id INNER JOIN ' . $tablePrefix . '_verein AS GUEST ON M.gast_verein = GUEST.id LEFT JOIN ' . $tablePrefix . '_user AS HOMEUSER ON M.home_user_id = HOMEUSER.id LEFT JOIN ' . $tablePrefix . '_user AS GUESTUSER ON M.gast_user_id = GUESTUSER.id';
 		return $fromTable; }
 	static function _convertLeagueType($dbValue) {
 		switch ($dbValue) {
@@ -8708,9 +8644,7 @@ class MessagesDataService {
 		$columns["R.nick"] = "recipient_name";
 		$columns["S.id"] = "sender_id";
 		$columns["S.nick"] = "sender_name";
-		$fromTable = $websoccer->getConfig("db_prefix") . "_briefe AS L";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_user AS R ON R.id = L.empfaenger_id";
-		$fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_user AS S ON S.id = L.absender_id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_briefe AS L INNER JOIN " . $websoccer->getConfig("db_prefix") . "_user AS R ON R.id = L.empfaenger_id LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_user AS S ON S.id = L.absender_id";
 		$limit = $startIndex .",". $entries_per_page;
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $parameters, $limit);
 		$messages = array();
@@ -8756,9 +8690,7 @@ class NationalteamsDataService {
 		if ($websoccer->getConfig('players_aging') == 'birthday') $ageColumn = 'TIMESTAMPDIFF(YEAR,geburtstag,CURDATE())';
 		else $ageColumn = 'age';
 		$columns[$ageColumn] = 'age';
-		$fromTable = $websoccer->getConfig("db_prefix") . "_spieler AS P";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_nationalplayer AS NP ON NP.player_id = P.id";
-		$fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = P.verein_id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_spieler AS P INNER JOIN " . $websoccer->getConfig("db_prefix") . "_nationalplayer AS NP ON NP.player_id = P.id LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = P.verein_id";
 		$whereCondition = "P.status = 1 AND NP.team_id = %d ORDER BY position ". $positionSort . ", position_main ASC, nachname ASC, vorname ASC";
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $clubId, 50);
 		$players = array();
@@ -8818,8 +8750,7 @@ class NationalteamsDataService {
 			$parameters[] = $mainPosition;
 			$parameters[] = $mainPosition; }
 		$whereCondition .= " ORDER BY w_staerke DESC, w_technik DESC";
-		$fromTable = $websoccer->getConfig("db_prefix") . "_spieler AS P";
-		$fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = P.verein_id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_spieler AS P LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = P.verein_id";
 		return $db->querySelect($columns, $fromTable, $whereCondition, $parameters, $limit); }
 	static function countNextMatches($websoccer, $db, $teamId) {
 		$columns = "COUNT(*) AS hits";
@@ -8910,8 +8841,7 @@ class PlayersDataService {
 			$whereCondition = 'status = 1 AND verein_id = %d'; }
 		else {
 			$columns['gesperrt_nationalteam'] = 'matches_blocked';
-			$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P';
-			$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_nationalplayer AS NP ON NP.player_id = P.id';
+			$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_nationalplayer AS NP ON NP.player_id = P.id';
 			$whereCondition = 'status = 1 AND NP.team_id = %d'; }
 		$whereCondition .= ' ORDER BY position ASC, position_main ASC, nachname ASC, vorname ASC';
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $clubId, 50);
@@ -8941,8 +8871,7 @@ class PlayersDataService {
 		$columns['P.transfer_mindestgebot'] = 'min_bid';
 		$columns['C.id'] = 'team_id';
 		$columns['C.name'] = 'team_name';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
 		$whereCondition = 'P.status = 1 AND P.transfermarkt = 1 AND P.transfer_ende > %d';
 		$parameters[] = $websoccer->getNowAsTimestamp();
 		if ($positionFilter != null) {
@@ -9023,9 +8952,7 @@ class PlayersDataService {
 		$columns['C.finanz_budget'] = 'team_budget';
 		$columns['C.user_id'] = 'team_user_id';
 		$columns['(SELECT CONCAT(AVG(S.note), \';\', SUM(S.assists)) FROM ' . $websoccer->getConfig('db_prefix') . '_spiel_berechnung AS S WHERE S.spieler_id = P.id AND S.minuten_gespielt > 0 AND S.note > 0)'] = 'matches_info';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS L ON L.id = P.lending_owner_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS L ON L.id = P.lending_owner_id';
 		$whereCondition = 'P.status = 1 AND P.id = %d';
 		$players = $db->queryCachedSelect($columns, $fromTable, $whereCondition, $playerId, 1);
 		if (count($players)) {
@@ -9052,8 +8979,7 @@ class PlayersDataService {
 		$columns['P.transfermarkt'] = 'transfermarket';
 		$columns['C.id'] = 'team_id';
 		$columns['C.name'] = 'team_name';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
 		$whereCondition = 'P.status = 1 AND P.sa_tore > 0';
 		if ($leagueId != null) {
 			$whereCondition .= ' AND liga_id = %d';
@@ -9076,8 +9002,7 @@ class PlayersDataService {
 		$columns['P.transfermarkt'] = 'transfermarket';
 		$columns['C.id'] = 'team_id';
 		$columns['C.name'] = 'team_name';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
 		$whereCondition = 'P.status = \'1\' AND (P.sa_tore + P.sa_assists) > 0';
 		if ($leagueId != null) {
 			$whereCondition .= ' AND liga_id = %d';
@@ -9147,8 +9072,7 @@ class PlayersDataService {
 			$parameters[] = $strengthMinValue;
 			$parameters[] = $strengthMaxValue; }
 		if ($lendableOnly) $whereCondition .= ' AND P.lending_fee > 0 AND (P.lending_owner_id IS NULL OR P.lending_owner_id = 0)';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
 		return $db->querySelect($columns, $fromTable, $whereCondition, $parameters, $limit); }
 	static function _convertPosition($dbPosition) {
 		switch ($dbPosition) {
@@ -9310,8 +9234,7 @@ class SponsorsDataService {
 		$columns["S.b_sieg"] = "amount_win";
 		$columns["S.b_meisterschaft"] = "amount_championship";
 		$columns["S.bild"] = "picture";
-		$fromTable = $websoccer->getConfig("db_prefix") . "_sponsor AS S";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS T ON T.sponsor_id = S.id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_sponsor AS S INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS T ON T.sponsor_id = S.id";
 		$whereCondition = "T.id = %d AND T.sponsor_spiele > 0";
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $clubId, 1);
 		$sponsor = $result->fetch_array();
@@ -9345,8 +9268,7 @@ class StadiumsDataService {
 		$columns["S.level_videowall"] = "level_videowall";
 		$columns["S.level_seatsquality"] = "level_seatsquality";
 		$columns["S.level_vipquality"] = "level_vipquality";
-		$fromTable = $websoccer->getConfig("db_prefix") . "_stadion AS S";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS T ON T.stadion_id = S.id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_stadion AS S INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS T ON T.stadion_id = S.id";
 		$whereCondition = "T.id = %d";
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $clubId, 1);
 		$stadium = $result->fetch_array();
@@ -9372,16 +9294,13 @@ class StadiumsDataService {
 			$offers[$builder["id"]] = $offer; }
 		return $offers; }
 	static function getCurrentConstructionOrderOfTeam($websoccer, $db, $clubId) {
-		$fromTable = $websoccer->getConfig("db_prefix") . "_stadium_construction AS C";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_stadium_builder AS B ON B.id = C.builder_id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_stadium_construction AS C INNER JOIN " . $websoccer->getConfig("db_prefix") . "_stadium_builder AS B ON B.id = C.builder_id";
 		$result = $db->querySelect("C.*, B.name AS builder_name, B.reliability AS builder_reliability", $fromTable, "C.team_id = %d", $clubId);
 		$order = $result->fetch_array();
 		if ($order) return $order;
 		else return NULL;}
 	static function getDueConstructionOrders($websoccer, $db) {
-		$fromTable = $websoccer->getConfig("db_prefix") . "_stadium_construction AS C";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_stadium_builder AS B ON B.id = C.builder_id";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS T ON T.id = C.team_id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_stadium_construction AS C INNER JOIN " . $websoccer->getConfig("db_prefix") . "_stadium_builder AS B ON B.id = C.builder_id INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS T ON T.id = C.team_id";
 		$result = $db->querySelect("C.*, T.user_id AS user_id, B.reliability AS builder_reliability", $fromTable, "C.deadline <= %d", $websoccer->getNowAsTimestamp());
 		$orders = array();
 		while ($order = $result->fetch_array()) $orders[] = $order;
@@ -9445,8 +9364,7 @@ class TeamsDataService {
 	static function getTeamSummaryById($websoccer, $db, $teamId) {
 		if (!$teamId) return NULL;
 		$tablePrefix = $websoccer->getConfig('db_prefix');
-		$fromTable = $tablePrefix . '_verein AS C';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_liga AS L ON C.liga_id = L.id';
+		$fromTable = $tablePrefix . '_verein AS C LEFT JOIN ' . $tablePrefix . '_liga AS L ON C.liga_id = L.id';
 		$whereCondition = 'C.status = 1 AND C.id = %d';
 		$parameters = $teamId;
 		$columns['C.id'] = 'team_id';
@@ -9462,9 +9380,8 @@ class TeamsDataService {
 	static function getTeamsOfLeagueOrderedByTableCriteria($websoccer, $db, $leagueId) {
 		$result = $db->querySelect('id', $websoccer->getConfig('db_prefix') .'_saison', 'liga_id = %d AND beendet = \'0\' ORDER BY name DESC', $leagueId, 1);
 		$season = $result->fetch_array();
-		$fromTable = $websoccer->getConfig('db_prefix') . '_verein AS C';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON C.user_id = U.id';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_leaguehistory AS PREVDAY ON (PREVDAY.team_id = C.id AND PREVDAY.matchday = (C.sa_spiele - 1)';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_verein AS C LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON C.user_id = U.id LEFT JOIN ' . $websoccer->getConfig('db_prefix') .
+			'_leaguehistory AS PREVDAY ON (PREVDAY.team_id = C.id AND PREVDAY.matchday = (C.sa_spiele - 1)';
 		if ($season) $fromTable .= ' AND PREVDAY.season_id = ' . $season['id'];
 		$fromTable .= ')';
 		$columns = array();
@@ -9507,9 +9424,7 @@ class TeamsDataService {
 				$db->executeQuery($query); }}
 		return $teams; }
 	static function getTeamsOfSeasonOrderedByTableCriteria($websoccer, $db, $seasonId, $type) {
-		$fromTable = $websoccer->getConfig('db_prefix') . '_team_league_statistics AS S';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = S.team_id';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON C.user_id = U.id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_team_league_statistics AS S INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = S.team_id LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON C.user_id = U.id';
 		$whereCondition = 'S.season_id = %d';
 		$parameters = $seasonId;
 		$columns['C.id'] = 'id';
@@ -9538,10 +9453,8 @@ class TeamsDataService {
 			$teams[] = $team; }
 		return $teams; }
 	static function getTeamsOfLeagueOrderedByAlltimeTableCriteria($websoccer, $db, $leagueId, $type = null) {
-		$fromTable = $websoccer->getConfig('db_prefix') . '_team_league_statistics AS S';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = S.team_id';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_saison AS SEASON ON SEASON.id = S.season_id';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON C.user_id = U.id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_team_league_statistics AS S INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = S.team_id INNER JOIN ' . $websoccer->getConfig('db_prefix') .
+			'_saison AS SEASON ON SEASON.id = S.season_id LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON C.user_id = U.id';
 		$whereCondition = 'SEASON.liga_id = %d';
 		$parameters = $leagueId;
 		$columns['C.id'] = 'id';
@@ -9581,9 +9494,7 @@ class TeamsDataService {
 		if ($teamRank) return (int) $teamRank['RNK'];
 		return 0; }
 	static function getTeamsWithoutUser($websoccer, $db) {
-		$fromTable = $websoccer->getConfig('db_prefix') . '_verein AS C';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_liga AS L ON C.liga_id = L.id';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_stadion AS S ON C.stadion_id = S.id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_verein AS C INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_liga AS L ON C.liga_id = L.id LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_stadion AS S ON C.stadion_id = S.id';
 		$whereCondition = 'nationalteam != \'1\' AND (C.user_id = 0 OR C.user_id IS NULL OR C.interimmanager = \'1\') AND C.status = 1';
 		$columns['C.id'] = 'team_id';
 		$columns['C.name'] = 'team_name';
@@ -9644,11 +9555,8 @@ class TeamsDataService {
 		if ($team['team_budget'] < $minBudget) throw new Exception($i18n->getMessage("extend-contract_cannot_afford_offer")); }
 	static function _getFromPart($websoccer) {
 		$tablePrefix = $websoccer->getConfig('db_prefix');
-		$fromTable = $tablePrefix . '_verein AS C';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_liga AS L ON C.liga_id = L.id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_sponsor AS SPON ON C.sponsor_id = SPON.id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_user AS U ON C.user_id = U.id';
-		$fromTable .= ' LEFT JOIN ' . $tablePrefix . '_user AS DEPUTY ON C.user_id_actual = DEPUTY.id';
+		$fromTable = $tablePrefix . '_verein AS C LEFT JOIN ' . $tablePrefix . '_liga AS L ON C.liga_id = L.id LEFT JOIN ' . $tablePrefix . '_sponsor AS SPON ON C.sponsor_id = SPON.id LEFT JOIN ' . $tablePrefix . '_user AS U ON C.user_id = U.id LEFT JOIN ' .
+			$tablePrefix . '_user AS DEPUTY ON C.user_id_actual = DEPUTY.id';
 		return $fromTable; }}
 class TrainingcampsDataService {
 	static function getCamps($websoccer, $db) {
@@ -9659,8 +9567,7 @@ class TrainingcampsDataService {
 		while ($camp = $result->fetch_array()) $camps[] = $camp;
 		return $camps; }
 	static function getCampBookingsByTeam($websoccer, $db, $teamId) {
-		$fromTable = $websoccer->getConfig("db_prefix") . "_trainingslager_belegung AS B";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_trainingslager AS C ON C.id = B.lager_id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_trainingslager_belegung AS B INNER JOIN " . $websoccer->getConfig("db_prefix") . "_trainingslager AS C ON C.id = B.lager_id";
 		$columns["B.id"] = "id";
 		$columns["B.datum_start"] = "date_start";
 		$columns["B.datum_ende"] = "date_end";
@@ -9780,9 +9687,7 @@ class TransfermarketDataService {
 		$columns['C.name'] = 'team_name';
 		$columns['U.id'] = 'user_id';
 		$columns['U.nick'] = 'user_name';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_transfer_angebot AS B';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = B.verein_id';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON U.id = B.user_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_transfer_angebot AS B INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = B.verein_id INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_user AS U ON U.id = B.user_id';
 		$whereCondition = 'B.spieler_id = %d AND B.datum >= %d AND B.datum <= %d ORDER BY B.datum DESC';
 		$parameters = array($playerId, $transferStart, $transferEnd);
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $parameters, 1);
@@ -9801,9 +9706,7 @@ class TransfermarketDataService {
 		$columns['P.nachname'] = 'player_lastname';
 		$columns['P.kunstname'] = 'player_pseudonym';
 		$columns['P.transfer_ende'] = 'auction_end';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_transfer_angebot AS B';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = B.verein_id';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_spieler AS P ON P.id = B.spieler_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_transfer_angebot AS B INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = B.verein_id INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_spieler AS P ON P.id = B.spieler_id';
 		$whereCondition = 'C.id = %d AND P.transfer_ende >= %d ORDER BY B.datum DESC, P.transfer_ende ASC';
 		$parameters = array($teamId, $websoccer->getNowAsTimestamp());
 		$bids = array();
@@ -9822,8 +9725,7 @@ class TransfermarketDataService {
 		$columns['P.vorname'] = 'player_firstname';
 		$columns['P.nachname'] = 'player_lastname';
 		$columns['P.transfer_ende'] = 'auction_end';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_transfer_angebot AS B';
-		$fromTable .= ' INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_spieler AS P ON P.id = B.spieler_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_transfer_angebot AS B INNER JOIN ' . $websoccer->getConfig('db_prefix') . '_spieler AS P ON P.id = B.spieler_id';
 		$whereCondition = 'B.user_id = %d ORDER BY B.datum DESC';
 		$parameters = $userId;
 		$bids = array();
@@ -9864,12 +9766,9 @@ class TransfermarketDataService {
 		$columns['EP2.kunstname'] = 'exchangeplayer2_pseudonym';
 		$columns['EP2.vorname'] = 'exchangeplayer2_firstname';
 		$columns['EP2.nachname'] = 'exchangeplayer2_lastname';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_transfer AS T';
-		$fromTable .= ' INNER JOIN ' .$websoccer->getConfig('db_prefix') . '_spieler AS P ON P.id = T.spieler_id';
-		$fromTable .= ' INNER JOIN ' .$websoccer->getConfig('db_prefix') . '_verein AS BUYER ON BUYER.id = T.buyer_club_id';
-		$fromTable .= ' LEFT JOIN ' .$websoccer->getConfig('db_prefix') . '_verein AS SELLER ON SELLER.id = T.seller_club_id';
-		$fromTable .= ' LEFT JOIN ' .$websoccer->getConfig('db_prefix') . '_spieler AS EP1 ON EP1.id = T.directtransfer_player1';
-		$fromTable .= ' LEFT JOIN ' .$websoccer->getConfig('db_prefix') . '_spieler AS EP2 ON EP2.id = T.directtransfer_player2';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_transfer AS T INNER JOIN ' .$websoccer->getConfig('db_prefix') . '_spieler AS P ON P.id = T.spieler_id INNER JOIN ' .$websoccer->getConfig('db_prefix') .
+			'_verein AS BUYER ON BUYER.id = T.buyer_club_id LEFT JOIN ' .$websoccer->getConfig('db_prefix') . '_verein AS SELLER ON SELLER.id = T.seller_club_id LEFT JOIN ' .$websoccer->getConfig('db_prefix') .
+			'_spieler AS EP1 ON EP1.id = T.directtransfer_player1 LEFT JOIN ' .$websoccer->getConfig('db_prefix') . '_spieler AS EP2 ON EP2.id = T.directtransfer_player2';
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $parameters, 20);
 		while ($transfer = $result->fetch_array()) {
 			$transfer['hand_money'] = 0;
@@ -9910,8 +9809,7 @@ class TransfermarketDataService {
 		$columns['C.id'] = 'team_id';
 		$columns['C.name'] = 'team_name';
 		$columns['C.user_id'] = 'team_user_id';
-		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P';
-		$fromTable .= ' LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
+		$fromTable = $websoccer->getConfig('db_prefix') . '_spieler AS P LEFT JOIN ' . $websoccer->getConfig('db_prefix') . '_verein AS C ON C.id = P.verein_id';
 		$whereCondition = 'P.transfermarkt = \'1\' AND P.status = \'1\' AND P.transfer_ende < %d';
 		$parameters = $websoccer->getNowAsTimestamp();
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $parameters, 50);
@@ -10059,10 +9957,9 @@ class UsersDataService {
 		$columns["C.name"] = "team_name";
 		$columns["C.bild"] = "team_picture";
 		$limit = $startIndex .",". $entries_per_page;
-		$fromTable = $websoccer->getConfig("db_prefix") . "_user AS U";
 		//- owsPro - we have to change at PHP 8
 		//- $fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.user_id = U.id";
-		$fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = U.id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_user AS U LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = U.id";
 		$whereCondition = "U.status = 1 AND highscore > 0 GROUP BY id ORDER BY highscore DESC, datum_anmeldung ASC";
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, null, $limit);
 		$users = array();
@@ -10152,10 +10049,9 @@ class UsersDataService {
 		$columns["C.name"] = "team_name";
 		$columns["C.bild"] = "team_picture";
 		$limit = $startIndex .",". $entries_per_page;
-		$fromTable = $websoccer->getConfig("db_prefix") . "_user AS U";
 		//- owsPro - we have to change at PHP 8
 		//- $fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.user_id = U.id";
-		$fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = U.id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_user AS U LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = U.id";
 		$whereCondition = "U.status = 1 AND lastonline >= %d GROUP BY id ORDER BY lastonline DESC";
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $timeBoundary, $limit);
 		$users = array();
@@ -10171,9 +10067,7 @@ class UsersDataService {
 class YouthMatchesDataService {
 	static function getYouthMatchinfoById($websoccer, $db, $i18n, $matchId) {
 		$columns = "M.*, HOME.name AS home_team_name, GUEST.name AS guest_team_name";
-		$fromTable = $websoccer->getConfig("db_prefix") . "_youthmatch AS M";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS HOME ON HOME.id = M.home_team_id";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS GUEST ON GUEST.id = M.guest_team_id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_youthmatch AS M INNER JOIN ". $websoccer->getConfig("db_prefix"). "_verein AS HOME ON HOME.id = M.home_team_id INNER JOIN " . $websoccer->getConfig("db_prefix"). "_verein AS GUEST ON GUEST.id = M.guest_team_id";
 		$result = $db->querySelect($columns, $fromTable, "M.id = %d", $matchId);
 		$match = $result->fetch_array();
 		if (!$match) throw new Exception($i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
@@ -10198,11 +10092,8 @@ class YouthMatchesDataService {
 		return 0; }
 	static function getMatchesOfTeam($websoccer, $db, $teamId, $startIndex, $entries_per_page) {
 		$tablePrefix = $websoccer->getConfig("db_prefix");
-		$fromTable = $tablePrefix . "_youthmatch AS M";
-		$fromTable .= " INNER JOIN " . $tablePrefix . "_verein AS HOME ON M.home_team_id = HOME.id";
-		$fromTable .= " INNER JOIN " . $tablePrefix . "_verein AS GUEST ON M.guest_team_id = GUEST.id";
-		$fromTable .= " LEFT JOIN " . $tablePrefix . "_user AS HOMEUSER ON HOME.user_id = HOMEUSER.id";
-		$fromTable .= " LEFT JOIN " . $tablePrefix . "_user AS GUESTUSER ON GUEST.user_id = GUESTUSER.id";
+		$fromTable = $tablePrefix . "_youthmatch AS M INNER JOIN " . $tablePrefix . "_verein AS HOME ON M.home_team_id = HOME.id INNER JOIN " . $tablePrefix . "_verein AS GUEST ON M.guest_team_id = GUEST.id LEFT JOIN " . $tablePrefix .
+			"_user AS HOMEUSER ON HOME.user_id = HOMEUSER.id LEFT JOIN " . $tablePrefix . "_user AS GUESTUSER ON GUEST.user_id = GUESTUSER.id";
 		$columns["M.id"] = "match_id";
 		$columns["HOME.name"] = "home_team";
 		$columns["HOME.bild"] = "home_team_picture";
@@ -10298,9 +10189,7 @@ class YouthPlayersDataService {
 		$columns = array( "P.id" => "player_id", "P.firstname" => "firstname", "P.lastname" => "lastname", "P.position" => "position", "P.nation" => "nation", "P.transfer_fee" => "transfer_fee", "P.age" => "age", "P.strength" => "strength",
 			"P.st_matches" => "st_matches", "P.st_goals" => "st_goals", "P.st_assists" => "st_assists", "P.st_cards_yellow" => "st_cards_yellow", "P.st_cards_yellow_red" => "st_cards_yellow_red", "P.st_cards_red" => "st_cards_red", "P.team_id" => "team_id",
 			"C.name" => "team_name", "C.bild" => "team_picture", "C.user_id" => "user_id", "U.nick" => "user_nick", "U.email" => "user_email", "U.picture" => "user_picture" );
-		$fromTable = $websoccer->getConfig("db_prefix") . "_youthplayer AS P";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = P.team_id";
-		$fromTable .= " LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_user AS U ON U.id = C.user_id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_youthplayer AS P INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = P.team_id LEFT JOIN " . $websoccer->getConfig("db_prefix") . "_user AS U ON U.id = C.user_id";
 		$parameters = "";
 		$whereCondition = "P.transfer_fee > 0";
 		if ($positionFilter != NULL) {
@@ -10345,9 +10234,7 @@ class YouthPlayersDataService {
 		return 0; }
 	static function getMatchRequests($websoccer, $db, $startIndex, $entries_per_page) {
 		$columns = array("R.id" => "request_id", "R.matchdate" => "matchdate", "R.reward" => "reward", "C.name" => "team_name", "C.id" => "team_id", "U.id" => "user_id", "U.nick" => "user_nick", "U.email" => "user_email", "U.picture" => "user_picture" );
-		$fromTable = $websoccer->getConfig("db_prefix") . "_youthmatch_request AS R";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = R.team_id";
-		$fromTable .= " INNER JOIN " . $websoccer->getConfig("db_prefix") . "_user AS U ON U.id = C.user_id";
+		$fromTable = $websoccer->getConfig("db_prefix") . "_youthmatch_request AS R INNER JOIN " . $websoccer->getConfig("db_prefix") . "_verein AS C ON C.id = R.team_id INNER JOIN " . $websoccer->getConfig("db_prefix") . "_user AS U ON U.id = C.user_id";
 		$whereCondition = "1=1 ORDER BY R.matchdate ASC";
 		$requests = array();
 		$limit = $startIndex .",". $entries_per_page;
