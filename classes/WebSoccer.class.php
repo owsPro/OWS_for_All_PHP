@@ -6510,88 +6510,53 @@ class UniqueCupNameValidator {
 		if ($matches['hits'] && !isset($_POST['id'])) return FALSE;
 		return TRUE; }
 	function getMessage() { return $this->_i18n->getMessage('validation_error_uniquecupname'); }}
-class AbsenceAlertModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_absence = AbsencesDataService::getCurrentAbsenceOfUser($this->_websoccer, $this->_db, $this->_websoccer->getUser()->id); }
-	function renderView() { return ($this->_absence != NULL); }
-	function getTemplateParameters() { return array('absence' => $this->_absence); }}
-class AbsenceModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+//+ owsPro: Base for all models, sets the required basic functions, which are overwritten by the executing class, depending on the required change of the basic code. */
+class Model{
+	//- owsPro: '__construct'  Available for compatibility reasons and in owsPro obsolet
+	function __construct($db, $i18n, $websoccer){ $this->_websoccer=$websoccer; $this->_db=$db; $this->_i18n=$i18n; }
+	function getTemplateParameters() { return array(); }
+	function renderView(){ return TRUE; }}
+class AbsenceAlertModel extends Model {
+	function getTemplateParameters() { return array('absence' => $this->_absence); }
+	function renderView() {
+		$this->_absence = AbsencesDataService::getCurrentAbsenceOfUser($this->_websoccer, $this->_db, $this->_websoccer->getUser()->id);
+		return ($this->_absence != NULL); }}
+class AbsenceModel extends Model {
 	function getTemplateParameters() {
 		$absence = AbsencesDataService::getCurrentAbsenceOfUser($this->_websoccer, $this->_db, $this->_websoccer->getUser()->id);
-		$deputyName = "";
+		$deputyName = '';
 		if ($absence && $absence['deputy_id']) {
 			$result = $this->_db->querySelect('nick', $this->_websoccer->getConfig('db_prefix') . '_user', 'id = %d', $absence['deputy_id']);
 			$deputy = $result->fetch_array();
 			$deputyName = $deputy['nick']; }
 		return array('currentAbsence' => $absence, 'deputyName' => $deputyName); }}
-class AdsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return ($this->_websoccer->getUser()->premiumBalance == 0 || !$this->_websoccer->getConfig('frontend_ads_hide_for_premiumusers')); }
-	function getTemplateParameters() { return array(); }}
-class AlltimeTableModel {
-	private $_leagueId;
-	private $_type;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
+class AdsModel extends Model { function renderView() { return ($this->_websoccer->getUser()->premiumBalance == 0 || !$this->_websoccer->getConfig('frontend_ads_hide_for_premiumusers')); }}
+class AlltimeTableModel extends Model {
+	function getTemplateParameters() {
+		$teams = TeamsDataService::getTeamsOfLeagueOrderedByAlltimeTableCriteria($this->_websoccer, $this->_db, $this->_leagueId, $this->_type);
+		return array("leagueId" => $this->_leagueId, "teams" => $teams); }
+	function renderView() {
 		$this->_leagueId = (int) $this->_websoccer->getRequestParameter("id");
 		$this->_type = $this->_websoccer->getRequestParameter("type");
 		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		if ($this->_leagueId == 0 && $clubId > 0) {
 			$result = $db->querySelect("liga_id", $this->_websoccer->getConfig("db_prefix") . "_verein", "id = %d", $clubId, 1);
 			$club = $result->fetch_array();
-			$this->_leagueId = $club["liga_id"]; }}
-	function renderView() { return ($this->_leagueId  > 0); }
-	function getTemplateParameters() {
-		$teams = TeamsDataService::getTeamsOfLeagueOrderedByAlltimeTableCriteria($this->_websoccer, $this->_db, $this->_leagueId, $this->_type);
-		return array("leagueId" => $this->_leagueId, "teams" => $teams); }}
-class AllUserActivitiesModel {
-	private $_userId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
-	function getTemplateParameters() { return array("activities" => ActionLogDataService::getLatestActionLogs($this->_websoccer, $this->_db, 5)); }}
-class BadgesModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+			$this->_leagueId = $club["liga_id"]; }
+		return ($this->_leagueId  > 0); }}
+class AllUserActivitiesModel extends Model { function getTemplateParameters() { return array("activities" => ActionLogDataService::getLatestActionLogs($this->_websoccer, $this->_db, 5)); }}
+class BadgesModel extends Model{
 	function getTemplateParameters() {
 		$result = $this->_db->querySelect('*', $this->_websoccer->getConfig('db_prefix') . '_badge', '1 ORDER BY event ASC, level ASC');
 		$badges = array();
 		while ($badge = $result->fetch_array()) $badges[] = $badge;
 		return array("badges" => $badges); }}
-class ClubSearchModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class ClubSearchModel extends Model {
 	function getTemplateParameters() {
 		$query = $this->_websoccer->getRequestParameter("query");
 		$teams = TeamsDataService::findTeamNames($this->_websoccer, $this->_db, $query);
 		return array("items" => $teams); }}
-class CupGroupDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class CupGroupDetailsModel extends Model{
 	function getTemplateParameters() {
 		$cupRoundId = $this->_websoccer->getRequestParameter("roundid");
 		$cupGroup = $this->_websoccer->getRequestParameter("group");
@@ -6602,12 +6567,7 @@ class CupGroupDetailsModel {
 		$round = $result->fetch_array();
 		$matches = MatchesDataService::getMatchesByCupRoundAndGroup($this->_websoccer, $this->_db, $round["cup_name"], $round["round_name"], $cupGroup);
 		return array("matches" => $matches, "groupteams" => CupsDataService::getTeamsOfCupGroupInRankingOrder($this->_websoccer, $this->_db, $cupRoundId, $cupGroup));}}
-class CupResultsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class CupResultsModel extends Model {
 	function getTemplateParameters() {
 		$cupName = $this->_websoccer->getRequestParameter('cup');
 		$cupRound = $this->_websoccer->getRequestParameter('round');
@@ -6636,42 +6596,22 @@ class CupResultsModel {
 			$matches = array(); }
 		else $matches = MatchesDataService::getMatchesByCupRound($this->_websoccer, $this->_db, $cupName, $cupRound);
 		return array('matches' => $matches, 'round' => $round, 'groups' => $groups, 'preSelectedGroup' => $preSelectedGroup); }}
-class CupsListModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
-	function getTemplateParameters() { return array('cups' => MatchesDataService::getCupRoundsByCupname($this->_websoccer, $this->_db)); }}
-class DirectTransferOfferModel {
-	private $_player;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$playerId = (int) $this->_websoccer->getRequestParameter("id");
-		if ($playerId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
-		$this->_player = PlayersDataService::getPlayerById($this->_websoccer, $this->_db, $playerId); }
-	function renderView() {
-		if (!$this->_websoccer->getConfig("transferoffers_enabled")) return FALSE;
-		return (!$this->_player["player_unsellable"] && $this->_player["team_user_id"] > 0 && $this->_player["team_user_id"] !== $this->_websoccer->getUser()->id && !$this->_player["player_transfermarket"] && $this->_player["lending_owner_id"] == 0); }
+class CupsListModel extends Model { function getTemplateParameters() { return array('cups' => MatchesDataService::getCupRoundsByCupname($this->_websoccer, $this->_db)); }}
+class DirectTransferOfferModel extends Model {
 	function getTemplateParameters() {
 		$players = array();
 		if ($this->_websoccer->getRequestParameter("loadformdata")) $players = PlayersDataService::getPlayersOfTeamByPosition($this->_websoccer, $this->_db, $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db));
-		return array("players" => $players, "player" => $this->_player); }}
-class FacebookLoginModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("facebook_enable_login"); }
-	function getTemplateParameters() { return array("loginurl" => FacebookSdk::getInstance($this->_websoccer)->getLoginUrl()); }}
-class FinancesModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("players" => $players, "player" => $this->_player); }
+		function renderView() {
+		$playerId = (int) $this->_websoccer->getRequestParameter("id");
+		if ($playerId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		$this->_player = PlayersDataService::getPlayerById($this->_websoccer, $this->_db, $playerId);
+		if (!$this->_websoccer->getConfig("transferoffers_enabled")) return FALSE;
+		return (!$this->_player["player_unsellable"] && $this->_player["team_user_id"] > 0 && $this->_player["team_user_id"] !== $this->_websoccer->getUser()->id && !$this->_player["player_transfermarket"] && $this->_player["lending_owner_id"] == 0); }}
+class FacebookLoginModel extends Model {
+	function getTemplateParameters() { return array("loginurl" => FacebookSdk::getInstance($this->_websoccer)->getLoginUrl()); }
+	function renderView() { return $this->_websoccer->getConfig("facebook_enable_login"); }}
+class FinancesModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		if ($teamId < 1) throw new Exception($this->_i18n->getMessage("feature_requires_team"));
@@ -6682,27 +6622,18 @@ class FinancesModel {
 		if ($count > 0) $statements = BankAccountDataService::getAccountStatementsOfTeam($this->_websoccer, $this->_db, $teamId, $paginator->getFirstIndex(), $eps);
 		else $statements = array();
 		return array("budget" => $team["team_budget"], "statements" => $statements, "paginator" => $paginator); }}
-class FinancesSummaryModel {
-	private $_teamId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db); }
-	function renderView() { return ($this->_teamId > 0); }
+class FinancesSummaryModel extends Model {
 	function getTemplateParameters() {
 		$minDate = $this->_websoccer->getNowAsTimestamp() - 365 * 3600 * 24;
 		$columns = array('verwendung' => 'subject', 'SUM(betrag)' => 'balance', 'AVG(betrag)' => 'avgAmount' );
 		$result = $this->_db->querySelect($columns, $this->_websoccer->getConfig('db_prefix') . '_konto', 'verein_id = %d AND datum > %d GROUP BY verwendung HAVING COUNT(*) > 5', array($this->_teamId, $minDate));
 		$majorPositions = array();
 		while ($position = $result->fetch_array()) $majorPositions[] = $position;
-		return array('majorPositions' => $majorPositions); }}
-class FindNationalPlayersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("nationalteams_enabled"); }
+		return array('majorPositions' => $majorPositions); }
+	function renderView() {
+		$this->_teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
+		return ($this->_teamId > 0); }}
+class FindNationalPlayersModel extends Model {
 	function getTemplateParameters() {
 		$teamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
 		if (!$teamId) throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
@@ -6722,14 +6653,9 @@ class FindNationalPlayersModel {
 		$paginator->addParameter("search", "true");
 		if ($playersCount > 0) $players = NationalteamsDataService::findPlayers($this->_websoccer, $this->_db, $team["name"], $teamId, $firstName, $lastName, $position, $mainPosition, $paginator->getFirstIndex(), $eps);
 		else $players = array();
-		return array("team_name" => $team["name"], "playersCount" => $playersCount, "players" => $players, "paginator" => $paginator); }}
-class ForgotPasswordModel {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("login_allow_sendingpassword"); }
+		return array("team_name" => $team["name"], "playersCount" => $playersCount, "players" => $players, "paginator" => $paginator); }
+	function renderView() { return $this->_websoccer->getConfig("nationalteams_enabled"); }}
+class ForgotPasswordModel extends Model {
 	function getTemplateParameters() {
 		$parameters = array();
 		if ($this->_websoccer->getConfig("register_use_captcha") && strlen($this->_websoccer->getConfig("register_captcha_publickey")) && strlen($this->_websoccer->getConfig("register_captcha_privatekey"))) {
@@ -6737,15 +6663,9 @@ class ForgotPasswordModel {
 			$useSsl = (!empty($_SERVER["HTTPS"]));
 			$captchaCode = recaptcha_get_html($this->_websoccer->getConfig("register_captcha_publickey"), null, $useSsl);
 			$parameters["captchaCode"] = $captchaCode; }
-		return $parameters; }}
-class FormationModel {
-	private $_nationalteam;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_nationalteam = ($websoccer->getRequestParameter('nationalteam')) ? TRUE : FALSE; }
-	function renderView() { return TRUE; }
+		return $parameters; }
+	function renderView() { return $this->_websoccer->getConfig("login_allow_sendingpassword"); }}
+class FormationModel extends Model {
 	function getTemplateParameters() {
 		if ($this->_nationalteam) $clubId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
 		else $clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
@@ -6816,7 +6736,7 @@ class FormationModel {
 				$formation['player' . $playerNo . '_pos'] = ''; }}
 		return array('nextMatches' => $nextMatches, 'next_match' => $matchinfo, 'previous_matches' => MatchesDataService::getPreviousMatches($matchinfo, $this->_websoccer, $this->_db), 'players' => $players, 'formation' => $formation, 'setup' => $setup,
 			'captain_id' => TeamsDataService::getTeamCaptainIdOfTeam($this->_websoccer, $this->_db, $clubId)); }
-	protected function getFormationSetup($formation) {
+	function getFormationSetup($formation) {
 		$setup = array('defense' => 4, 'dm' => 1, 'midfield' => 3, 'om' => 1, 'striker' => 1, 'outsideforward' => 0);
 		if ($this->_websoccer->getRequestParameter('formation_defense') !== NULL) {
 			$setup['defense'] = (int) $this->_websoccer->getRequestParameter('formation_defense');
@@ -6859,39 +6779,23 @@ class FormationModel {
 				else $setup['striker'] = $setup['striker'] + 1; }
 			$altered = TRUE; }
 		if ($altered) $this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING, $this->_i18n->getMessage('formation_setup_altered_warn_title'), $this->_i18n->getMessage('formation_setup_altered_warn_details')));
-		return $setup; }}
-class FormationTemplatesModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return $setup; }
+	function renderView() {
+		$this->_nationalteam = ($websoccer->getRequestParameter('nationalteam')) ? TRUE : FALSE;
+		return TRUE; }}
+class FormationTemplatesModel extends Model {
 	function getTemplateParameters() {
 		$templates = array();
 		$result = $this->_db->querySelect('id, datum AS date, templatename', $this->_websoccer->getConfig('db_prefix') . '_aufstellung', 'verein_id = %d AND templatename IS NOT NULL ORDER BY datum DESC', $this->_websoccer->getUser()->getClubId($this->_websoccer,
 			$this->_db));
 		while ($template = $result->fetch_array()) $templates[] = $template;
 		return array('templates' => $templates); }}
-class FreeClubsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class FreeClubsModel extends Model {
 	function getTemplateParameters() { return array("countries" => TeamsDataService::getTeamsWithoutUser($this->_websoccer, $this->_db)); }}
-class GoogleplusLoginModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("googleplus_enable_login"); }
-	function getTemplateParameters() { return array("loginurl" => GoogleplusSdk::getInstance($this->_websoccer)->getLoginUrl()); }}
-class HallOfFameModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class GoogleplusLoginModel extends Model {
+	function getTemplateParameters() { return array("loginurl" => GoogleplusSdk::getInstance($this->_websoccer)->getLoginUrl()); }
+	function renderView() { return $this->_websoccer->getConfig("googleplus_enable_login"); }}
+class HallOfFameModel extends Model {
 	function getTemplateParameters() {
 		$leagues = array();
 		$cups = array();
@@ -6909,12 +6813,7 @@ class HallOfFameModel {
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition);
 		while ($cup = $result->fetch_array()) $cups[] = $cup;
 		return array('leagues' => $leagues, 'cups' => $cups); }}
-class HighscoreModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class HighscoreModel extends Model {
 	function getTemplateParameters() {
 		$count = UsersDataService::countActiveUsersWithHighscore($this->_websoccer, $this->_db);
 		$eps = $this->_websoccer->getConfig("entries_per_page");
@@ -6922,64 +6821,31 @@ class HighscoreModel {
 		if ($count > 0) $users = UsersDataService::getActiveUsersWithHighscore($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps);
 		else $users = array();
 		return array("users" => $users, "paginator" => $paginator); }}
-class ImprintModel {
-	private $_websoccer;
-	function __construct($db, $i18n, $websoccer) { $this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class ImprintModel extends Model {
 	function getTemplateParameters() {
 		$filecontent = "";
 		if (file_exists(IMPRINT_FILE)) $filecontent = file_get_contents(IMPRINT_FILE);
 		return array("imprint_content" => $filecontent); }}
-class LanguageSwitcherModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return (count($this->_i18n->getSupportedLanguages()) > 1); }
-	function getTemplateParameters() { return array(); }}
-class LastMatchModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class LanguageSwitcherModel extends Model {
+	function renderView() { return (count($this->_i18n->getSupportedLanguages()) > 1); }}
+class LastMatchModel extends Model {
 	function getTemplateParameters() {
 		$matchinfo = MatchesDataService::getLastMatch($this->_websoccer, $this->_db);
 		return array("last_match" => $matchinfo); }}
-class LastTransfersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class LastTransfersModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$transfers = TransfermarketDataService::getLastCompletedTransfers($this->_websoccer, $this->_db, $teamId);
 		return array("completedtransfers" => $transfers); }}
-class LatestResultsBlockModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class LatestResultsBlockModel extends Model {
 	function getTemplateParameters() {
 		$matches = MatchesDataService::getLatestMatches($this->_websoccer, $this->_db, 5, TRUE);
 		return array('matches' => $matches); }}
-class LatestResultsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class LatestResultsModel extends Model {
 	function getTemplateParameters() {
 		$matches = MatchesDataService::getLatestMatches($this->_websoccer, $this->_db);
 		return array("matches" => $matches); }}
-class LeagueDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class LeagueDetailsModel extends Model{
 	function getTemplateParameters() {
 		$league = null;
 		$leagueId = (int) $this->_websoccer->getRequestParameter("id");
@@ -6993,28 +6859,18 @@ class LeagueDetailsModel {
 			$league = LeagueDataService::getLeagueById($this->_websoccer, $this->_db, $leagueId);
 			if (!isset($league["league_id"])) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND)); }
 		return array("league" => $league, "leagues" => LeagueDataService::getLeaguesSortedByCountry($this->_websoccer, $this->_db)); }}
-class LeagueSelectionModel {
-	private $_country;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() {
-		$this->_country = $this->_websoccer->getRequestParameter("country");
-		return (strlen($this->_country)); }
+class LeagueSelectionModel extends Model {
 	function getTemplateParameters() {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") ."_liga";
 		$whereCondition = "land = '%s' ORDER BY name ASC";
 		$leagues = array();
 		$result = $this->_db->querySelect("id, name", $fromTable, $whereCondition, $this->_country);
 		while ($league = $result->fetch_array()) $leagues[] = $league;
-		return array("leagues" => $leagues); }}
-class LeaguesListModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("leagues" => $leagues); }
+	function renderView() {
+		$this->_country = $this->_websoccer->getRequestParameter("country");
+		return (strlen($this->_country)); }}
+class LeaguesListModel extends Model {
 	function getTemplateParameters() {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") ."_liga";
 		$whereCondition = "1=1 ORDER BY land ASC, name ASC";
@@ -7022,12 +6878,7 @@ class LeaguesListModel {
 		$result = $this->_db->querySelect("id, land AS country, name", $fromTable, $whereCondition, array());
 		while ($league = $result->fetch_array()) $leagues[$league["country"]][] = $league;
 		return array("countries" => $leagues); }}
-class LeaguesOverviewModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class LeaguesOverviewModel extends Model {
 	function getTemplateParameters() {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") ."_liga";
 		$whereCondition = "1=1 GROUP BY land ORDER BY land ASC";
@@ -7037,23 +6888,7 @@ class LeaguesOverviewModel {
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition);
 		while ($country = $result->fetch_array()) $countries[] = $country;
 		return array("countries" => $countries); }}
-class LeagueTableModel {
-	private $_leagueId;
-	private $_seasonId;
-	private $_type;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$this->_leagueId = (int) $this->_websoccer->getRequestParameter("id");
-		$this->_seasonId = $this->_websoccer->getRequestParameter("seasonid");
-		$this->_type = $this->_websoccer->getRequestParameter("type");
-		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
-		if ($this->_leagueId == 0 && $clubId > 0) {
-			$result = $db->querySelect("liga_id", $this->_websoccer->getConfig("db_prefix") . "_verein", "id = %d", $clubId, 1);
-			$club = $result->fetch_array();
-			$this->_leagueId = $club["liga_id"]; }}
-	function renderView() { return ($this->_leagueId  > 0); }
+class LeagueTableModel extends Model {
 	function getTemplateParameters() {
 		$markers = array();
 		$teams = array();
@@ -7078,13 +6913,18 @@ class LeagueTableModel {
 		$seasons = array();
 		$result = $this->_db->querySelect("id,name", $this->_websoccer->getConfig("db_prefix") ."_saison", "liga_id = %d AND beendet = '1' ORDER BY name DESC", $this->_leagueId);
 		while ($season = $result->fetch_array()) $seasons[] = $season;
-		return array("leagueId" => $this->_leagueId, "teams" => $teams, "markers" => $markers, "seasons" => $seasons); }}
-class LentPlayersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("leagueId" => $this->_leagueId, "teams" => $teams, "markers" => $markers, "seasons" => $seasons); }
+	function renderView() {
+		$this->_leagueId = (int) $this->_websoccer->getRequestParameter("id");
+		$this->_seasonId = $this->_websoccer->getRequestParameter("seasonid");
+		$this->_type = $this->_websoccer->getRequestParameter("type");
+		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
+		if ($this->_leagueId == 0 && $clubId > 0) {
+			$result = $db->querySelect("liga_id", $this->_websoccer->getConfig("db_prefix") . "_verein", "id = %d", $clubId, 1);
+			$club = $result->fetch_array();
+			$this->_leagueId = $club["liga_id"]; }
+		return ($this->_leagueId  > 0); }}
+class LentPlayersModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$columns = array("P.id" => "id", "vorname" => "firstname", "nachname" => "lastname", "kunstname" => "pseudonym", "position" => "position", "position_main" => "position_main", "position_second" => "position_second", "nation" => "player_nationality",
@@ -7102,21 +6942,12 @@ class LentPlayersModel {
 			$player["position"] = PlayersDataService::_convertPosition($player["position"]);
 			$players[] = $player; }
 		return array('lentplayers' => $players); }}
-class LiveMatchBlockModel {
-	private $_match;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+class LiveMatchBlockModel extends Model {
+	function getTemplateParameters() { return array("match" => $this->_match); }
 	function renderView() {
 		$this->_match = MatchesDataService::getLiveMatch($this->_websoccer, $this->_db);;
-		return (count($this->_match)); }
-	function getTemplateParameters() { return array("match" => $this->_match); }}
+		return (count($this->_match)); }}
 class MatchChangesModel extends FormationModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
 	function getTemplateParameters() {
 		$matchId = (int) $this->_websoccer->getRequestParameter('id');
 		if ($matchId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
@@ -7177,26 +7008,15 @@ class MatchChangesModel extends FormationModel {
 				$formation['sub' . $subNo .'_condition'] = '';
 				$formation['sub' . $subNo .'_position'] = ''; }}
 		return array('setup' => $setup, 'players' => $players, 'formation' => $formation, 'minute' => $match['match_minutes']); }}
-class MatchDayResultsModel {
-	private $_seasonId;
-	private $_matchday;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+class MatchDayResultsModel extends Model {
+	function getTemplateParameters() {
+		$matches = MatchesDataService::getMatchesByMatchday($this->_websoccer, $this->_db, $this->_seasonId, $this->_matchday);
+		return array("matches" => $matches); }
 	function renderView() {
 		$this->_seasonId = (int) $this->_websoccer->getRequestParameter("seasonid");
 		$this->_matchday = (int) $this->_websoccer->getRequestParameter("matchday");
-		return ($this->_seasonId > 0 && $this->_matchday > 0); }
-	function getTemplateParameters() {
-		$matches = MatchesDataService::getMatchesByMatchday($this->_websoccer, $this->_db, $this->_seasonId, $this->_matchday);
-		return array("matches" => $matches); }}
-class MatchDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return ($this->_seasonId > 0 && $this->_matchday > 0); }}
+class MatchDetailsModel extends Model {
 	function getTemplateParameters() {
 		$matchId = (int) $this->_websoccer->getRequestParameter('id');
 		if ($matchId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
@@ -7218,12 +7038,7 @@ class MatchDetailsModel {
 				if ($reportMessage['active_home']) array_unshift($homeStrikerMessages, $reportMessage);
 				else array_unshift($guestStrikerMessages, $reportMessage); }}
 		return array('match' => $match, 'reportmessages' => $reportmessages, 'allowTacticChanges' => $allowTacticChanges, 'homeStrikerMessages' => $homeStrikerMessages, 'guestStrikerMessages' => $guestStrikerMessages); }}
-class MatchPlayersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class MatchPlayersModel extends Model {
 	function getTemplateParameters() {
 		$matchId = (int) $this->_websoccer->getRequestParameter("id");
 		if ($matchId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
@@ -7240,20 +7055,16 @@ class MatchPlayersModel {
 				for($playerIndex = 0; $playerIndex < count($guest_players); $playerIndex++) {
 					if (in_array($guest_players[$playerIndex]["id"], $topPlayerIds)) $guest_players[$playerIndex]["is_best_player_of_day"] = TRUE; }}}
 		return array("match" => $match, "home_players" => $home_players, "guest_players" => $guest_players); }}
-class MatchPreviewModel {
-	private $_match;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;
-		$matchId = (int) $this->_websoccer->getRequestParameter('id');
-		$this->_match = MatchesDataService::getMatchById($this->_websoccer, $this->_db, $matchId); }
-	function renderView() { return ($this->_match['match_simulated'] != '1' && !$this->_match['match_minutes']); }
+class MatchPreviewModel extends Model {
 	function getTemplateParameters() {
 		$latestMatchesHome = $this->_getLatestMatchesByTeam($this->_match['match_home_id']);
 		$latestMatchesGuest = $this->_getLatestMatchesByTeam($this->_match['match_guest_id']);
 		return array('match' => $this->_match, 'latestMatchesHome' => $latestMatchesHome, 'latestMatchesGuest' => $latestMatchesGuest, 'homeUser' => $this->_getUserInfoByTeam($this->_match['match_home_id']),
 			'guestUser' => $this->_getUserInfoByTeam($this->_match['match_guest_id'])); }
+	function renderView() {
+		$matchId = (int) $this->_websoccer->getRequestParameter('id');
+		$this->_match = MatchesDataService::getMatchById($this->_websoccer, $this->_db, $matchId);
+		return ($this->_match['match_simulated'] != '1' && !$this->_match['match_minutes']); }
 	function _getLatestMatchesByTeam($teamId) {
 		$whereCondition = "M.berechnet = 1 AND (HOME.id = %d OR GUEST.id = %d)";
 		$parameters = array($teamId, $teamId);
@@ -7273,12 +7084,7 @@ class MatchPreviewModel {
 		$user = $result->fetch_array();
 		if ($user) $user['picture'] = UsersDataService::getUserProfilePicture($this->_websoccer, $user['picture'], $user['email'], 120);
 		return $user; }}
-class MatchStatisticsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class MatchStatisticsModel extends Model {
 	function getTemplateParameters() {
 		$matchId = (int) $this->_websoccer->getRequestParameter("id");
 		if ($matchId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
@@ -7297,12 +7103,7 @@ class MatchStatisticsModel {
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $parameters);
 		$guestStatistics = $result->fetch_array();
 		return array("match" => $match, "homeStatistics" => $homeStatistics, "guestStatistics" => $guestStatistics); }}
-class MessageDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class MessageDetailsModel extends Model {
 	function getTemplateParameters() {
 		$id = $this->_websoccer->getRequestParameter("id");
 		$message = MessagesDataService::getMessageById($this->_websoccer, $this->_db, $id);
@@ -7312,12 +7113,7 @@ class MessageDetailsModel {
 			$whereCondition = "id = %d";
 			$this->_db->queryUpdate($columns, $fromTable, $whereCondition, $id); }
 		return array("message" => $message); }}
-class MessagesInboxModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class MessagesInboxModel extends Model {
 	function getTemplateParameters() {
 		$count = MessagesDataService::countInboxMessages($this->_websoccer, $this->_db);
 		$eps = $this->_websoccer->getConfig("entries_per_page");
@@ -7325,12 +7121,7 @@ class MessagesInboxModel {
 		if ($count > 0) $messages = MessagesDataService::getInboxMessages($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps);
 		else $messages = array();
 		return array("messages" => $messages, "paginator" => $paginator); }}
-class MessagesOutboxModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class MessagesOutboxModel extends Model {
 	function getTemplateParameters() {
 		$count = MessagesDataService::countOutboxMessages($this->_websoccer, $this->_db);
 		$eps = $this->_websoccer->getConfig("entries_per_page");
@@ -7339,13 +7130,7 @@ class MessagesOutboxModel {
 		if ($count > 0) $messages = MessagesDataService::getOutboxMessages($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps);
 		else $messages = array();
 		return array("messages" => $messages, "paginator" => $paginator); }}
-class MyScheduleModel {
-	private $_teamId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class MyScheduleModel extends Model {
 	function getTemplateParameters() {
 		$matches = array();
 		$paginator = null;
@@ -7362,44 +7147,24 @@ class MyScheduleModel {
 			$paginator = new Paginator($count, $eps, $this->_websoccer);
 			$matches = MatchesDataService::getMatchesByCondition($this->_websoccer, $this->_db, $whereCondition, $parameters, $paginator->getFirstIndex() . ',' . $eps); }
 		return array("matches" => $matches, "paginator" => $paginator); }}
-class MyTeamModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class MyTeamModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$captain_id = TeamsDataService::getTeamCaptainIdOfTeam($this->_websoccer, $this->_db, $teamId);
 		$players = array();
 		if ($teamId > 0) $players = PlayersDataService::getPlayersOfTeamById($this->_websoccer, $this->_db, $teamId);
 		return array("players" => $players, "captain_id" => $captain_id); }}
-class MyTransferBidsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class MyTransferBidsModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$bids = TransfermarketDataService::getCurrentBidsOfTeam($this->_websoccer, $this->_db, $teamId);
 		return array("bids" => $bids); }}
-class MyTransfersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class MyTransfersModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$transfers = TransfermarketDataService::getCompletedTransfersOfTeam($this->_websoccer, $this->_db, $teamId);
 		return array("completedtransfers" => $transfers); }}
-class MyYouthTeamModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }
+class MyYouthTeamModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$players = array();
@@ -7407,13 +7172,9 @@ class MyYouthTeamModel {
 			$players = YouthPlayersDataService::getYouthPlayersOfTeam($this->_websoccer, $this->_db, $teamId);
 			$noOfPlayers = count($players);
 			for ($playerIndex = 0; $playerIndex < $noOfPlayers; $playerIndex++) $players[$playerIndex]["nation_flagfile"] = PlayersDataService::getFlagFilename($players[$playerIndex]["nation"]); }
-		return array("players" => $players); }}
-class NationalMatchResultsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("nationalteams_enabled"); }
+		return array("players" => $players); }
+	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }}
+class NationalMatchResultsModel extends Model {
 	function getTemplateParameters() {
 		$teamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
 		if (!$teamId) throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
@@ -7423,13 +7184,9 @@ class NationalMatchResultsModel {
 		$paginator->addParameter("block", "national-match-results");
 		$matches = array();
 		if ($matchesCount) $matches = NationalteamsDataService::getSimulatedMatches($this->_websoccer, $this->_db, $teamId, $paginator->getFirstIndex(), $eps);
-		return array("paginator" => $paginator, "matches" => $matches); }}
-class NationalNextMatchesModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("nationalteams_enabled"); }
+		return array("paginator" => $paginator, "matches" => $matches); }
+	function renderView() { return $this->_websoccer->getConfig("nationalteams_enabled"); }}
+class NationalNextMatchesModel extends Model {
 	function getTemplateParameters() {
 		$teamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
 		if (!$teamId) throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
@@ -7439,51 +7196,34 @@ class NationalNextMatchesModel {
 		$paginator->addParameter("block", "national-next-matches");
 		$matches = array();
 		if ($matchesCount) $matches = NationalteamsDataService::getNextMatches($this->_websoccer, $this->_db, $teamId, $paginator->getFirstIndex(), $eps);
-		return array("paginator" => $paginator, "matches" => $matches); }}
-class NationalNextMatchModel {
-	private $_teamId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+		return array("paginator" => $paginator, "matches" => $matches); }
+	function renderView() { return $this->_websoccer->getConfig("nationalteams_enabled"); }}
+class NationalNextMatchModel extends Model {
+	function getTemplateParameters() {
+		$matches = NationalteamsDataService::getNextMatches($this->_websoccer, $this->_db, $this->_teamId, 0, 1);
+		return array('match' => $matches[0]); }
 	function renderView() {
 		if (!$this->_websoccer->getConfig('nationalteams_enabled')) return FALSE;
 		$this->_teamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
 		if (!$this->_teamId) return FALSE;
 		$matchesCount = NationalteamsDataService::countNextMatches($this->_websoccer, $this->_db, $this->_teamId);
 		if (!$matchesCount) return FALSE;
-		return TRUE; }
-	function getTemplateParameters() {
-		$matches = NationalteamsDataService::getNextMatches($this->_websoccer, $this->_db, $this->_teamId, 0, 1);
-		return array('match' => $matches[0]); }}
-class NationalPlayersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("nationalteams_enabled"); }
+		return TRUE; }}
+class NationalPlayersModel extends Model {
 	function getTemplateParameters() {
 		$teamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
 		if (!$teamId) throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
 		$result = $this->_db->querySelect("name", $this->_websoccer->getConfig("db_prefix") . "_verein", "id = %d", $teamId);
 		$team = $result->fetch_array();
-		return array("team_name" => $team["name"], "players" => NationalteamsDataService::getNationalPlayersOfTeamByPosition($this->_websoccer, $this->_db, $teamId)); }}
-class NationalTeamMatchesModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("nationalteams_enabled"); }
+		return array("team_name" => $team["name"], "players" => NationalteamsDataService::getNationalPlayersOfTeamByPosition($this->_websoccer, $this->_db, $teamId)); }
+	function renderView() { return $this->_websoccer->getConfig("nationalteams_enabled"); }}
+class NationalTeamMatchesModel extends Model {
 	function getTemplateParameters() {
 		$teamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
 		if (!$teamId) throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
-		return array(); }}
-class NewsDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array(); }
+	function renderView() { return $this->_websoccer->getConfig("nationalteams_enabled"); }}
+class NewsDetailsModel extends Model {
 	function getTemplateParameters() {
 		$tablePrefix = $this->_websoccer->getConfig("db_prefix") . "_";
 		$fromTable = $tablePrefix . "news AS NewsTab";
@@ -7506,12 +7246,7 @@ class NewsDetailsModel {
 	  $str = preg_replace("#([\t\r\n ])([a-z0-9]+?){1}://([\w\-]+\.([\w\-]+\.)*[\w]+(:[0-9]+)?(/[^ \"\n\r\t<]*)?)#i", '\1<a href="\2://\3" target="_blank">\2://\3</a>', $str);
 	  $str = preg_replace("#([\n ])([a-z0-9\-_.]+?)@([\w\-]+\.([\w\-\.]+\.)*[\w]+)#i", "\\1<a href=\"mailto:\\2@\\3\">\\2@\\3</a>", $str);
 	  return $str; }}
-class NewsListModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class NewsListModel extends Model {
 	function getTemplateParameters() {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_news";
 		$whereCondition = "status = %d";
@@ -7532,71 +7267,42 @@ class NewsListModel {
 			$message = wordwrap($message, NEWS_TEASER_MAXLENGTH);
 			$message = substr($message, 0, strpos($message, "\n")) . "..."; }
 		return $message; }}
-class NextMatchModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class NextMatchModel extends Model {
 	function getTemplateParameters() {
 		if ($this->_websoccer->getRequestParameter("nationalteam")) $clubId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
 		else $clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$matchinfo = MatchesDataService::getNextMatch($this->_websoccer, $this->_db, $clubId);
 		if (count($matchinfo)) $matchinfo["previous_matches"] = MatchesDataService::getPreviousMatches($matchinfo, $this->_websoccer, $this->_db);
 		return $matchinfo; }}
-class NotificationsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class NotificationsModel extends Model {
 	function getTemplateParameters() {
 		$user = $this->_websoccer->getUser();
 		$notifications = NotificationsDataService::getLatestNotifications($this->_websoccer, $this->_db, $this->_i18n, $user->id, $user->getClubId($this->_websoccer, $this->_db), $this->_websoccer->getConfig("notifications_max"));
 		$this->_db->queryUpdate(array("seen" => "1"), $this->_websoccer->getConfig("db_prefix") . "_notification", "user_id = %d", $this->_websoccer->getUser()->id);
 		return array("notifications" => $notifications); }}
-class OfficeModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class OfficeModel extends Model{
 	function getTemplateParameters() {
 		$user = $this->_websoccer->getUser();
 		$clubId = $user->getClubId($this->_websoccer, $this->_db);
 		if ($clubId) RandomEventsDataService::createEventIfRequired($this->_websoccer, $this->_db, $user->id);
 		return array(); }}
-class PaypalLinkModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("paypal_enabled"); }
+class PaypalLinkModel extends Model {
 	function getTemplateParameters() {
 		$userId = $this->_websoccer->getUser()->id;
 		$linkCode = $this->_websoccer->getConfig("paypal_buttonhtml");
 		$customField = "<input type=\"hidden\" name=\"custom\" value=\"". $userId . "\">";
 		$notifyUrlField = "<input type=\"hidden\" name=\"notify_url\" value=\"". $this->_websoccer->getInternalActionUrl("paypal-notify", null, null, TRUE) . "\">";
 		$linkCode = str_replace("</form>", $notifyUrlField . $customField . "</form>", $linkCode);
-		return array("linkCode" => $linkCode); }}
-class PlayerDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("linkCode" => $linkCode); }
+	function renderView() { return $this->_websoccer->getConfig("paypal_enabled"); }}
+class PlayerDetailsModel extends Model {
 	function getTemplateParameters() {
 		$playerId = (int) $this->_websoccer->getRequestParameter("id");
 		if ($playerId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
 		$player = PlayersDataService::getPlayerById($this->_websoccer, $this->_db, $playerId);
 		if (!isset($player["player_id"])) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
 		return array("player" => $player); }}
-class PlayerDetailsWithDependenciesModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class PlayerDetailsWithDependenciesModel extends Model {
 	function getTemplateParameters() {
 		$playerId = (int) $this->_websoccer->getRequestParameter("id");
 		if ($playerId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
@@ -7615,25 +7321,7 @@ class PlayerDetailsWithDependenciesModel {
 		while ($grade = $result->fetch_array()) $grades[] = $grade["grade"];
 		$grades = array_reverse($grades);
 		return $grades; }}
-class PlayersSearchModel {
-	private $_firstName;
-	private $_lastName;
-	private $_club;
-	private $_position;
-	private $_strength;
-	private $_lendableOnly;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() {
-		$this->_firstName = $this->_websoccer->getRequestParameter("fname");
-		$this->_lastName = $this->_websoccer->getRequestParameter("lname");
-		$this->_club = $this->_websoccer->getRequestParameter("club");
-		$this->_position = $this->_websoccer->getRequestParameter("position");
-		$this->_strength = $this->_websoccer->getRequestParameter("strength");
-		$this->_lendableOnly = ($this->_websoccer->getRequestParameter("lendable") == "1") ? TRUE : FALSE;
-		return ($this->_firstName !== null || $this->_lastName !== null || $this->_club !== null || $this->_position !== null || $this->_strength !== null || $this->_lendableOnly); }
+class PlayersSearchModel extends Model {
 	function getTemplateParameters() {
 		$playersCount = PlayersDataService::findPlayersCount($this->_websoccer, $this->_db, $this->_firstName, $this->_lastName, $this->_club, $this->_position, $this->_strength, $this->_lendableOnly);
 		$eps = $this->_websoccer->getConfig("entries_per_page");
@@ -7647,13 +7335,16 @@ class PlayersSearchModel {
 		$paginator->addParameter("lendable", $this->_lendableOnly);
 		if ($playersCount > 0) $players = PlayersDataService::findPlayers($this->_websoccer, $this->_db, $this->_firstName, $this->_lastName, $this->_club, $this->_position, $this->_strength, $this->_lendableOnly, $paginator->getFirstIndex(), $eps);
 		else $players = array();
-		return array("playersCount" => $playersCount, "players" => $players, "paginator" => $paginator); }}
-class PlayerStatisticsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("playersCount" => $playersCount, "players" => $players, "paginator" => $paginator); }
+	function renderView() {
+		$this->_firstName = $this->_websoccer->getRequestParameter("fname");
+		$this->_lastName = $this->_websoccer->getRequestParameter("lname");
+		$this->_club = $this->_websoccer->getRequestParameter("club");
+		$this->_position = $this->_websoccer->getRequestParameter("position");
+		$this->_strength = $this->_websoccer->getRequestParameter("strength");
+		$this->_lendableOnly = ($this->_websoccer->getRequestParameter("lendable") == "1") ? TRUE : FALSE;
+		return ($this->_firstName !== null || $this->_lastName !== null || $this->_club !== null || $this->_position !== null || $this->_strength !== null || $this->_lendableOnly); }}
+class PlayerStatisticsModel extends Model {
 	function getTemplateParameters() {
 		$playerId = (int) $this->_websoccer->getRequestParameter('id');
 		if ($playerId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
@@ -7672,12 +7363,7 @@ class PlayerStatisticsModel {
 			if (strlen($statistic['league_name'])) $leagueStatistics[] = $statistic;
 			else $cupStatistics[] = $statistic; }
 		return array('leagueStatistics' => $leagueStatistics, 'cupStatistics' => $cupStatistics); }}
-class PremiumAccountModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class PremiumAccountModel extends Model {
 	function getTemplateParameters() {
 		$userId = $this->_websoccer->getUser()->id;
 		$count = PremiumDataService::countAccountStatementsOfUser($this->_websoccer, $this->_db, $userId);
@@ -7686,12 +7372,7 @@ class PremiumAccountModel {
 		if ($count > 0) $statements = PremiumDataService::getAccountStatementsOfUser($this->_websoccer, $this->_db, $userId, $paginator->getFirstIndex(), $eps);
 		else $statements = array();
 		return array("statements" => $statements, "paginator" => $paginator, "payments" => PremiumDataService::getPaymentsOfUser($this->_websoccer, $this->_db, $userId, 5)); }}
-class ProfileBlockModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return (strlen($this->_websoccer->getUser()->username)) ? TRUE : FALSE; }
+class ProfileBlockModel extends Model {
 	function getTemplateParameters() {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_user";
 		$user = $this->_websoccer->getUser();
@@ -7704,13 +7385,9 @@ class ProfileBlockModel {
 		if ($clubId > 0) $team = TeamsDataService::getTeamSummaryById($this->_websoccer, $this->_db, $clubId);
 		$unseenMessages = MessagesDataService::countUnseenInboxMessages($this->_websoccer, $this->_db);
 		$unseenNotifications = NotificationsDataService::countUnseenNotifications($this->_websoccer, $this->_db, $user->id, $clubId);
-		return array("profile" => $userinfo, "userteam" => $team, "unseenMessages" => $unseenMessages, "unseenNotifications" => $unseenNotifications); }}
-class ProfileModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("profile" => $userinfo, "userteam" => $team, "unseenMessages" => $unseenMessages, "unseenNotifications" => $unseenNotifications); }
+	function renderView() { return (strlen($this->_websoccer->getUser()->username)) ? TRUE : FALSE; }}
+class ProfileModel extends Model {
 	function getTemplateParameters() {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_user";
 		$user = $this->_websoccer->getUser();
@@ -7731,22 +7408,11 @@ class ProfileModel {
 		foreach ($columns as $dbColumn) {
 			if ($this->_websoccer->getRequestParameter($dbColumn)) $userinfo[$dbColumn] = $this->_websoccer->getRequestParameter($dbColumn); }
 		return array("user" => $userinfo); }}
-class ProjectStatisticsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class ProjectStatisticsModel extends Model {
 	function getTemplateParameters() {
 		return array("usersOnline" => UsersDataService::countOnlineUsers($this->_websoccer, $this->_db), "usersTotal" => UsersDataService::countTotalUsers($this->_websoccer, $this->_db), "numberOfLeagues" => LeagueDataService::countTotalLeagues($this->_websoccer,
 			$this->_db), "numberOfFreeTeams" => TeamsDataService::countTeamsWithoutManager($this->_websoccer, $this->_db)); }}
-class RegisterFormModel {
-	private $_i18n;
-	private $_websoccer;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class RegisterFormModel extends Model {
 	function getTemplateParameters() {
 		if (!$this->_websoccer->getConfig("allow_userregistration")) throw new Exception($this->_i18n->getMessage("registration_disabled"));
 		$parameters = array();
@@ -7756,12 +7422,7 @@ class RegisterFormModel {
 			$captchaCode = recaptcha_get_html($this->_websoccer->getConfig("register_captcha_publickey"), null, $useSsl);
 			$parameters["captchaCode"] = $captchaCode; }
 		return $parameters; }}
-class RssResultsOfUserModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class RssResultsOfUserModel extends Model {
 	function getTemplateParameters() {
 		$userId = (int) $this->_websoccer->getRequestParameter('id');
 		$matches = MatchesDataService::getLatestMatchesByUser($this->_websoccer, $this->_db, $userId);
@@ -7769,15 +7430,7 @@ class RssResultsOfUserModel {
 		foreach ($matches as $match) $items[] = array('url' => $this->_websoccer->getInternalUrl('match', 'id=' . $match['id'], TRUE), 'title' => $match['home_team'] . ' - ' . $match['guest_team'] . ' (' . $match['home_goals'] . ':' . $match['guest_goals'] . ')',
 			'date' => gmdate(DATE_RSS, $match['date']));
 		return array('items' => $items); }}
-class SeasonsOfLeagueModel {
-	private $_leagueId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() {
-		$this->_leagueId = (int) $this->_websoccer->getRequestParameter("leagueid");
-		return ($this->_leagueId > 0); }
+class SeasonsOfLeagueModel extends Model {
 	function getTemplateParameters() {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") ."_saison AS S";
 		$fromTable .= " INNER JOIN " . $this->_websoccer->getConfig("db_prefix") ."_liga AS L ON L.id = S.liga_id";
@@ -7799,16 +7452,11 @@ class SeasonsOfLeagueModel {
 			$result = $this->_db->querySelect("MAX(spieltag) AS currentMatchday", $fromTable, $condition . " AND berechnet = '1'", $seasonId);
 			$match = $result->fetch_array();
 			$currentMatchDay = $match["currentMatchday"]; }
-		return array("seasons" => $seasons, "league_name" => $league_name, "currentMatchDay" => $currentMatchDay, "maxMatchDay" => $maxMatchDay); }}
-class ShoutboxLeagueModel {
-	private $_leagueId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+		return array("seasons" => $seasons, "league_name" => $league_name, "currentMatchDay" => $currentMatchDay, "maxMatchDay" => $maxMatchDay); }
 	function renderView() {
-		$this->_leagueId = $this->_websoccer->getRequestParameter('id');
-		return ($this->_leagueId != NULL); }
+		$this->_leagueId = (int) $this->_websoccer->getRequestParameter("leagueid");
+		return ($this->_leagueId > 0); }}
+class ShoutboxLeagueModel extends Model {
 	function getTemplateParameters() {
 		$messages = array();
 		$tablePrefix = $this->_websoccer->getConfig('db_prefix');
@@ -7823,16 +7471,11 @@ class ShoutboxLeagueModel {
 		$columns = array('MESSAGE.id' => 'message_id', 'MESSAGE.message' => 'message', 'MESSAGE.created_date' => 'date', 'U.id' => 'user_id', 'U.nick' => 'user_name', 'HOME.name' => 'home_name', 'GUEST.name' => 'guest_name', 'M.id' => 'match_id' );
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $this->_leagueId, 20);
 		while ($message = $result->fetch_array()) $messages[] = $message;
-		return array("messages" => $messages, "hidesubmit" => TRUE); }}
-class ShoutboxModel {
-	private $_matchId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+		return array("messages" => $messages, "hidesubmit" => TRUE); }
 	function renderView() {
-		$this->_matchId = $this->_websoccer->getRequestParameter('id');
-		return ($this->_matchId != NULL); }
+		$this->_leagueId = $this->_websoccer->getRequestParameter('id');
+		return ($this->_leagueId != NULL); }}
+class ShoutboxModel extends Model {
 	function getTemplateParameters() {
 		$messages = array();
 		$tablePrefix = $this->_websoccer->getConfig('db_prefix');
@@ -7847,13 +7490,11 @@ class ShoutboxModel {
 		$columns = array( 'MESSAGE.id' => 'message_id', 'MESSAGE.message' => 'message', 'MESSAGE.created_date' => 'date', 'U.id' => 'user_id', 'U.nick' => 'user_name', 'HOME.name' => 'home_name', 'GUEST.name' => 'guest_name', 				'M.id' => 'match_id' );
 		$result = $this->_db->querySelect($columns, $fromTable, $whereCondition, $this->_matchId, 20);
 		while ($message = $result->fetch_array()) $messages[] = $message;
-		return array("messages" => $messages); }}
-class SponsorModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("messages" => $messages); }
+	function renderView() {
+		$this->_matchId = $this->_websoccer->getRequestParameter('id');
+		return ($this->_matchId != NULL); }}
+class SponsorModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		if ($teamId < 1) throw new Exception($this->_i18n->getMessage("feature_requires_team"));
@@ -7864,12 +7505,7 @@ class SponsorModel {
 			$teamMatchday = MatchesDataService::getMatchdayNumberOfTeam($this->_websoccer, $this->_db, $teamId);
 			if ($teamMatchday >= $this->_websoccer->getConfig("sponsor_earliest_matchday")) $sponsors = SponsorsDataService::getSponsorOffers($this->_websoccer, $this->_db, $teamId); }
 		return array("sponsor" => $sponsor, "sponsors" => $sponsors, "teamMatchday" => $teamMatchday); }}
-class StadiumEnvironmentModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class StadiumEnvironmentModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		if ($teamId < 1) throw new Exception($this->_i18n->getMessage("feature_requires_team"));
@@ -7888,27 +7524,13 @@ class StadiumEnvironmentModel {
 			if ($this->_i18n->hasMessage($building['description'])) $building['description'] = $this->_i18n->getMessage($building['description']);
 			$availableBuildings[] = $building; }
 		return array('existingBuildings' => $existingBuildings, 'availableBuildings' => $availableBuildings); }}
-class StadiumExtensionModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class StadiumExtensionModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
-		$offers = StadiumsDataService::getBuilderOffersForExtension($this->_websoccer, $this->_db, $teamId,
-				(int) $this->_websoccer->getRequestParameter("side_standing"),
-				(int) $this->_websoccer->getRequestParameter("side_seats"),
-				(int) $this->_websoccer->getRequestParameter("grand_standing"),
-				(int) $this->_websoccer->getRequestParameter("grand_seats"),
-				(int) $this->_websoccer->getRequestParameter("vip"));
+		$offers = StadiumsDataService::getBuilderOffersForExtension($this->_websoccer, $this->_db, $teamId, (int) $this->_websoccer->getRequestParameter("side_standing"), (int) $this->_websoccer->getRequestParameter("side_seats"),
+			(int) $this->_websoccer->getRequestParameter("grand_standing"), (int) $this->_websoccer->getRequestParameter("grand_seats"), (int) $this->_websoccer->getRequestParameter("vip"));
 		return array("offers" => $offers); }}
-class StadiumModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class StadiumModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$stadium = StadiumsDataService::getStadiumByTeamId($this->_websoccer, $this->_db, $teamId);
@@ -7920,12 +7542,7 @@ class StadiumModel {
 			$upgradeCosts["seatsquality"] = StadiumsDataService::computeUpgradeCosts($this->_websoccer, "seatsquality", $stadium);
 			$upgradeCosts["vipquality"] = StadiumsDataService::computeUpgradeCosts($this->_websoccer, "vipquality", $stadium); }
 		return array("stadium" => $stadium, "construction" => $construction, "upgradeCosts" => $upgradeCosts); }}
-class TableHistoryModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TableHistoryModel extends Model {
 	function getTemplateParameters() {
 		$teamId = (int) $this->_websoccer->getRequestParameter('id');
 		if ($teamId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
@@ -7938,17 +7555,11 @@ class TableHistoryModel {
 			$columns = array('H.matchday' => 'matchday', 'H.rank' => 'rank' );
 			$fromTable = $this->_websoccer->getConfig('db_prefix') .'_leaguehistory AS H';
 			$result = $this->_db->querySelect('matchday, rank', $fromTable, 'season_id = %d AND team_id = %s ORDER BY matchday ASC', array($season['id'], $team['team_id']));
-			while ($historyRecord = $result->fetch_array()) $history[] = $historyRecord;
-	 }
+			while ($historyRecord = $result->fetch_array()) $history[] = $historyRecord; }
 		$result = $this->_db->querySelect('COUNT(*) AS cnt', $this->_websoccer->getConfig('db_prefix') .'_verein', 'liga_id = %d AND status = \'1\'', $team['team_league_id'], 1);
 		$teams = $result->fetch_array();
 		return array('teamName' => $team['team_name'], 'history' => $history, 'noOfTeamsInLeague' => $teams['cnt'], 'leagueid' => $team['team_league_id']); }}
-class TeamDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TeamDetailsModel extends Model {
 	function getTemplateParameters() {
 		$teamId = (int) $this->_websoccer->getRequestParameter('id');
 		if ($teamId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
@@ -8025,15 +7636,7 @@ class TeamDetailsModel {
 		$totalStrength += $weightSatisfaction * $stamina;
 		$totalStrength /= $weightStrength + $weightTech + $weightStamina + $weightFreshness + $weightSatisfaction;
 		return $totalStrength * $this->_websoccer->getConfig('transfermarket_value_per_strength'); }}
-class TeamHistoryModel {
-	private $_teamId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() {
-		$this->_teamId = (int) $this->_websoccer->getRequestParameter("teamid");
-		return $this->_teamId > 0; }
+class TeamHistoryModel extends Model {
 	function getTemplateParameters() {
 		$columns = array('U.id' => 'user_id', 'U.nick' => 'user_name', 'L.name' => 'league_name', 'SEASON.name' => 'season_name', 'A.rank' => 'season_rank', 'A.id' => 'achievement_id', 'A.date_recorded' => 'achievement_date', 'CUP.name' => 'cup_name',
 			'CUPROUND.name' => 'cup_round_name' );
@@ -8052,13 +7655,11 @@ class TeamHistoryModel {
 			if (strlen($achievement['league_name'])) $leagues[$achievement['league_name']][] = $achievement;
 			elseif (!isset($cups[$achievement['cup_name']])) $cups[$achievement['cup_name']] = $achievement;
 			else $this->_db->queryDelete($tablePrefix . '_achievement', 'id = %d', $achievement['achievement_id']); }
-		return array("leagues" => $leagues, "cups" => $cups); }}
-class TeamOfTheDayModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("leagues" => $leagues, "cups" => $cups); }
+	function renderView() {
+		$this->_teamId = (int) $this->_websoccer->getRequestParameter("teamid");
+		return $this->_teamId > 0; }}
+class TeamOfTheDayModel extends Model {
 	function getTemplateParameters() {
 		$players = array();
 		$positions;
@@ -8151,47 +7752,27 @@ class TeamOfTheDayModel {
 		while ($player = $result->fetch_array()) {
 			$player["player_name"] = (strlen($player["pseudonym"])) ? $player["pseudonym"] : $player["firstname"] . " " . $player["lastname"];
 			$players[] = $player; }}}
-class TeamPlayersModel {
-	private $_teamid;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() {
-		$this->_teamid = (int) $this->_websoccer->getRequestParameter("teamid");
-		return ($this->_teamid > 0); }
+class TeamPlayersModel extends Model {
 	function getTemplateParameters() {
 		$isNationalTeam = ($this->_websoccer->getRequestParameter("nationalteam")) ? TRUE : FALSE;
 		$players = PlayersDataService::getPlayersOfTeamById($this->_websoccer, $this->_db, $this->_teamid, $isNationalTeam);
-		return array("players" => $players); }}
-class TeamResultsModel {
-	private $_teamId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+		return array("players" => $players); }
 	function renderView() {
-		$this->_teamId = (int) $this->_websoccer->getRequestParameter("teamid");
-		return $this->_teamId > 0; }
+		$this->_teamid = (int) $this->_websoccer->getRequestParameter("teamid");
+		return ($this->_teamid > 0); }}
+class TeamResultsModel extends Model {
 	function getTemplateParameters() {
 		$matches = MatchesDataService::getLatestMatchesByTeam($this->_websoccer, $this->_db, $this->_teamId);
-		return array("matches" => $matches); }}
-class TeamTransfersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("matches" => $matches); }
+	function renderView() {
+		$this->_teamId = (int) $this->_websoccer->getRequestParameter("teamid");
+		return $this->_teamId > 0; }}
+class TeamTransfersModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getRequestParameter("teamid");
 		if ($teamId > 0) $transfers = TransfermarketDataService::getCompletedTransfersOfTeam($this->_websoccer, $this->_db, $teamId);
 		return array("completedtransfers" => $transfers); }}
-class TermsAndConditionsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TermsAndConditionsModel extends Model {
 	function getTemplateParameters() {
 		$termsFile = BASE_FOLDER . "/admin/config/termsandconditions.xml";
 		if (!file_exists($termsFile)) throw new Exception("File does not exist: " . $termsFile);
@@ -8200,12 +7781,7 @@ class TermsAndConditionsModel {
 		if (!$termsConfig) throw new Exception($this->_i18n->getMessage("termsandconditions_err_notavilable"));
 		$terms = (string) $termsConfig[0];
 		return array("terms" => nl2br($terms)); }}
-class TicketsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TicketsModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		if ($teamId < 1) throw new Exception($this->_i18n->getMessage("feature_requires_team"));
@@ -8236,13 +7812,7 @@ class TicketsModel {
 		if ($this->_websoccer->getRequestParameter("p_seats_grand")) $tickets["p_seats_grand"] =  $this->_websoccer->getRequestParameter("p_seats_grand");
 		if ($this->_websoccer->getRequestParameter("p_vip")) $tickets["p_vip"] =  $this->_websoccer->getRequestParameter("p_vip");
 		return array("tickets" => $tickets); }}
-class TodaysMatchesModel {
-	private $_teamId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TodaysMatchesModel extends Model {
 	function getTemplateParameters() {
 		$matches = array();
 		$paginator = null;
@@ -8252,12 +7822,7 @@ class TodaysMatchesModel {
 			$paginator = new Paginator($count, $eps, $this->_websoccer);
 			$matches = MatchesDataService::getTodaysMatches($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps); }
 		return array("matches" => $matches, "paginator" => $paginator); }}
-class TopNewsListModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TopNewsListModel extends Model {
 	function getTemplateParameters() {
 		$fromTable = $this->_websoccer->getConfig("db_prefix") . "_news";
 		$columns = "id, titel, datum";
@@ -8266,50 +7831,25 @@ class TopNewsListModel {
 		$articles = array();
 		while ($article = $result->fetch_array()) $articles[] = array("id" => $article["id"], "title" => $article["titel"], "date" => $this->_websoccer->getFormattedDate($article["datum"]));
 		return array("topnews" => $articles); }}
-class TopScorersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TopScorersModel extends Model {
 	function getTemplateParameters() {
 		return array('players' => PlayersDataService::getTopScorers($this->_websoccer, $this->_db, NUMBER_OF_PLAYERS, $this->_websoccer->getRequestParameter('leagueid')), 'leagues' => LeagueDataService::getLeaguesSortedByCountry($this->_websoccer, $this->_db)); }}
-class TopStrikersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TopStrikersModel extends Model {
 	function getTemplateParameters() {
 		return array("players" => PlayersDataService::getTopStrikers($this->_websoccer, $this->_db, NUMBER_OF_PLAYERS, $this->_websoccer->getRequestParameter("leagueid")), "leagues" => LeagueDataService::getLeaguesSortedByCountry($this->_websoccer, $this->_db)); }}
-class TrainerDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TrainerDetailsModel extends Model {
 	function getTemplateParameters() {
 		$trainerId = $this->_websoccer->getRequestParameter("id");
 		$trainer = TrainingDataService::getTrainerById($this->_websoccer, $this->_db, $trainerId);
 		if (!isset($trainer["id"])) throw new Exception(MSG_KEY_ERROR_PAGENOTFOUND);
 		return array("trainer" => $trainer); }}
-class TrainingCampsDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TrainingCampsDetailsModel extends Model {
 	function getTemplateParameters() {
 		$camp = TrainingcampsDataService::getCampById($this->_websoccer, $this->_db, $this->_websoccer->getRequestParameter("id"));
 		if (!$camp) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
 		$defaultDate = $this->_websoccer->getNowAsTimestamp() + 24 * 3600;
 		return array("camp" => $camp, "defaultDate" => $defaultDate); }}
-class TrainingCampsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TrainingCampsModel extends Model {
 	function getTemplateParameters() {
 		$user = $this->_websoccer->getUser();
 		$teamId = $user->getClubId($this->_websoccer, $this->_db);
@@ -8326,12 +7866,7 @@ class TrainingCampsModel {
 			else $listCamps = FALSE; }
 		if ($listCamps) $camps = TrainingcampsDataService::getCamps($this->_websoccer, $this->_db);
 		return array("bookedCamp" => $bookedCamp, "camps" => $camps); }}
-class TrainingModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class TrainingModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$lastExecution = TrainingDataService::getLatestTrainingExecutionTime($this->_websoccer, $this->_db, $teamId);
@@ -8349,26 +7884,16 @@ class TrainingModel {
 		$contextParameters = $this->_websoccer->getContextParameters();
 		if (isset($contextParameters["trainingEffects"])) $trainingEffects = $contextParameters["trainingEffects"];
 		return array("unitsCount" => $unitsCount, "lastExecution" => $lastExecution, "training_unit" => $training_unit, "trainers" => $trainers, "paginator" => $paginator, "trainingEffects" => $trainingEffects); }}
-class TransferBidModel {
-	private $_player;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
+class TransferBidModel extends Model {
+	function getTemplateParameters() {
+		$highestBid = TransfermarketDataService::getHighestBidForPlayer($this->_websoccer, $this->_db, $this->_player["player_id"], $this->_player["transfer_start"], $this->_player["transfer_end"]);
+		return array("player" => $this->_player, "highestbid" => $highestBid); }
 	function renderView() {
 		$playerId = (int) $this->_websoccer->getRequestParameter("id");
 		if ($playerId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
 		$this->_player = PlayersDataService::getPlayerById($this->_websoccer, $this->_db, $playerId);
-		return ($this->_player["transfer_end"] > $this->_websoccer->getNowAsTimestamp()); }
-	function getTemplateParameters() {
-		$highestBid = TransfermarketDataService::getHighestBidForPlayer($this->_websoccer, $this->_db, $this->_player["player_id"], $this->_player["transfer_start"], $this->_player["transfer_end"]);
-		return array("player" => $this->_player, "highestbid" => $highestBid); }}
-class TransfermarketOverviewModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return ($this->_websoccer->getConfig("transfermarket_enabled") == 1); }
+		return ($this->_player["transfer_end"] > $this->_websoccer->getNowAsTimestamp()); }}
+class TransfermarketOverviewModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		if ($teamId < 1) throw new Exception($this->_i18n->getMessage("feature_requires_team"));
@@ -8384,13 +7909,9 @@ class TransfermarketOverviewModel {
 		if ($positionFilter != null) $paginator->addParameter("position", $positionInput);
 		if ($count > 0) $players = PlayersDataService::getPlayersOnTransferList($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps, $positionFilter);
 		else $players = array();
-		return array("transferplayers" => $players, "playerscount" => $count, "paginator" => $paginator); }}
-class TransferOffersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer;}
-	function renderView() { return ($this->_websoccer->getConfig("transferoffers_enabled") == 1); }
+		return array("transferplayers" => $players, "playerscount" => $count, "paginator" => $paginator); }
+	function renderView() { return ($this->_websoccer->getConfig("transfermarket_enabled") == 1); }}
+class TransferOffersModel extends Model {
 	function getTemplateParameters() {
 		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$offers = array();
@@ -8399,13 +7920,9 @@ class TransferOffersModel {
 		$paginator = new Paginator($count, $eps, $this->_websoccer);
 		if ($count > 0) $offers = DirectTransfersDataService::getReceivedOffers($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps, $clubId);
 		else $offers = array();
-		return array("offers" => $offers, "paginator" => $paginator); }}
-class TransferOffersSentModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return ($this->_websoccer->getConfig("transferoffers_enabled") == 1); }
+		return array("offers" => $offers, "paginator" => $paginator); }
+	function renderView() { return ($this->_websoccer->getConfig("transferoffers_enabled") == 1); }}
+class TransferOffersSentModel extends Model {
 	function getTemplateParameters() {
 		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$userId = $this->_websoccer->getUser()->id;
@@ -8416,33 +7933,18 @@ class TransferOffersSentModel {
 		$paginator->addParameter("block", "directtransfer-sentoffers");
 		if ($count > 0) $offers = DirectTransfersDataService::getSentOffers($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps, $clubId, $userId);
 		else $offers = array();
-		return array("offers" => $offers, "paginator" => $paginator); }}
-class UserActivitiesModel {
-	private $_userId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
-	function getTemplateParameters() { return array("activities" => ActionLogDataService::getActionLogsOfUser($this->_websoccer, $this->_db, $this->_websoccer->getRequestParameter('userid'))); }}
-class UserClubsSelectionModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return (strlen($this->_websoccer->getUser()->username)) ? TRUE : FALSE; }
+		return array("offers" => $offers, "paginator" => $paginator); }
+	function renderView() { return ($this->_websoccer->getConfig("transferoffers_enabled") == 1); }}
+class UserActivitiesModel extends Model { function getTemplateParameters() { return array("activities" => ActionLogDataService::getActionLogsOfUser($this->_websoccer, $this->_db, $this->_websoccer->getRequestParameter('userid'))); }}
+class UserClubsSelectionModel extends Model {
 	function getTemplateParameters() {
 		$whereCondition = "id = %d";
 		$result = $this->_db->querySelect("id,name", $this->_websoccer->getConfig("db_prefix") . "_verein", "user_id = %d AND status = '1' AND nationalteam != '1' ORDER BY name ASC", $this->_websoccer->getUser()->id);
 		$teams = array();
 		while ($team = $result->fetch_array()) $teams[] = $team;
-		return array("userteams" => $teams); }}
-class UserDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("userteams" => $teams); }
+	function renderView() { return (strlen($this->_websoccer->getUser()->username)) ? TRUE : FALSE; }}
+class UserDetailsModel extends Model {
 	function getTemplateParameters() {
 		$userId = (int) $this->_websoccer->getRequestParameter('id');
 		if ($userId < 1) $userId = $this->_websoccer->getUser()->id;
@@ -8466,15 +7968,7 @@ class UserDetailsModel {
 		while ($badge = $result->fetch_array()) {
 			if (!isset($badges[$badge['event']])) $badges[$badge['event']] = $badge; }
 		return array('user' => $user, 'userteams' => $teams, 'absence' => AbsencesDataService::getCurrentAbsenceOfUser($this->_websoccer, $this->_db, $userId), 'badges' => $badges); }}
-class UserHistoryModel {
-	private $_userId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() {
-		$this->_userId = (int) $this->_websoccer->getRequestParameter("userid");
-		return $this->_userId > 0; }
+class UserHistoryModel extends Model {
 	function getTemplateParameters() {
 		$columns = array('TEAM.id' => 'team_id', 'TEAM.name' => 'team_name', 'L.name' => 'league_name', 'SEASON.name' => 'season_name', 'A.rank' => 'season_rank', 'A.id' => 'achievement_id', 'A.date_recorded' => 'achievement_date', 'CUP.name' => 'cup_name',
 			'CUPROUND.name' => 'cup_round_name' );
@@ -8492,47 +7986,29 @@ class UserHistoryModel {
 		while ($achievement = $result->fetch_array()) {
 			if (strlen($achievement['league_name'])) $leagues[$achievement['league_name']][] = $achievement;
 			elseif (!isset($cups[$achievement['cup_name']])) $cups[$achievement['cup_name']] = $achievement;
-			else $this->_db->queryDelete($tablePrefix . '_achievement', 'id = %d', $achievement['achievement_id']);
-		}
-		return array("leagues" => $leagues, "cups" => $cups); }}
-class UserNickSearchModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+			else $this->_db->queryDelete($tablePrefix . '_achievement', 'id = %d', $achievement['achievement_id']); }
+		return array("leagues" => $leagues, "cups" => $cups); }
+	function renderView() {
+		$this->_userId = (int) $this->_websoccer->getRequestParameter("userid");
+		return $this->_userId > 0; }}
+class UserNickSearchModel extends Model {
 	function getTemplateParameters() {
 		$query = $this->_websoccer->getRequestParameter("query");
 		$users = UsersDataService::findUsernames($this->_websoccer, $this->_db, $query);
 		return array("items" => $users); }}
-class UserResultsModel {
-	private $_userId;
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() {
-		$this->_userId = (int) $this->_websoccer->getRequestParameter("userid");
-		return $this->_userId > 0; }
+class UserResultsModel extends Model {
 	function getTemplateParameters() {
 		$matches = MatchesDataService::getLatestMatchesByUser($this->_websoccer, $this->_db, $this->_userId);
-		return array("matches" => $matches); }}
-class UserTransfersModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("matches" => $matches); }
+	function renderView() {
+		$this->_userId = (int) $this->_websoccer->getRequestParameter("userid");
+		return $this->_userId > 0; }}
+class UserTransfersModel extends Model {
 	function getTemplateParameters() {
 		$userId = $this->_websoccer->getRequestParameter("userid");
 		if ($userId > 0) $transfers = TransfermarketDataService::getCompletedTransfersOfUser($this->_websoccer, $this->_db, $userId);
 		return array("completedtransfers" => $transfers); }}
-class WhoIsOnlineModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+class WhoIsOnlineModel extends Model {
 	function getTemplateParameters() {
 		$count = UsersDataService::countOnlineUsers($this->_websoccer, $this->_db);
 		$eps = $this->_websoccer->getConfig("entries_per_page");
@@ -8540,13 +8016,7 @@ class WhoIsOnlineModel {
 		if ($count > 0) $users = UsersDataService::getOnlineUsers($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps);
 		else $users = array();
 		return array("users" => $users, "paginator" => $paginator); }}
-class YouthMarketplaceModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() {
-		return $this->_websoccer->getConfig("youth_enabled"); }
+class YouthMarketplaceModel extends Model {
 	function getTemplateParameters() {
 		$positionFilter = $this->_websoccer->getRequestParameter("position");
 		$count = YouthPlayersDataService::countTransferableYouthPlayers($this->_websoccer, $this->_db, $positionFilter);
@@ -8554,26 +8024,18 @@ class YouthMarketplaceModel {
 		$paginator = new Paginator($count, $eps, $this->_websoccer);
 		if ($positionFilter != null) $paginator->addParameter("position", $positionFilter);
 		$players = YouthPlayersDataService::getTransferableYouthPlayers($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps,  $positionFilter);
-		return array("players" => $players, "paginator" => $paginator); }}
-class YouthMatchesModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }
+		return array("players" => $players, "paginator" => $paginator); }
+	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }}
+class YouthMatchesModel extends Model {
 	function getTemplateParameters() {
 		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$count = YouthMatchesDataService::countMatchesOfTeam($this->_websoccer, $this->_db, $clubId);
 		$eps = $this->_websoccer->getConfig("entries_per_page");
 		$paginator = new Paginator($count, $eps, $this->_websoccer);
 		$matches = YouthMatchesDataService::getMatchesOfTeam($this->_websoccer, $this->_db, $clubId, $paginator->getFirstIndex(), $eps);
-		return array("matches" => $matches, "paginator" => $paginator); }}
-class YouthMatchFormationModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return TRUE; }
+		return array("matches" => $matches, "paginator" => $paginator); }
+	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }}
+class YouthMatchFormationModel extends Model {
 	function getTemplateParameters() {
 		$clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
 		$matchinfo = YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer, $this->_db, $this->_i18n, $this->_websoccer->getRequestParameter("matchid"));
@@ -8669,12 +8131,7 @@ class YouthMatchFormationModel {
 		$setPlayers = $setup["defense"] + $setup["striker"] + $setup["dm"] + $setup["om"] + $setup["midfield"];
 		if ($setPlayers > 0) $formation["setup"] = $setup["defense"] . "-" . $setup["dm"] . "-" . $setup["midfield"] . "-" . $setup["om"] . "-" . $setup["striker"];
 		return $formation; }}
-class YouthMatchReportModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }
+class YouthMatchReportModel extends Model {
 	function getTemplateParameters() {
 		$match = YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer, $this->_db, $this->_i18n, $this->_websoccer->getRequestParameter("id"));
 		$players = array();
@@ -8709,13 +8166,9 @@ class YouthMatchReportModel {
 			$statistics["home"]["ballpossession"] = round($statistics["home"]["ballcontacts"] * 100 / ($statistics["home"]["ballcontacts"] + $statistics["guest"]["ballcontacts"]));
 			$statistics["guest"]["ballpossession"] = round($statistics["guest"]["ballcontacts"] * 100 / ($statistics["home"]["ballcontacts"] + $statistics["guest"]["ballcontacts"])); }
 		$reportMessages = YouthMatchesDataService::getMatchReportItems($this->_websoccer, $this->_db, $this->_i18n, $match["id"]);
-		return array("match" => $match, "players" => $players, "statistics" => $statistics, "reportMessages" => $reportMessages); }}
-class YouthMatchRequestsCreateModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }
+		return array("match" => $match, "players" => $players, "statistics" => $statistics, "reportMessages" => $reportMessages); }
+	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }}
+class YouthMatchRequestsCreateModel extends Model {
 	function getTemplateParameters() {
 		$timeOptions = array();
 		$maxDays = $this->_websoccer->getConfig("youth_matchrequest_max_futuredays");
@@ -8732,48 +8185,32 @@ class YouthMatchRequestsCreateModel {
 				$minute = $validTime[1];
 				$dateObj->setTime($hour, $minute);
 				$dateOptions[$dateObj->getTimestamp()] = $dateObj->format($dateFormat); }}
-		return array("dateOptions" => $dateOptions); }}
-class YouthMatchRequestsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("youth_enabled") && $this->_websoccer->getConfig("youth_matchrequests_enabled"); }
+		return array("dateOptions" => $dateOptions); }
+	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }}
+class YouthMatchRequestsModel extends Model {
 	function getTemplateParameters() {
 		YouthPlayersDataService::deleteInvalidOpenMatchRequests($this->_websoccer, $this->_db);
 		$count = YouthPlayersDataService::countMatchRequests($this->_websoccer, $this->_db);
 		$eps = $this->_websoccer->getConfig("entries_per_page");
 		$paginator = new Paginator($count, $eps, $this->_websoccer);
 		$requests = YouthPlayersDataService::getMatchRequests($this->_websoccer, $this->_db, $paginator->getFirstIndex(), $eps);
-		return array("requests" => $requests, "paginator" => $paginator); }}
-class YouthPlayerDetailsModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }
+		return array("requests" => $requests, "paginator" => $paginator); }
+	function renderView() { return $this->_websoccer->getConfig("youth_enabled") && $this->_websoccer->getConfig("youth_matchrequests_enabled"); }}
+class YouthPlayerDetailsModel extends Model {
 	function getTemplateParameters() {
 		$playerId = (int) $this->_websoccer->getRequestParameter("id");
 		if ($playerId < 1) throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
 		$player = YouthPlayersDataService::getYouthPlayerById($this->_websoccer, $this->_db, $this->_i18n, $playerId);
-		return array("player" => $player); }}
-class YouthPlayersOfTeamModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }
+		return array("player" => $player); }
+	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }}
+class YouthPlayersOfTeamModel extends Model {
 	function getTemplateParameters() {
 		$teamId = $this->_websoccer->getRequestParameter("teamid");
 		$players = array();
 		if ($teamId > 0) $players = YouthPlayersDataService::getYouthPlayersOfTeam($this->_websoccer, $this->_db, $teamId);
-		return array("players" => $players); }}
-class YouthScoutingModel {
-	function __construct($db, $i18n, $websoccer) {
-		$this->_db = $db;
-		$this->_i18n = $i18n;
-		$this->_websoccer = $websoccer; }
-	function renderView() { return $this->_websoccer->getConfig("youth_enabled") && $this->_websoccer->getConfig("youth_scouting_enabled"); }
+		return array("players" => $players); }
+	function renderView() { return $this->_websoccer->getConfig("youth_enabled"); }}
+class YouthScoutingModel extends Model {
 	function getTemplateParameters() {
 		$lastExecutionTimestamp = YouthPlayersDataService::getLastScoutingExecutionTime($this->_websoccer, $this->_db, $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db));
 		$nextPossibleExecutionTimestamp = $lastExecutionTimestamp + $this->_websoccer->getConfig("youth_scouting_break_hours") * 3600;
@@ -8785,7 +8222,8 @@ class YouthScoutingModel {
 			$scoutId = (int) $this->_websoccer->getRequestParameter("scoutid");
 			if ($scoutId > 0) $countries = YouthPlayersDataService::getPossibleScoutingCountries();
 			else $scouts = YouthPlayersDataService::getScouts($this->_websoccer, $this->_db); }
-		return array("lastExecutionTimestamp" => $lastExecutionTimestamp, "nextPossibleExecutionTimestamp" => $nextPossibleExecutionTimestamp, "scoutingPossible" => $scoutingPossible, "scouts" => $scouts, "countries" => $countries); }}
+		return array("lastExecutionTimestamp" => $lastExecutionTimestamp, "nextPossibleExecutionTimestamp" => $nextPossibleExecutionTimestamp, "scoutingPossible" => $scoutingPossible, "scouts" => $scouts, "countries" => $countries); }
+	function renderView() { return $this->_websoccer->getConfig("youth_enabled") && $this->_websoccer->getConfig("youth_scouting_enabled"); }}
 class AbsencesDataService {
 	static function getCurrentAbsenceOfUser($websoccer, $db, $userId) {
 		$result = $db->querySelect('*', $websoccer->getConfig('db_prefix') . '_userabsence', 'user_id = %d ORDER BY from_date DESC', $userId, 1);
