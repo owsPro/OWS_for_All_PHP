@@ -3447,7 +3447,8 @@ class ViewHandler {
 			$class = $pageConfig['model'];
 			if (!class_exists($class)) throw new Exception('The model class \''. $class . '\' does not exist.');
 			$model = new $class($this->_db, $this->_i18n, $this->_website);
-			if (!$model->renderView()) return '';
+			//- Fatal error: Uncaught Error: Call to a member function on null
+			//- if (!$model->renderView()) return '';
 			$parameters = array_merge($parameters, $model->getTemplateParameters()); }
 		$parameters['validationMsg'] = $this->_validationMessages;
 		$parameters['frontMessages'] = $this->_website->getFrontMessages();
