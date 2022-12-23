@@ -18,10 +18,8 @@ include(CONFIGCACHE_FILE_ADMIN);
 $i18n = I18n::getInstance($website->getConfig('supported_languages'));
 if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
 include(sprintf(CONFIGCACHE_ADMINMESSAGES, $i18n->getCurrentLanguage()));
-
 //+ owsPro - Include set language file
 include(sprintf(BASE_FOLDER . '/languages/messages_%s.php', $i18n->getCurrentLanguage()));
-
 $errors = array();
 $inputUser = (isset($_POST['inputUser'])) ? $_POST['inputUser'] : FALSE;
 $inputPassword = (isset($_POST['inputPassword'])) ? $_POST['inputPassword'] : FALSE;
@@ -42,11 +40,9 @@ if ($inputUser or $inputPassword) {
 			$admin = $result->fetch_array();
 			$hashedPw = SecurityUtil::hashPassword($inputPassword, $admin['passwort_salt']);
 			if ($admin['passwort'] == $hashedPw || $admin['passwort_neu'] == $hashedPw) {
-
 				//- owsPro - Error: session_regenerate_id(): Cannot regenerate session id - session is not active at PHP 8 prevent with session_start();
 				//- session_regenerate_id();
 				session_start();
-
 				$_SESSION['valid'] = 1;
 				$_SESSION['userid'] = $admin['id'];
 				if ($admin['passwort_neu'] == $hashedPw) {
@@ -69,8 +65,7 @@ if ($inputUser or $inputPassword) {
 				header('location: index.php'); }
 			else {
 				$errors['inputPassword'] = $i18n->getMessage('login_error_invalidpassword');
-				sleep(5); }}
-		$result->free(); }}
+				sleep(5);}}}}
 header('Content-type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
@@ -81,21 +76,13 @@ header('Content-type: text/html; charset=utf-8');
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <meta charset='UTF-8'>
     <style type='text/css'>
-      body {
-        padding-top: 100px;
-        padding-bottom: 40px;
-      }
-    </style>
-  </head>
-  <body>
+    	body {padding-top: 100px; padding-bottom: 40px;}</style></head><body>
 	<div class='container'>
-		<h1><?php echo $i18n->getMessage('login_title');?></h1>
-<?php
+		<h1><?php echo $i18n->getMessage('login_title');?></h1> <?php
 if ($forwarded) echo createWarningMessage($i18n->getMessage('login_alert_accessdenied_title'), $i18n->getMessage('login_alert_accessdenied_content'));
 elseif ($loggedout) echo createSuccessMessage($i18n->getMessage('login_alert_logoutsuccess_title'), $i18n->getMessage('login_alert_logoutsuccess_content'));
 elseif ($newpwd) echo createSuccessMessage($i18n->getMessage('login_alert_sentpassword_title'), $i18n->getMessage('login_alert_sentpassword_content'));
 elseif (count($errors) > 0) echo createErrorMessage($i18n->getMessage('login_alert_error_title'), $i18n->getMessage('login_alert_error_content'))
-
 //+ owsPro - Flags to select languages
 ?>
 	<a href="/admin/login.php?lang=de"><img src="/img/flags/de.png" width="24" height="24" alt="Deutsch" title="Deutsch" /></a>
@@ -121,33 +108,22 @@ elseif (count($errors) > 0) echo createErrorMessage($i18n->getMessage('login_ale
 	<a href="/admin/login.php?lang=tr"><img src="/img/flags/tr.png" width="24" height="24" alt="???lang_label_tr???" title="???lang_label_tr???" /></a>
 	<a href="/admin/login.php?lang=hu"><img src="/img/flags/hu.png" width="24" height="24" alt="???lang_label_hu???" title="???lang_label_hu???" /></a>
 	<a href="/admin/login.php?lang=jp"><img src="/img/flags/jp.png" width="24" height="24" alt="???lang_label_jp???" title="???lang_label_jp???" /></a>
-
+	<br><br>
 		<form action='login.php' method='post' class='form-horizontal'>
 		  <div class='control-group<?php if (isset($errors['inputUser'])) echo ' error'; ?>'>
 			<label class='control-label' for='inputUser'><?php echo $i18n->getMessage('login_label_user');?></label>
 			<div class='controls'>
-			  <input type='text' name='inputUser' id='inputUser' placeholder='<?php echo $i18n->getMessage('login_label_user');?>' required>
-			</div>
-		  </div>
+			  <input type='text' name='inputUser' id='inputUser' placeholder='<?php echo $i18n->getMessage('login_label_user');?>' required></div></div>
 		  <div class='control-group<?php if (isset($errors['inputPassword'])) echo ' error'; ?>'>
 			<label class='control-label' for='inputPassword'><?php echo $i18n->getMessage('login_label_password');?></label>
 			<div class='controls'>
-			  <input type='password' name='inputPassword' id='inputPassword' placeholder='<?php echo $i18n->getMessage('login_label_password');?>' required>
-			</div>
-		  </div>
+			  <input type='password' name='inputPassword' id='inputPassword' placeholder='<?php echo $i18n->getMessage('login_label_password');?>' required></div></div>
 		  <div class='control-group'>
 			<div class='controls'>
-			  <button type='submit' class='btn'><?php echo $i18n->getMessage('login_button_logon');?></button>
-			</div>
-		  </div>
-		</form>
+			  <button type='submit' class='btn'><?php echo $i18n->getMessage('login_button_logon');?></button></div></div></form>
 		<p><a href='forgot-password.php'><?php echo $i18n->getMessage('login_link_forgotpassword');?></a>
       <hr>
       <footer>
-        <p>Powered by <a href='https://github.com/owsPro/OWS_for_All_PHP' target='_blank'>OWS_for_All_PHP</a></p>
-      </footer>
-	</div>
+        <p>Powered by <a href='https://github.com/owsPro/OWS_for_All_PHP' target='_blank'>OWS_for_All_PHP</a></p></footer></div>
     <script src='https://code.jquery.com/jquery-latest.min.js'></script>
-    <script src='bootstrap/js/bootstrap.min.js'></script>
-  </body>
-</html>
+    <script src='bootstrap/js/bootstrap.min.js'></script></body></html>
