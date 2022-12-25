@@ -3350,7 +3350,7 @@ class TemplateEngine {
 		$this->_environment->addFunction($function);}}
 class UrlUtil {
 	static function buildCurrentUrlWithParameters($parameters) {
-		$url = $_SERVER['PHP_SELF'] .'?';
+		$url = htmlentities($_SERVER['PHP_SELF']) .'?';
 		$first = TRUE;
 		foreach($parameters as $parameterName => $parameterValue) {
 			if (!$first) $url .= '&';
@@ -4723,7 +4723,7 @@ class ReturnFromAbsenceController extends Controller {
 		return "office";}}
 class SaveFormationController extends Controller {
 	function executeAction($parameters) {
-		$this->_isNationalTeam = ($websoccer->getRequestParameter('nationalteam')) ? TRUE : FALSE;
+		$this->_isNationalTeam = ($this->_websoccer->getRequestParameter('nationalteam')) ? TRUE : FALSE;
 		$user = $this->_websoccer->getUser();
 		if ($this->_isNationalTeam) $teamId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
 		else $teamId = $user->getClubId($this->_websoccer, $this->_db);
