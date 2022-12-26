@@ -82,7 +82,7 @@ elseif ($show == 'selectoptions') {
   <form action='<?php echo htmlentities($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal'>
 	<input type='hidden' name='site' value='<?php echo $site; ?>'>
 	<input type='hidden' name='show' value='dismiss'>
-	<input type='hidden' name='teamids' value='<?php echo hmtlspezialchar(implode(',', $_POST['selectedteams'])) ?>'>
+	<input type='hidden' name='teamids' value='<?php echo htmlentities(implode(',', $_POST['selectedteams'])) ?>'>
 		<fieldset>
     		<legend><?php echo $i18n->getMessage('firemanagers_dismiss_label'); ?></legend><?php
 	$formFields = ['disableusers' => ['type' => 'boolean', 'value' => 0], 'minbudget' => ['type' => 'number', 'value' => 1000000], 'message_subject' => ['type' => 'text', 'value' => ''], 'message_content' => ['type' => 'textarea', 'value' => '']];

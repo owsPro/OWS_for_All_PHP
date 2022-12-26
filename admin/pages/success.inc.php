@@ -13,4 +13,4 @@
 *****************************************************************************/
 echo "<h1>". $mainTitle ." &raquo; ". $i18n->getMessage("subpage_save_title") . "</h1>";
 echo createSuccessMessage($i18n->getMessage("alert_save_success"), "");
-echo hmtlspezialchar("<p>&raquo; <a href=\"". hmtlspezialchar($_SERVER['PHP_SELF']) ."?site=".$site ."\">". $i18n->getMessage("back_label") . "</a></p>\n");
+echo htmlentities("<p>&raquo; <a href=\"". hmtlspezialchar($_SERVER['PHP_SELF']) ."?site=".$site ."\">". $i18n->getMessage("back_label") . "</a></p>\n");

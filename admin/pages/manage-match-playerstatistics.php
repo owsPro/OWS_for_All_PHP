@@ -180,7 +180,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 			<tbody><?php
 				for ($subNo = 1; $subNo <= 3; $subNo++) {
 					echo "<tr>";
-					echo hmtlspezialchar("<td><select name=\"". $teamPrefix . "_sub" . $subNo . "_out\"><option> </option>");
+					echo htmlentities("<td><select name=\"". $teamPrefix . "_sub" . $subNo . "_out\"><option> </option>");
 					foreach ($players as $playerId => $playerName) {
 						echo "<option value=\"". $playerId . "\"";
 						if ($match["match_". $teamPrefix . "_sub" . $subNo . "_out"] == $playerId) echo " selected";
@@ -203,7 +203,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 					if ($match["match_". $teamPrefix . "_sub" . $subNo . "_condition"] == "Deficit") echo " selected";
 					echo ">". $i18n->getMessage("match_manage_substitutions_condition_deficit") . "</option>";
 					echo "</td>";
-					echo hmtlspezialchar("<td><input class=\"input-mini\" type=\"number\" name=\"". $teamPrefix . "_sub" . $subNo . "_minute\" value=\"". $match["match_". $teamPrefix . "_sub" . $subNo . "_minute"] . "\"/></td>");
+					echo htmlentities("<td><input class=\"input-mini\" type=\"number\" name=\"". $teamPrefix . "_sub" . $subNo . "_minute\" value=\"". $match["match_". $teamPrefix . "_sub" . $subNo . "_minute"] . "\"/></td>");
 					echo "</tr>";} ?></tbody></table><?php }}
 echo "<div class=\"form-actions\">";
 echo "<button type=\"submit\" class=\"btn btn-primary\">". $i18n->getMessage("button_save") . "</button>";

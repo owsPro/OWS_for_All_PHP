@@ -33,7 +33,7 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 			$db->queryInsert(["spieltyp" => "Pokalspiel","pokalname" => $round["cup_name"],"pokalrunde" => $round["round_name"],"datum" => $round["secondround_date"],"home_verein" => $guestTeamId,"gast_verein" => $homeTeamId
 			], $insertTable);}}
 	echo createSuccessMessage($i18n->getMessage("managecuprounds_generate_success"), "");
-	echo hmtlspezialchar("<p><a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn btn-primary\">" . $i18n->getMessage("managecuprounds_generate_success_overviewlink") ."</a></p>");} ?>
+	echo htmlentities("<p><a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn btn-primary\">" . $i18n->getMessage("managecuprounds_generate_success_overviewlink") ."</a></p>");} ?>
 	<div id="noCupPossibleAlert" class="alert" style="display: none;">
 		<h5><?php echo $i18n->getMessage("managecuprounds_generate_noroundspossible"); ?></h5></div>
 	<div id="possibleCupRoundsAlert" class="alert alert-info" style="display: none;">
@@ -41,7 +41,7 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
   <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="action" value="generate">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
-	<input type="hidden" name="round" value="<?php echo hmtlspezialchar($roundid); ?>">
+	<input type="hidden" name="round" value="<?php echo htmlentities($roundid); ?>">
 	<fieldset>
     	<legend><?php echo $i18n->getMessage("managecuprounds_generate_formlabel"); ?> (<span id="numberOfTeamsSelected">0</span>)</legend>
 		<div style="width: 600px; height: 300px; overflow: auto; border: 1px solid #cccccc;">
@@ -67,4 +67,4 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 					$result->free(); ?></tbody></table></div></fieldset>
 	<div class="form-actions">
 		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("managecuprounds_generate_submitbutton"); ?>"><?php
-		echo hmtlspezialchar(" <a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . $i18n->getMessage("button_cancel") ."</a>"); ?></div></form>
+		echo htmlentities(" <a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . $i18n->getMessage("button_cancel") ."</a>"); ?></div></form>

@@ -30,7 +30,7 @@ if (!$row) throw new Exception("Invalid URL - Item does not exist."); ?>
     <legend><?php echo $i18n->getMessage("manage_edit_title"); ?></legend><?php
 	foreach ($formFields as $fieldId => $fieldInfo) {
 		$fieldValue = ($action == "save" && isset($_POST[$fieldId])) ? $_POST[$fieldId] : $row[$fieldId];
-		echo hmtlspezialchar(FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldValue, $labelPrefix));} ?></fieldset>
+		echo htmlentities(FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldValue, $labelPrefix));} ?></fieldset>
 	<div class="form-actions">
 		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("button_save"); ?>">
 		<a class="btn" href="?site=<?php echo $site; ?>&entity=<?php echo $entity; ?>"><?php echo $i18n->getMessage("button_cancel"); ?></a></div></form><?php }

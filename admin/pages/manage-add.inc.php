@@ -24,7 +24,7 @@ if (!$showOverview) {?>
 		$fieldValue = null;
 		if (isset($_REQUEST[$fieldId])) $fieldValue = $_REQUEST[$fieldId];
 		elseif (!count($_POST) && strlen($fieldInfo["default"])) $fieldValue = $fieldInfo["default"];
-		echo hmtlspezialchar(FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldValue, $labelPrefix));} ?></fieldset>
+		echo htmlentities(FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldValue, $labelPrefix));} ?></fieldset>
 	<div class="form-actions">
 		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("button_save"); ?>">
 		<a class="btn" href="?site=<?php echo $site; ?>&entity=<?php echo $entity; ?>"><?php echo $i18n->getMessage("button_cancel"); ?></a></div></form><?php }
