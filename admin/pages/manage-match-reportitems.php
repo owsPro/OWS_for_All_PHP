@@ -31,7 +31,7 @@ elseif ($action == "create") {
 	$goals = $_POST["intermediateresult"];
 	if ($message_id && $minute) {
 		$db->queryInsert(["match_id" => $matchId, "message_id" => $message_id, "active_home" => $homeActive, "minute" => $minute, "goals" => $goals, "playernames" => $playerNames], $website->getConfig("db_prefix") . "_matchreport");}}
-echo "<form action=\"". hmtlspezialchar($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . "\" class=\"form-horizontal\" method=\"post\">";
+echo htmlentities("<form action=\"". $_SERVER['PHP_SELF'] . "\" class=\"form-horizontal\" method=\"post\">");
 echo "<input type=\"hidden\" name=\"action\" value=\"create\">";
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\">";
 echo hmtlspezialchar("<input type=\"hidden\" name=\"match\" value=\"$matchId\">");
