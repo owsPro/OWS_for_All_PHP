@@ -40,9 +40,9 @@ elseif ($show == 'select') {
 	$result = $db->querySelect($columns, $conf['db_prefix'] .'_saison', $whereCondition, $id, 1);
 	$season = $result->fetch_array();
 	if (!$season) throw new Exception('Invalid URL - Item does not exist.'); ?>
-	<form action='<?php echo hmtlspezialchar($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal'>
+	<form action='<?php echo htmlentities($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal'>
 	<input type='hidden' name='show' value='complete'>
-	<input type='hidden' name='id' value='<?php echo hmtlspezialchar($id); ?>'>
+	<input type='hidden' name='id' value='<?php echo htmlentities($id); ?>'>
 	<input type='hidden' name='site' value='<?php echo $site; ?>'>
 	<fieldset>
 	<legend><?php echo escapeOutput($season['name']); ?></legend><?php

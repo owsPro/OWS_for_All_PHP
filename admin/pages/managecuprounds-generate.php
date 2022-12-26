@@ -38,7 +38,7 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 		<h5><?php echo $i18n->getMessage("managecuprounds_generate_noroundspossible"); ?></h5></div>
 	<div id="possibleCupRoundsAlert" class="alert alert-info" style="display: none;">
 		<h5><?php echo $i18n->getMessage("managecuprounds_generate_possiblerounds"); ?>: <span id="roundsNo">0</span></h5></div>
-  <form action="<?php echo hmtlspezialchar($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" method="post" class="form-horizontal">
+  <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="action" value="generate">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
 	<input type="hidden" name="round" value="<?php echo hmtlspezialchar($roundid); ?>">

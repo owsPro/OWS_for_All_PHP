@@ -78,17 +78,17 @@ elseif ($action == "generate") {
 $match = MatchesDataService::getMatchById($website, $db, $matchId, FALSE, FALSE);
 if (!count($match)) throw new Exception("illegal match id");
 $positions = array('T','LV','IV', 'RV', 'LM', 'DM', 'ZM', 'OM', 'RM', 'LS', 'MS', 'RS');
-echo "<form action=\"". hmtlspezialchar($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . "\" class=\"form-horizontal\" method=\"post\">";
+echo htmlentities("<form action=\"". $_SERVER['PHP_SELF'] . "\" class=\"form-horizontal\" method=\"post\">");
 echo "<input type=\"hidden\" name=\"action\" value=\"create\">";
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\">";
-echo hmtlspezialchar("<input type=\"hidden\" name=\"match\" value=\"$matchId\">");
+echo htmlentities("<input type=\"hidden\" name=\"match\" value=\"$matchId\">");
 echo "<fieldset><legend>". $i18n->getMessage("match_manage_createplayer_title") ."</legend>";
 echo "<div class=\"control-group\">";
 echo "<label class=\"control-label\" for=\"team_id\">". $i18n->getMessage("entity_player_verein_id") . "</label>";
 echo "<div class=\"controls\">";
 echo "<select name=\"team_id\" id=\"team_id\">";
-echo hmtlspezialchar("<option value=\"". $match["match_home_id"] . "\">". escapeOutput($match["match_home_name"]) . "</option>");
-echo hmtlspezialchar("<option value=\"". $match["match_guest_id"] . "\">". escapeOutput($match["match_guest_name"]) . "</option>");
+echo htmlentities("<option value=\"". $match["match_home_id"] . "\">". escapeOutput($match["match_home_name"]) . "</option>");
+echo htmlentities("<option value=\"". $match["match_guest_id"] . "\">". escapeOutput($match["match_guest_name"]) . "</option>");
 echo "</select>";
 echo "</div>";
 echo "</div>";
@@ -97,7 +97,7 @@ echo "<div class=\"control-group\">";
 echo "<label class=\"control-label\" for=\"position\">". $i18n->getMessage("entity_player_position_main") . "</label>";
 echo "<div class=\"controls\">";
 echo "<select name=\"position\" id=\"position\">";
-foreach ($positions as $position) echo hmtlspezialchar("<option value=\"". $position . "\">". $i18n->getMessage("option_" . $position). "</option>");
+foreach ($positions as $position) echo htmlentities("<option value=\"". $position . "\">". $i18n->getMessage("option_" . $position). "</option>");
 echo "</select>";
 echo "</div>";
 echo "</div>";
@@ -105,16 +105,16 @@ echo "</fieldset>";
 echo "<div class=\"form-actions\">";
 echo "<button type=\"submit\" class=\"btn btn-primary\">". $i18n->getMessage("button_save") . "</button>";
 echo "</div></form>";
-echo "<form action=\"". hmtlspezialchar($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . "\" method=\"post\">";
+echo htmlentities("<form action=\"". $_SERVER['PHP_SELF'] . "\" method=\"post\">");
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\"/>";
 echo "<input type=\"hidden\" name=\"action\" value=\"update\"/>";
-echo hmtlspezialchar("<input type=\"hidden\" name=\"match\" value=\"$matchId\"/>");
+echo htmlentities("<input type=\"hidden\" name=\"match\" value=\"$matchId\"/>");
 foreach ($teamPrefixes as $teamPrefix) {
-	echo hmtlspezialchar("<h2><a href=\"". $website->getInternalUrl("team", "id=" . $match["match_". $teamPrefix . "_id"]) . "\" target=\"_blank\">". escapeOutput($match["match_". $teamPrefix . "_name"]) . "</a></h2>");
+	echo htmlentities("<h2><a href=\"". $website->getInternalUrl("team", "id=" . $match["match_". $teamPrefix . "_id"]) . "\" target=\"_blank\">". escapeOutput($match["match_". $teamPrefix . "_name"]) . "</a></h2>");
 	echo "<div class=\"form-horizontal\">";
-	echo hmtlspezialchar(FormBuilder::createFormGroup($i18n, $teamPrefix . "_offensive", array("type" => "number", "value" => $match["match_". $teamPrefix . "_offensive"]), $match["match_". $teamPrefix . "_offensive"], "formation_"));
-	echo hmtlspezialchar(FormBuilder::createFormGroup($i18n, $teamPrefix . "_longpasses", array("type" => "boolean", "value" => $match["match_". $teamPrefix . "_longpasses"]), $match["match_". $teamPrefix . "_longpasses"], "formation_"));
-	echo hmtlspezialchar(FormBuilder::createFormGroup($i18n, $teamPrefix . "_counterattacks", array("type" => "boolean", "value" => $match["match_". $teamPrefix . "_counterattacks"]), $match["match_". $teamPrefix . "_counterattacks"], "formation_"));
+	echo htmlentities(FormBuilder::createFormGroup($i18n, $teamPrefix . "_offensive", array("type" => "number", "value" => $match["match_". $teamPrefix . "_offensive"]), $match["match_". $teamPrefix . "_offensive"], "formation_"));
+	echo htmlentities(FormBuilder::createFormGroup($i18n, $teamPrefix . "_longpasses", array("type" => "boolean", "value" => $match["match_". $teamPrefix . "_longpasses"]), $match["match_". $teamPrefix . "_longpasses"], "formation_"));
+	echo htmlentities(FormBuilder::createFormGroup($i18n, $teamPrefix . "_counterattacks", array("type" => "boolean", "value" => $match["match_". $teamPrefix . "_counterattacks"]), $match["match_". $teamPrefix . "_counterattacks"], "formation_"));
 	echo "</div>";
 	$playerTable = $website->getConfig("db_prefix") . "_spiel_berechnung SB";
 	$playerTable .= " INNER JOIN " . $website->getConfig("db_prefix") . "_spieler S ON S.id = SB.spieler_id";
@@ -124,7 +124,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 		echo createInfoMessage("", $i18n->getMessage("match_manage_playerstatistics_noitems"));
 		$fresult = $db->querySelect("COUNT(*) AS hits", $website->getConfig("db_prefix") . "_aufstellung", "verein_id = %d", $match["match_". $teamPrefix . "_id"]);
 		$formationCount = $fresult->fetch_array();
-		if ($formationCount && $formationCount["hits"]) echo hmtlspezialchar("<p><a href=\"?site=$site&match=$matchId&team=$teamPrefix&action=generate\" class=\"btn\"><i class=\"icon-hand-right\"></i> ".
+		if ($formationCount && $formationCount["hits"]) echo htmlentities("<p><a href=\"?site=$site&match=$matchId&team=$teamPrefix&action=generate\" class=\"btn\"><i class=\"icon-hand-right\"></i> ".
 			$i18n->getMessage("match_manage_playerstatistics_createfromfrmation") . "</a></p>");
 		else echo "<p><i class=\"icon-warning-sign\"></i> ". $i18n->getMessage("match_manage_playerstatistics_noformationavailable") . "</p>";}
 	else {
@@ -144,13 +144,13 @@ foreach ($teamPrefixes as $teamPrefix) {
 			$fieldPrefix = "pl" . $player["spieler_id"];
 			echo "<tr>";
 			echo "<td>";
-			echo hmtlspezialchar("<select name=\"" . $fieldPrefix . "_pos\" class=\"input-medium\">");
+			echo htmlentities("<select name=\"" . $fieldPrefix . "_pos\" class=\"input-medium\">");
 			foreach ($positions as $position) {
-				echo hmtlspezialchar("<option value=\"". $position . "\"");
+				echo htmlentities("<option value=\"". $position . "\"");
 				if ($position == $player["position_main"]) echo " selected";
-				echo hmtlspezialchar(">". $i18n->getMessage("option_" . $position). "</option>");}
+				echo htmlentities(">". $i18n->getMessage("option_" . $position). "</option>");}
 			echo "</select><br/>";
-			echo hmtlspezialchar("<select name=\"" . $fieldPrefix . "_feld\" class=\"input-medium\">");
+			echo htmlentities("<select name=\"" . $fieldPrefix . "_feld\" class=\"input-medium\">");
 			echo "<option value=\"1\"";
 			if ($player["feld"] === "1") echo " selected";
 			echo ">". $i18n->getMessage("match_manage_position_field_1") . "</option>";
@@ -161,14 +161,14 @@ foreach ($teamPrefixes as $teamPrefix) {
 			if ($player["feld"] === "Ausgewechselt") echo " selected";
 			echo ">". $i18n->getMessage("match_manage_position_field_substituted") . "</option>";
 			echo "</select></td>";
-			echo hmtlspezialchar("<td>". $player["name"]);
-			echo hmtlspezialchar(" <a href=\"?site=$site&action=delete&match=$matchId&player=". $player["spieler_id"] . "\" title=\"". $i18n->getMessage("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a>");
+			echo htmlentities("<td>". $player["name"]);
+			echo htmlentities(" <a href=\"?site=$site&action=delete&match=$matchId&player=". $player["spieler_id"] . "\" title=\"". $i18n->getMessage("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a>");
 			echo "</td>";
-			foreach ($formFields as $formField) echo hmtlspezialchar("<td><input type=\"text\" class=\"input-mini\" name=\"". $fieldPrefix . "_". $formField . "\" title=\"". $i18n->getMessage("match_manage_" . $formField) . "\" value=\"". $player[$formField]."\"/></td>");
+			foreach ($formFields as $formField) echo htmlentities("<td><input type=\"text\" class=\"input-mini\" name=\"". $fieldPrefix . "_". $formField . "\" title=\"". $i18n->getMessage("match_manage_" . $formField) . "\" value=\"". $player[$formField]."\"/></td>");
 			echo "</tr>";}
 		echo "</tbody>";
 		echo "</table>";
-		echo hmtlspezialchar("<input type=\"hidden\" name=\"". $teamPrefix . "_players\" value=\"". implode(";", $playerIds) . "\"/>");
+		echo htmlentities("<input type=\"hidden\" name=\"". $teamPrefix . "_players\" value=\"". implode(";", $playerIds) . "\"/>");
 		echo "<h4>". $i18n->getMessage("match_manage_substitutions") . "</h4>"; ?>
 		<table class="table table-striped">
 			<thead>
@@ -186,13 +186,13 @@ foreach ($teamPrefixes as $teamPrefix) {
 						if ($match["match_". $teamPrefix . "_sub" . $subNo . "_out"] == $playerId) echo " selected";
 						echo ">". escapeOutput($playerName) . "</option>";}
 					echo "</select></td>";
-					echo hmtlspezialchar("<td><select name=\"". $teamPrefix . "_sub" . $subNo . "_in\"><option> </option>");
+					echo htmlentities("<td><select name=\"". $teamPrefix . "_sub" . $subNo . "_in\"><option> </option>");
 					foreach ($players as $playerId => $playerName) {
 						echo "<option value=\"". $playerId . "\"";
 						if ($match["match_". $teamPrefix . "_sub" . $subNo . "_in"] == $playerId) echo " selected";
 						echo ">". escapeOutput($playerName) . "</option>";}
 					echo "</select></td>";
-					echo hmtlspezialchar("<td><select name=\"". $teamPrefix . "_sub" . $subNo . "_condition\"><option> </option>");
+					echo htmlentities("<td><select name=\"". $teamPrefix . "_sub" . $subNo . "_condition\"><option> </option>");
 					echo "<option value=\"Tie\"";
 					if ($match["match_". $teamPrefix . "_sub" . $subNo . "_condition"] == "Tie") echo " selected";
 					echo ">". $i18n->getMessage("match_manage_substitutions_condition_tie") . "</option>";

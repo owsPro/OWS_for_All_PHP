@@ -54,7 +54,7 @@ if (!$show) { ?>
 	  			echo hmtlspezialchar("<td>". $team["playerscount"] . "</td>");
 	  			echo "</tr>";} ?></tbody></table><?php }}}
 elseif ($show == "generateform") { ?>
-  <form action="<?php echo hmtlspezialchar($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" method="post" class="form-horizontal">
+  <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="show" value="generate">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
 	<input type="hidden" name="teamid" value="<?php echo hmtlspezialchar($teamid); ?>">

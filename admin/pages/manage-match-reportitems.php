@@ -34,14 +34,14 @@ elseif ($action == "create") {
 echo htmlentities("<form action=\"". $_SERVER['PHP_SELF'] . "\" class=\"form-horizontal\" method=\"post\">");
 echo "<input type=\"hidden\" name=\"action\" value=\"create\">";
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\">";
-echo hmtlspezialchar("<input type=\"hidden\" name=\"match\" value=\"$matchId\">");
+echo htmlentities("<input type=\"hidden\" name=\"match\" value=\"$matchId\">");
 echo "<fieldset><legend>". $i18n->getMessage("match_manage_createmessage_title") ."</legend>";
 echo "<div class=\"control-group\">";
 echo "<label class=\"control-label\" for=\"team_id\">". $i18n->getMessage("entity_player_verein_id") . "</label>";
 echo "<div class=\"controls\">";
 echo "<select name=\"team_id\" id=\"team_id\">";
-echo hmtlspezialchar("<option value=\"". $match["match_home_id"] . "\">". escapeOutput($match["match_home_name"]) . "</option>");
-echo hmtlspezialchar("<option value=\"". $match["match_guest_id"] . "\">". escapeOutput($match["match_guest_name"]) . "</option>");
+echo htmlentities("<option value=\"". $match["match_home_id"] . "\">". escapeOutput($match["match_home_name"]) . "</option>");
+echo htmlentities("<option value=\"". $match["match_guest_id"] . "\">". escapeOutput($match["match_guest_name"]) . "</option>");
 echo "</select>";
 echo "</div>";
 echo "</div>";
@@ -71,16 +71,16 @@ else {
 	$guestTeam = escapeOutput($match["match_guest_name"]);
 	foreach ($reportItems as $reportItem) {
 		echo "<tr>";
-		echo hmtlspezialchar("<td><a href=\"?site=$site&action=delete&match=$matchId&itemid=". $reportItem["report_id"] . "\" title=\"". $i18n->getMessage("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a> ". $reportItem["minute"] . "</td>");
+		echo htmlentities("<td><a href=\"?site=$site&action=delete&match=$matchId&itemid=". $reportItem["report_id"] . "\" title=\"". $i18n->getMessage("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a> ". $reportItem["minute"] . "</td>");
 		echo "<td><small>";
 		if ($reportItem["active_home"]) echo $homeTeam;
 		else echo $guestTeam;
 		echo "</small><br>";
-		echo hmtlspezialchar($i18n->getMessage("option_" . $reportItem["type"]));
+		echo htmlentities($i18n->getMessage("option_" . $reportItem["type"]));
 		echo "</td>";
-		echo hmtlspezialchar("<td>". $reportItem["message"] . "</td>");
-		echo hmtlspezialchar("<td>". $reportItem["playerNames"] . "</td>");
-		echo hmtlspezialchar("<td>". $reportItem["goals"] . "</td>");
+		echo htmlentities("<td>". $reportItem["message"] . "</td>");
+		echo htmlentities("<td>". $reportItem["playerNames"] . "</td>");
+		echo htmlentities("<td>". $reportItem["goals"] . "</td>");
 		echo "</tr>";}
 	echo "</tbody>";
 	echo "</table>";}

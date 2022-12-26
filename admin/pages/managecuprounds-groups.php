@@ -20,7 +20,7 @@ $result = $db->querySelect("R.id AS round_id,R.name AS round_name,firstround_dat
 $round = $result->fetch_array();
 if (!isset($round["round_name"])) throw new Exception("illegal round id");
 echo "<h2>". $i18n->getMessage("entity_cup") . " - " . escapeOutput($round["round_name"]) . "</h2>";
-echo "<p><a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . $i18n->getMessage("managecuprounds_groups_back") ."</a></p>";
+echo htmlentities("<p><a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . $i18n->getMessage("managecuprounds_groups_back") ."</a></p>");
 $result = $db->querySelect("T.id AS team_id,T.name AS team_name,L.name AS league_name,L.land AS league_country",$website->getConfig("db_prefix") . "_verein AS T INNER JOIN " . $website->getConfig("db_prefix")."_liga AS L ON L.id = T.liga_id","1=1 ORDER BY team_name ASC");
 while ($team = $result->fetch_array()) $teams[] = $team;
 $formFields["name"] = ["type" => "text", "value" => "", "required" => "true"];
@@ -112,7 +112,7 @@ if (count($groups)) {
 				<form method="post" action="<?php echo htmlentities($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" class="form-inline">
 					<input type="hidden" name="action" value="editsave">
 					<input type="hidden" name="site" value="<?php echo $site; ?>">
-					<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+					<input type="hidden" name="round" value="<?php echo htmlentities($roundid); ?>">
 					<input type="hidden" name="group" value="<?php echo escapeOutput($groupName); ?>">
 					<input id="groupname" name="groupname" type="text" value="<?php echo escapeOutput($nameValue) ?>">
 					<input type="submit" class="btn" value="<?php echo $i18n->getMessage("button_save"); ?>"></form><?php }
@@ -121,14 +121,14 @@ if (count($groups)) {
 			echo "<td><ul>";
 			$noOfTeams = 0;
 			foreach ($groupItems as $groupItem) {
-				echo "<li>" . escapeOutput($groupItem["team_name"]) . " <a class=\"deleteLink\" href=\"?site=". $site . "&round=". $roundid . "&group=". urlencode(escapeOutput($groupName)) . "&action=deletegroupassignment&teamid=". $groupItem["team_id"] . "\" title=\"".
-					$i18n->getMessage("manage_delete") . "\"><i class=\"icon-remove-sign\"></i></a></li>";
+				echo htmlentities("<li>" . escapeOutput($groupItem["team_name"]) . " <a class=\"deleteLink\" href=\"?site=". $site . "&round=". $roundid . "&group=". urlencode(escapeOutput($groupName)) . "&action=deletegroupassignment&teamid=". $groupItem["team_id"] .
+					"\" title=\"" . $i18n->getMessage("manage_delete") . "\"><i class=\"icon-remove-sign\"></i></a></li>");
 				$noOfTeams++;}
 			echo "</ul>\n";?>
 			<form method="post" action="<?php echo htmlentities($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" class="form-inline">
 				<input type="hidden" name="action" value="addteam">
 				<input type="hidden" name="site" value="<?php echo $site; ?>">
-				<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+				<input type="hidden" name="round" value="<?php echo htmlentities($roundid); ?>">
 				<input type="hidden" name="group" value="<?php echo escapeOutput($groupName); ?>"><?php
 				FormBuilder::createForeignKeyField($i18n, "teamid", array("entity" => "club", "jointable" => "verein", "labelcolumns" => "name"), ""); ?>
 				<input type="submit" class="btn btn-small" value="<?php echo $i18n->getMessage("managecuprounds_groups_addteam"); ?>"></form><?php
@@ -137,7 +137,7 @@ if (count($groups)) {
 			<form method="post" action="<?php echo htmlentities($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" class="form-inline">
 				<input type="hidden" name="action" value="saveranks">
 				<input type="hidden" name="site" value="<?php echo $site; ?>">
-				<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+				<input type="hidden" name="round" value="<?php echo htmlentities($roundid); ?>">
 				<input type="hidden" name="group" value="<?php echo escapeOutput($groupName); ?>"><?php
 			echo "<ol>";
 			for ($rank = 1; $rank <= $noOfTeams; $rank++) {
@@ -150,8 +150,8 @@ if (count($groups)) {
 			echo "</ol>"; ?>
 			<input type="submit" class="btn btn-small" value="<?php echo $i18n->getMessage("button_save"); ?>"></form><?php
 			echo "</td>";
-			echo "<td><a href=\"?site=". $site . "&round=". $roundid . "&action=edit&group=". urlencode(escapeOutput($groupName)) . "\" title=\"". $i18n->getMessage("manage_edit") . "\"><i class=\"icon-pencil\"></i></a></td>";
-			echo "<td><a class=\"deleteLink\" href=\"?site=". $site . "&round=". $roundid . "&group=". urlencode(escapeOutput($groupName)) . "&action=delete\" title=\"". $i18n->getMessage("manage_delete") . "\"><i class=\"icon-trash\"></i></a></td>";
+			echo htmlentities("<td><a href=\"?site=". $site . "&round=". $roundid . "&action=edit&group=". urlencode(escapeOutput($groupName)) . "\" title=\"". $i18n->getMessage("manage_edit") . "\"><i class=\"icon-pencil\"></i></a></td>");
+			echo htmlentities("<td><a class=\"deleteLink\" href=\"?site=". $site . "&round=". $roundid . "&group=". urlencode(escapeOutput($groupName)) . "&action=delete\" title=\"". $i18n->getMessage("manage_delete") . "\"><i class=\"icon-trash\"></i></a></td>");
 			echo "</tr>\n";} ?></tbody></table><?php
 	if ($action == "generateschedule") {
 		if ($admin["r_demo"]) throw new Exception($i18n->getMessage("validationerror_no_changes_as_demo"));
@@ -162,7 +162,7 @@ if (count($groups)) {
 		foreach($groups as $groupName => $groupItems) {
 			$db->queryDelete($dbTable, "pokalname = '%s' AND pokalrunde = '%s' AND pokalgruppe = '%s' AND berechnet = '0'", array($round["cup_name"], $round["round_name"], $groupName));
 			foreach($groupItems as $groupItem) $teamIds[] = $groupItem["team_id"];
-			$schedule = ScheduleGenerator::createRoundRobinSchedule($teamIds);                                                                                                                      
+			$schedule = ScheduleGenerator::createRoundRobinSchedule($teamIds);
 			$numberOfMatchDaysPerRound = count($schedule);
 			for ($roundNo = 2; $roundNo <= $rounds; $roundNo++) {
 				$startMatchday = count($schedule) + 1;
@@ -187,13 +187,13 @@ if (count($groups)) {
 	$matchesUrl = "?site=manage&entity=match&" . http_build_query(array("entity_match_pokalname" => escapeOutput($round["cup_name"]), "entity_match_pokalrunde" => escapeOutput($round["round_name"]))); ?>
 	<div class="well">
 		<?php if (isset($matches["hits"]) && $matches["hits"]) { ?>
-		<p><a href="<?php echo $matchesUrl; ?>"><strong><?php echo $matches["hits"]; ?></strong> <?php echo $i18n->getMessage("managecuprounds_groups_created_matches"); ?></a></p>
+		<p><a href="<?php echo $matchesUrl; ?>"><strong><?php echo htmlentities($matches["hits"]); ?></strong> <?php echo $i18n->getMessage("managecuprounds_groups_created_matches"); ?></a></p>
 		<?php } ?>
 		<p><a href="#generateModal" role="button" class="btn" data-toggle="modal"><?php echo $i18n->getMessage("managecuprounds_groups_open_generate_matches_popup"); ?></a></p></div>
 	<form action="<?php echo htmlentities($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" method="post" class="form-horizontal">
 	    <input type="hidden" name="action" value="generateschedule">
 		<input type="hidden" name="site" value="<?php echo $site; ?>">
-		<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+		<input type="hidden" name="round" value="<?php echo htmlentities($roundid); ?>">
 		<div id="generateModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="generateModalLabel" aria-hidden="true">
 		  <div class="modal-header">
 		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">??</button>
@@ -208,7 +208,7 @@ if (count($groups)) {
   <form action="<?php echo htmlentities($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="action" value="create">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
-	<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+	<input type="hidden" name="round" value="<?php echo htmlentities($roundid); ?>">
 	<fieldset>
     <legend><?php echo $i18n->getMessage("managecuprounds_groups_label_create"); ?></legend><?php
 	foreach ($formFields as $fieldId => $fieldInfo) echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "managecuprounds_group_label_"); ?>
@@ -234,4 +234,4 @@ if (count($groups)) {
 						echo "</tr>\n";} ?></tbody></table></div></fieldset>
 	<div class="form-actions">
 		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("button_save"); ?>"><?php
-	echo "<a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . $i18n->getMessage("button_cancel") ."</a>"; ?></div></form>
+	echo htmlentities("<a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . $i18n->getMessage("button_cancel") ."</a>"); ?></div></form>
