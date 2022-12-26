@@ -1,33 +1,16 @@
 <?php
-/******************************************************
+/*This file is part of "OWS for All PHP" (Rolf Joseph)
+  https://github.com/owsPro/OWS_for_All_PHP/
+  A spinn-off for PHP Versions 5.4 to 8.2 from:
+  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
-  This file is part of OpenWebSoccer-Sim.
+  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
 
-  OpenWebSoccer-Sim is free software: you can redistribute it 
-  and/or modify it under the terms of the 
-  GNU Lesser General Public License 
-  as published by the Free Software Foundation, either version 3 of
-  the License, or any later version.
+  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
-  OpenWebSoccer-Sim is distributed in the hope that it will be
-  useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-  See the GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public 
-  License along with OpenWebSoccer-Sim.  
-  If not, see <http://www.gnu.org/licenses/>.
-
-******************************************************/
-
-// execute transfer
+*****************************************************************************/
 DirectTransfersDataService::executeTransferFromOffer($website, $db, $website->getRequestParameter('id'));
-
-// remove pending state
-$db->queryUpdate(array('admin_approval_pending' => '0'), $website->getConfig('db_prefix') . '_transfer_offer',
-		'id = %d', $website->getRequestParameter('id'));
-
-// create success message
+$db->queryUpdate(['admin_approval_pending' => '0'], $website->getConfig('db_prefix') . '_transfer_offer', 'id = %d', $website->getRequestParameter('id'));
 echo createSuccessMessage($i18n->getMessage('transferoffer_approval_success'), '');
-
-?>

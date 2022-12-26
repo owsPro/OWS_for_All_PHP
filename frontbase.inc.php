@@ -18,10 +18,8 @@ define('PARAM_PAGENUMBER', 'pageno');
 define('MSG_KEY_ERROR_PAGENOTFOUND', 'error_page_not_found');
 require(BASE_FOLDER . '/admin/config/global.inc.php');
 include(CONFIGCACHE_FILE_FRONTEND);
-
 //+ owsPro - Include basic configuration and settings, which is supplemented or overwritten by include(CONFIGCACHE_FILE_FRONTEND);.
 include(BASE_FOLDER . '/generated/settingsconfig.php');
-
 $authenticatorClasses = explode(',', $website->getConfig('authentication_mechanism'));
 foreach ($authenticatorClasses as $authenticatorClass) {
 	$authenticatorClass = trim($authenticatorClass);
@@ -34,6 +32,5 @@ if ($website->getUser()->language != null) {
 	catch (Exception $e) {} }
 include(sprintf(CONFIGCACHE_MESSAGES, $i18n->getCurrentLanguage()));
 include(sprintf(CONFIGCACHE_ENTITYMESSAGES, $i18n->getCurrentLanguage()));
-
 //+ owsPro - Provide statutory language.
 include(sprintf(BASE_FOLDER . '/languages/messages_%s.php', $i18n->getCurrentLanguage()));

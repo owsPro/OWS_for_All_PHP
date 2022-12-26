@@ -16,13 +16,11 @@ define('JOBS_CONFIG_FILE', BASE_FOLDER . '/admin/config/jobs.xml');
 define('LOG_TYPE_EDIT', 'edit');
 define('LOG_TYPE_DELETE', 'delete');
 include(BASE_FOLDER . '/admin/config/global.inc.php');
-
 //+ owsPro - Include configuration and settings for the Admin Centre.
 // Additional configuration and settings, e.g. through add-ons.
 include(BASE_FOLDER . '/cache/wsconfigadmin.inc.php');
 // Basic configuration and settings, which are supplemented or overwritten by '/cache/wsconfigadmin.inc.php'.
 include(BASE_FOLDER . '/generated/settingsconfig.php');
-
 include(BASE_FOLDER . '/admin/functions.inc.php');
 include(CONFIGCACHE_FILE_ADMIN);
 $site = (isset($_REQUEST['site'])) ? $_REQUEST['site'] : '';
@@ -45,8 +43,6 @@ if ($admin['lang']) {
 	catch (Exception $e) {} }
 include(sprintf(CONFIGCACHE_ADMINMESSAGES, $i18n->getCurrentLanguage()));
 include(sprintf(CONFIGCACHE_ENTITYMESSAGES, $i18n->getCurrentLanguage()));
-
 //+ owsPro - Sets the set user language
 include(sprintf(BASE_FOLDER . '/languages/messages_%s.php', $i18n->getCurrentLanguage()));
-
 header('Content-type: text/html; charset=utf-8');
