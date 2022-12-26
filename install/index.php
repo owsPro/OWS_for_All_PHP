@@ -512,11 +512,11 @@ class _SecurityUtil{
 		return hash('sha256',$salt.hash('sha256',$password));}
 	static function isAdminLoggedIn(){
 		if(isset($_SESSION['HTTP_USER_AGENT'])){
-			if($_SESSION['HTTP_USER_AGENT']!=md5($_SERVER['HTTP_USER_AGENT'])){
+			if($_SESSION['HTTP_USER_AGENT']!=sha256($_SERVER['HTTP_USER_AGENT'])){
 				self::logoutAdmin();
 				return FALSE;}}
 		else{
-			$_SESSION['HTTP_USER_AGENT'] = md5($_SERVER['HTTP_USER_AGENT']);}
+			$_SESSION['HTTP_USER_AGENT'] = sha256($_SERVER['HTTP_USER_AGENT']);}
 		return(isset($_SESSION['valid'])&&$_SESSION['valid']);}
 	static function logoutAdmin(){
 		$_SESSION=[];
@@ -528,10 +528,9 @@ class _SecurityUtil{
 		return substr(self::generatePassword(),0,4);}
 	static function generateSessionToken($userId, $salt){
 		$useragent=(isset($_SESSION['HTTP_USER_AGENT']))?$_SESSION['HTTP_USER_AGENT']:'n.a.';
-		return md5($salt.$useragent.$userId);}
+		return sha256($salt.$useragent.$userId);}
 	static function loginFrontUserUsingApplicationSession(WebSoccer $websoccer,$userId){
 		$_SESSION['frontuserid']=$userId;
 		session_regenerate_id();
 		$userProvider=new SessionBasedUserAuthentication($websoccer);
-		$userProvider->verifyAndUpdateCurrentUser($websoccer->getUser());}
-}
+		$userProvider->verifyAndUpdateCurrentUser($websoccer->getUser());}}

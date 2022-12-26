@@ -71,7 +71,7 @@ class Facebook extends BaseFacebook
     }
     // evil/corrupt/missing case
     $base_domain = $this->getBaseDomain();
-    $this->sharedSessionID = md5(uniqid(mt_rand(), true));
+    $this->sharedSessionID = sha256(uniqid(mt_rand(), true));
     $cookie_value = $this->makeSignedRequest(
       array(
         'domain' => $base_domain,

@@ -107,7 +107,7 @@ class Google_FileCache extends Google_Cache {
 
   public function set($key, $value) {
     $storageDir = $this->getCacheDir(sha256($key));
-    $storageFile = $this->getCacheFile(md5($key));
+    $storageFile = $this->getCacheFile(sha256($key));
     if ($this->isLocked($storageFile)) {
       // some other process is writing to this file too, wait until it's done to prevent hiccups
       $this->waitForLock($storageFile);
