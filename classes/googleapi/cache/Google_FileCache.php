@@ -86,7 +86,7 @@ class Google_FileCache extends Google_Cache {
   }
 
   public function get($key, $expiration = false) {
-    $storageFile = $this->getCacheFile(md5($key));
+    $storageFile = $this->getCacheFile(sha256($key));
     // See if this storage file is locked, if so we wait up to 5 seconds for the lock owning process to
     // complete it's work. If the lock is not released within that time frame, it's cleaned up.
     // This should give us a fair amount of 'Cache Stampeding' protection
@@ -106,7 +106,7 @@ class Google_FileCache extends Google_Cache {
   }
 
   public function set($key, $value) {
-    $storageDir = $this->getCacheDir(md5($key));
+    $storageDir = $this->getCacheDir(sha256($key));
     $storageFile = $this->getCacheFile(md5($key));
     if ($this->isLocked($storageFile)) {
       // some other process is writing to this file too, wait until it's done to prevent hiccups
@@ -129,7 +129,7 @@ class Google_FileCache extends Google_Cache {
   }
 
   public function delete($key) {
-    $file = $this->getCacheFile(md5($key));
+    $file = $this->getCacheFile(sha256($key));
     if (! @unlink($file)) {
       throw new Google_CacheException("Cache file could not be deleted");
     }

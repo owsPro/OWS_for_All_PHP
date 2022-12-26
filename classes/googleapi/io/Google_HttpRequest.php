@@ -41,7 +41,7 @@ class Google_HttpRequest {
   protected $responseHttpCode;
   protected $responseHeaders;
   protected $responseBody;
-  
+
   public $accessKey;
 
   public function __construct($url, $method = 'GET', $headers = array(), $postBody = null) {
@@ -261,7 +261,7 @@ class Google_HttpRequest {
       $key .= $this->requestHeaders['authorization'];
     }
 
-    return md5($key);
+    return sha256($key);
   }
 
   public function getParsedCacheControl() {

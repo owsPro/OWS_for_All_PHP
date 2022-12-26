@@ -78,7 +78,7 @@ if ($show == "add" || $show == "edit") {
 				elseif ($fieldInfo["type"] == "timestamp" && $fieldInfo["readonly"] && $show == "add") $fieldValue = $website->getNowAsTimestamp();
 				elseif ($fieldInfo["type"] == "file") {
 					if (isset($_FILES[$fieldId]) && isset($_FILES[$fieldId]["tmp_name"]) && strlen($_FILES[$fieldId]["tmp_name"])) {
-						$fieldValue = md5($entity . "-". $website->getNowAsTimestamp());
+						$fieldValue = sha256($entity . "-". $website->getNowAsTimestamp());
 						$fieldValue .= "." . FileUploadHelper::uploadImageFile($i18n, $fieldId, $fieldValue, $entity);}
 					else continue;}
 				if (!$fieldInfo["readonly"] or $fieldInfo["readonly"] && $fieldInfo["type"] == "timestamp"  && $show == "add") $dbcolumns[$fieldId] = $fieldValue;}
