@@ -16,7 +16,7 @@ require_once('config/global.inc.php');
 require_once('functions.inc.php');
 $i18n = I18n::getInstance($website->getConfig('supported_languages'));
 if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
-include(sprintf(CONFIGCACHE_ADMINMESSAGES, $i18n->getCurrentLanguage()));
+htmlentities(include(sprintf(CONFIGCACHE_ADMINMESSAGES, $i18n->getCurrentLanguage())));
 $inputEmail = (isset($_POST['inputEmail'])) ? trim($_POST['inputEmail']) : FALSE;
 if ($inputEmail) {
 	$now = $website->getNowAsTimestamp();
