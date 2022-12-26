@@ -1,26 +1,27 @@
-<?php 
+<?php
 /******************************************************
 
   This file is part of OpenWebSoccer-Sim.
 
-  OpenWebSoccer-Sim is free software: you can redistribute it 
-  and/or modify it under the terms of the 
-  GNU Lesser General Public License 
+  OpenWebSoccer-Sim is free software: you can redistribute it
+  and/or modify it under the terms of the
+  GNU Lesser General Public License
   as published by the Free Software Foundation, either version 3 of
   the License, or any later version.
 
   OpenWebSoccer-Sim is distributed in the hope that it will be
   useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the GNU Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public 
-  License along with OpenWebSoccer-Sim.  
+  You should have received a copy of the GNU Lesser General Public
+  License along with OpenWebSoccer-Sim.
   If not, see <http://www.gnu.org/licenses/>.
 
 ******************************************************/
 
 define('BASE_FOLDER', __DIR__ .'/..');
+define('JOB','//job[@id = \''. $jobId . '\']');
 include(BASE_FOLDER . '/admin/config/global.inc.php');
 
 define('JOBS_CONFIG_FILE', BASE_FOLDER . '/admin/config/jobs.xml');
@@ -52,7 +53,7 @@ if ($website->getConfig('webjobexecution_key') !== $securityToken) {
 
 // get job
 $xml = simplexml_load_file(JOBS_CONFIG_FILE);
-$jobConfig = $xml->xpath('//job[@id = \''. $jobId . '\']');
+$jobConfig = $xml->xpath(JOB);
 if (!$jobConfig) {
 	die('Job config not found.');
 }
@@ -60,10 +61,10 @@ if (!$jobConfig) {
 // execute
 $jobClass = (string) $jobConfig[0]->attributes()->class;
 if (class_exists($jobClass)) {
-	
+
 	$i18n = I18n::getInstance($website->getConfig('supported_languages'));
 	$job = new $jobClass($website, $db, $i18n, $jobId);
-	
+
 } else {
 	die('class not found: ' . $jobClass);
 }
