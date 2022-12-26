@@ -59,14 +59,14 @@ else {
 	$parameters['breadcrumbItems'] = BreadcrumbBuilder::getBreadcrumbItems($website, $i18n, $page, $pageId);
 	header('Content-type: text/html; charset=utf-8');
 	$viewHandler = new ViewHandler($website, $db, $i18n, $page, $block, $validationMessages);
-	try{echo $viewHandler->handlePage($pageId, $parameters);}
+	try{print_r($viewHandler->handlePage($pageId, $parameters));}
 	catch (AccessDeniedException $e) {
 		if ($website->getUser()->getRole() == ROLE_GUEST) {
 			$website->addFrontMessage(new FrontMessage(MESSAGE_TYPE_ERROR, $e->getMessage(), ''));
-			echo $viewHandler->handlePage('login', $parameters);}
+			print_r($viewHandler->handlePage('login', $parameters));}
 		else renderErrorPage($website, $i18n, $viewHandler, $e->getMessage(), $parameters);}
 	catch (Exception $e) {renderErrorPage($website, $i18n, $viewHandler, $e->getMessage(), $parameters);}}
 function renderErrorPage($website, $i18n, $viewHandler, $message, $parameters) {
 	$parameters['title'] = $message;
 	$parameters['message'] = '';
-	echo $website->getTemplateEngine($i18n, $viewHandler)->loadTemplate('error')->render($parameters);}
+	print_r($website->getTemplateEngine($i18n, $viewHandler)->loadTemplate('error')->render($parameters));}
