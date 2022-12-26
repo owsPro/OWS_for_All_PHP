@@ -438,7 +438,7 @@ function printCreateUserForm($messages){
 			<div class="control-group">
 				<label class="control-label" for="password"><?php echo $messages["label_password"]?></label>
 				<div class="controls">
-					<input type="password" id="password" name="password" required value="<?php echo Response::json((isset($_POST["password"]))?$_POST["password"]:"");?>"></div></div>
+					<input type="password" id="password" name="password" required value="<?php echo htmlentities(Response::json((isset($_POST["password"]))?$_POST["password"]:""));?>"></div></div>
 			<div class="control-group">
 				<label class="control-label" for="email"><?php echo $messages["label_email"]?></label>
 				<div class="controls">
