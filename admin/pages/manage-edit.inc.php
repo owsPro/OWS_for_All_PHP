@@ -17,7 +17,7 @@ $whereCondition = "id = %d";
 $result = $db->querySelect($columns, $dbTable, $whereCondition, $id, 1);
 $row = $result->fetch_array();
 if (!$row) throw new Exception("Invalid URL - Item does not exist."); ?>
-<form action="<?php echo hmtlspezialchar($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>#item<?php echo $row["id"]; ?>" method="post" class="form-horizontal"<?php
+<form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>#item<?php echo $row["id"]; ?>" method="post" class="form-horizontal"<?php
 	if ($enableFileUpload) echo " enctype=\"multipart/form-data\""; ?>
 	<input type="hidden" name="show" value="<?php echo $show; ?>">
 	<input type="hidden" name="entity" value="<?php echo $entity; ?>">
