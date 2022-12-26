@@ -428,7 +428,7 @@ function loadAndExecuteDdl($file,DbConnection $db){
 	if(!$queryResult)throw new Exception("Database Query Error: ".$db->connection->error);}
 function printCreateUserForm($messages){
 	?>
-	<form method="post" class="form-horizontal">
+	<form method="post" enctype="multipart/form-data" class="form-horizontal">
 		<fieldset>
 			<legend><?php echo $messages["user_formtitle"]?></legend>
 			<div class="control-group">
@@ -438,7 +438,7 @@ function printCreateUserForm($messages){
 			<div class="control-group">
 				<label class="control-label" for="password"><?php echo $messages["label_password"]?></label>
 				<div class="controls">
-					<input type="password" id="password" name="password" required value="<?php echo bcrypt((isset($_POST["password"]))?$_POST["password"]:"");?>"></div></div>
+					<input type="password" id="password" name="password" required value="<?php echo htmlentities((isset($_POST["password"]))?$_POST["password"]:"");?>"></div></div>
 			<div class="control-group">
 				<label class="control-label" for="email"><?php echo $messages["label_email"]?></label>
 				<div class="controls">
