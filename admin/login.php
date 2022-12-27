@@ -20,7 +20,6 @@ if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
 include(BASE_FOLDER . '/cache/adminmessages_'. $_GET['lang'] .'inc.php');
 //+ owsPro - Include set language file
 include(BASE_FOLDER . '/languages/messages_'. $_GET['lang'] .'.php');
-$errors = array();
 $inputUser = (isset($_POST['inputUser'])) ? $_POST['inputUser'] : FALSE;
 $inputPassword = (isset($_POST['inputPassword'])) ? $_POST['inputPassword'] : FALSE;
 $forwarded = (isset($_GET['forwarded']) && $_GET['forwarded'] == 1) ? TRUE : FALSE;
@@ -82,7 +81,7 @@ header('Content-type: text/html; charset=utf-8');
 if ($forwarded) echo createWarningMessage($i18n->getMessage('login_alert_accessdenied_title'), $i18n->getMessage('login_alert_accessdenied_content'));
 elseif ($loggedout) echo createSuccessMessage($i18n->getMessage('login_alert_logoutsuccess_title'), $i18n->getMessage('login_alert_logoutsuccess_content'));
 elseif ($newpwd) echo createSuccessMessage($i18n->getMessage('login_alert_sentpassword_title'), $i18n->getMessage('login_alert_sentpassword_content'));
-elseif (count($errors) > 0) echo createErrorMessage($i18n->getMessage('login_alert_error_title'), $i18n->getMessage('login_alert_error_content'))
+elseif (count((array)$errors) > 0) echo createErrorMessage($i18n->getMessage('login_alert_error_title'), $i18n->getMessage('login_alert_error_content'))
 //+ owsPro - Flags to select languages
 ?>
 	<a href="/admin/login.php?lang=de"><img src="/img/flags/de.png" width="24" height="24" alt="Deutsch" title="Deutsch" /></a>
