@@ -18,7 +18,7 @@ $i18n = I18n::getInstance($website->getConfig('supported_languages'));
 if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
 include(BASE_FOLDER . '/cache/adminmessages_'. $_GET['lang'] .'inc.php');
 //+ owsPro - Include set language file
-include(BASE_FOLDER . '/languages/messages_'. $_GET['lang'] .'.php');
+htmlentities(include(BASE_FOLDER . '/languages/messages_'. $_GET['lang'] .'.php'));
 $inputEmail = (isset($_POST['inputEmail'])) ? trim($_POST['inputEmail']) : FALSE;
 if ($inputEmail) {
 	$now = $website->getNowAsTimestamp();
