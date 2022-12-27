@@ -12,8 +12,7 @@
 
 *****************************************************************************/
 if (version_compare(PHP_VERSION, '5.4.0') < 0){echo'Minimum PHP 5.4.0 !';exit;}
-define('BASE_FOLDER', __DIR__);
-include(BASE_FOLDER . '/frontbase.inc.php');
+include(__DIR__ . '/frontbase.inc.php');
 $isOffline = FALSE;
 if ($website->getConfig('offline') == 'offline') $isOffline = TRUE;
 else {

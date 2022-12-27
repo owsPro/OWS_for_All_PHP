@@ -16,10 +16,10 @@ function prepareFielfValueForSaving($fieldValue) {
 	if (get_magic_quotes_gpc()) $preparedValue = stripslashes($fieldValue);
 	return $preparedValue; }
 $mainTitle = $i18n->getMessage('all_settings_title');
-include(BASE_FOLDER . '/cache/settingsconfig.inc.php');
+include(__DIR__ .'/../..' . '/cache/settingsconfig.inc.php');
 
 //+ owsPro - Provide basic settings, which is supplemented or overwritten with /cache/settingsconfig.inc.php'.
-include(BASE_FOLDER . '/generated/settingsconfig.php');
+include(__DIR__ .'/../..' . '/generated/settingsconfig.php');
 
 if (!$admin['r_admin'] && !$admin['r_demo']) {
   echo '<p>'. $i18n->getMessage('error_access_denied') . '</p>';

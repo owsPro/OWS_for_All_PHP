@@ -11,15 +11,14 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-define('BASE_FOLDER', __DIR__ .'/..');
-include(BASE_FOLDER . '/admin/config/global.inc.php');
-include(BASE_FOLDER . '/admin/functions.inc.php');
+include(__DIR__ .'/..' . '/admin/config/global.inc.php');
+include(__DIR__ .'/..' . '/admin/functions.inc.php');
 include(CONFIGCACHE_FILE_ADMIN);
 $i18n = I18n::getInstance($website->getConfig('supported_languages'));
 if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
-include(BASE_FOLDER . '/cache/adminmessages_'. $_GET['lang'] .'inc.php');
+include(__DIR__ .'/..' . '/cache/adminmessages_'. $_GET['lang'] .'inc.php');
 //+ owsPro - Include set language file
-htmlentities(include(BASE_FOLDER . '/languages/messages_'. $_GET['lang'] .'.php'));
+htmlentities(include(__DIR__ .'/..' . '/languages/messages_'. $_GET['lang'] .'.php'));
 $inputUser = (isset($_POST['inputUser'])) ? $_POST['inputUser'] : FALSE;
 $inputPassword = (isset($_POST['inputPassword'])) ? $_POST['inputPassword'] : FALSE;
 $forwarded = (isset($_GET['forwarded']) && $_GET['forwarded'] == 1) ? TRUE : FALSE;
@@ -28,7 +27,7 @@ $newpwd = (isset($_GET['newpwd']) && $_GET['newpwd'] == 1) ? TRUE : FALSE;
 if ($inputUser or $inputPassword) {
 	if (!$inputUser) $errors['inputUser'] = $i18n->getMessage('login_error_nousername');
 	if (!$inputPassword) $errors['inputPassword'] = $i18n->getMessage('login_error_nopassword');
-	if (count($errors) == 0) {
+	if (count((array)$errors) == 0) {
 		$columns = array('id', 'passwort', 'passwort_salt', 'passwort_neu', 'name');
 		$fromTable = $conf['db_prefix'] .'_admin';
 		$whereCondition = 'name = \'%s\'';
@@ -120,7 +119,7 @@ elseif (count((array)$errors) > 0) echo createErrorMessage($i18n->getMessage('lo
 		  <div class='control-group'>
 			<div class='controls'>
 			  <button type='submit' class='btn'><?php echo $i18n->getMessage('login_button_logon');?></button></div></div></form>
-		<p><a href='forgot-password.php'><?php echo $i18n->getMessage('login_link_forgotpassword');?></a>
+		<p><a href='forgot-password.php?lang=de'><?php echo $i18n->getMessage('login_link_forgotpassword');?></a>
       <hr>
       <footer>
         <p>Powered by <a href='https://github.com/owsPro/OWS_for_All_PHP' target='_blank'>OWS_for_All_PHP</a></p></footer></div>

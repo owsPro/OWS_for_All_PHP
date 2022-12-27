@@ -11,7 +11,6 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-define('BASE_FOLDER', __DIR__ . '/..');
-require_once(BASE_FOLDER . '/admin/config/global.inc.php');
+require_once(__DIR__ .'/..' . '/admin/config/global.inc.php');
 SecurityUtil::logoutAdmin();
 header('location: login.php?loggedout=1');

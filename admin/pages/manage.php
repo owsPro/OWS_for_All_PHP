@@ -15,7 +15,7 @@ $entity = strtolower(trim($_REQUEST["entity"]));
 if (!isset($adminpage[$entity])) throw new Exception("Illegal call - unknown entity");
 $page = json_decode($adminpage[$entity], true);
 if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin[$page["permissionrole"]]) throw new Exception($i18n->getMessage("error_access_denied"));
-$configfile = BASE_FOLDER . '/admin/modules/'.$page["module"] ."/". MODULE_CONFIG_FILENAME;
+$configfile = __DIR__ .'/../..' . '/admin/modules/'.$page["module"] ."/". MODULE_CONFIG_FILENAME;
 if (!file_exists($configfile)) throw new Exception("File does not exist: " . $configfile);
 $xml = simplexml_load_file($configfile);
 $entityConfig = $xml->xpath("//adminpage[@id = '". $entity . "']/entity[1]");

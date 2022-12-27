@@ -11,9 +11,8 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-define('BASE_FOLDER', __DIR__ .'/..');
 define('JOB','//job[@id = \''. $jobId . '\']');
-include(BASE_FOLDER . '/admin/adminglobal.inc.php');
+include(__DIR__ .'/..' . '/admin/adminglobal.inc.php');
 if ($admin['r_demo']) exit;
 $jobId = $_REQUEST['id'];
 $xml = simplexml_load_file(JOBS_CONFIG_FILE);

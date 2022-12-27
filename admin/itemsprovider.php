@@ -11,9 +11,8 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-define('BASE_FOLDER', __DIR__ .'/..');
 define('MAX_ITEMS', 20);
-include(BASE_FOLDER . '/admin/adminglobal.inc.php');
+include(__DIR__ .'/..' . '/admin/adminglobal.inc.php');
 $dbTable = $_GET['dbtable'];
 if(!strlen($dbTable) || preg_match('/^([a-zA-Z1-9_])+$/', $dbTable) == 0) throw new Exception('Illegal parameter: dbtable');
 $labelColumns = $_GET['labelcolumns'];

@@ -12,10 +12,7 @@
 
 *****************************************************************************/
 if(version_compare(PHP_VERSION, '5.4.0') < 0){echo'Minimum PHP 5.4.0 !';exit;}
-define('BASE_FOLDER', __DIR__ .'/..');
-include(BASE_FOLDER . '/admin/adminglobal.inc.php');
-$navItems['settings'] = array();
-$navItems['website'] = array();
+include(__DIR__ .'/..' . '/admin/adminglobal.inc.php');
 foreach ($adminpage as $pageId => $pageData) {
 	$pageInfo = json_decode($pageData, true);
 	if ((!isset($admin['r_admin']) || !$admin['r_admin']) && (!isset($admin['r_demo']) || !$admin['r_demo']) && (!isset($admin[$pageInfo['permissionrole']]) || !$admin[$pageInfo['permissionrole']])) continue;

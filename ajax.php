@@ -11,8 +11,7 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-define('BASE_FOLDER', __DIR__);
-require(BASE_FOLDER . '/frontbase.inc.php');
+require(__DIR__ . '/frontbase.inc.php');
 $output['messages'] = '';
 $output['content'] = '';
 header('Content-type: application/json; charset=utf-8');

@@ -31,7 +31,6 @@
 =====================================================================================*/
 define('ALLOWED_EXTENSIONS','jpg,jpeg,gif,png');
 define('ALLOWED_PROFPIC_EXTENSIONS','jpg,jpeg,png');
-define('BASE_FOLDER', __DIR__);
 define('CACHE_FOLDER',$_SERVER['DOCUMENT_ROOT'].'/cache/templates');
 define('CLUBPICTURE_UPLOAD_DIR',$_SERVER['DOCUMENT_ROOT'].'/uploads/club');
 define('COOKIE_PREFIX','owsPro');
@@ -4417,7 +4416,7 @@ class LanguageSwitcherController extends Controller {
 		$msg = array();
 		include(sprintf(CONFIGCACHE_MESSAGES, $lang));
 		include(sprintf(CONFIGCACHE_ENTITYMESSAGES, $lang));
-		include(sprintf(BASE_FOLDER . '/languages/messages_%s.php', $lang));
+		include(sprintf(__DIR__ . '/languages/messages_%s.php', $lang));
 		return null;}}
 class LendPlayerController extends Controller {
 	function executeAction($parameters) {
@@ -4604,7 +4603,7 @@ class RegisterFormController extends Controller {
 		if ($parameters["email"] !== $parameters["email_repeat"]) throw new Exception($this->_i18n->getMessage("registration_repeated_email_notmatching"));
 		if ($parameters["pswd"] !== $parameters["pswd_repeat"]) throw new Exception($this->_i18n->getMessage("registration_repeated_password_notmatching"));
 		if ($this->_websoccer->getConfig("register_use_captcha") && strlen($this->_websoccer->getConfig("register_captcha_publickey")) && strlen($this->_websoccer->getConfig("register_captcha_privatekey"))) {
-			include_once(BASE_FOLDER . "/lib/recaptcha/recaptchalib.php");
+			include_once(__DIR__ . "/lib/recaptcha/recaptchalib.php");
 			$captchaResponse = recaptcha_check_answer($this->_websoccer->getConfig("register_captcha_privatekey"), $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
 			if (!$captchaResponse->is_valid) throw new Exception($this->_i18n->getMessage("registration_invalidcaptcha"));}
 		$columns = "COUNT(*) AS hits";
@@ -5258,7 +5257,7 @@ class SendPasswordController extends Controller {
 	function executeAction($parameters) {
 		if (!$this->_websoccer->getConfig("login_allow_sendingpassword")) throw new Exception("Action is disabled.");
 		if ($this->_websoccer->getConfig("register_use_captcha") && strlen($this->_websoccer->getConfig("register_captcha_publickey")) && strlen($this->_websoccer->getConfig("register_captcha_privatekey"))) {
-			include_once(BASE_FOLDER . "/lib/recaptcha/recaptchalib.php");
+			include_once(__DIR__ . "/lib/recaptcha/recaptchalib.php");
 			$captchaResponse = recaptcha_check_answer($this->_websoccer->getConfig("register_captcha_privatekey"), $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
 			if (!$captchaResponse->is_valid) throw new Exception($this->_i18n->getMessage("registration_invalidcaptcha"));}
 		$email = $parameters["useremail"];
@@ -5817,7 +5816,7 @@ abstract class AbstractJob {
 		if (!$xmlConfig) throw new Exception('Job config not found.');
 		return $xmlConfig[0];}
 	function replaceAttribute($name, $value) {
-		$fp = fopen(BASE_FOLDER . '/admin/config/lockfile.txt', 'r');
+		$fp = fopen(__DIR__ . '/admin/config/lockfile.txt', 'r');
 		flock($fp, LOCK_EX);
 		$xml = simplexml_load_file(JOBS_CONFIG_FILE);
 		if ($xml === FALSE) {
@@ -6048,7 +6047,7 @@ class DefaultBootstrapSkin {
 		return $files;}
 	function getTemplate($templateName) { return $templateName .'.twig';}
 	function getImage($fileName) {
-		if (file_exists(BASE_FOLDER . '/img/' . $fileName)) return $this->_websoccer->getConfig('context_root') . '/img/' . $fileName;
+		if (file_exists(__DIR__ . '/img/' . $fileName)) return $this->_websoccer->getConfig('context_root') . '/img/' . $fileName;
 		return FALSE;}
 	function __toString() { return 'DefaultBootstrapSkin';}}
 class GreenBootstrapSkin extends DefaultBootstrapSkin {
@@ -6246,7 +6245,7 @@ class ForgotPasswordModel extends Model {
 	function getTemplateParameters() {
 		$parameters = array();
 		if ($this->_websoccer->getConfig("register_use_captcha") && strlen($this->_websoccer->getConfig("register_captcha_publickey")) && strlen($this->_websoccer->getConfig("register_captcha_privatekey"))) {
-			include_once(BASE_FOLDER . "/lib/recaptcha/recaptchalib.php");
+			include_once(__DIR__ . "/lib/recaptcha/recaptchalib.php");
 			$useSsl = (!empty($_SERVER["HTTPS"]));
 			$captchaCode = recaptcha_get_html($this->_websoccer->getConfig("register_captcha_publickey"), null, $useSsl);
 			$parameters["captchaCode"] = $captchaCode;}
@@ -6998,7 +6997,7 @@ class RegisterFormModel extends Model {
 		if (!$this->_websoccer->getConfig("allow_userregistration")) throw new Exception($this->_i18n->getMessage("registration_disabled"));
 		$parameters = array();
 		if ($this->_websoccer->getConfig("register_use_captcha") && strlen($this->_websoccer->getConfig("register_captcha_publickey")) && strlen($this->_websoccer->getConfig("register_captcha_privatekey"))) {
-			include_once(BASE_FOLDER . "/lib/recaptcha/recaptchalib.php");
+			include_once(__DIR__ . "/lib/recaptcha/recaptchalib.php");
 			$useSsl = (!empty($_SERVER["HTTPS"]));
 			$captchaCode = recaptcha_get_html($this->_websoccer->getConfig("register_captcha_publickey"), null, $useSsl);
 			$parameters["captchaCode"] = $captchaCode;}
@@ -7336,7 +7335,7 @@ class TeamTransfersModel extends Model {
 		return array("completedtransfers" => $transfers);}}
 class TermsAndConditionsModel extends Model {
 	function getTemplateParameters() {
-		$termsFile = BASE_FOLDER . "/admin/config/termsandconditions.xml";
+		$termsFile = __DIR__ . "/admin/config/termsandconditions.xml";
 		if (!file_exists($termsFile)) throw new Exception("File does not exist: " . $termsFile);
 		$xml = simplexml_load_file($termsFile);
 		$termsConfig = $xml->xpath("//pagecontent[@lang = '". $this->_i18n->getCurrentLanguage() . "'][1]");
@@ -10223,7 +10222,7 @@ class YouthPlayersDataService {
 		if (!$scouted) return 0;
 		return $scouted["scouting_last_execution"];}
 	static function getPossibleScoutingCountries() {
-		$iterator = new DirectoryIterator(BASE_FOLDER . "/admin/config/names/");
+		$iterator = new DirectoryIterator(__DIR__ . "/admin/config/names/");
 		$countries = array();
 		while($iterator->valid()) {
 			if ($iterator->isDir() && !$iterator->isDot()) $countries[] = $iterator->getFilename();

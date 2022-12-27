@@ -26,21 +26,21 @@ function classes_autoloader($class) {
 	elseif (substr($class, -11) === 'LoginMethod') $subforder = 'loginmethods/';
 	elseif (substr($class, -5) === 'Event') $subforder = 'events/';
 	elseif (substr($class, -6) === 'Plugin') $subforder = 'plugins/';
-	@include(BASE_FOLDER . '/classes/' . $subforder . $class . '.class.php'); }
+	include(__DIR__ .'/../..' . '/classes/' . $subforder . $class . '.class.php'); }
 spl_autoload_register('classes_autoloader');
-define('FOLDER_MODULES', BASE_FOLDER . '/modules');
+define('FOLDER_MODULES', __DIR__ .'/../..' . '/modules');
 define('MODULE_CONFIG_FILENAME', 'module.xml');
-define('GLOBAL_CONFIG_FILE', BASE_FOLDER . '/generated/config.inc.php');
-define('CONFIGCACHE_FILE_FRONTEND', BASE_FOLDER . '/cache/wsconfigfront.inc.php');
-define('CONFIGCACHE_FILE_ADMIN', BASE_FOLDER . '/cache/wsconfigadmin.inc.php');
-define('CONFIGCACHE_MESSAGES', BASE_FOLDER . '/cache/messages_%s.inc.php');
-define('CONFIGCACHE_ADMINMESSAGES', BASE_FOLDER . '/cache/adminmessages_%s.inc.php');
-define('CONFIGCACHE_ENTITYMESSAGES', BASE_FOLDER . '/cache/entitymessages_%s.inc.php');
-define('CONFIGCACHE_SETTINGS', BASE_FOLDER . '/cache/settingsconfig.inc.php');
-define('CONFIGCACHE_EVENTS', BASE_FOLDER . '/cache/eventsconfig.inc.php');
-define('UPLOAD_FOLDER', BASE_FOLDER . '/uploads/');
-define('IMPRINT_FILE', BASE_FOLDER . '/generated/imprint.php');
-define('TEMPLATES_FOLDER', BASE_FOLDER . '/templates');
+define('GLOBAL_CONFIG_FILE', __DIR__ .'/../..' . '/generated/config.inc.php');
+define('CONFIGCACHE_FILE_FRONTEND', __DIR__ .'/../..' . '/cache/wsconfigfront.inc.php');
+define('CONFIGCACHE_FILE_ADMIN', __DIR__ .'/../..' . '/cache/wsconfigadmin.inc.php');
+define('CONFIGCACHE_MESSAGES', __DIR__ .'/../..' . '/cache/messages_%s.inc.php');
+define('CONFIGCACHE_ADMINMESSAGES', __DIR__ .'/../..' . '/cache/adminmessages_%s.inc.php');
+define('CONFIGCACHE_ENTITYMESSAGES', __DIR__ .'/../..' . '/cache/entitymessages_%s.inc.php');
+define('CONFIGCACHE_SETTINGS', __DIR__ .'/../..' . '/cache/settingsconfig.inc.php');
+define('CONFIGCACHE_EVENTS', __DIR__ .'/../..' . '/cache/eventsconfig.inc.php');
+define('UPLOAD_FOLDER', __DIR__ .'/../..' . '/uploads/');
+define('IMPRINT_FILE', __DIR__ .'/../..' . '/generated/imprint.php');
+define('TEMPLATES_FOLDER', __DIR__ .'/../..' . '/templates');
 define('PROFPIC_UPLOADFOLDER', UPLOAD_FOLDER . 'users');
 include(GLOBAL_CONFIG_FILE);
 if (!isset($conf)) {

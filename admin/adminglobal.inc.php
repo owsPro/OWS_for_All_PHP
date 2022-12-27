@@ -12,37 +12,30 @@
 
 *****************************************************************************/
 define('OVERVIEW_SITE_SUFFIX', '_overview');
-define('JOBS_CONFIG_FILE', BASE_FOLDER . '/admin/config/jobs.xml');
+define('JOBS_CONFIG_FILE', __DIR__ .'/..' . '/admin/config/jobs.xml');
 define('LOG_TYPE_EDIT', 'edit');
 define('LOG_TYPE_DELETE', 'delete');
-include(BASE_FOLDER . '/admin/config/global.inc.php');
+include(__DIR__ .'/..' . '/admin/config/global.inc.php');
+$i18n = I18n::getInstance($website->getConfig('supported_languages'));
 //+ owsPro - Include configuration and settings for the Admin Centre.
 // Additional configuration and settings, e.g. through add-ons.
-include(BASE_FOLDER . '/cache/wsconfigadmin.inc.php');
+include(__DIR__ .'/..' . '/cache/wsconfigadmin.inc.php');
 // Basic configuration and settings, which are supplemented or overwritten by '/cache/wsconfigadmin.inc.php'.
-include(BASE_FOLDER . '/generated/settingsconfig.php');
-include(BASE_FOLDER . '/admin/functions.inc.php');
+include(__DIR__ .'/..' . '/generated/settingsconfig.php');
+include(__DIR__ .'/..' . '/admin/functions.inc.php');
 include(CONFIGCACHE_FILE_ADMIN);
 $site = (isset($_REQUEST['site'])) ? $_REQUEST['site'] : '';
 $show = (isset($_REQUEST['show'])) ? $_REQUEST['show'] : FALSE;
 $action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : null;
 if (SecurityUtil::isAdminLoggedIn()) {
-	$columns = '*';
-	$fromTable = $conf['db_prefix'] .'_admin';
-	$whereCondition = 'id = %d';
-	$parameters = $_SESSION['userid'];
-	$result = $db->querySelect($columns, $fromTable, $whereCondition, $parameters);
-	$admin = $result->fetch_array();
-	$result->free(); }
-else {
-	header('location: login.php?forwarded=1');
-	exit; }
-$i18n = I18n::getInstance($website->getConfig('supported_languages'));
+	$result = $db->querySelect('*', $conf['db_prefix'] .'_admin', 'id = %d', $_SESSION['userid']);
+	$admin = $result->fetch_array();}
+else header('location: login.php?forwarded=1&lang=de');
 if ($admin['lang']) {
 	try { $i18n->setCurrentLanguage($admin['lang']); }
 	catch (Exception $e) {} }
+//+ owsPro - Sets the set user language
+include(__DIR__ .'/..' . '/languages/messages_'. $i18n->getCurrentLanguage() . '.php');
 include(sprintf(CONFIGCACHE_ADMINMESSAGES, $i18n->getCurrentLanguage()));
 include(sprintf(CONFIGCACHE_ENTITYMESSAGES, $i18n->getCurrentLanguage()));
-//+ owsPro - Sets the set user language
-include(sprintf(BASE_FOLDER . '/languages/messages_%s.php', $i18n->getCurrentLanguage()));
 header('Content-type: text/html; charset=utf-8');

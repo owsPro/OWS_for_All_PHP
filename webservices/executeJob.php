@@ -19,12 +19,9 @@
   If not, see <http://www.gnu.org/licenses/>.
 
 ******************************************************/
-
-define('BASE_FOLDER', __DIR__ .'/..');
 define('JOB','//job[@id = \''. $jobId . '\']');
-include(BASE_FOLDER . '/admin/config/global.inc.php');
-
-define('JOBS_CONFIG_FILE', BASE_FOLDER . '/admin/config/jobs.xml');
+include(__DIR__ ."/.." . '/admin/config/global.inc.php');
+define('JOBS_CONFIG_FILE', __DIR__ ."/.." . '/admin/config/jobs.xml');
 
 // execution enabled?
 if (!$website->getConfig('webjobexecution_enabled')) {

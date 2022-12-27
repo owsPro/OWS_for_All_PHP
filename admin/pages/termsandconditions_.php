@@ -11,13 +11,14 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
+define('LANG',"//pagecontent[@lang = '". $selectedLang . "'][1]");
 $mainTitle = $i18n->getMessage("termsandconditions_navlabel");
 if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin[$page["permissionrole"]]) throw new Exception($i18n->getMessage("error_access_denied"));
 $selectedLang = (isset($_POST["lang"])) ? $_POST["lang"] : $i18n->getCurrentLanguage();
-$termsFile = __DIR__ .'/../..' . "/admin/config/termsandconditions.xml";
+$termsFile = __DIR__ ."/.." . "/admin/config/termsandconditions.xml";
 if (!file_exists($termsFile)) throw new Exception("File does not exist: " . $termsFile);
 $xml = simplexml_load_file($termsFile);
-$termsConfig = $xml->xpath("//pagecontent[@lang = '". $selectedLang . "'][1]");
+$termsConfig = $xml->xpath(LANG);
 if (!$termsConfig) throw new Exception("No terms and conditions available for this language. Create manually a new entry at " . $termsFile);
 if (!$show) { ?>
   <h1><?php echo $mainTitle; ?></h1>
