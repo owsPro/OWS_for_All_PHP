@@ -40,20 +40,20 @@ if (!$show) { ?>
 				$line = $file[$i];
                 $row = explode(';', $line);
 				$n = $i + 1;
-                echo '<tr>
+                echo htmlentities('<tr>
                   <td><b>'. $n .'</b></td>
                   <td>'. $row[0] .'</td>
                   <td>'. escapeOutput($row[1]) .' ('. escapeOutput($row[2]) . ')</td>
-                  <td>';
+                  <td>');
                   	if ($row[3] == LOG_TYPE_EDIT) echo '<span class=\'label label-info\'><i class=\'icon-white icon-pencil\'></i> '. $i18n->getMessage('entitylogging_action_edit') . '</span>';
 					elseif ($row[3] == LOG_TYPE_DELETE) echo '<span class=\'label label-important\'><i class=\'icon-white icon-trash\'></i> '. $i18n->getMessage('entitylogging_action_delete') . '</span>';
-					else echo $row[3];
-                  echo '</td>
-				  <td>'. $i18n->getMessage('entity_' . $row[4]) .': { ';
+					else echo htmlentities($row[3]);
+                  echo htmlentities('</td>
+				  <td>'. $i18n->getMessage('entity_' . $row[4]) .': { ');
                   	$itemFields = json_decode($row[5], TRUE);
                   	$firstField = TRUE;
                   	foreach ($itemFields as $fieldKey => $fieldValue) {
 						if ($firstField) $firstField = FALSE;
 						else echo ', ';
-						echo $fieldKey . ': ' . escapeOutput($fieldValue);}
+						echo htmlentities($fieldKey . ': ' . escapeOutput($fieldValue));}
 				   echo ' }</td></tr>';} ?></table><?php }}}

@@ -11,6 +11,7 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
+define('JOB',"//job[@id = '". $jobId . "']");
 $mainTitle = $i18n->getMessage("jobs_navlabel");
 if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin[$page["permissionrole"]]) throw new Exception($i18n->getMessage("error_access_denied"));
 if (!$show) { ?>
@@ -21,7 +22,7 @@ if (!$show) { ?>
   	if ($action == "execute" && !$admin["r_demo"]) {
 		$jobId = $_REQUEST["id"];
 		$xml = simplexml_load_file(JOBS_CONFIG_FILE);
-		$jobConfig = $xml->xpath("//job[@id = '". $jobId . "']");
+		$jobConfig = $xml->xpath(JOB);
 		if (!$jobConfig) throw new Exception("Job config not found.");
 		$jobClass = (string) $jobConfig[0]->attributes()->class;
 		if (class_exists($jobClass)) $job = new $jobClass($website, $db, $i18n, $jobId);
