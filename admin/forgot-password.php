@@ -16,7 +16,9 @@ require_once('config/global.inc.php');
 require_once('functions.inc.php');
 $i18n = I18n::getInstance($website->getConfig('supported_languages'));
 if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
-htmlentities(include(sprintf(CONFIGCACHE_ADMINMESSAGES, $i18n->getCurrentLanguage())));
+include(BASE_FOLDER . '/cache/adminmessages_'. $_GET['lang'] .'inc.php');
+//+ owsPro - Include set language file
+include(BASE_FOLDER . '/languages/messages_'. $_GET['lang'] .'.php');
 $inputEmail = (isset($_POST['inputEmail'])) ? trim($_POST['inputEmail']) : FALSE;
 if ($inputEmail) {
 	$now = $website->getNowAsTimestamp();
@@ -58,29 +60,29 @@ function _sendEmail($email, $password, $website, $i18n) {
   <body>
 	<div class='container'>
 		<h1><?php echo $i18n->getMessage('sendpassword_admin_title'); ?></h1>
-	<a href="/admin/login.php?lang=de"><img src="/img/flags/de.png" width="24" height="24" alt="Deutsch" title="Deutsch" /></a>
-	<a href="/admin/login.php?lang=en"><img src="/img/flags/en.png" width="24" height="24" alt="English" title="English" /></a>
-	<a href="/admin/login.php?lang=es"><img src="/img/flags/es.png" width="24" height="24" alt="???lang_label_es???" title="???lang_label_es???" /></a>
-	<a href="/admin/login.php?lang=dk"><img src="/img/flags/dk.png" width="24" height="24" alt="???lang_label_dk???" title="???lang_label_dk???" /></a>
-	<a href="/admin/login.php?lang=ee"><img src="/img/flags/ee.png" width="24" height="24" alt="???lang_label_ee???" title="???lang_label_ee???" /></a>
-	<a href="/admin/login.php?lang=fi"><img src="/img/flags/fi.png" width="24" height="24" alt="???lang_label_fi???" title="???lang_label_fi???" /></a>
-	<a href="/admin/login.php?lang=fr"><img src="/img/flags/fr.png" width="24" height="24" alt="???lang_label_fr???" title="???lang_label_fr???" /></a>
-	<a href="/admin/login.php?lang=id"><img src="/img/flags/id.png" width="24" height="24" alt="???lang_label_id???" title="???lang_label_id???" /></a>
-	<a href="/admin/login.php?lang=it"><img src="/img/flags/it.png" width="24" height="24" alt="???lang_label_it???" title="???lang_label_it???" /></a>
-	<a href="/admin/login.php?lang=lv"><img src="/img/flags/lv.png" width="24" height="24" alt="???lang_label_lv???" title="???lang_label_lv???" /></a>
-	<a href="/admin/login.php?lang=lt"><img src="/img/flags/lt.png" width="24" height="24" alt="???lang_label_lt???" title="???lang_label_lt???" /></a>
-	<a href="/admin/login.php?lang=nl"><img src="/img/flags/nl.png" width="24" height="24" alt="???lang_label_nl???" title="???lang_label_nl???" /></a>
-	<a href="/admin/login.php?lang=pl"><img src="/img/flags/pl.png" width="24" height="24" alt="???lang_label_pl???" title="???lang_label_pl???" /></a>
-	<a href="/admin/login.php?lang=pt"><img src="/img/flags/pt.png" width="24" height="24" alt="???lang_label_pt???" title="???lang_label_pt???" /></a>
-	<a href="/admin/login.php?lang=br"><img src="/img/flags/br.png" width="24" height="24" alt="???lang_label_br???" title="???lang_label_br???" /></a>
-	<a href="/admin/login.php?lang=ro"><img src="/img/flags/ro.png" width="24" height="24" alt="???lang_label_ro???" title="???lang_label_ro???" /></a>
-	<a href="/admin/login.php?lang=se"><img src="/img/flags/se.png" width="24" height="24" alt="???lang_label_se???" title="???lang_label_se???" /></a>
-	<a href="/admin/login.php?lang=sk"><img src="/img/flags/sk.png" width="24" height="24" alt="???lang_label_sk???" title="???lang_label_sk???" /></a>
-	<a href="/admin/login.php?lang=si"><img src="/img/flags/si.png" width="24" height="24" alt="???lang_label_si???" title="???lang_label_si???" /></a>
-	<a href="/admin/login.php?lang=cz"><img src="/img/flags/cz.png" width="24" height="24" alt="???lang_label_cz???" title="???lang_label_cz???" /></a>
-	<a href="/admin/login.php?lang=tr"><img src="/img/flags/tr.png" width="24" height="24" alt="???lang_label_tr???" title="???lang_label_tr???" /></a>
-	<a href="/admin/login.php?lang=hu"><img src="/img/flags/hu.png" width="24" height="24" alt="???lang_label_hu???" title="???lang_label_hu???" /></a>
-	<a href="/admin/login.php?lang=jp"><img src="/img/flags/jp.png" width="24" height="24" alt="???lang_label_jp???" title="???lang_label_jp???" /></a>
+	<a href="/admin/forgot-password.php?lang=de"><img src="/img/flags/de.png" width="24" height="24" alt="Deutsch" title="Deutsch" /></a>
+	<a href="/admin/forgot-password.php?lang=en"><img src="/img/flags/en.png" width="24" height="24" alt="English" title="English" /></a>
+	<a href="/admin/forgot-password.php?lang=es"><img src="/img/flags/es.png" width="24" height="24" alt="???lang_label_es???" title="???lang_label_es???" /></a>
+	<a href="/admin/forgot-password.php?lang=dk"><img src="/img/flags/dk.png" width="24" height="24" alt="???lang_label_dk???" title="???lang_label_dk???" /></a>
+	<a href="/admin/forgot-password.php?lang=ee"><img src="/img/flags/ee.png" width="24" height="24" alt="???lang_label_ee???" title="???lang_label_ee???" /></a>
+	<a href="/admin/forgot-password.php?lang=fi"><img src="/img/flags/fi.png" width="24" height="24" alt="???lang_label_fi???" title="???lang_label_fi???" /></a>
+	<a href="/admin/forgot-password.php?lang=fr"><img src="/img/flags/fr.png" width="24" height="24" alt="???lang_label_fr???" title="???lang_label_fr???" /></a>
+	<a href="/admin/forgot-password.php?lang=id"><img src="/img/flags/id.png" width="24" height="24" alt="???lang_label_id???" title="???lang_label_id???" /></a>
+	<a href="/admin/forgot-password.php?lang=it"><img src="/img/flags/it.png" width="24" height="24" alt="???lang_label_it???" title="???lang_label_it???" /></a>
+	<a href="/admin/forgot-password.php?lang=lv"><img src="/img/flags/lv.png" width="24" height="24" alt="???lang_label_lv???" title="???lang_label_lv???" /></a>
+	<a href="/admin/forgot-password.php?lang=lt"><img src="/img/flags/lt.png" width="24" height="24" alt="???lang_label_lt???" title="???lang_label_lt???" /></a>
+	<a href="/admin/forgot-password.php?lang=nl"><img src="/img/flags/nl.png" width="24" height="24" alt="???lang_label_nl???" title="???lang_label_nl???" /></a>
+	<a href="/admin/forgot-password.php?lang=pl"><img src="/img/flags/pl.png" width="24" height="24" alt="???lang_label_pl???" title="???lang_label_pl???" /></a>
+	<a href="/admin/forgot-password.php?lang=pt"><img src="/img/flags/pt.png" width="24" height="24" alt="???lang_label_pt???" title="???lang_label_pt???" /></a>
+	<a href="/admin/forgot-password.php?lang=br"><img src="/img/flags/br.png" width="24" height="24" alt="???lang_label_br???" title="???lang_label_br???" /></a>
+	<a href="/admin/forgot-password.php?lang=ro"><img src="/img/flags/ro.png" width="24" height="24" alt="???lang_label_ro???" title="???lang_label_ro???" /></a>
+	<a href="/admin/forgot-password.php?lang=se"><img src="/img/flags/se.png" width="24" height="24" alt="???lang_label_se???" title="???lang_label_se???" /></a>
+	<a href="/admin/forgot-password.php?lang=sk"><img src="/img/flags/sk.png" width="24" height="24" alt="???lang_label_sk???" title="???lang_label_sk???" /></a>
+	<a href="/admin/forgot-password.php?lang=si"><img src="/img/flags/si.png" width="24" height="24" alt="???lang_label_si???" title="???lang_label_si???" /></a>
+	<a href="/admin/forgot-password.php?lang=cz"><img src="/img/flags/cz.png" width="24" height="24" alt="???lang_label_cz???" title="???lang_label_cz???" /></a>
+	<a href="/admin/forgot-password.php?lang=tr"><img src="/img/flags/tr.png" width="24" height="24" alt="???lang_label_tr???" title="???lang_label_tr???" /></a>
+	<a href="/admin/forgot-password.php?lang=hu"><img src="/img/flags/hu.png" width="24" height="24" alt="???lang_label_hu???" title="???lang_label_hu???" /></a>
+	<a href="/admin/forgot-password.php?lang=jp"><img src="/img/flags/jp.png" width="24" height="24" alt="???lang_label_jp???" title="???lang_label_jp???" /></a>
 	<br><br><?php
 if (count((array)$errors) > 0) {
 	foreach($errors as $key => $message) echo createErrorMessage($i18n->getMessage('subpage_error_title'), $message);} ?>

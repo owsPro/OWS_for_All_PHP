@@ -1,7 +1,7 @@
 <?php
 // !!!!! GENERATED FILE! DO NOT EDIT !!!!!
 if(!isset($msg))$msg=[];
-$msg=$msg+array(
+$msg=array(
 'activities_tab'=>'Actividad',
 'activities_none_available_for_user'=>'El usuario no ha realizado ninguna actividad especial últimamente.',
 'activitylog_box_title'=>'Actividades del usuario',

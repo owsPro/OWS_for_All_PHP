@@ -1,5 +1,5 @@
 <?php
-$msg=$msg+array(
+$msg=array(
 'activities_tab'=>'Aktivität',
 'activities_none_available_for_user'=>'Der Benutzer hat in letzter Zeit keine besonderen Aktivitäten durchgeführt.',
 'activitylog_box_title'=>'Benutzeraktivitäten',

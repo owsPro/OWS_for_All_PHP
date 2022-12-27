@@ -17,9 +17,9 @@ include(BASE_FOLDER . '/admin/functions.inc.php');
 include(CONFIGCACHE_FILE_ADMIN);
 $i18n = I18n::getInstance($website->getConfig('supported_languages'));
 if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
-htmlentities(include(sprintf(CONFIGCACHE_ADMINMESSAGES, $i18n->getCurrentLanguage())));
+include(BASE_FOLDER . '/cache/adminmessages_'. $_GET['lang'] .'inc.php');
 //+ owsPro - Include set language file
-htmlentities(include(sprintf(BASE_FOLDER . '/languages/messages_%s.php', $i18n->getCurrentLanguage())));
+include(BASE_FOLDER . '/languages/messages_'. $_GET['lang'] .'.php');
 $errors = array();
 $inputUser = (isset($_POST['inputUser'])) ? $_POST['inputUser'] : FALSE;
 $inputPassword = (isset($_POST['inputPassword'])) ? $_POST['inputPassword'] : FALSE;
