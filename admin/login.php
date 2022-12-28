@@ -15,10 +15,13 @@ include(__DIR__ .'/..' . '/admin/config/global.inc.php');
 include(__DIR__ .'/..' . '/admin/functions.inc.php');
 include(CONFIGCACHE_FILE_ADMIN);
 $i18n = I18n::getInstance($website->getConfig('supported_languages'));
-if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
-$var = htmlentities(include(__DIR__ .'/..' . '/cache/adminmessages_'. $_GET['lang'] .'inc.php'));
-//+ owsPro - Include set language file
-$var = htmlentities(include(__DIR__ .'/..' . '/languages/messages_'. $_GET['lang'] .'.php'));
+if (isset($_GET['lang'])) {
+	$i18n->setCurrentLanguage($_GET['lang']);
+	switch ($_GET['lang']) {
+        case ('de'): htmlentities(include(__DIR__ .'/..' . '/cache/adminmessages_de.inc.php')); htmlentities(include(__DIR__ .'/..' . '/languages/messages_de.php')); break;
+        case ('en'): htmlentities(include(__DIR__ .'/..' . '/cache/adminmessages_en.inc.php')); htmlentities(include(__DIR__ .'/..' . '/languages/messages_en.php')); break;
+        case ('es'): htmlentities(include(__DIR__ .'/..' . '/cache/adminmessages_es.inc.php')); htmlentities(include(__DIR__ .'/..' . '/languages/messages_es.php')); break;
+        default: echo '<pre>										<b>This language is not yet fully supported!</b></pre>';}}
 $inputUser = (isset($_POST['inputUser'])) ? $_POST['inputUser'] : FALSE;
 $inputPassword = (isset($_POST['inputPassword'])) ? $_POST['inputPassword'] : FALSE;
 $forwarded = (isset($_GET['forwarded']) && $_GET['forwarded'] == 1) ? TRUE : FALSE;
