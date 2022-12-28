@@ -14,11 +14,13 @@
 include(__DIR__ .'/..' . '/admin/config/global.inc.php');
 include(__DIR__ .'/..' . '/admin/functions.inc.php');
 $i18n = I18n::getInstance($website->getConfig('supported_languages'));
-if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
-include(__DIR__ .'/..' . '/cache/adminmessages_'. $_GET['lang'] .'inc.php');
-//+ owsPro - Include set language file
-htmlentities(include(__DIR__ .'/..' . '/languages/messages_'. $_GET['lang'] .'.php'));
-
+if (isset($_GET['lang'])) {
+	$i18n->setCurrentLanguage($_GET['lang']);
+	switch ($_GET['lang']) {
+        case ('de'): htmlentities(include(__DIR__ .'/..' . '/cache/adminmessages_de.inc.php')); htmlentities(include(__DIR__ .'/..' . '/languages/messages_de.php')); break;
+        case ('en'): htmlentities(include(__DIR__ .'/..' . '/cache/adminmessages_en.inc.php')); htmlentities(include(__DIR__ .'/..' . '/languages/messages_en.php')); break;
+        case ('es'): htmlentities(include(__DIR__ .'/..' . '/cache/adminmessages_es.inc.php')); htmlentities(include(__DIR__ .'/..' . '/languages/messages_es.php')); break;
+        default: echo '<pre>										<b>This language is not yet fully supported!</b></pre>';}}
 $inputEmail = (isset($_POST['inputEmail'])) ? trim($_POST['inputEmail']) : FALSE;
 if ($inputEmail) {
 	$now = $website->getNowAsTimestamp();
