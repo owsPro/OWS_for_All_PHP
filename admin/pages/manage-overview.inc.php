@@ -89,7 +89,7 @@ else {
 		$wherePart .= ($sortAscending) ? " ASC" : " DESC";}
 	$limit = $start .",". $eps;
 	$result = $db->querySelect($fields, $fromTable, $wherePart, $parameters, $limit);
-	echo "<form name=\"frmMain\" action=\"". $_SERVER['PHP_SELF'] ."\" method=\"post\">";
+	echo "<form name=\"frmMain\" action=\"". htmlentities($_SERVER['PHP_SELF']) ."\" method=\"post\">";
 	echo "<input type=\"hidden\" name=\"site\" value=\"". $site ."\">";
 	echo "<input type=\"hidden\" name=\"entity\" value=\"". $entity ."\">";
 	echo "<input type=\"hidden\" name=\"action\" value=\"delete\">";
