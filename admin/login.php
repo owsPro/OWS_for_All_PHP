@@ -16,9 +16,11 @@ include(__DIR__ .'/..' . '/admin/functions.inc.php');
 include(CONFIGCACHE_FILE_ADMIN);
 $i18n = I18n::getInstance($website->getConfig('supported_languages'));
 if (isset($_GET['lang'])) $i18n->setCurrentLanguage($_GET['lang']);
-include(__DIR__ .'/..' . '/cache/adminmessages_'. $_GET['lang'] .'inc.php');
+$inc = __DIR__ .'/..' . '/cache/adminmessages_'. $_GET['lang'] .'inc.php';
+include($inc);
 //+ owsPro - Include set language file
-htmlentities(include(__DIR__ .'/..' . '/languages/messages_'. $_GET['lang'] .'.php'));
+$inc = __DIR__ .'/..' . '/languages/messages_'. $_GET['lang'] .'.php';
+include($inc);
 $inputUser = (isset($_POST['inputUser'])) ? $_POST['inputUser'] : FALSE;
 $inputPassword = (isset($_POST['inputPassword'])) ? $_POST['inputPassword'] : FALSE;
 $forwarded = (isset($_GET['forwarded']) && $_GET['forwarded'] == 1) ? TRUE : FALSE;
