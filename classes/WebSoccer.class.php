@@ -7872,7 +7872,7 @@ class BadgesDataService {
 		$db->queryInsert(array('user_id' => $userId, 'badge_id' => $badgeId, 'date_rewarded' => $websoccer->getNowAsTimestamp() ), $badgeUserTable);
 		NotificationsDataService::createNotification($websoccer, $db, $userId, 'badge_notification', null, 'badge', 'user', 'id=' . $userId);}}
 class BankAccountDataService {
-	static function countAccountStatementsOfTeam($websoccer, $db, $teamId) {
+	static function countAccountStatementsOfTeam(WebSoccer $websoccer, DbConnection $db, $teamId) {
 		$columns = "COUNT(*) AS hits";
 		$fromTable = $websoccer->getConfig("db_prefix") . "_konto";
 		$whereCondition = "verein_id = %d";
@@ -7881,11 +7881,9 @@ class BankAccountDataService {
 		$statements = $result->fetch_array();
 		if (isset($statements["hits"])) return $statements["hits"];
 		return 0;}
-	static function getAccountStatementsOfTeam($websoccer, $db, $teamId, $startIndex, $entries_per_page) {
-		$columns["absender"] = "sender";
-		$columns["betrag"] = "amount";
-		$columns["datum"] = "date";
-		$columns["verwendung"] = "subject";
+	static function getAccountStatementsOfTeam(WebSoccer $websoccer, DbConnection $db, $teamId, $startIndex, $entries_per_page) {
+		$columns = ["absender" => "sender", "betrag" => "amount", "datum" => "date",
+		"verwendung" => "subject"];
 		$limit = $startIndex .",". $entries_per_page;
 		$fromTable = $websoccer->getConfig("db_prefix") . "_konto";
 		$whereCondition = "verein_id = %d ORDER BY datum DESC";
@@ -7894,20 +7892,20 @@ class BankAccountDataService {
 		$statements = array();
 		while ($statement = $result->fetch_array()) $statements[] = $statement;
 		return $statements;}
-	static function creditAmount($websoccer, $db, $teamId, $amount, $subject, $sender) {
+	static function creditAmount(WebSoccer $websoccer, DbConnection $db, $teamId, $amount, $subject, $sender) {
 		if ($amount == 0) return;
 		$team = TeamsDataService::getTeamSummaryById($websoccer, $db, $teamId);
 		if (!isset($team["team_id"])) throw new Exception("team not found: " . $teamId);
 		if ($amount < 0) throw new Exception("amount illegal: " . $amount);
 		else self::createTransaction($websoccer, $db, $team, $teamId, $amount, $subject, $sender);}
-	static function debitAmount($websoccer, $db, $teamId, $amount, $subject, $sender) {
+	static function debitAmount(WebSoccer $websoccer, DbConnection $db, $teamId, $amount, $subject, $sender) {
 		if ($amount == 0) return;
 		$team = TeamsDataService::getTeamSummaryById($websoccer, $db, $teamId);
 		if (!isset($team["team_id"])) throw new Exception("team not found: " . $teamId);
 		if ($amount < 0) throw new Exception("amount illegal: " . $amount);
 		$amount = 0 - $amount;
 		self::createTransaction($websoccer, $db, $team, $teamId, $amount, $subject, $sender);}
-	static function createTransaction($websoccer, $db, $team, $teamId, $amount, $subject, $sender) {
+	static function createTransaction(WebSoccer $websoccer, DbConnection $db, $team, $teamId, $amount, $subject, $sender) {
 		if (!$team["user_id"] && $websoccer->getConfig("no_transactions_for_teams_without_user")) return;
 		$fromTable = $websoccer->getConfig("db_prefix") ."_konto";
 		$columns["verein_id"] = $teamId;

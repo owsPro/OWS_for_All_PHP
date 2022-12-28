@@ -24,7 +24,7 @@ set_time_limit(0);?>
 <html lang="de">
 	<head>
 		<?php Bootstrap_css();?>
-		<title>owsPro Installation</title>
+		<title>OWS_for_All_PHP Installation</title>
 		<link href="../admin/bootstrap/css/bootstrap.min.css"rel="stylesheet"media="screen">
 		<link rel="shortcut icon"type="image/x-icon"href="../favicon.ico" />
 		<meta charset="UTF-8">
@@ -32,7 +32,7 @@ set_time_limit(0);?>
 			body{padding-top:100px; padding-bottom:40px;}</style></head>
 	<body>
 		<div class="container">
-			<h1>owsPro Installation</h1>
+			<h1>OWS_for_All_PHP Installation</h1>
 			<hr>
 			<?php
 				$errors=[];
@@ -49,7 +49,7 @@ set_time_limit(0);?>
 				else $view();?>
 			<hr>
 			<footer>
-				<p>Powered by <a href="https://github.com/owsPro/owsPro" target="_blank">owsPro</a><br>
+				<p>Powered by <a href="https://github.com/owsPro/OWS_for_All_PHP" target="_blank">OWS_for_All_PHP</a><br>
 				Forked from <a href="https://github.com/ihofmann/open-websoccer" target="_blank">ihofmann</a></p></footer></div>
 		<script src="http://code.jquery.com/jquery-latest.js"></script>
 		<script src="../admin/bootstrap/js/bootstrap.min.js"></script></body></html>
@@ -408,7 +408,7 @@ function actionCreateDb(){
 	include(CONFIGFILE);
 	$db=DbConnection::getInstance();
 	$db->connect($conf["db_host"],$conf["db_user"],$conf["db_passwort"],$conf["db_name"]);
-	try{if($_POST["install"]=="new")loadAndExecuteDdl("owsPro.sql",$db);}
+	try{if($_POST["install"]=="new")loadAndExecuteDdl("OWS.sql",$db);}
 	catch(Exception $e){
 		global $errors;
 		$errors[]=$e->getMessage();
@@ -438,7 +438,10 @@ function printCreateUserForm($messages){
 			<div class="control-group">
 				<label class="control-label" for="password"><?php echo $messages["label_password"]?></label>
 				<div class="controls">
-					<input type="password" id="password" name="password" required value="<?php echo htmlentities((isset($_POST["password"]))?$_POST["password"]:"");?>"></div></div>
+					<input type="password" id="password" name="password" required"<?php
+					$_POST['password']='';
+					switch ($_POST['password']) {
+        			case ('password'): echo htmlentities((isset($_POST["password"]))?$_POST["password"]:""); break;}?></div></div>
 			<div class="control-group">
 				<label class="control-label" for="email"><?php echo $messages["label_email"]?></label>
 				<div class="controls">
@@ -464,7 +467,7 @@ function actionSaveUser(){
 	include(CONFIGFILE);
 	$db=DbConnection::getInstance();
 	$db->connect($conf["db_host"],$conf["db_user"],$conf["db_passwort"],$conf["db_name"]);
-	$db->queryInsert($columns,"admin");
+	$db->queryInsert($columns,"_admin");
 	return"printFinalPage";}
 function printFinalPage($messages){
 	include(CONFIGFILE);
