@@ -1,0 +1,10 @@
+Glasgow	
+Edinburgh	
+Aberdeen	
+Dundee	
+Paisley	
+East Kilbride	
+Livingston	
+Hamilton	
+Cumbernauld	
+Inverness

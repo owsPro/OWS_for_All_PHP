@@ -1,7 +1,7 @@
 Martinez
 Escota
 Fernandez
-S√°marez
+Sss°marez
 Endoso
 Miato
 Rodriguez
@@ -121,7 +121,7 @@ Nuanez
 Querido
 Xochicale
 Jara
-Su√°rez
+Suss°rez
 Hernandez
 Ibanez
 Rivera
@@ -153,7 +153,7 @@ Ysassi
 Queiro
 Urtez
 Ugarte
-N√∫nez
+Nss∫nez
 Kiko
 Santiago
 Xovi
@@ -166,7 +166,7 @@ Jaramillo
 Iglecias
 Dealejandro
 Arguellez
-Guzm√°n
+Guzmss°n
 Ojito
 Cobelo
 Torrillas
@@ -209,7 +209,7 @@ Ramirez
 Santamarina
 Castrilli
 Napolez
-Bar√≥n
+Barss≥n
 Yuste
 Galguera
 Urrutia
@@ -248,8 +248,8 @@ Aguilar
 Zamaco
 Figueira
 Herrera
-Ximen√©z
-Xu√°rez
+Ximenss©z
+Xuss°rez
 Delmorales
 Aguera
 Alonso
@@ -271,7 +271,7 @@ Burbano
 Alvarez
 De Caxias
 Domenguez
-Guti√©rrez
+Gutiss©rrez
 Pedroso
 Pedreiro
 Fajardo
