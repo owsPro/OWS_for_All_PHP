@@ -1730,9 +1730,6 @@ class FormBuilder {
 				$i18n->getMessage('manage_select_placeholder') . '\'>';
 		echo ' <a href=\'?site=manage&entity='. $fieldInfo['entity'] . '&show=add\' title=\''. $i18n->getMessage('manage_add') . '\'><i class=\'icon-plus-sign\'></i></a>';}}
 class FrontMessage {
-	public $type;
-	public $title;
-	public $message;
 	function __construct($type, $title, $message) {
 		if ($type !== MESSAGE_TYPE_INFO && $type !== MESSAGE_TYPE_SUCCESS && $type !== MESSAGE_TYPE_ERROR && $type !== MESSAGE_TYPE_WARNING) throw new Exception('unknown FrontMessage type: ' . $type);
 		$this->type = $type;
