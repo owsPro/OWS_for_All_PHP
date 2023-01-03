@@ -1791,7 +1791,7 @@ class I18n {
 		$this->_currentLanguage = $lang;}
 	function getMessage($messageKey, $paramaters = null) {
 		global $msg;
-		if (!$this->hasMessage($messageKey)) return '???' . $messageKey .'???';
+		if (!isset($msg[$messageKey])) return 'MessageKey: '.$messageKey.' is not defined!';
 		$message = stripslashes($msg[$messageKey]);
 		if ($paramaters != null) $message = sprintf($message, $paramaters);
 		return $message;}
