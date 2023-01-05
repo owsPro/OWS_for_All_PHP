@@ -34,7 +34,7 @@ if (!$show) { ?>
 	  $result = $db->querySelect(["T1.id" => "id", "T1.name" => "name", "(SELECT COUNT(*) FROM " . $conf['db_prefix'] . "_spieler AS S WHERE S.verein_id = T1.id)" => "playerscount"], $conf['db_prefix'] . "_verein AS T1", "T1.liga_id = %d ORDER BY T1.name ASC", $leagueid);
 	  if (!$result->num_rows) echo "<p>" . $i18n->getMessage("playersgenerator_noteams") . "</p>";
 	  else { ?>
-	  	<p><a href="?site=<?php echo $site ?>&show=generateform&leagueid=<?php echo $leagueid ?>"
+	  	<p><a href="?site=<?php echo $site ?>&show=generateform&leagueid=<?php echo htmlentities($leagueid) ?>"
 	  		class="btn"><?php echo $i18n->getMessage("playersgenerator_create_for_all_teams"); ?></a></p>
 	  	<h4 style="margin-top:20px"><?php echo $i18n->getMessage("playersgenerator_create_for_single_teams"); ?></h4>
 	    <table class="table table-striped">
@@ -44,15 +44,15 @@ if (!$show) { ?>
 	    			<th><?php echo $i18n->getMessage("playersgenerator_head_playerscount"); ?></th></tr></thead><tbody><?php
 	  		while ($team = $result->fetch_array()) {
 	  			echo "<tr>";
-	  			echo "<td><a href=\"?site=". $site . "&show=generateform&teamid=". $team["id"] . "\">". $team["name"] . "</a></td>";
-	  			echo "<td>". $team["playerscount"] . "</td>";
+	  			echo htmlentities("<td><a href=\"?site=". $site . "&show=generateform&teamid=". $team["id"] . "\">". $team["name"] . "</a></td>");
+	  			echo htmlentities("<td>". $team["playerscount"] . "</td>");
 	  			echo "</tr>";} ?></tbody></table><?php }}}
 elseif ($show == "generateform") { ?>
-  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-horizontal">
+  <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="show" value="generate">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
-	<input type="hidden" name="teamid" value="<?php echo $teamid; ?>">
-	<input type="hidden" name="leagueid" value="<?php echo $leagueid; ?>">
+	<input type="hidden" name="teamid" value="<?php echo htmlentities($teamid); ?>">
+	<input type="hidden" name="leagueid" value="<?php echo htmlentities($leagueid); ?>">
 	<fieldset>
     <legend><?php echo $i18n->getMessage("generator_label"); ?></legend><?php
 	$formFields = array();
@@ -83,4 +83,4 @@ elseif ($show == "generate") {
 	else DataGeneratorService::generatePlayers($website, $db, 0, $_POST['player_age'], $_POST['player_age_deviation'], $_POST['entity_player_vertrag_gehalt'], $_POST['entity_player_vertrag_spiele'], $strengths, $positions, $_POST["playersgenerator_label_deviation"],
 		$_POST['entity_player_nation']);
 	echo createSuccessMessage($i18n->getMessage("generator_success"), "");
-    echo "<p>&raquo; <a href=\"?site=". $site ."&leagueid=". $leagueid . "\">". $i18n->getMessage("back_label") . "</a></p>\n";}}
+    echo htmlentities("<p>&raquo; <a href=\"?site=". $site ."&leagueid=". $leagueid . "\">". $i18n->getMessage("back_label") . "</a></p>\n");}}
