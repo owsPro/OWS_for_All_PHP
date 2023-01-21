@@ -46,7 +46,7 @@ if ($action == "complete") {
 	$observer->onMatchCompleted($matchModel);
 	echo createSuccessMessage($i18n->getMessage("match_manage_complete_success"), "");}
 echo htmlentities("<h3><a href=\"". $website->getInternalUrl("team", "id=" . $match["match_home_id"]) . "\" target=\"_blank\">". escapeOutput($match["match_home_name"]) . "</a> - <a href=\"". $website->getInternalUrl("team", "id=" . $match["match_guest_id"]) .
-	"\" target=\"_blank\">". escapeOutput($match["match_guest_name"]) . "</a></h3>"));
+	"\" target=\"_blank\">". escapeOutput($match["match_guest_name"]) . "</a></h3>");
 echo "<div class=\"well\">". $i18n->getMessage("match_manage_complete_intro") . "</div>";
 echo htmlentities("<form action=\"". $_SERVER['PHP_SELF'] . "\" method=\"post\" class=\"form-horizontal\">");
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\"/>";
