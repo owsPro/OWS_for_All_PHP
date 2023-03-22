@@ -1,9 +1,9 @@
 # OWS_for_All_PHP
-OpenWebSoccer-Sim 5.2.4-SNAPSHOT 2015 for All PHP ( Version 5.4 to 8.2.1 )
+OpenWebSoccer-Sim 5.2.4-SNAPSHOT 2015 for All PHP ( Version 5.4 to 8.2.4 )
 
   This is "OWS for All PHP" (Rolf Joseph)
   https://github.com/owsPro/OWS_for_All_PHP/
-  A spinn-off for PHP Versions 5.4 to 8.2.1 from:
+  A spinn-off for PHP Versions 5.4 to 8.2.4 from:
   OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
   "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
@@ -26,8 +26,7 @@ OpenWebSoccer-Sim 5.2.4-SNAPSHOT 2015 for All PHP ( Version 5.4 to 8.2.1 )
  - The installation is from "owsPro", so that there is a high level of compatibility.
  - Additional configuration and settings, e.g. through add-ons and basic configuration and settings, which are supplemented or overwritten by '/cache/wsconfigadmin.inc.php'.
  - Terms and conditions translated into many languages.
- 
+
  This version can still be used with the database prefix, which is removed in "owsPro"!
  There will be no updates ( only language translations are updated ),
  but possible bug fixes for this version!
-
