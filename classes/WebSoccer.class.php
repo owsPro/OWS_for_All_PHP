@@ -3352,24 +3352,6 @@ class TemplateEngine {
 			delDir($_SERVER['DOCUMENT_ROOT'].'/cache');
 			mkdir($_SERVER['DOCUMENT_ROOT'].'/cache');}}
 	function getEnvironment() { return $this->_environment;}
-	class TemplateEngine {
-	private $_environment;
-	private $_skin;
-	function __construct(WebSoccer $env, I18n $i18n, ViewHandler $viewHandler = null) {
-		$this->_skin = $env->getSkin();
-		$this->_initTwig();
-		$this->_environment->addGlobal(I18N_GLOBAL_NAME, $i18n);
-		$this->_environment->addGlobal(ENVIRONMENT_GLOBAL_NAME, $env);
-		$this->_environment->addGlobal(SKIN_GLOBAL_NAME, $this->_skin);
-		$this->_environment->addGlobal(VIEWHANDLER_GLOBAL_NAME, $viewHandler);}
-	function loadTemplate($templateName) {return $this->_environment->loadTemplate($this->_skin->getTemplate($templateName));}
-	function clearCache() {
-		if (file_exists(CACHE_FOLDER)) {
-			//- Fatal error: Uncaught Error: Call to undefined method Twig\Environment::clearCacheFiles()
-			//- $this->_environment->clearCacheFiles();
-			delDir($_SERVER['DOCUMENT_ROOT'].'/cache');
-			mkdir($_SERVER['DOCUMENT_ROOT'].'/cache');}}
-	function getEnvironment() {return $this->_environment;}
 	function _initTwig() {
 		$twigConfig = array('cache' => CACHE_FOLDER,);
 		if(version_compare(PHP_VERSION, '7.1.0') >= 0){
