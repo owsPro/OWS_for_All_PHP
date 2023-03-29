@@ -128,36 +128,36 @@ function printConfigForm($messages){
 			<div class="control-group">
 				<label class="control-label" for="db_host"><?php echo $messages["label_db_host"]?></label>
 				<div class="controls">
-					<input type="text" id="db_host" name="db_host" required value="<?php echo (isset($_POST["db_host"]))?$_POST["db_host"]:"localhost"; ?>">
+					<input type="text" id="db_host" name="db_host" required value="<?php htmlentities(echo (isset($_POST["db_host"]))?$_POST["db_host"]:"localhost"); ?>">
 					<span class="help-inline"><?php echo $messages["label_db_host_help"]?></span></div></div>
 			<div class="control-group">
 				<label class="control-label" for="db_name"><?php echo $messages["label_db_name"]?></label>
 				<div class="controls">
-					<input type="text" id="db_name" name="db_name" required value="<?php echo (isset($_POST["db_name"]))?$_POST["db_name"]:"";?>"></div></div>
+					<input type="text" id="db_name" name="db_name" required value="<?php htmlentities(echo (isset($_POST["db_name"]))?$_POST["db_name"]:"");?>"></div></div>
 			<div class="control-group">
 				<label class="control-label" for="db_user"><?php echo $messages["label_db_user"]?></label>
 				<div class="controls">
-					<input type="text" id="db_user" name="db_user" required value="<?php echo (isset($_POST["db_user"]))?$_POST["db_user"]:"";?>"></div></div>
+					<input type="text" id="db_user" name="db_user" required value="<?php htmlentities(echo (isset($_POST["db_user"]))?$_POST["db_user"]:"");?>"></div></div>
 			<div class="control-group">
 				<label class="control-label" for="db_password"><?php echo $messages["label_db_password"]?></label>
 				<div class="controls">
-					<input type="text" id="db_password" name="db_password" required value="<?php echo (isset($_POST["db_password"]))?$_POST["db_password"]:"";?>"></div></div>
+					<input type="text" id="db_password" name="db_password" required value="<?php htmlentities(echo (isset($_POST["db_password"]))?$_POST["db_password"]:"");?>"></div></div>
 			<hr>
 			<div class="control-group">
 				<label class="control-label" for="projectname"><?php echo $messages["label_projectname"]?></label>
 				<div class="controls">
-					<input type="text" id="projectname" name="projectname" required value="<?php echo(isset($_POST["projectname"]))?$_POST["projectname"]:"";?>">
+					<input type="text" id="projectname" name="projectname" required value="<?php htmlentities(echo(isset($_POST["projectname"]))?$_POST["projectname"]:"");?>">
 					<span class="help-inline"><?php echo $messages["label_projectname_help"]?></span></div></div>
 			<div class="control-group">
 				<label class="control-label" for="projectname"><?php echo $messages["label_systememail"]?></label>
 				<div class="controls">
-				<input type="email" id="systememail" name="systememail" required value="<?php echo(isset($_POST["systememail"]))?$_POST["systememail"]:"";?>">
+				<input type="email" id="systememail" name="systememail" required value="<?php htmlentities(echo(isset($_POST["systememail"]))?$_POST["systememail"]:"");?>">
 					<span class="help-inline"><?php echo $messages["label_systememail_help"]?></span></div></div>
 			<?php $defaultUrl = "http://".$_SERVER["HTTP_HOST"];?>
 			<div class="control-group">
 				<label class="control-label" for="url"><?php echo $messages["label_url"]?></label>
 				<div class="controls">
-					<input type="url" id="url" name="url" required value="<?php echo (isset($_POST["url"]))?$_POST["url"]:$defaultUrl;?>">
+					<input type="url" id="url" name="url" required value="<?php htmlentities(echo (isset($_POST["url"]))?$_POST["url"]:$defaultUrl);?>">
 					<span class="help-inline"><?php echo $messages["label_url_help"]?></span></div></div>
 			<?php $defaultRoot=substr($_SERVER["REQUEST_URI"],0,strrpos($_SERVER["REQUEST_URI"],"/install"));?></fieldset>
 		<div class="form-actions">
@@ -402,15 +402,15 @@ function printCreateUserForm($messages){
 			<div class="control-group">
 				<label class="control-label" for="name"><?php echo $messages["label_name"]?></label>
 				<div class="controls">
-					<input type="text" id="name" name="name" required value="<?php echo(isset($_POST["name"]))?$_POST["name"]:"";?>"></div></div>
+					<input type="text" id="name" name="name" required value="<?php htmlentities(echo(isset($_POST["name"]))?$_POST["name"]:"");?>"></div></div>
 			<div class="control-group">
 				<label class="control-label" for="password"><?php echo $messages["label_password"]?></label>
 				<div class="controls">
-					<input type="password" id="password" name="password" required value="<?php echo(isset($_POST["password"]))?$_POST["password"]:"";?>"></div></div>
+					<input type="password" id="password" name="password" required value="<?php htmlentities(echo(isset($_POST["password"]))?$_POST["password"]:"");?>"></div></div>
 			<div class="control-group">
 				<label class="control-label" for="email"><?php echo $messages["label_email"]?></label>
 				<div class="controls">
-					<input type="email" id="email" name="email" required value="<?php echo (isset($_POST["email"]))?$_POST["email"]:"";?>"></div></div></fieldset>
+					<input type="email" id="email" name="email" required value="<?php htmlentities(echo (isset($_POST["email"]))?$_POST["email"]:"");?>"></div></div></fieldset>
 		<div class="form-actions">
 		  <button type="submit" class="btn btn-primary"><?php echo $messages["button_next"];?></button></div>
 		<input type="hidden" name="action" value="actionSaveUser"></form>
@@ -480,11 +480,11 @@ class _SecurityUtil{
 		return hash('sha256',$salt.hash('sha256',$password));}
 	static function isAdminLoggedIn(){
 		if(isset($_SESSION['HTTP_USER_AGENT'])){
-			if($_SESSION['HTTP_USER_AGENT']!=md5($_SERVER['HTTP_USER_AGENT'])){
+			if($_SESSION['HTTP_USER_AGENT']!=sha256($_SERVER['HTTP_USER_AGENT'])){
 				self::logoutAdmin();
 				return FALSE;}}
 		else{
-			$_SESSION['HTTP_USER_AGENT'] = md5($_SERVER['HTTP_USER_AGENT']);}
+			$_SESSION['HTTP_USER_AGENT'] = sha256($_SERVER['HTTP_USER_AGENT']);}
 		return(isset($_SESSION['valid'])&&$_SESSION['valid']);}
 	static function logoutAdmin(){
 		$_SESSION=[];
@@ -496,7 +496,7 @@ class _SecurityUtil{
 		return substr(self::generatePassword(),0,4);}
 	static function generateSessionToken($userId, $salt){
 		$useragent=(isset($_SESSION['HTTP_USER_AGENT']))?$_SESSION['HTTP_USER_AGENT']:'n.a.';
-		return md5($salt.$useragent.$userId);}
+		return sha256($salt.$useragent.$userId);}
 	static function loginFrontUserUsingApplicationSession(WebSoccer $websoccer,$userId){
 		$_SESSION['frontuserid']=$userId;
 		session_regenerate_id();
