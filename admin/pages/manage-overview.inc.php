@@ -125,45 +125,45 @@ else {
 	$deleteTooltip = $i18n->getMessage("manage_delete");
 	while ($row = $result->fetch_array()) {
 		echo "<tr>";
-		if ($deleteEnabled) echo "<td><input type=\"checkbox\" name=\"del_id[]\" value=\"". $row["id"] ."\"></td>";
+		if ($deleteEnabled) echo htmlentities("<td><input type=\"checkbox\" name=\"del_id[]\" value=\"". $row["id"] ."\"></td>");
 		$first = TRUE;
 		foreach($outputColumns as $fieldId => $columnInfo) {
-			echo "<td id=\"item". $row["id"] . "\">";
+			echo htmlentities("<td id=\"item". $row["id"] . "\">");
 			$columnValue = $row["". $fieldId];
 			$type = $columnInfo["type"];
 			$editUrl = "?site=" . $site ."&entity=" . $entity . "&show=edit&id=" . $row["id"];
 			if (isset($_REQUEST["page"])) $editUrl .= "&page=" . escapeOutput($_REQUEST["page"]);
 			if (isset($columnInfo["converter"])) {
 				$converter = ConverterFactory::getConverter($website, $i18n, $columnInfo["converter"]);
-				echo $converter->toHtml($row);}
+				echo htmlentities($converter->toHtml($row));}
 			elseif ($fieldId == "entity_". $entity ."_status") {
 				if ($columnValue == 1) echo "<i class=\"icon-ok-sign\" title=\"". $i18n->getMessage("manage_status_active") . "\"></i>";
 				else echo "<i class=\"icon-ban-circle\" title=\"". $i18n->getMessage("manage_status_blocked") . "\"></i>";}
-			elseif ($type == "date") echo date($dateFormat, $columnValue);
+			elseif ($type == "date") echo htmlentities(date($dateFormat,$columnValue));
 			elseif ($type == "timestamp") {
-				if ($columnValue > 0) echo date($datetimeFormat, $columnValue);
+				if ($columnValue > 0) echo htmlentities(date($datetimeFormat,$columnValue));
 				else echo "-";}
 			elseif ($type == "email") echo "<a href=\"mailto:". escapeOutput($columnValue ) ."\" title=\"". escapeOutput($columnValue) . "\"><i class=\"icon-envelope\"></i></a>";
-			elseif ($type == "select" && $i18n->hasMessage("option_" . $columnValue)) echo $i18n->getMessage("option_" . $columnValue);
+			elseif ($type == "select" && $i18n->hasMessage("option_" . $columnValue)) echo htmlentities($i18n->getMessage("option_" . $columnValue));
 			elseif ($type == "boolean") {
 				$iconName = ($columnValue) ? "icon-ok" : "icon-minus-sign";
 				$iconTooltip = ($columnValue) ? $i18n->getMessage("option_yes") : $i18n->getMessage("option_no");
 				echo "<i class=\"". $iconName ."\" title=\"". $iconTooltip . "\"></i>";}
-			elseif ($type == "number") echo number_format($columnValue, 0, ",", " ");
-			elseif ($type == "percent") echo $columnValue . "%";
+			elseif ($type == "number") echo htmlentities(number_format($columnValue, 0, ",", " "));
+			elseif ($type == "percent") echo htmlentities($columnValue . "%");
 			else {
 				if ($i18n->hasMessage("option_" . $columnValue)) $columnValue = $i18n->getMessage("option_" . $columnValue);
-				if ($first && $editEnabled) echo "<a href=\"". $editUrl . "\">";
+				if ($first && $editEnabled) echo htmlentities("<a href=\"". $editUrl . "\">");
 				echo escapeOutput($columnValue);
 				if ($first && $editEnabled) echo "</a>";}
 			echo "</td>";
 			$first = FALSE;}
 		if ($editEnabled) {
 			$url = "?site=" . $site ."&entity=" . $entity . "&show=edit&id=" . $row["id"];
-			echo "<td><a href=\"". $url ."\" title=\"". $editTooltip . "\"><i class=\"icon-pencil\"></i></a></td>";}
+			echo htmlentities("<td><a href=\"". $url ."\" title=\"". $editTooltip . "\"><i class=\"icon-pencil\"></i></a></td>");}
 		if ($deleteEnabled) {
 			$url = "?site=" . $site ."&entity=" . $entity . "&action=delete&id=" . $row["id"];
-			echo "<td><a href=\"". $url ."\" title=\"". $deleteTooltip . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a></td>";}
+			echo htmlentities("<td><a href=\"". $url ."\" title=\"". $deleteTooltip . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a></td>");}
 		echo "</tr>";}
 	echo "</tbody>";
 	echo "</table>"; ?>
