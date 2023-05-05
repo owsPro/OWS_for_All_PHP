@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% if teams is defined and teams|length > 0 %}
-	
+
 	<table class="table">
 		<colgroup>
 			<col style="width: 40px" />
@@ -34,25 +34,27 @@
 			{% for team in teams %}
 				{% set place = loop.index %}
 				{% set markerTitle = '' %}
-			
+
 				<tr>
 					<td{% if markers is defined and markers|length > 0 %}
-					
-					{% for marker in markers if marker.place_from <= place and marker.place_to >= place %}
-						{% set markerTitle = marker.name %}
-						{% if i18n.hasMessage(markerTitle) %}
-							{% set markerTitle = i18n.getMessage(markerTitle) %}
-						{% endif %}
-						style="background-color: {{ marker.color }}"
-					{% endfor %}
-					
+
+					{% if marker.place_from <= place and marker.place_to >= place %}
+						{% for marker in markers %}
+							{% set markerTitle = marker.name %}
+							{% if i18n.hasMessage(markerTitle) %}
+								{% set markerTitle = i18n.getMessage(markerTitle) %}
+							{% endif %}
+							style="background-color: {{ marker.color }}"
+						{% endfor %}
+					{% endif %}
+
 					{% endif %}>{% if markerTitle|length > 0 %}<div class="wstooltip" title="{{ markerTitle }}" style="cursor: default;">{% endif %}{{ place }}{% if markerTitle|length > 0 %}</div>{% endif %}</td>
 					<td>{% if (env.getUser().id > 0 and team.user_id == env.getUser().id) %}<strong>{% endif %}
-					
+
 					{% if team.picture|length %}
 						<img src="{{ env.getConfig("context_root") }}/uploads/club/{{ team.picture }}" style="max-width: 20px"/>
 					{% endif %}
-					
+
 					<a href="{{ env.getInternalUrl("team", "id=" ~ team.id) }}">{{ team.name }}</a>
 					{% if team.user_id > 0 %}
 						<br>
@@ -86,7 +88,7 @@
 			{% endfor %}
 		</tbody>
 	</table>
-	
+
 	{% if markers is defined and markers|length > 0 %}
 		<h5>{{ i18n.getMessage("entity_tablemarker") }}</h5>
 		<table class="table table-condensed" style="width: auto;">
@@ -108,7 +110,7 @@
 			</tbody>
 		</table>
 	{% endif %}
-	
+
 {% else %}
 	{{ messagebox.box(i18n.getMessage("leaguetable_block_noteamsavailable"), "", "info") }}
 {% endif %}
