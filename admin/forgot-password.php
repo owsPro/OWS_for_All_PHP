@@ -11,6 +11,7 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
+include($_SERVER['DOCUMENT_ROOT'].'/classes/WebSoccer.class.php');
 include(__DIR__ .'/..' . '/admin/config/global.inc.php');
 include(__DIR__ .'/..' . '/admin/functions.inc.php');
 $i18n = I18n::getInstance($website->getConfig('supported_languages'));
@@ -44,7 +45,7 @@ function _sendEmail($email, $password, $website, $i18n) {
 <html lang='de'>
   <head>
     <title>AdminCenter - <?php echo $i18n->getMessage('sendpassword_admin_title'); ?></title>
-    <link href='bootstrap/css/bootstrap.min.css' rel='stylesheet' media='screen'>
+    <link href='//localhost/Bootstrap.css' rel='stylesheet' media='screen'>
     <meta charset='UTF-8'>
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <style type='text/css'>

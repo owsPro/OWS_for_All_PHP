@@ -6039,8 +6039,7 @@ class DefaultBootstrapSkin {
 	function __construct($websoccer) { $this->_websoccer = $websoccer;}
 	function getTemplatesSubDirectory() { return 'default';}
 	function getCssSources() {
-		$files[] = '//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css';
-		$files[] = '//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css';
+		$files[] = '//localhost/Bootstrap.css';
 		$dir = $this->_websoccer->getConfig('context_root') . '/css/';
 		$files[] = $dir . 'defaultskin.css';
 		$files[] = $dir . 'websoccer.css';

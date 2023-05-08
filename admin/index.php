@@ -11,7 +11,8 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-if(version_compare(PHP_VERSION, '5.4.0') < 0){echo'Minimum PHP 5.4.0 !';exit;}
+if(version_compare(PHP_VERSION, '5.5.0') < 0){echo'Minimum PHP 5.5.0 !';exit;}
+include($_SERVER['DOCUMENT_ROOT'].'/classes/WebSoccer.class.php');
 define('BASE_FOLDER', __DIR__ .'/..');
 include(BASE_FOLDER . '/admin/adminglobal.inc.php');
 $navItems['settings'] = array();
@@ -35,7 +36,7 @@ function printNavItem($currentSite, $pageId, $navLabel, $entity = '') {
 <html lang="<?php echo $i18n->getCurrentLanguage(); ?>">
   <head>
     <title><?php echo $i18n->getMessage("main_title")?></title>
-    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="//localhost/Bootstrap.css" rel="stylesheet" media="screen">
     <link href="bootstrap-datepicker/css/datepicker.css" rel="stylesheet">
     <link href="bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" >
     <link href="select2/select2.css" rel="stylesheet"/>
