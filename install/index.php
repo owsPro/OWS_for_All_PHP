@@ -183,6 +183,7 @@ function actionSaveConfig(){
 	$filecontent.="\$conf['db_user']=\"".$_POST["db_user"]."\";".PHP_EOL;
 	$filecontent.="\$conf['db_passwort']=\"". $_POST["db_password"]."\";".PHP_EOL;
 	$filecontent.="\$conf['db_name']=\"".$_POST["db_name"]."\";".PHP_EOL;
+	$filecontent.="\$conf['db_prefix']=\"".$prefix."\";".PHP_EOL;
 	$filecontent.="\$conf['context_root']=\"".""."\";".PHP_EOL;
 	$filecontent.="\$conf['supported_languages'] = \"de,en\";".PHP_EOL;
 	$filecontent.="\$conf['homepage']=\"".$_POST["url"]."\";".PHP_EOL;
