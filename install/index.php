@@ -51,7 +51,7 @@ set_time_limit(0);?>
 				else $view();?>
 			<hr>
 			<footer>
-				<p>Powered by <a href="https://github.com/owsPro/owsPro" target="_blank">owsPro</a><br>
+				<p>Powered by <a href="https://github.com/owsPro/OWS_for_All_PHP" target="_blank">owsPro</a><br>
 				Forked from <a href="https://github.com/ihofmann/open-websoccer" target="_blank">ihofmann</a></p></footer></div>
 		<script src="http://code.jquery.com/jquery-latest.js"></script>
 		<script src="../admin/bootstrap/js/bootstrap.min.js"></script></body></html>
