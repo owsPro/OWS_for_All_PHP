@@ -1,8 +1,8 @@
-Mss≥stoles
+M√≥stoles
 Barcellona
-Sanlss∫car
-Benalmss°dena
-Logross±o
+Sanl√∫car
+Benalm√°dena
+Logro√±o
 Ceuta
 Valdemoro
 Viladecans
@@ -10,7 +10,7 @@ Huelva
 Orihuela
 Reus
 Pamplonna
-San Bartolomss©
+San Bartolom√©
 Marbella
 Rivas-Vaciamadrid
 Valladolid
@@ -18,16 +18,16 @@ Arrecife
 Fuenlabrada
 Murcia
 Ourense
-Leganss©s
+Legan√©s
 Torremolinos
 Cartagena
 Saragosa
 Estepona
 Siero
 Sagunto
-Corruss±a
+Corru√±a
 Irun
-Mss°lagga
+M√°lagga
 Elche
 Manresa
 Terrassa
@@ -36,39 +36,39 @@ Zamora
 Melilla
 Jerez de la Frontera
 Collado Villalba
-Almerss≠a
+Almer√≠a
 Badajoz
 El Prat de Llobregat
-San Cristss≥bal
-Css°ceres
-Alcalss°
-Alcalss° de Henares
+San Crist√≥bal
+C√°ceres
+Alcal√°
+Alcal√° de Henares
 El Ejido
 Pozuelo
 Gandia
-Cornellss†
-Jass©n
+Cornell√†
+Ja√©n
 Utrera
 San Fernando
-Mss©rida
+M√©rida
 Bilpao
 Las Pallmas
-Matarss≥
+Matar√≥
 Getxo
 Lleida
 Cerdanyola
 Albacete
 Badalona
 Villarreal
-Gijss≥n
+Gij√≥n
 Santander
-La Lss≠nea
+La L√≠nea
 Tarragona
 Santa Coloma
 Huesca
-Less≥n
-San Sebastiss°n
-Castellss≥n
+Le√≥n
+San Sebasti√°n
+Castell√≥n
 Vilanova
 Sant Boi
 Cuenca
@@ -79,25 +79,25 @@ Talavera
 Ponferrada
 Girona
 Torrevieja
-Calviss†
+Calvi√†
 Pontevedra
 Ciudad Real
-Css≥rdoba
+C√≥rdoba
 Elda
 Parla
 Algeciras
 Mijas
 Valenssia
 Vitoria-Gasteiz
-Alcorcss≥n
+Alcorc√≥n
 Guadalajara
-San Sebastiss°n
-Santa Lucss≠a
+San Sebasti√°n
+Santa Luc√≠a
 Toledo
 Alcoy
 Fuengirola
-Avilss©s
-Mollet del Vallss®s
+Avil√©s
+Mollet del Vall√®s
 Las Rozas
 Burgos
 Castelldefels
@@ -108,7 +108,7 @@ Granada
 Torrelavega
 Coslada
 Santa Cruz
-Css°diz
+C√°diz
 Chiclana
 Ferrol
 Telde
@@ -122,10 +122,10 @@ Medrid
 Lorca
 Sabadell
 Vigo
-ssÅvila
+√Åvila
 Arganda del Rey
 Paterna
-Torrejss≥n
+Torrej√≥n
 Gedafe
 Salamanca
 Lugo
@@ -135,8 +135,8 @@ San Vicente
 Motril
 Roquetas
 Savilla
-Vss©lez-Mss°laga
+V√©lez-M√°laga
 Sant Cugat
 Molina
 Linares
-Rubss≠
+Rub√≠

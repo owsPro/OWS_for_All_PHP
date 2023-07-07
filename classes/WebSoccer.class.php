@@ -23,7 +23,6 @@
 
  This version can still be used with the database prefix!
 =====================================================================================*/
-define('BASE_FOLDER',__DIR__);
 define('ALLOWED_EXTENSIONS','jpg,jpeg,gif,png');
 define('ALLOWED_PROFPIC_EXTENSIONS','jpg,jpeg,png');
 define('CACHE_FOLDER',$_SERVER['DOCUMENT_ROOT'].'/cache/templates');

@@ -1,26 +1,60 @@
 <?php
-/*This file is part of "OWS for All PHP" (Rolf Joseph)
-  https://github.com/owsPro/OWS_for_All_PHP/
-  A spinn-off for PHP Versions 5.4 to 8.2 from:
-  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
-  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
-  without even the implied warranty of MERCHANTABILITY
-  or FITNESS FOR A PARTICULAR PURPOSE.
+/******************************************************
 
-  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
+  This file is part of OpenWebSoccer-Sim.
 
-*****************************************************************************/
-define('JOB','//job[@id = \''. $jobId . '\']');
-include(__DIR__ .'/..' . '/admin/adminglobal.inc.php');
-if ($admin['r_demo']) exit;
+  OpenWebSoccer-Sim is free software: you can redistribute it 
+  and/or modify it under the terms of the 
+  GNU Lesser General Public License 
+  as published by the Free Software Foundation, either version 3 of
+  the License, or any later version.
+
+  OpenWebSoccer-Sim is distributed in the hope that it will be
+  useful, but WITHOUT ANY WARRANTY; without even the implied
+  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+  See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public 
+  License along with OpenWebSoccer-Sim.  
+  If not, see <http://www.gnu.org/licenses/>.
+
+******************************************************/
+
+/*
+ * Starts or stops a job from config/jobs.xml.
+ * Request parameters:
+ * 		id: Job-ID
+ * 		action: start|stop
+ */
+
+define('BASE_FOLDER', __DIR__ .'/..');
+
+include(BASE_FOLDER . '/admin/adminglobal.inc.php');
+
+if ($admin['r_demo']) {
+	exit;
+}
+
 $jobId = $_REQUEST['id'];
-$xml = simplexml_load_file(JOBS_CONFIG_FILE);
-$jobConfig = $xml->xpath(JOB);
-if (!$jobConfig) throw new Exception('Job config not found.');
-$jobClass = (string) $jobConfig[0]->attributes()->class;
-if (class_exists($jobClass)) $job = new $jobClass($website, $db, $i18n, $jobId, $action !== 'stop');
-else throw new Exception('class not found: ' . $jobClass);
-if ($action == 'start') $job->start();
-elseif ($action == 'stop') $job->stop();
 
+$xml = simplexml_load_file(JOBS_CONFIG_FILE);
+$jobConfig = $xml->xpath('//job[@id = \''. $jobId . '\']');
+if (!$jobConfig) {
+	throw new Exception('Job config not found.');
+}
+
+$jobClass = (string) $jobConfig[0]->attributes()->class;
+if (class_exists($jobClass)) {
+	$job = new $jobClass($website, $db, $i18n, $jobId, $action !== 'stop');
+} else {
+	throw new Exception('class not found: ' . $jobClass);
+}
+
+if ($action == 'start') {
+	$job->start();
+} else if ($action == 'stop') {
+	$job->stop();
+}
+
+?>
