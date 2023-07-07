@@ -1,7 +1,7 @@
 <?php
 /*This file is part of "OWS for All PHP" (Rolf Joseph)
   https://github.com/owsPro/OWS_for_All_PHP/
-  A spinn-off for PHP Versions 5.4 to 8.2 from:
+  A spinn-off for PHP Versions 5.5 to 8.2 from:
   OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
   "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
@@ -11,7 +11,7 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-if (version_compare(PHP_VERSION, '5.4.0') < 0){echo'Minimum PHP 5.4.0 !';exit;}
+if (version_compare(PHP_VERSION, '5.5.0') < 0){echo'Minimum PHP 5.5.0 !';exit;}
 include(__DIR__ . '/frontbase.inc.php');
 $isOffline = FALSE;
 if ($website->getConfig('offline') == 'offline') $isOffline = TRUE;

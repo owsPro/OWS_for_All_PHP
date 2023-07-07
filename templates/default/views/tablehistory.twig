@@ -6,11 +6,11 @@
 
 {% block page_content %}
 
-	<p><a href="{{ env.getInternalUrl("league", "id=" ~ leagueid) }}" class="btn"><i class="icon-list-alt"></i> {{ i18n.getMessage("league_navlabel") }}</a></p>
-
+	<p><a href="{{ env.getInternalUrl("league", "id=" ~ leagueid) }}" class="btn"><i class="icon-table"></i> {{ i18n.getMessage("league_navlabel") }}</a></p>
+	
 
 	{% if history|length > 0 %}
-
+	
 		<div style="font-weight: bold;">{{ i18n.getMessage("leaguetable_head_place") }}</div>
 		<div style="position: relative">
 			<div id="leaguehistorychart" style="width: 90%; height: 600px; margin-left: 30px; margin-bottom: 30px"
@@ -19,5 +19,5 @@
 			<div style="position: absolute; top: 595px; left: 50%; font-weight: bold;">{{ i18n.getMessage("entity_match_spieltag") }}</div>
 		</div>
 	{% endif %}
-
+	
 {% endblock %}

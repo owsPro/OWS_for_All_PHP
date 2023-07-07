@@ -47,16 +47,16 @@
     {{ userteam.team_name }}
     <b class="caret"></b>
   </a>
-  <a href="{{ env.getInternalUrl("team", "id=" ~ userteam.team_id) }}" title="{{ i18n.getMessage("team_navlabel") }}" style="margin: 0 5px"><i class="icon-info-sign darkIcon"></i></a>
-  <a href="{{ env.getInternalUrl("league", "id=" ~ userteam.team_league_id) }}" title="{{ i18n.getMessage("userprofile_block_link_table") }}"><i class="icon-list-alt darkIcon"></i></a>
+  <a href="{{ env.getInternalUrl("team", "id=" ~ userteam.team_id) }}" title="{{ i18n.getMessage("team_navlabel") }}" style="margin: 0 5px"><i class="icon-info-sign darkIcon"></i></a> 
+  <a href="{{ env.getInternalUrl("league", "id=" ~ userteam.team_league_id) }}" title="{{ i18n.getMessage("userprofile_block_link_table") }}"><i class="icon-table darkIcon"></i></a>
   <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" id="clubsSelectionList">
-
+    
   </ul>
 </div>
 {% else %}
 	<br>
-	{{ teamPicture|raw }} <a href="{{ env.getInternalUrl("team", "id=" ~ userteam.team_id) }}" title="{{ i18n.getMessage("team_navlabel") }}">{{ userteam.team_name }}</a>
-	<a href="{{ env.getInternalUrl("league", "id=" ~ userteam.team_league_id) }}" title="{{ i18n.getMessage("userprofile_block_link_table") }}"><i class="icon-list-alt darkIcon"></i></a>
+	{{ teamPicture|raw }} <a href="{{ env.getInternalUrl("team", "id=" ~ userteam.team_id) }}" title="{{ i18n.getMessage("team_navlabel") }}">{{ userteam.team_name }}</a> 
+	<a href="{{ env.getInternalUrl("league", "id=" ~ userteam.team_league_id) }}" title="{{ i18n.getMessage("userprofile_block_link_table") }}"><i class="icon-table darkIcon"></i></a>
 	</p>
 {% endif %}
 

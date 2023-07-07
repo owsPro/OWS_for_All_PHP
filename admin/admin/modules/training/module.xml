@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "../module.dtd">
+<module version="1.0.0">
+    <admin>
+        <adminpage
+            id="trainer"
+            entity="trainer"
+            navcategory="league"
+            permissionrole="r_daten" >
+            <entity dbtable="trainer" >
+                <overview delete="true" edit="true" >
+                    <column
+                        id="entity_trainer_name"
+                        field="name"
+                        type="text"
+                        sort="true"
+                        filter="true" />
+                    <column
+                        id="entity_trainer_salary"
+                        field="salary"
+                        type="number"
+                        sort="true" />
+                    <column
+                        id="entity_trainer_p_technique"
+                        field="p_technique"
+                        type="percent"
+                        sort="true" />
+                    <column
+                        id="entity_trainer_p_stamina"
+                        field="p_stamina"
+                        type="percent"
+                        sort="true" />
+                    <column
+                        id="entity_trainer_premiumfee"
+                        field="premiumfee"
+                        type="number"
+                        sort="true" />
+                </overview>
+                <editform>
+                    <field id="name" type="text" required="true" />
+					<field id="salary" type="number" required="true" />
+					<field id="p_technique" type="percent" required="true" />
+					<field id="p_stamina" type="percent" required="true" />
+					<field id="premiumfee" type="number" required="false" />
+                </editform>
+            </entity>
+        </adminpage>
+    </admin>
+</module>

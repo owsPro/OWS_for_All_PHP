@@ -24,7 +24,6 @@ define("DEFAULT_DB_PREFIX", "ws3");
 define("CONFIGFILE", __DIR__ ."/.." . "/generated/config.inc.php");
 define("CONFIGFILE_OLD", __DIR__ ."/.." . "/admin/config/config.inc.php");
 define("DDL_FILE", "update_ddl.sql");
-include($_SERVER['DOCUMENT_ROOT'].'/classes/WebSoccer.class.php');
 session_start();
 $supportedLanguages = array("de" => "Deutsch", "en" => "English");
 
@@ -176,7 +175,7 @@ function printFinalPage($messages) {
 <html lang="de">
   <head>
     <title>Open WebSoccer-Sim Update Installation</title>
-    <link href="//localhost/Bootstrap.css" rel="stylesheet" media="screen">
+    <link href="../admin/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
     <meta charset="UTF-8">
     <style type="text/css">

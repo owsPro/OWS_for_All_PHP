@@ -1,0 +1,23 @@
+Toronto
+Montreal
+Vancouver
+Calgary
+Edmonton
+Ottawa
+Quebec
+Winnipeg
+Hamilton
+Kitchener
+London
+Victoria
+Halifax
+Oshawa
+Windsor
+Saskatoon
+Regina
+Barrie
+Saint Johns
+Abbotsford
+Kelowna
+Kingston
+Lethbridge
