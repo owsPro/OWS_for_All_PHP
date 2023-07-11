@@ -1332,7 +1332,7 @@ class EmailHelper {
 		$headers[]='From: '.$fromName.' <'.$fromEmail.'>';
 		$encodedsubject='=?UTF-8?B?'.base64_encode($subject).'?=';
 		if(@mail($recipient,$encodedsubject,$content, implode("\r\n",$headers))==FALSE)throw new Exception('e-mail not sent.');}}
-require_once(__DIR__.'/facebooksdk/facebook.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/classes/facebooksdk/facebook.php');
 class FacebookSdk {
 	private static $_instance;
 	private $_facebook;
@@ -1543,7 +1543,7 @@ class FrontMessage {
 		$this->type=$type;
 		$this->title=$title;
 		$this->message=$message;}}
-require_once(__DIR__.'/googleapi/Google_Client.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/classes/googleapi/Google_Client.php');
 class GoogleplusSdk {
 	private static $_instance;
 	private $_client;
@@ -4230,7 +4230,7 @@ class LanguageSwitcherController extends Controller {
 		$msg=[];
 		include(sprintf(CONFIGCACHE_MESSAGES,$lang));
 		include(sprintf(CONFIGCACHE_ENTITYMESSAGES,$lang));
-		include(sprintf(__DIR__.'/languages/messages_%s.php',$lang));
+		include(sprintf($_SERVER['DOCUMENT_ROOT'].'/languages/messages_%s.php',$lang));
 		return null;}}
 class LendPlayerController extends Controller {
 	function executeAction($parameters){
@@ -4417,7 +4417,7 @@ class RegisterFormController extends Controller {
 		if($parameters["email"] !==$parameters["email_repeat"])throw new Exception($this->_i18n->getMessage("registration_repeated_email_notmatching"));
 		if($parameters["pswd"] !==$parameters["pswd_repeat"])throw new Exception($this->_i18n->getMessage("registration_repeated_password_notmatching"));
 		if(Config("register_use_captcha")&& strlen(Config("register_captcha_publickey"))&& strlen(Config("register_captcha_privatekey"))){
-			include_once(__DIR__."/lib/recaptcha/recaptchalib.php");
+			include_once($_SERVER['DOCUMENT_ROOT']."/lib/recaptcha/recaptchalib.php");
 			$captchaResponse=recaptcha_check_answer(Config("register_captcha_privatekey"),$_SERVER["REMOTE_ADDR"],$_POST["recaptcha_challenge_field"],$_POST["recaptcha_response_field"]);
 			if(!$captchaResponse->is_valid)throw new Exception($this->_i18n->getMessage("registration_invalidcaptcha"));}
 		$columns="COUNT(*)AS hits";
@@ -5071,7 +5071,7 @@ class SendPasswordController extends Controller {
 	function executeAction($parameters){
 		if(!Config("login_allow_sendingpassword"))throw new Exception("Action is disabled.");
 		if(Config("register_use_captcha")&& strlen(Config("register_captcha_publickey"))&& strlen(Config("register_captcha_privatekey"))){
-			include_once(__DIR__."/lib/recaptcha/recaptchalib.php");
+			include_once($_SERVER['DOCUMENT_ROOT']."/lib/recaptcha/recaptchalib.php");
 			$captchaResponse=recaptcha_check_answer(Config("register_captcha_privatekey"),$_SERVER["REMOTE_ADDR"],$_POST["recaptcha_challenge_field"],$_POST["recaptcha_response_field"]);
 			if(!$captchaResponse->is_valid)throw new Exception($this->_i18n->getMessage("registration_invalidcaptcha"));}
 		$email=$parameters["useremail"];
@@ -5113,8 +5113,8 @@ class SendShoutBoxMessageController extends Controller {
 			$this->_db->queryDelete($fromTable,"created_date<%d",$threshold);
 			$_SESSION['msgdeleted']=1;}
 		return null;}}
-require_once(dirname(__DIR__).'/lib/SofortLib-PHP-Payment-2.0.1/core/sofortLibNotification.inc.php');
-require_once(dirname(__DIR__).'/lib/SofortLib-PHP-Payment-2.0.1/core/sofortLibTransactionData.inc.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/lib/SofortLib-PHP-Payment-2.0.1/core/sofortLibNotification.inc.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/lib/SofortLib-PHP-Payment-2.0.1/core/sofortLibTransactionData.inc.php');
 class SofortComPaymentNotificationController extends Controller {
 	function executeAction($parameters){
 		$configKey=trim(Config("sofortcom_configkey"));
@@ -5138,7 +5138,7 @@ class SofortComPaymentNotificationController extends Controller {
 			$amount=$SofortLibTransactionData->getAmount();
 			PremiumDataService::createPaymentAndCreditPremium($this->_websoccer,$this->_db,$userId,$amount,"sofortcom-notify");}
 		return null;}}
-require_once(dirname(__DIR__).'/lib/SofortLib-PHP-Payment-2.0.1/payment/sofortLibSofortueberweisung.inc.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/lib/SofortLib-PHP-Payment-2.0.1/payment/sofortLibSofortueberweisung.inc.php');
 class SofortComRedirectController extends Controller {
 	function executeAction($parameters){
 		$configKey=trim(Config("sofortcom_configkey"));
@@ -5630,7 +5630,7 @@ abstract class AbstractJob {
 		if(!$xmlConfig)throw new Exception('Job config not found.');
 		return$xmlConfig[0];}
 	function replaceAttribute($name,$value){
-		$fp=fopen(__DIR__.'/admin/config/lockfile.txt', 'r');
+		$fp=fopen($_SERVER['DOCUMENT_ROOT'].'/admin/config/lockfile.txt', 'r');
 		flock($fp, LOCK_EX);
 		$xml=simplexml_load_file(JOBS_CONFIG_FILE);
 		if($xml===FALSE){
@@ -5861,7 +5861,7 @@ class DefaultBootstrapSkin {
 		return$files;}
 	function getTemplate($templateName){ return$templateName.'.twig';}
 	function getImage($fileName){
-		if(file_exists(__DIR__.'/img/'.$fileName))return Config('context_root').'/img/'.$fileName;
+		if(file_exists($_SERVER['DOCUMENT_ROOT'].'/img/'.$fileName))return Config('context_root').'/img/'.$fileName;
 		return FALSE;}
 	function __toString(){ return 'DefaultBootstrapSkin';}}
 class GreenBootstrapSkin extends DefaultBootstrapSkin {
@@ -6059,7 +6059,7 @@ class ForgotPasswordModel extends Model {
 	function getTemplateParameters(){
 		$parameters=[];
 		if(Config("register_use_captcha")&& strlen(Config("register_captcha_publickey"))&& strlen(Config("register_captcha_privatekey"))){
-			include_once(__DIR__."/lib/recaptcha/recaptchalib.php");
+			include_once($_SERVER['DOCUMENT_ROOT']."/lib/recaptcha/recaptchalib.php");
 			$useSsl=(!empty($_SERVER["HTTPS"]));
 			$captchaCode=recaptcha_get_html(Config("register_captcha_publickey"), null,$useSsl);
 			$parameters["captchaCode"]=$captchaCode;}
@@ -6811,7 +6811,7 @@ class RegisterFormModel extends Model {
 		if(!Config("allow_userregistration"))throw new Exception($this->_i18n->getMessage("registration_disabled"));
 		$parameters=[];
 		if(Config("register_use_captcha")&& strlen(Config("register_captcha_publickey"))&& strlen(Config("register_captcha_privatekey"))){
-			include_once(__DIR__."/lib/recaptcha/recaptchalib.php");
+			include_once($_SERVER['DOCUMENT_ROOT']."/lib/recaptcha/recaptchalib.php");
 			$useSsl=(!empty($_SERVER["HTTPS"]));
 			$captchaCode=recaptcha_get_html(Config("register_captcha_publickey"), null,$useSsl);
 			$parameters["captchaCode"]=$captchaCode;}
@@ -7148,7 +7148,7 @@ class TeamTransfersModel extends Model {
 		return array("completedtransfers"=>$transfers);}}
 class TermsAndConditionsModel extends Model {
 	function getTemplateParameters(){
-		$termsFile=__DIR__."/admin/config/termsandconditions.xml";
+		$termsFile=$_SERVER['DOCUMENT_ROOT']."/admin/config/termsandconditions.xml";
 		if(!file_exists($termsFile))throw new Exception("File does not exist: ".$termsFile);
 		$xml=simplexml_load_file($termsFile);
 		$termsConfig=$xml->xpath("//pagecontent[@lang='".$this->_i18n->getCurrentLanguage()."'][1]");
@@ -10032,7 +10032,7 @@ class YouthPlayersDataService {
 		if(!$scouted)return 0;
 		return$scouted['scouting_last_execution'];}
 	static function getPossibleScoutingCountries(){
-		$iterator=new DirectoryIterator(__DIR__.'/admin/config/names/');
+		$iterator=new DirectoryIterator($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/');
 		$countries=[];
 		while($iterator->valid()){
 			if($iterator->isDir()&&!$iterator->isDot())$countries[]=$iterator->getFilename();

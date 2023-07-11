@@ -11,7 +11,7 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-require(__DIR__ . '/frontbase.inc.php');
+require($_SERVER['DOCUMENT_ROOT']. '/frontbase.inc.php');
 $output['messages'] = '';
 $output['content'] = '';
 header('Content-type: application/json; charset=utf-8');

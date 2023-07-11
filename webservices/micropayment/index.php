@@ -26,7 +26,7 @@
 // Script call is protected by .htaccess.
 //
 
-include(__DIR__ .'/../..' . '/admin/config/global.inc.php');
+include($_SERVER['DOCUMENT_ROOT']. '/admin/config/global.inc.php');
 
 // check if enabled
 if (!$website->getConfig('micropayment_enabled')) {

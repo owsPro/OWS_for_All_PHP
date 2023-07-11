@@ -21,8 +21,8 @@ PROGRAMMCODE BENUTZEN ZU DUERFEN!
 error_reporting(E_ALL);
 define("WRITABLE_FOLDERS", "generated/");
 define("DEFAULT_DB_PREFIX", "ws3");
-define("CONFIGFILE", __DIR__ ."/.." . "/generated/config.inc.php");
-define("CONFIGFILE_OLD", __DIR__ ."/.." . "/admin/config/config.inc.php");
+define("CONFIGFILE",$_SERVER['DOCUMENT_ROOT']. "/generated/config.inc.php");
+define("CONFIGFILE_OLD",$_SERVER['DOCUMENT_ROOT']. "/admin/config/config.inc.php");
 define("DDL_FILE", "update_ddl.sql");
 session_start();
 $supportedLanguages = array("de" => "Deutsch", "en" => "English");
@@ -30,7 +30,7 @@ $supportedLanguages = array("de" => "Deutsch", "en" => "English");
 ignore_user_abort(TRUE);
 set_time_limit(0);
 
-include(__DIR__ ."/.." . "/classes/DbConnection.class.php");
+include($_SERVER['DOCUMENT_ROOT']. "/classes/DbConnection.class.php");
 
 /**
  * Step 1: Welcome Screen -> Language Selection
@@ -89,7 +89,7 @@ function printSystemCheck($messages) {
 
 	$writableFiles = explode(",", WRITABLE_FOLDERS);
 	foreach ($writableFiles as $writableFile) {
-		$file = __DIR__ ."/.." . "/" . $writableFile;
+		$file =$_SERVER['DOCUMENT_ROOT']. "/" . $writableFile;
 
 		$requirments[] = array(
 				"requirement" => $messages["check_req_writable"] . " <i>" . $writableFile . "</i>",
@@ -141,17 +141,14 @@ function printSystemCheck($messages) {
 
 
 function actionMoveFiles() {
-
 	$fileNames = array("config.inc.php", "adminlog.php", "imprint.php", "entitylog.php");
-	$oldDir = __DIR__ ."/.." . "/admin/config/";
-	$newDir = __DIR__ ."/.." . "/generated/";
-
+	$oldDir = $_SERVER['DOCUMENT_ROOT']. "/admin/config/";
+	$newDir = $_SERVER['DOCUMENT_ROOT']. "/generated/";
 	foreach ($fileNames as $fileName) {
 		if (file_exists($oldDir . $fileName)) {
 			rename($oldDir . $fileName, $newDir . $fileName);
 		}
 	}
-
 	return "printFinalPage";
 }
 

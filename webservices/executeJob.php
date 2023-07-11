@@ -20,8 +20,8 @@
 
 ******************************************************/
 define('JOB','//job[@id = \''. $jobId . '\']');
-include(__DIR__ ."/.." . '/admin/config/global.inc.php');
-define('JOBS_CONFIG_FILE', __DIR__ ."/.." . '/admin/config/jobs.xml');
+include($_SERVER['DOCUMENT_ROOT']. '/admin/config/global.inc.php');
+define('JOBS_CONFIG_FILE',$_SERVER['DOCUMENT_ROOT']. '/admin/config/jobs.xml');
 
 // execution enabled?
 if (!$website->getConfig('webjobexecution_enabled')) {

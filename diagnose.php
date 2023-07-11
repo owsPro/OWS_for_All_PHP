@@ -324,7 +324,7 @@ for($i=NULL;$i<$runs;++$i)addslashes($string_9);
 $string_9e=addslashes($string_9);
 for($i=NULL;$i<$runs;++$i)stripslashes($string_9e);
 $timer->stop('');
-echo'<br>PHP Benchmark   : Referenztime PHP 8.2.7 : 1.0 Sec.';
+echo'<br>PHP Benchmark   : Referenztime PHP 8.2.8 : 1.0 Sec.';
 echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).' : '.number_format($timer->totalTime,1).' Sec.<br></pre>';
 ob_start();
 if(function_exists(phpinfo())){

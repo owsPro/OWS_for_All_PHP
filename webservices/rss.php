@@ -19,35 +19,19 @@
   If not, see <http://www.gnu.org/licenses/>.
 
 ******************************************************/
-include(__DIR__ ."/.." . '/admin/config/global.inc.php');
-
-define('PARAM_PAGE', 'page');
-
-// load configuration
+include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');
+define('PARAM_PAGE','page');
 include(CONFIGCACHE_FILE_FRONTEND);
-
-// include messages
-$i18n = I18n::getInstance($website->getConfig('supported_languages'));
-$lang = $website->getRequestParameter('lang');
-if ($lang) {
-	try {
-		$i18n->setCurrentLanguage($lang);
-	} catch (Exception $e) {
-		// ignore and use default language
-	}
-}
-include(sprintf(CONFIGCACHE_MESSAGES, $i18n->getCurrentLanguage()));
-include(sprintf(CONFIGCACHE_ENTITYMESSAGES, $i18n->getCurrentLanguage()));
-
-// render RSS
-$pageId = $website->getRequestParameter(PARAM_PAGE);
+$i18n=I18n::getInstance($website->getConfig('supported_languages'));
+$lang=$website->getRequestParameter('lang');
+if($lang){
+	try{$i18n->setCurrentLanguage($lang);}
+	catch (Exception$e){}}
+include(sprintf(CONFIGCACHE_MESSAGES,$i18n->getCurrentLanguage()));
+include(sprintf(CONFIGCACHE_ENTITYMESSAGES,$i18n->getCurrentLanguage()));
+$pageId=$website->getRequestParameter(PARAM_PAGE);
 $website->setPageId($pageId);
-
-header('Content-type: application/rss+xml; charset=utf-8');
-$viewHandler = new ViewHandler($website, $db, $i18n, $page, $block, null);
-try {
-	echo $viewHandler->handlePage($pageId, array());
-} catch (Exception $e) {
-	echo $e->getMessage();
-}
-?>
+header('Content-type:application/rss+xml;charset=utf-8');
+$viewHandler=new ViewHandler($website,$db,$i18n,$page,$block,null);
+try{echo$viewHandler->handlePage($pageId,[]);}
+catch(Exception$e){echo$e->getMessage();}
