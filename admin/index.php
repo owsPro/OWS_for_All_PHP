@@ -66,8 +66,7 @@ function printNavItem($currentSite, $pageId, $navLabel, $entity = '') {
 	echo '><a href=\''. $url . '\'>'. $navLabel . '</a></li>';
 }
 
-if(isset($_GET['DBSave']))DBSave();?>
-<a href='index.php?DBSave=true'><pre>	DBSave</pre></a>
+if(isset($_GET['DBSave']))DBSave();?><a href='index.php?DBSave=true'><pre>	DBSave</a><?php if(isset($_GET['Diagnosis']))Diagnosis();?><a href='index.php?Diagnosis=true'>	Diagnosis</pre></a>
 <!DOCTYPE html>
 <html lang="<?php echo $i18n->getCurrentLanguage(); ?>">
   <head>
