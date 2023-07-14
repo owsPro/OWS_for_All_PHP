@@ -23,104 +23,127 @@
 
  This version can still be used with the database prefix!
 =====================================================================================*/
-define('ALLOWED_EXTENSIONS','jpg,jpeg,gif,png');
-define('ALLOWED_PROFPIC_EXTENSIONS','jpg,jpeg,png');
-define('CACHE_FOLDER',$_SERVER['DOCUMENT_ROOT'].'/cache/templates');
-define('CLUBPICTURE_UPLOAD_DIR',$_SERVER['DOCUMENT_ROOT'].'/uploads/club');
-define('COOKIE_PREFIX','owsPro');
-define('DEFAULT_PAGE_ID','home');
-define('DEFAULT_PLAYER_AGE',20);
-define('DEFAULT_YOUTH_OFFENSIVE',60);
-define('DOUBLE_SUBMIT_CHECK_SECONDS',3);
+define('ALLOWED_PROFPIC_EXTENSIONS'				,'jpg,jpeg,png');
+define('ALLOWED_EXTENSIONS'						,'jpg,jpeg,gif,png');
+define('CACHE_FOLDER'							,$_SERVER['DOCUMENT_ROOT'].'/cache/templates');
+define('CLUBPICTURE_UPLOAD_DIR'					,$_SERVER['DOCUMENT_ROOT'].'/uploads/club');
+define('CONFIGCACHE_FILE_FRONTEND'				,$_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigfront.inc.php');
+define('CONFIGCACHE_FILE_ADMIN'					,$_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');
+define('CONFIGCACHE_MESSAGES'					,$_SERVER['DOCUMENT_ROOT'].'/cache/messages_%s.inc.php');
+define('CONFIGCACHE_ADMINMESSAGES'				,$_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_%s.inc.php');
+define('CONFIGCACHE_ENTITYMESSAGES'				,$_SERVER['DOCUMENT_ROOT'].'/cache/entitymessages_%s.inc.php');
+define('CONFIGCACHE_SETTINGS'					,$_SERVER['DOCUMENT_ROOT'].'/cache/settingsconfig.inc.php');
+define('CONFIGCACHE_EVENTS'						,$_SERVER['DOCUMENT_ROOT'].'/cache/eventsconfig.inc.php');
+define('COOKIE_PREFIX'							,'owsPro');
+define('DEBUG'									,TRUE);
+define('DEFAULT_PAGE_ID'						,'home');
+define('DEFAULT_PLAYER_AGE'						,20);
+define('DEFAULT_YOUTH_OFFENSIVE'				,60);
+define('DOUBLE_SUBMIT_CHECK_SECONDS'			,3);
+define('DOUBLE_SUBMIT_CHECK_SESSIONKEY_TIME'	,'laction_time');
 define('DOUBLE_SUBMIT_CHECK_SESSIONKEY_ACTIONID','laction_id');
-define('DOUBLE_SUBMIT_CHECK_SESSIONKEY_TIME','laction_time');
-define('DUMMY_TEAM_ID',-1);
-define('ENTERUSERNAME_PAGE_ID','enter-username');
-define('ENVIRONMENT_GLOBAL_NAME','env');
-define('FILE_CITYNAMES',$_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/cities.txt');
-define('FILE_FIRSTNAMES',$_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/firstnames.txt');
-define('FILE_LASTNAMES',$_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/lastnames.txt');
-define('FILE_PREFIXNAMES',$_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/clubprefix.txt');
-define('FILE_SUFFIXNAMES',$_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/clubsuffix.txt');
-define('I18N_GLOBAL_NAME','i18n');
-define('INACTIVITY_PER_DAY_LOGIN',0.45);
-define('INACTIVITY_PER_DAY_TRANSFERS',0.1);
-define('INACTIVITY_PER_DAY_TACTICS',0.2);
-define('INACTIVITY_PER_CONTRACTEXTENSION',5);
-define('LANG_SESSION_PARAM','lang');
-define('LOGIN_PAGE_ID','login');
-define('MARK_DOWNGRADE_BALLPASS_FAILURE',0.25);
-define('MARK_DOWNGRADE_GOAL_GOALY',0.5);
-define('MARK_DOWNGRADE_SHOOTFAILURE',0.5);
-define('MARK_DOWNGRADE_TACKLE_LOOSER',0.5);
-define('MARK_IMPROVE_BALLPASS_SUCCESS',0.1);
-define('MARK_IMPROVE_GOAL_SCORER',1);
-define('MARK_IMPROVE_GOAL_PASSPLAYER',0.75);
-define('MARK_IMPROVE_SHOOTFAILURE_GOALY',0.5);
-define('MARK_IMPROVE_TACKLE_WINNER',0.25);
-define('MAX_STRENGTH',100);
-define('MESSAGE_TYPE_ERROR','error');
-define('MESSAGE_TYPE_INFO','info');
-define('MESSAGE_TYPE_SUCCESS','success');
-define('MESSAGE_TYPE_WARNING','warning');
-define('MIN_NUMBER_OF_PLAYERS',9);
-define('MINIMUM_SATISFACTION_FOR_EXTENSION',30);
-define('MSG_KEY_ERROR_PAGENOTFOUND','error_page_not_found');
-define('NAMES_DIRECTORY',$_SERVER['DOCUMENT_ROOT'].'/admin/config/names');
-define('NEWS_ENTRIES_PER_PAGE',5);
-define('NEWS_TEASER_MAXLENGTH',256);
-define('NOTIFICATION_TARGETPAGE','transferoffers');
-define('NOTIFICATION_TYPE','transferoffer');
-define('NUMBER_OF_PLAYERS',20);
-define('NUMBER_OF_TOP_NEWS',5);
-define('PAGE_NAV_LABEL_SUFFIX','_navlabel');
-define('PARAM_ACTION','action');
-define('PARAM_BLOCK','block');
-define('PARAM_PAGE','page');
-define('PARAM_PAGENUMBER','pageno');
-define('PLAYER_POSITION_GOALY','Torwart');
-define('PLAYER_POSITION_DEFENCE','Abwehr');
-define('PLAYER_POSITION_MIDFIELD','Mittelfeld');
-define('PLAYER_POSITION_STRIKER', 'Sturm');
-define('POINTS_DRAW',1);
-define('POINTS_LOSS',0);
-define('POINTS_WIN',3);
-define('REMEMBERME_COOKIE_LIFETIME_DAYS',30);
-define('ROLE_GUEST','guest');
-define('ROLE_USER','user');
-define('SATISFACTION_DECREASE',10);
-define('SATISFACTION_INCREASE',10);
-define('SESSION_PARAM_USERID','frontuserid');
-define('SKIN_GLOBAL_NAME','skin');
-define('SLEEP_SECONDS_ON_FAILURE',5);
-define('SUB_CONDITION_DEFICIT','Deficit');
-define('SUB_CONDITION_LEADING','Leading');
-define('SUB_CONDITION_TIE','Tie');
-define('TEMPLATE_SUBDIR_DEFAULT','default');
-define('USER_STATUS_ENABLED',1);
-define('USER_STATUS_UNCONFIRMED',2);
-define('VIEWHANDLER_GLOBAL_NAME','viewHandler');
-define('YOUTH_MATCH_TYPE','Youth');
-define('YOUTH_STRENGTH_FRESHNESS',100);
-define('YOUTH_STRENGTH_SATISFACTION',100);
-define('YOUTH_STRENGTH_STAMINA',100);
-//- Deprecated: Optional parameter declared before required parameter is implicitly treated as a required parameter
-//- function mb_substr($str="",$maxstr,$length){
-//+	function mb_substr($maxstr,$length,$str=""){
-//+ owsPro - we don´t need the PHP extension mbstring with this alternative
-if(!function_exists('mb_strlen')){
-	function mb_strlen($str=''){preg_match_all("/./u",$str,$char);return sizeof($char[0]);}}
-if(!function_exists('mb_substr')){
-	function mb_substr($maxstr,$length,$str=""){if(!is_numeric($maxstr))$strsize=0;if(!is_numeric($length)&&$length!=NULL)$length=0;preg_match_all("/./u",$str,$char);if($length==NULL)$length=sizeof($char[0]);else{if($length<0)$length=sizeof($char[0])+$length;else$length=$maxstr+$length;}
-		for($i=$maxstr;$i<$length;++$i)$result.=$char[0][$i];return$result;}}
-//+ owsPro - There was an error in the match intervention. Twig needs from version 2.x mb_str_tolower that we go over with strtolower. You can no longer see the abbreviated first name dot surname, but rather the surname comma first name.0
-if(!function_exists('mb_strtolower')){
-	function mb_strtolower($string){return strtolower($string);}}
-//+ owsPro - Minimum requirements
-if(version_compare('5.5.0',phpversion(),'>=')){try{throw new Exception();}catch(Exception $e){echo' Minimum requirements: PHP 5.5';}exit;}
-//+ owsPro - Ensures that the cache folder is present.
-if(!file_exists($_SERVER['DOCUMENT_ROOT'].'/cache')){mkdir($_SERVER['DOCUMENT_ROOT'].'/cache',0777,true);}
-//+ owsPro - Check on login
+define('DUMMY_TEAM_ID'							,-1);
+define('ENTERUSERNAME_PAGE_ID'					,'enter-username');
+define('ENVIRONMENT_GLOBAL_NAME'				,'env');
+define('FILE_CITYNAMES'							,$_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/cities.txt');
+define('FILE_PREFIXNAMES'						,$_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/clubprefix.txt');
+define('FILE_SUFFIXNAMES'						,$_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/clubsuffix.txt');
+define('FILE_FIRSTNAMES'						,$_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/firstnames.txt');
+define('FILE_LASTNAMES'							,$_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/lastnames.txt');
+define('FOLDER_MODULE'							,$_SERVER['DOCUMENT_ROOT'].'/module');
+define('GLOBAL_CONFIG_FILE'						,$_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');
+define('I18N_GLOBAL_NAME'						,'i18n');
+define('IMPRINT_FILE'							,$_SERVER['DOCUMENT_ROOT'].'/generated/imprint.php');
+define('INACTIVITY_PER_DAY_LOGIN'				,0.45);
+define('INACTIVITY_PER_DAY_TRANSFERS'			,0.1);
+define('INACTIVITY_PER_DAY_TACTICS'				,0.2);
+define('INACTIVITY_PER_CONTRACTEXTENSION'		,5);
+define('JOBS_CONFIG_FILE'						,$_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');
+define('LANG_SESSION_PARAM'						,'lang');
+define('LOG_TYPE_DELETE'						,'delete');
+define('LOG_TYPE_EDIT'							,'edit');
+define('LOGIN_PAGE_ID'							,'login');
+define('MARK_IMPROVE_GOAL_SCORER'				,1);
+define('MARK_IMPROVE_GOAL_PASSPLAYER'			,0.75);
+define('MARK_DOWNGRADE_GOAL_GOALY'				,0.5);
+define('MARK_DOWNGRADE_SHOOTFAILURE'			,0.5);
+define('MARK_IMPROVE_SHOOTFAILURE_GOALY'		,0.5);
+define('MARK_IMPROVE_TACKLE_WINNER'				,0.25);
+define('MARK_DOWNGRADE_TACKLE_LOOSER'			,0.5);
+define('MARK_DOWNGRADE_BALLPASS_FAILURE'		,0.25);
+define('MARK_IMPROVE_BALLPASS_SUCCESS'			,0.1);
+define('MAX_ITEMS'								,20);
+define('MAX_STRENGTH'							,100);
+define('MESSAGE_TYPE_INFO'						,'info');
+define('MESSAGE_TYPE_WARNING'					,'warning');
+define('MESSAGE_TYPE_SUCCESS'					,'success');
+define('MESSAGE_TYPE_ERROR'						,'error');
+define('MIN_NUMBER_OF_PLAYERS'					,9);
+define('MINIMUM_SATISFACTION_FOR_EXTENSION'		,30);
+define('MODULE_CONFIG_FILENAME'					,'module.xml');
+define('MSG_KEY_ERROR_PAGENOTFOUND'				,'error_page_not_found');
+define('NAMES_DIRECTORY'						,$_SERVER['DOCUMENT_ROOT'].'/module/admin/config/names');
+define('NEWS_ENTRIES_PER_PAGE'					,5);
+define('NEWS_TEASER_MAXLENGTH'					,256);
+define('NOTIFICATION_TYPE'						,'transferoffer');
+define('NOTIFICATION_TARGETPAGE'				,'transferoffers');
+define('NUMBER_OF_PLAYERS'						,20);
+define('NUMBER_OF_TOP_NEWS'						,5);
+define('OVERVIEW_SITE_SUFFIX'					,'_overview');
+define('PAGE_NAV_LABEL_SUFFIX'					,'_navlabel');
+define('PARAM_ACTION'							,'action');
+define('PARAM_BLOCK'							,'block');
+define('PARAM_PAGE'								,'page');
+define('PARAM_PAGENUMBER'						,'pageno');
+define('UPLOAD_FOLDER'							,$_SERVER['DOCUMENT_ROOT'].'/uploads/');
+define('PROFPIC_UPLOADFOLDER'					,UPLOAD_FOLDER.'users');
+define('PLAYER_POSITION_GOALY'					,'Torwart');
+define('PLAYER_POSITION_DEFENCE'				,'Abwehr');
+define('PLAYER_POSITION_MIDFIELD'				,'Mittelfeld');
+define('PLAYER_POSITION_STRIKER'				,'Sturm');
+define('POINTS_WIN'								,3);
+define('POINTS_DRAW'							,1);
+define('POINTS_LOSS'							,0);
+define('REMEMBERME_COOKIE_LIFETIME_DAYS'		,30);
+define('ROLE_GUEST'								,'guest');
+define('ROLE_USER'								,'user');
+define('ROLE_ADMIN'								,'admin');
+define('SATISFACTION_DECREASE'					,10);
+define('SATISFACTION_INCREASE'					,10);
+define('SESSION_PARAM_USERID'					,'frontuserid');
+define('SKIN_GLOBAL_NAME'						,'skin');
+define('SLEEP_SECONDS_ON_FAILURE'				,5);
+define('SUB_CONDITION_TIE'						,'Tie');
+define('SUB_CONDITION_LEADING'					,'Leading');
+define('SUB_CONDITION_DEFICIT'					,'Deficit');
+define('TEMPLATE_MODUL_FOLDER'					,$_SERVER['DOCUMENT_ROOT'].'/module');
+define('TEMPLATE_SUBDIR_DEFAULT'				,'default');
+define('TEMPLATES_FOLDER'						,$_SERVER['DOCUMENT_ROOT'].'/templates');
+define('USER_STATUS_ENABLED'					,1);
+define('USER_STATUS_UNCONFIRMED'				,2);
+define('VIEWHANDLER_GLOBAL_NAME'				,'viewHandler');
+define('YOUTH_MATCH_TYPE'						,'Youth');
+define('YOUTH_STRENGTH_STAMINA'					,100);
+define('YOUTH_STRENGTH_FRESHNESS'				,100);
+define('YOUTH_STRENGTH_SATISFACTION'			,100);
+function owsProVersion(){return'owsPro 8.2.8.23.07.13';}
+function DBSave(){$db=new SQLDump(new mysqli(Config('db_host'),Config('db_user'),Config('db_passwort'),Config('db_name')));$db->save(date('Y-m-d_H-i-s').'_'.Config('db_name').'sql.gz');}
+class SQLDump{
+	public const NONE=0,DROP=1,CREATE=2,DATA=4,TRIGGERS=8,ALL=15,MAX_SQL_SIZE=1e6;public $tables=['*'=>self::ALL,];private $connection;
+	function __construct(mysqli$connection,string$charset='utf8'){$this->connection=$connection;if($connection->connect_errno)throw new Exception($connection->connect_error);elseif(!$connection->set_charset($charset))throw new Exception($connection->error);}
+	function save(string$file){$handle=strcasecmp(substr($file,-3),'.gz')?fopen($file,'wb'):gzopen($file,'wb');if(!$handle)throw new Exception("ERROR: Cannot write file '$file'.");$this->write($handle);}
+	function write($handle=null){
+		if($handle===null)$handle=fopen('php://output','wb');elseif(!is_resource($handle)||get_resource_type($handle)!=='stream')throw new Exception('Argument must be stream resource.');$tables=$views=[];$res=$this->connection->query('SHOW FULL TABLES');
+		while($row=$res->fetch_row()){if($row[1]==='VIEW')$views[]=$row[0];else$tables[]=$row[0];}$res->close();$tables=array_merge($tables,$views);$this->connection->query('LOCK TABLES `'.implode('` READ,`',$tables).'`READ');
+		$db=$this->connection->query('SELECT DATABASE()')->fetch_row();foreach($tables as$table)$this->dumpTable($handle,$table);$this->connection->query('UNLOCK TABLES');}
+	function dumpTable($handle,$table){$mode=isset($this->tables[$table])?$this->tables[$table]:$this->tables['*'];if($mode===self::NONE)return;$delTable=$this->delimite($table);$res=$this->connection->query("SHOW CREATE TABLE $delTable");$row=$res->fetch_assoc();
+		$res->close();$view=isset($row['Create View']);if($mode&self::DROP)fwrite($handle,'DROP '.($view?'VIEW':'TABLE')." IF EXISTS $delTable;\n");if($mode&self::CREATE)fwrite($handle,$row[$view?'Create View':'Create Table'].";\n");
+		if(!$view&&($mode&self::DATA)){fwrite($handle,'ALTER '.($view?'VIEW':'TABLE').$delTable."DISABLE KEYS;\n");$numeric =[];$res=$this->connection->query("SHOW COLUMNS FROM$delTable");$cols=[];while($row=$res->fetch_assoc()){$col=$row['Field'];
+		$cols[]=$this->delimite($col);$numeric[$col]=(bool)preg_match('#^[^(]*(BYTE|COUNTER|SERIAL|INT|LONG$|CURRENCY|REAL|MONEY|FLOAT|DOUBLE|DECIMAL|NUMERIC|NUMBER)#i',$row['Type']);}$cols='('.implode(',',$cols).')';$res->close();$size=0;
+		$res=$this->connection->query("SELECT*FROM $delTable",MYSQLI_USE_RESULT);while($row=$res->fetch_assoc()){$s='(';foreach($row as$key=>$value){if($value===null)$s.="NULL,\t";elseif($numeric[$key])$s.=$value.",\t";
+		else$s.="'".$this->connection->real_escape_string($value)."',\t";}if($size==0)$s="INSERT INTO $delTable$cols VALUES\n$s";else$s=",\n$s";$len=strlen($s)-1;$s[$len-1]=')';fwrite($handle,$s,$len);$size+=$len;if($size>self::MAX_SQL_SIZE){fwrite($handle,";\n");
+		$size=0;}}$res->close();if($size)fwrite($handle,";\n");fwrite($handle,'ALTER '.($view?'VIEW':'TABLE').$delTable."ENABLE KEYS;\n");}}
+	function delimite(string$s):string{return'`'.str_replace('`','``',$s).'`';}}
 class LoginCheck{
 	function __construct($portable_hashes){
 		$db=DbConnection::getInstance();
@@ -163,12 +186,6 @@ class LoginCheck{
 		$hash=$this->crypt_private($password,$stored_hash);
 		if($hash[0]==='*')$hash=crypt($password,$stored_hash);
 		return$hash===$stored_hash;}}
-/**
-*Browsersprache ermitteln
-*
-* $i18n=I18n::getInstance(Config('supported_languages'));
-* $lang=BrowserLanguage($i18n->getCurrentLanguage(), 'en', null, false);
- */
 function BrowserLanguage($allowed_languages,$default_language,$lang_variable=null,$strict_mode=true){
 	if($lang_variable===null)$lang_variable=$_SERVER['HTTP_ACCEPT_LANGUAGE'];
 	if(empty($lang_variable))return$default_language;
@@ -202,7 +219,6 @@ class JoomlaUserLoginMethod extends LoginCheck{
 		$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
 		if($userId>0)return$userId;
 		return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['users'],$userEmail);}}
-//+ owsPro - Adaptation to the new Wordpress login method as with Joomla
 class WordpressUserLoginMethod extends LoginCheck{
 	function authenticateWithEmail($email,$password){ return$this->_authenticate('LOWER(user_email)=\'%s\'', strtolower($email),$password);}
 	function authenticateWithUsername($nick,$password){ return$this->_authenticate('user_login=\'%s\'',$nick,$password);}
@@ -215,15 +231,6 @@ class WordpressUserLoginMethod extends LoginCheck{
 		$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
 		if($userId>0)return$userId;
 		return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['user_login'],$userEmail);}}
-
-//  owsPro - Fatal error: Uncaught TypeError: strlen()expects parameter 1 to be string, null given
-//- if(strlen($queryString))
-//+ if(strlen((string)$queryString)
-
-//  owsPro - Fatal error: Uncaught TypeError: strlen()expects parameter 1 to be string, null given
-//- if($pageId!='home'||strlen($queryString))
-//+ if($pageId!='home'||strlen((string)$queryString))
-
 function Config($name){global$conf;if(!isset($conf[$name]))throw new Exception('Missing configuration: '.$name);return$conf[$name];}
 class WebSoccer{
 	private static$_instance;

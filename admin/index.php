@@ -66,7 +66,8 @@ function printNavItem($currentSite, $pageId, $navLabel, $entity = '') {
 	echo '><a href=\''. $url . '\'>'. $navLabel . '</a></li>';
 }
 
-?>
+if(isset($_GET['DBSave']))DBSave();?>
+<a href='index.php?DBSave=true'><pre>	DBSave</pre></a>
 <!DOCTYPE html>
 <html lang="<?php echo $i18n->getCurrentLanguage(); ?>">
   <head>
@@ -166,14 +167,6 @@ if (preg_match('#^[a-z0-9_-]+$#i', $site) && file_exists($includeFile) ) {
       </div><!--/row-->
 
       <hr>
-
-<!--[if lte IE 9]>
-<div class="alert">
-  <button type="button" class="close" data-dismiss="alert">&times;</button>
-  <h4><?php echo $i18n->getMessage("internetexplorer_warning_title"); ?></h4>
-  <?php echo $i18n->getMessage("internetexplorer_warning_message"); ?>
-</div>
-<![endif]-->
 
       <footer>
         <p>Powered by <a href="http://www.websoccer-sim.com" target="_blank">OpenWebSoccer-Sim</a></p>
