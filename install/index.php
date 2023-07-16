@@ -25,7 +25,7 @@ set_time_limit(0);?>
 <html lang="de">
 	<head>
 		<?php Bootstrap_css();?>
-		<title>owsPro Installation</title>
+		<title>owsPro - Installation</title>
 		<link href="../admin/bootstrap/css/bootstrap.min.css"rel="stylesheet"media="screen">
 		<link rel="shortcut icon"type="image/x-icon"href="../favicon.ico" />
 		<meta charset="UTF-8">
