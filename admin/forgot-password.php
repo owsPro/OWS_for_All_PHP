@@ -1,31 +1,22 @@
 <?php
+/*This file is part of "OWS for All PHP" (Rolf Joseph)
+  https://github.com/owsPro/OWS_for_All_PHP/
+  A spinn-off for PHP Versions 5.4 to 8.2 from:
+  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
-/******************************************************
+  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
 
-  This file is part of OpenWebSoccer-Sim.
+  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
-  OpenWebSoccer-Sim is free software: you can redistribute it 
-  and/or modify it under the terms of the 
-  GNU Lesser General Public License 
-  as published by the Free Software Foundation, either version 3 of
-  the License, or any later version.
-
-  OpenWebSoccer-Sim is distributed in the hope that it will be
-  useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-  See the GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public 
-  License along with OpenWebSoccer-Sim.  
-  If not, see <http://www.gnu.org/licenses/>.
-
-******************************************************/
+*****************************************************************************/
 define('BASE_FOLDER', '../');
 require_once('config/global.inc.php');
 require_once('functions.inc.php');
 
 // include messages
-$i18n = I18n::getInstance($website->getConfig('supported_languages'));
+$i18n = I18n::getInstance(Config('supported_languages'));
 
 if (isset($_GET['lang'])) {
 	$i18n->setCurrentLanguage($_GET['lang']);
@@ -39,11 +30,11 @@ $inputEmail = (isset($_POST['inputEmail'])) ? trim($_POST['inputEmail']) : FALSE
 
 // process form
 if ($inputEmail) {
-	
+
 	$now = $website->getNowAsTimestamp();
-	
+
 	if (count($errors) == 0) {
-		
+
 		// correct Pwd?
 		$columns = array('id', 'passwort_neu_angefordert', 'name', 'passwort_salt');
 		$fromTable = $conf['db_prefix'] .'_admin';
@@ -51,7 +42,7 @@ if ($inputEmail) {
 		$parameters = $inputEmail;
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $parameters);
 		$admin = $result->fetch_array();
-		
+
 		if($result->num_rows < 1) {
 			$errors['inputEmail'] = $i18n->getMessage('sendpassword_admin_usernotfound');
 		} elseif ($admin['passwort_neu_angefordert'] > ($now-120*60)) {
@@ -59,9 +50,9 @@ if ($inputEmail) {
 		} else {
 			$newPassword = SecurityUtil::generatePassword();
 			$hashedPw = SecurityUtil::hashPassword($newPassword, $admin['passwort_salt']);
-			
+
 			// store new PW
-			$columns = array('passwort_neu' => $hashedPw, 
+			$columns = array('passwort_neu' => $hashedPw,
 							'passwort_neu_angefordert' => $now);
 			$fromTable = $conf['db_prefix'] .'_admin';
 			$whereCondition = 'id = %d';
@@ -70,16 +61,16 @@ if ($inputEmail) {
 
             try {
             	_sendEmail($inputEmail, $newPassword, $website, $i18n);
-            	
+
             	header('location: login.php?newpwd=1');
             	die();
             } catch(Exception $e) {
             	$errors['inputEmail'] = $e->getMessage();
             }
-		
+
 		}
 		$result->free();
-		
+
 	}
 }
 
@@ -108,17 +99,17 @@ function _sendEmail($email, $password, $website, $i18n) {
     </style>
   </head>
   <body>
-  
+
 	<div class='container'>
-	
+
 		<h1><?php echo $i18n->getMessage('sendpassword_admin_title'); ?></h1>
-		
+
 <?php
 if (count($errors) > 0) {
 	foreach($errors as $key => $message) {
 		echo createErrorMessage($i18n->getMessage('subpage_error_title'), $message);
 	}
-	
+
 }
 ?>
 		<p><?php echo $i18n->getMessage('sendpassword_admin_intro'); ?></p>
@@ -134,17 +125,17 @@ if (count($errors) > 0) {
 			  <button type='submit' class='btn'><?php echo $i18n->getMessage('sendpassword_admin_button'); ?></button>
 			</div>
 		  </div>
-		</form>		
-		
+		</form>
+
 		<p><a href='login.php'><?php echo $i18n->getMessage('sendpassword_admin_loginlink'); ?></a>
-	  
+
       <hr>
 
       <footer>
         <p>Powered by <a href='http://www.websoccer-sim.com' target='_blank'>OpenWebSoccer-Sim</a></p>
-      </footer>		  
+      </footer>
 	</div>
-	
+
 
     <script src='https://code.jquery.com/jquery-latest.min.js'></script>
     <script src='bootstrap/js/bootstrap.min.js'></script>

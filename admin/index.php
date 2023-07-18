@@ -1,43 +1,30 @@
 <?php
+/*This file is part of "OWS for All PHP" (Rolf Joseph)
+  https://github.com/owsPro/OWS_for_All_PHP/
+  A spinn-off for PHP Versions 5.4 to 8.2 from:
+  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
+
+  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
+
+  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
+
+*****************************************************************************/
 if(version_compare(PHP_VERSION, '5.4.0') < 0){echo'Minimum PHP 5.4.0 !';exit;}
-/******************************************************
-
-  This file is part of OpenWebSoccer-Sim.
-
-  OpenWebSoccer-Sim is free software: you can redistribute it
-  and/or modify it under the terms of the
-  GNU Lesser General Public License
-  as published by the Free Software Foundation, either version 3 of
-  the License, or any later version.
-
-  OpenWebSoccer-Sim is distributed in the hope that it will be
-  useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with OpenWebSoccer-Sim.
-  If not, see <http://www.gnu.org/licenses/>.
-
-******************************************************/
-
 define('BASE_FOLDER', __DIR__ .'/..');
-
 include(BASE_FOLDER . '/admin/adminglobal.inc.php');
-
-// building nav
+if (isset($_GET['lang'])) {
+	$i18n->setCurrentLanguage($_GET['lang']);
+}
 $navItems['settings'] = array();
 $navItems['website'] = array();
-
 foreach ($adminpage as $pageId => $pageData) {
 	$pageInfo = json_decode($pageData, true);
-
-	// check permission
 	if ((!isset($admin['r_admin']) || !$admin['r_admin']) && (!isset($admin['r_demo']) || !$admin['r_demo'])
 			&& (!isset($admin[$pageInfo['permissionrole']]) || !$admin[$pageInfo['permissionrole']])) {
 		continue;
 	}
-
 	if (isset($pageInfo['entity']) && $pageInfo['entity']) {
 		$siteInfo['label'] = $i18n->getMessage('entity_' . $pageInfo['entity']);
 		$siteInfo['pageid'] = 'manage';
@@ -47,25 +34,19 @@ foreach ($adminpage as $pageId => $pageData) {
 		$siteInfo['pageid'] = $pageInfo['filename'];
 		$siteInfo['entity'] = null;
 	}
-
 	$navItems[$pageInfo['navcategory']][] = $siteInfo;
 }
-
 function printNavItem($currentSite, $pageId, $navLabel, $entity = '') {
-
 	$url = '?site='. $pageId;
 	$active = ($currentSite == $pageId);
-
 	if (strlen($entity)) {
 		$url .= '&entity=' . escapeOutput($entity);
 		$active = (isset($_REQUEST['entity']) &&  $_REQUEST['entity'] == $entity);
 	}
-
 	echo '<li';
 	if ($active) echo ' class=\'active\'';
 	echo '><a href=\''. $url . '\'>'. $navLabel . '</a></li>';
 }
-
 if(isset($_GET['DBSave']))DBSave();?><a href='index.php?DBSave=true'><pre>	DBSave</a><?php if(isset($_GET['Diagnosis']))Diagnosis();?><a href='index.php?Diagnosis=true'>	Diagnosis</pre></a>
 <!DOCTYPE html>
 <html lang="<?php echo $i18n->getCurrentLanguage(); ?>">
@@ -113,7 +94,7 @@ if(isset($_GET['DBSave']))DBSave();?><a href='index.php?DBSave=true'><pre>	DBSav
             </p>
             <ul class="nav">
               <li><a href="<?php
-              $contextRoot = $website->getConfig("context_root");
+              $contextRoot=Config("context_root");
               echo  (strlen($contextRoot)) ? $contextRoot : "/"; ?>"><i class="icon-globe icon-white"></i> <?php echo $i18n->getMessage("admincenter_link_website"); ?></a></li>
 			  <li><a href="?site=profile"><i class="icon-user icon-white"></i> <?php echo $i18n->getMessage("admincenter_link_profile"); ?></a></li>
 			  <li><a href="?site=clearcache"><i class="icon-refresh icon-white"></i> <?php echo $i18n->getMessage("admincenter_link_clear_cache"); ?></a></li>
@@ -129,7 +110,6 @@ if(isset($_GET['DBSave']))DBSave();?><a href='index.php?DBSave=true'><pre>	DBSav
         <div class="span2">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-
 			  <?php
 				foreach ($navItems as $navCategory => $categoryItems) {
 					echo "<li class=\"nav-header\">". $i18n->getNavigationLabel("category_" . $navCategory) . "</li>";
@@ -142,7 +122,6 @@ if(isset($_GET['DBSave']))DBSave();?><a href='index.php?DBSave=true'><pre>	DBSav
           </div><!--/.well -->
         </div><!--/span-->
         <div class="span10">
-
         	<div id="ajaxSpinner" style="display: none">
         		<img src="../img/ajax-loader.gif" width="16" height="16" />
         	</div>
@@ -150,7 +129,6 @@ if(isset($_GET['DBSave']))DBSave();?><a href='index.php?DBSave=true'><pre>	DBSav
 if (empty($site)) {
 	$site = 'home';
 }
-
 $includeFile = 'pages/' . $site .'.php';
 if (preg_match('#^[a-z0-9_-]+$#i', $site) && file_exists($includeFile) ) {
 	try {
@@ -162,17 +140,13 @@ if (preg_match('#^[a-z0-9_-]+$#i', $site) && file_exists($includeFile) ) {
 	echo createErrorMessage($i18n->getMessage('alert_error_title'), $i18n->getMessage('error_page_not_found'));
 }
 ?>
-        </div><!--/span-->
-      </div><!--/row-->
-
+        </div>
+      </div>
       <hr>
-
       <footer>
         <p>Powered by <a href="http://www.websoccer-sim.com" target="_blank">OpenWebSoccer-Sim</a></p>
       </footer>
 	</div>
-
-
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script src="bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
@@ -180,59 +154,25 @@ if (preg_match('#^[a-z0-9_-]+$#i', $site) && file_exists($includeFile) ) {
     <script src="bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
 	<script src="select2/select2.min.js"></script>
 	<?php
-	if ($i18n->getCurrentLanguage() != "en") {
+	if ($i18n->getCurrentLanguage() != "en")
 		echo "<script src=\"select2/select2_locale_". $i18n->getCurrentLanguage() . ".js\"></script>";
-	}
 	?>
-
 	<script src="markitup/jquery.markitup.js"></script>
-
-	<?php if ($i18n->getCurrentLanguage() == "de") { ?>
-		<script src="markitup/sets/ws/set_de.js"></script>
-	<?php } else { ?>
-		<script src="markitup/sets/ws/set.js"></script>
-	<?php } ?>
+	<?php if ($i18n->getCurrentLanguage() == "de") { ?><script src="markitup/sets/ws/set_de.js"></script>
+	<?php } else ?><script src="markitup/sets/ws/set.js"></script><?php ?>
 	<script src="js/admincenter.js"></script>
-
 	<script src="js/bootbox.min.js"></script>
-
 	<script src="js/bootstrap-tag.js"></script>
-
 	<script>
-	$(function() {
-		$(document).on("click", ".deleteBtn", function(e) {
-			bootbox.confirm("<?php echo $i18n->getMessage("manage_delete_multiselect_confirm"); ?>",
-					"<?php echo $i18n->getMessage("option_no"); ?>",
-					"<?php echo $i18n->getMessage("option_yes"); ?>",
-			function(result) {
-				if (result) {
-					document.frmMain.submit();
-				}
-
-			});
-		});
-		$(document).on("click", ".deleteLink", function(e) {
-			e.preventDefault();
-
+	$(function(){$(document).on("click", ".deleteBtn", function(e) {
+			bootbox.confirm("<?php echo $i18n->getMessage("manage_delete_multiselect_confirm"); ?>","<?php echo $i18n->getMessage("option_no"); ?>","<?php echo $i18n->getMessage("option_yes"); ?>",
+			function(result){if(result){document.frmMain.submit();}});});
+		$(document).on("click", ".deleteLink", function(e) {e.preventDefault();
 			var link = $(this);
-
 			bootbox.confirm("<?php echo $i18n->getMessage("manage_delete_link_confirm"); ?>",
-					"<?php echo $i18n->getMessage("option_no"); ?>",
-					"<?php echo $i18n->getMessage("option_yes"); ?>",
-			function(result) {
-				if (result) {
-					window.location = link.attr("href");
-				}
-
-			});
-		});
+					"<?php echo $i18n->getMessage("option_no"); ?>","<?php echo $i18n->getMessage("option_yes"); ?>",
+			function(result){if(result)window.location = link.attr("href");}});});
 		$(".datepicker").datepicker({
-			format: "<?php echo str_replace("Y", "yyyy", $website->getConfig("date_format")); ?>",
+			format: "<?php echo str_replace("Y", "yyyy",Config("date_format")); ?>",
 			language: "<?php echo $i18n->getCurrentLanguage(); ?>",
-			autoclose: true
-		});
-	});
-</script>
-
-  </body>
-</html>
+			autoclose: true});});</script></body></html>

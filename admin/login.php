@@ -16,7 +16,7 @@ include($_SERVER['DOCUMENT_ROOT']. '/admin/functions.inc.php');
 include(CONFIGCACHE_FILE_ADMIN);
 
 // include messages
-$i18n = I18n::getInstance($website->getConfig('supported_languages'));
+$i18n = I18n::getInstance(Config('supported_languages'));
 
 if (isset($_GET['lang'])) {
 	$i18n->setCurrentLanguage($_GET['lang']);

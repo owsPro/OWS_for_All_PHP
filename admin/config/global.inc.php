@@ -1,24 +1,16 @@
 <?php
-/******************************************************
+/*This file is part of "OWS for All PHP" (Rolf Joseph)
+  https://github.com/owsPro/OWS_for_All_PHP/
+  A spinn-off for PHP Versions 5.4 to 8.2 from:
+  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
-  This file is part of OpenWebSoccer-Sim.
+  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
 
-  OpenWebSoccer-Sim is free software: you can redistribute it
-  and/or modify it under the terms of the
-  GNU Lesser General Public License
-  as published by the Free Software Foundation, either version 3 of
-  the License, or any later version.
+  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
-  OpenWebSoccer-Sim is distributed in the hope that it will be
-  useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with OpenWebSoccer-Sim.
-  If not, see <http://www.gnu.org/licenses/>.
-
-******************************************************/
+*****************************************************************************/
 define('BASEFOLDER', __DIR__ .'/../..');
 define('DEBUG', FALSE);
 
@@ -108,10 +100,7 @@ try {
 // connect to DB
 try {
 	$db = DbConnection::getInstance();
-	$db->connect($website->getConfig('db_host'),
-			$website->getConfig('db_user'),
-			$website->getConfig('db_passwort'),
-			$website->getConfig('db_name'));
+	$db->connect(Config('db_host'),Config('db_user'),Config('db_passwort'),Config('db_name'));
 } catch(Exception $e) {
 	// write to log
 	try {
@@ -142,7 +131,7 @@ session_start();
 
 // always set time zone in order to prevent PHP warnings
 try {
-	date_default_timezone_set($website->getConfig('time_zone'));
+	date_default_timezone_set(Config('time_zone'));
 } catch (Exception $e) {
 	// do not set time zone. This Exception can appear in particular when updating from older version.
 }

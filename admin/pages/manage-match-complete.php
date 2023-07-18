@@ -3,19 +3,19 @@
 
   This file is part of OpenWebSoccer-Sim.
 
-  OpenWebSoccer-Sim is free software: you can redistribute it 
-  and/or modify it under the terms of the 
-  GNU Lesser General Public License 
+  OpenWebSoccer-Sim is free software: you can redistribute it
+  and/or modify it under the terms of the
+  GNU Lesser General Public License
   as published by the Free Software Foundation, either version 3 of
   the License, or any later version.
 
   OpenWebSoccer-Sim is distributed in the hope that it will be
   useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the GNU Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public 
-  License along with OpenWebSoccer-Sim.  
+  You should have received a copy of the GNU Lesser General Public
+  License along with OpenWebSoccer-Sim.
   If not, see <http://www.gnu.org/licenses/>.
 
 ******************************************************/
@@ -43,31 +43,31 @@ if ($action == "complete") {
 	if ($admin["r_demo"]) {
 		throw new Exception($i18n->getMessage("validationerror_no_changes_as_demo"));
 	}
-	
+
 	// set goals and minutes played
-	$statTable = $website->getConfig("db_prefix") . "_spiel_berechnung";
-	$result = $db->querySelect("SUM(tore) AS goals, MAX(minuten_gespielt) AS minutes", $statTable, "spiel_id = %d AND team_id = %d", 
+	$statTable =Config("db_prefix") . "_spiel_berechnung";
+	$result = $db->querySelect("SUM(tore) AS goals, MAX(minuten_gespielt) AS minutes", $statTable, "spiel_id = %d AND team_id = %d",
 			array($matchId, $match["match_home_id"]));
 	$homeStat = $result->fetch_array();
 	$result->free();
-	
+
 	$result = $db->querySelect("SUM(tore) AS goals", $statTable, "spiel_id = %d AND team_id = %d",
 			array($matchId, $match["match_guest_id"]));
 	$guestStat = $result->fetch_array();
 	$result->free();
-	
+
 	$db->queryUpdate(array(
 			"minutes" => $homeStat["minutes"],
 			"home_tore" => $homeStat["goals"],
 			"gast_tore" => $guestStat["goals"],
 			"berechnet" => "1"
-			), $website->getConfig("db_prefix") . "_spiel", "id = %d", $matchId);
-	
+			),Config("db_prefix") . "_spiel", "id = %d", $matchId);
+
 	// create internal model
-	$fromTable = $website->getConfig("db_prefix") ."_spiel AS M";
-	$fromTable .= " INNER JOIN " . $website->getConfig("db_prefix") ."_verein AS HOME_T ON HOME_T.id = M.home_verein";
-	$fromTable .= " INNER JOIN " . $website->getConfig("db_prefix") ."_verein AS GUEST_T ON GUEST_T.id = M.gast_verein";
-	
+	$fromTable = Config("db_prefix") ."_spiel AS M";
+	$fromTable .= " INNER JOIN " . Config("db_prefix") ."_verein AS HOME_T ON HOME_T.id = M.home_verein";
+	$fromTable .= " INNER JOIN " . Config("db_prefix") ."_verein AS GUEST_T ON GUEST_T.id = M.gast_verein";
+
 	$columns = array();
 	$columns["M.id"] = "match_id";
 	$columns["M.spieltyp"] = "type";
@@ -79,12 +79,12 @@ if ($action == "complete") {
 	$columns["M.pokalname"] = "cup_name";
 	$columns["M.pokalrunde"] = "cup_roundname";
 	$columns["M.pokalgruppe"] = "cup_groupname";
-	
+
 	$columns["M.player_with_ball"] = "player_with_ball";
 	$columns["M.prev_player_with_ball"] = "prev_player_with_ball";
 	$columns["M.home_tore"] = "home_goals";
 	$columns["M.gast_tore"] = "guest_goals";
-	
+
 	$columns["M.home_offensive"] = "home_offensive";
 	$columns["M.home_setup"] = "home_setup";
 	$columns["M.home_noformation"] = "home_noformation";
@@ -95,49 +95,49 @@ if ($action == "complete") {
 	$columns["M.gast_setup"] = "guest_setup";
 	$columns["M.gast_longpasses"] = "guest_longpasses";
 	$columns["M.gast_counterattacks"] = "guest_counterattacks";
-	
+
 	$columns["HOME_T.name"] = "home_name";
 	$columns["HOME_T.nationalteam"] = "home_nationalteam";
 	$columns["GUEST_T.nationalteam"] = "guest_nationalteam";
 	$columns["GUEST_T.name"] = "guest_name";
-	
+
 	// substitutions
 	for ($subNo = 1; $subNo <= 3; $subNo++) {
 		$columns["M.home_w" . $subNo . "_raus"] = "home_sub_" . $subNo . "_out";
 		$columns["M.home_w" . $subNo . "_rein"] = "home_sub_" . $subNo . "_in";
 		$columns["M.home_w" . $subNo . "_minute"] = "home_sub_" . $subNo . "_minute";
 		$columns["M.home_w" . $subNo . "_condition"] = "home_sub_" . $subNo . "_condition";
-			
+
 		$columns["M.gast_w" . $subNo . "_raus"] = "guest_sub_" . $subNo . "_out";
 		$columns["M.gast_w" . $subNo . "_rein"] = "guest_sub_" . $subNo . "_in";
 		$columns["M.gast_w" . $subNo . "_minute"] = "guest_sub_" . $subNo . "_minute";
 		$columns["M.gast_w" . $subNo . "_condition"] = "guest_sub_" . $subNo . "_condition";
 	}
-	
+
 	$result = $db->querySelect($columns, $fromTable, "M.id = %d", $matchId);
 	$matchinfo = $result->fetch_array();
 	$result->free();
-	
+
 	// init default simulation strategry in order to include dependend constants. Yeah, refactor this once having to much time...
 	$dummyVar = new DefaultSimulationStrategy($website);
 	$matchModel = SimulationStateHelper::loadMatchState($website, $db, $matchinfo);
-	
+
 	// compute audience
 	if ($website->getRequestParameter("computetickets")) {
 		SimulationAudienceCalculator::computeAndSaveAudience($website, $db, $matchModel);
 	}
-	
+
 	if ($matchinfo["type"] == "Pokalspiel") {
 		SimulationCupMatchHelper::checkIfExtensionIsRequired($website, $db, $matchModel);
 	}
-	
+
 	// complete match
 	$observer = new DataUpdateSimulatorObserver($website, $db);
 	$observer->onMatchCompleted($matchModel);
-	
+
 	// show success message
 	echo createSuccessMessage($i18n->getMessage("match_manage_complete_success"), "");
-	
+
 }
 
 echo "<h3><a href=\"". $website->getInternalUrl("team", "id=" . $match["match_home_id"]) . "\" target=\"_blank\">". escapeOutput($match["match_home_name"]) . "</a> - <a href=\"". $website->getInternalUrl("team", "id=" . $match["match_guest_id"]) . "\" target=\"_blank\">". escapeOutput($match["match_guest_name"]) . "</a></h3>";

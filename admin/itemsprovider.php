@@ -1,32 +1,16 @@
 <?php
+/*This file is part of "OWS for All PHP" (Rolf Joseph)
+  https://github.com/owsPro/OWS_for_All_PHP/
+  A spinn-off for PHP Versions 5.4 to 8.2 from:
+  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
-/******************************************************
+  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
 
-  This file is part of OpenWebSoccer-Sim.
+  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
-  OpenWebSoccer-Sim is free software: you can redistribute it 
-  and/or modify it under the terms of the 
-  GNU Lesser General Public License 
-  as published by the Free Software Foundation, either version 3 of
-  the License, or any later version.
-
-  OpenWebSoccer-Sim is distributed in the hope that it will be
-  useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-  See the GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public 
-  License along with OpenWebSoccer-Sim.  
-  If not, see <http://www.gnu.org/licenses/>.
-
-******************************************************/
-
-// this file provides items of an entity. Can be used for auto-complete feature of Primary Key selection fields.
-// GET parameters: 
-// 		$dbtable - the DB table name without prefix
-//		$labelcolumns - the DB column names from whcih the label shall be constructed
-//		$search - an optional search string. All label columns will be searched (case insensitive).
-//		$itemid - ID of a single item. Then only this item will be returned.
+*****************************************************************************/
 
 define('BASE_FOLDER', __DIR__ .'/..');
 define('MAX_ITEMS', 20);
@@ -65,20 +49,20 @@ if ($itemId > 0) {
 			$whereCondition .= ' OR ';
 		}
 		$first = FALSE;
-		
+
 		$whereCondition .= 'LOWER(' . $labelColumn . ') LIKE \'%%%s%%\'';
 		$queryParameters[] = $search;
 	}
 }
 
-		
+
 $whereCondition .= ' ORDER BY '. $labelColumns . ' ASC';
-$result = $db->querySelect('id, ' . $labelColumns, $website->getConfig('db_prefix') . '_' . $dbTable, $whereCondition, $queryParameters, MAX_ITEMS);
+$result = $db->querySelect('id, ' . $labelColumns,Config('db_prefix') . '_' . $dbTable, $whereCondition, $queryParameters, MAX_ITEMS);
 
 $items = array();
 // collect items;
 while($item = $result->fetch_array()) {
-	
+
 	// construct label
 	$label = '';
 	$first = TRUE;
@@ -89,7 +73,7 @@ while($item = $result->fetch_array()) {
 		$first = FALSE;
 		$label .= $item[trim($labelColumn)];
 	}
-	
+
 	$items[] = array('id' => $item['id'], 'text' => $label);
 }
 $result->free();
