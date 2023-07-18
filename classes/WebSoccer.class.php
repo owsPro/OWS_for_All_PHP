@@ -5889,18 +5889,6 @@ class GreenBootstrapSkin extends DefaultBootstrapSkin {
 			$files[]=$dir.'formation.css';
 			$files[]=$dir.'bootstrap-switch.css';}
 		return$files;}}
-class SchedioartFootballSkin extends DefaultBootstrapSkin {
-	function getTemplatesSubDirectory(){ return 'schedio';}
-	function getCssSources(){
-		$dir=Config('context_root').'/css/';
-		if(DEBUG){
-			$files[]=$dir.'schedioart/bootstrap.css';
-			$files[]=$dir.'schedioart/schedioartskin.css';
-			$files[]=$dir.'websoccer.css';
-			$files[]=$dir.'bootstrap-responsive.min.css';}
-		else $files[]=$dir.'schedioart/theme.min.css';
-		$files[]='//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css';
-		return$files;}}
 class EmailValidator {
 	function isValid(){
 		$this->_value=$value;
