@@ -30,7 +30,7 @@
 ******************************************************************/
 include($_SERVER['DOCUMENT_ROOT'].'/classes/WebSoccer.class.php');define('BASE_FOLDER',__DIR__ .'/..');define('PHP_MIN_VERSION','5.3.0');define('CONFIGFILE',BASE_FOLDER.'/generated/config.inc.php');session_start();
 $supportedLanguages=["de"=>"deutsch","en"=>"english","es"=>"español","pt"=>"português","dk"=>"dansk","ee"=>"eesti","fi"=>"suomalainen","fr"=>"français","id"=>"indonesia","it"=>"italiano","lv"=>"latvieši","lt"=>"lietuviškas","nl"=>"nederlands","pl"=>"polska",
-	"br"=>"brasil","ro"=>"rumenic","se"=>"svenskt","sk"=>"slovenské","si"=>"slovenski","cz"=>"Česky","tr"=>"TÜRKÇE","hu"=>"magyar","jp"=>"ジャパニーズ"];$setAdmin=1;?>
+	"br"=>"brasil","ro"=>"rumenic","se"=>"svenskt","sk"=>"slovenské","si"=>"slovenski","cz"=>"Česky","tr"=>"TÜRKÇE","hu"=>"magyar","jp"=>"ジャパニーズ"];$setAdmin=1;global$setAdmin;$setAdmin='1';?>
 <!DOCTYPE html>
 <html lang="de">
 	<head>

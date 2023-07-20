@@ -12,15 +12,12 @@
 
 *****************************************************************************/
 include($_SERVER['DOCUMENT_ROOT'].'/classes/WebSoccer.class.php');
-error_reporting(E_ALL);
 define("PHP_MIN_VERSION","5.3.0");
 define("WRITABLE_FOLDERS","generated/,uploads/club/,uploads/cup/,uploads/player/,uploads/sponsor/,uploads/stadium/,uploads/stadiumbuilder/,uploads/stadiumbuilding/,uploads/users/,admin/config/jobs.xml,admin/config/termsandconditions.xml");
 define("CONFIGFILE",$_SERVER['DOCUMENT_ROOT']."/generated/config.inc.php");
 session_start();
 $supportedLanguages=["de"=>"deutsch","en"=>"english","es"=>"español","pt"=>"português","dk"=>"dansk","ee"=>"eesti","fi"=>"suomalainen","fr"=>"français","id"=>"indonesia","it"=>"italiano","lv"=>"latvieši","lt"=>"lietuviškas","nl"=>"nederlands","pl"=>"polska",
-	"br"=>"brasil","ro"=>"rumenic","se"=>"svenskt","sk"=>"slovenské","si"=>"slovenski","cz"=>"Česky","tr"=>"TÜRKÇE","hu"=>"magyar","jp"=>"ジャパニーズ"];
-ignore_user_abort(TRUE);
-set_time_limit(0);?>
+	"br"=>"brasil","ro"=>"rumenic","se"=>"svenskt","sk"=>"slovenské","si"=>"slovenski","cz"=>"Česky","tr"=>"TÜRKÇE","hu"=>"magyar","jp"=>"ジャパニーズ"];?>
 <!DOCTYPE html>
 <html lang="de">
 	<head>
