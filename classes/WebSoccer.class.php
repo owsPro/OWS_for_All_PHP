@@ -173,8 +173,8 @@ class LoginCheck{
 		$count=1<<$count_log2;
 		$salt=substr($setting,4,8);
 		if(strlen($salt)!==8)return$output;
-		$hash=md5($salt.$password,TRUE);
-		do{$hash=md5($hash.$password,TRUE);}
+		$hash=hash('sha256',$salt.$password,TRUE);
+		do{$hash=hash('sha256',$hash.$password,TRUE);}
 		while(--$count);
 		$output=substr($setting,0,12);
 		$output.=$this->encode64($hash,16);
@@ -2127,10 +2127,10 @@ class SecurityUtil {
 	static function hashPassword($password,$salt){ return hash('sha256',$salt . hash('sha256',$password));}
 	static function isAdminLoggedIn(){
 		if(isset($_SESSION['HTTP_USER_AGENT'])){
-			if($_SESSION['HTTP_USER_AGENT']!=md5($_SERVER['HTTP_USER_AGENT'])){
+			if($_SESSION['HTTP_USER_AGENT']!=hash('sha256',$_SERVER['HTTP_USER_AGENT'])){
 				self::logoutAdmin();
 				return FALSE;}}
-		else $_SESSION['HTTP_USER_AGENT']=md5($_SERVER['HTTP_USER_AGENT']);
+		else $_SESSION['HTTP_USER_AGENT']=hash('sha256',$_SERVER['HTTP_USER_AGENT']);
 	    return (isset($_SESSION['valid'])&& $_SESSION['valid']);}
 	static function logoutAdmin(){
 	    $_SESSION=[];
@@ -2141,7 +2141,7 @@ class SecurityUtil {
 	static function generatePasswordSalt(){ return substr(self::generatePassword(), 0, 4);}
 	static function generateSessionToken($userId,$salt){
 		$useragent=(isset($_SESSION['HTTP_USER_AGENT']))? $_SESSION['HTTP_USER_AGENT'] : 'n.a.';
-		return md5($salt .$useragent .$userId);}
+		return hash('sha256',$salt .$useragent .$userId);}
 	static function loginFrontUserUsingApplicationSession($websoccer,$userId){
 		$_SESSION['frontuserid']=$userId;
 		session_regenerate_id();
@@ -4327,7 +4327,7 @@ class MicropaymentRedirectController extends Controller {
 		$paymentUrl='https://billing.micropayment.de/'.$module.'/event/?';
 		$parameters=array('project'=>$projectId, 'amount'=>$amount, 'freeparam'=>$this->_websoccer->getUser()->id);
 		$queryStr=http_build_query($parameters);
-		$seal=md5($parameters .$accessKey);
+		$seal=hash('sha256',$parameters .$accessKey);
 		$queryStr .= '&seal='.$seal;
 		$paymentUrl .= $queryStr;
 		header('Location: '.$paymentUrl);
@@ -5311,7 +5311,7 @@ class UploadClubPictureController extends Controller {
 		if($_POST["MAX_FILE_SIZE"]!=$maxFilesize||$_FILES["picture"]["size"]>$maxFilesize)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfilesize"));
 		if($errorcode==UPLOAD_ERR_OK){
 			$tmp_name=$_FILES["picture"]["tmp_name"];
-			$name=md5($clubId . time()).".".$ext;
+			$name=hash('sha256',$clubId . time()).".".$ext;
 			$uploaded=@move_uploaded_file($tmp_name, CLUBPICTURE_UPLOAD_DIR."/".$name);
 			if(!$uploaded)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_failed"));}
 		else throw new Exception($this->_i18n->getMessage("change-profile-picture_err_failed"));
@@ -5350,7 +5350,7 @@ class UploadProfilePictureController extends Controller {
 		$userId=$this->_websoccer->getUser()->id;
 		if($errorcode==UPLOAD_ERR_OK){
 			$tmp_name=$_FILES["picture"]["tmp_name"];
-			$name=md5($userId . time()).".".$ext;
+			$name=hash('sha256',$userId . time()).".".$ext;
 			$uploaded=@move_uploaded_file($tmp_name, PROFPIC_UPLOADFOLDER."/".$name);
 			if(!$uploaded)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_failed"));}
 		else throw new Exception($this->_i18n->getMessage("change-profile-picture_err_failed"));
@@ -5799,7 +5799,7 @@ class DemoUserLoginMethod extends Method{
 		$myUser=$dbresult->fetch_array();
 		$mysqli->close();
 		if(!$myUser)return FALSE;
-		if($myUser['password']!=md5($password))return FALSE;
+		if($myUser['password']!=hash('sha256',$password))return FALSE;
 		$existingUserId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db, strtolower($email));
 		if($existingUserId>0)return$existingUserId;
 		return UsersDataService::createLocalUser($this->_websoccer,$this->_db, null,$email);}
@@ -9845,7 +9845,7 @@ class UsersDataService {
 		if(strlen($email)&&Config('gravatar_enable')){
 			if(empty($_SERVER['HTTPS']))$picture='http://www.';
 			else $picture='https://secure.';
-			$picture.='gravatar.com/avatar/'. md5(strtolower($email));
+			$picture.='gravatar.com/avatar/'.hash('sha256',strtolower($email));
 			$picture.='?s='.$size;
 			$picture.='&d=mm';
 			return$picture;}
@@ -10159,7 +10159,7 @@ for($i=NULL;$i<$runs;++$i)strlen($string_1);for($i=NULL;$i<$runs;++$i)sprintf($s
 for($i=NULL;$i<$runs;++$i)implode('&',$array_1);$f1=$timer->totalTime;for($i=NULL;$i<$runs;++$i)number_format($f1,3);for($i=NULL;$i<$runs;++$i)floor($f1);for($i=NULL;$i<$runs;++$i)strpos($string_2,'t');for($i=NULL;$i<$runs;++$i)substr($string_1,10);
 for($i=NULL;$i<$runs;++$i)intval($string_4);for($i=NULL;$i<$runs;++$i)(int)$string_4;for($i=NULL;$i<$runs;++$i){is_array($array_1);is_array($string_1);}for($i=NULL;$i<$runs;++$i){is_numeric($f1);is_numeric($string_4);}
 for($i=NULL;$i<$runs;++$i){is_int($f1);is_int($string_4);}for($i=NULL;$i<$runs;++$i){is_string($f1);is_string($string_4);}for($i=NULL;$i<$runs;++$i)ip2long('1.2.3.4');for($i=NULL;$i<$runs;++$i)long2ip(89851921);for($i=NULL;$i<$runs_slow;++$i)date('F j,Y,g:i a',$now);
-for($i=NULL;$i<$runs_slow;++$i)date('%B %e,%Y,%l:%M %P',$now);for($i=NULL;$i<$runs_slow;++$i)strtotime($time_1);for($i=NULL;$i<$runs;++$i)strtolower($string_3);for($i=NULL;$i<$runs;++$i)strtoupper($string_1);for($i=NULL;$i<$runs;++$i)md5($string_1);
+for($i=NULL;$i<$runs_slow;++$i)date('%B %e,%Y,%l:%M %P',$now);for($i=NULL;$i<$runs_slow;++$i)strtotime($time_1);for($i=NULL;$i<$runs;++$i)strtolower($string_3);for($i=NULL;$i<$runs;++$i)strtoupper($string_1);for($i=NULL;$i<$runs;++$i)hash('sha256',$string_1);
 for($i=NULL;$i<$runs;++$i){unset($array_1['j']); $array_1['j']=NULL;}for($i=NULL;$i<$runs;++$i)list($drink,$runsolor,$power)=$array_2;for($i=NULL;$i<$runs;++$i)urlencode($string_1);$string_1e=urlencode($string_1);for($i=NULL;$i<$runs;++$i)urldecode($string_1e);
 for($i=NULL;$i<$runs;++$i)addslashes($string_9);$string_9e=addslashes($string_9);for($i=NULL;$i<$runs;++$i)stripslashes($string_9e);$timer->stop('');echo'<br>PHP Benchmark   : Referenztime PHP 8.2.8 : 1.0 Sec.';
 echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).' : '.number_format($timer->totalTime,1).' Sec.<br></pre>';ob_start();if(function_exists(phpinfo())){phpinfo();$phpinfo=ob_get_contents();ob_end_clean();
@@ -10280,13 +10280,13 @@ function actionSaveUser(){global$errors;global$messages;$requiredFields=['name',
 	$db->queryInsert($columns,'admin');$db->queryInsert($columns,'_admin');$db->queryInsert($columns,'ws3_admin');return'printFinalPage';}
 function printFinalPage($messages){include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');?><div class='alert alert-success'><strong><?php echo$messages['final_success_alert'];?></strong></div>
 	<div class='alert'><strong><?php echo$messages['final_success_note'];?></strong></div><p><i class='icon-arrow-right'></i><a href='<?php echo$conf['context_root'];?>/admin'><?php echo$messages['final_link'];?></a></p><?php }
-function is__writable($path){if($path[strlen($path)-1]=='/')return is__writable($path.uniqid(mt_rand()).'.tmp');elseif(is_dir($path))return is__writable($path.'/'.uniqid(mt_rand()).'.tmp');$rm=file_exists($path);$f=@fopen($path,'a');if($f===false)return 		
+function is__writable($path){if($path[strlen($path)-1]=='/')return is__writable($path.uniqid(mt_rand()).'.tmp');elseif(is_dir($path))return is__writable($path.'/'.uniqid(mt_rand()).'.tmp');$rm=file_exists($path);$f=@fopen($path,'a');if($f===false)return
 	false;fclose($f);if(!$rm)unlink($path);return true;}
 function setAdminScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><form method=\'post\'>';foreach($supportedLanguages as$langId=>$langLabel){
 	echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/><input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}
 	echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"action\"value=\"actionSetLanguage\"></form>";}
 function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
-	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo(isset($_POST['db_host']))?$_POST['db_host']:'localhost';?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div><div 		
+	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo(isset($_POST['db_host']))?$_POST['db_host']:'localhost';?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div><div
 	class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo(isset($_POST['db_name']))?$_POST['db_name']:'';?>"></div></div>
 	<div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'required value="<?php echo(isset($_POST['db_user']))?$_POST['db_user']:'';?>"></div>
 	</div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label><div class='controls'>
