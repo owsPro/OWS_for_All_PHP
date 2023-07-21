@@ -1,34 +1,19 @@
 <?php
-/******************************************************************
-*
-* This file is part of OpenWebSoccer-Sim.
-*
-* OpenWebSoccer-Sim is free software: you can redistribute it
-* and/or modify it under the terms of the
-* GNU Lesser General Public License
-* as published by the Free Software Foundation,either version 3 of
-* the License,or any later version.
-*
-* OpenWebSoccer-Sim is distributed in the hope that it will be
-* useful,but WITHOUT ANY WARRANTY; without even the implied
-* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public
-* License along with OpenWebSoccer-Sim.
-* If not,see <http://www.gnu.org/licenses/>.
-*
-* Author: Ingo Hofmann
-* Base Version: OpenWebSoccer-Sim 5.2.4-Snapshot vom 21. Juni 2015
-*
-* This Version called "OpenWebsoccer Professional"
-* This is a general rewritten Version with many features too.
-* by Rolf Joseph / ErdemCan 2015 - 2018
-*
-* For comparison of the code look at the original at
-* https://github.com/ihofmann/open-websoccer
-******************************************************************/
-include($_SERVER['DOCUMENT_ROOT'].'/classes/WebSoccer.class.php');define('BASE_FOLDER',__DIR__ .'/..');define('PHP_MIN_VERSION','5.3.0');define('CONFIGFILE',BASE_FOLDER.'/generated/config.inc.php');session_start();
+/*This file is part of "OWS for All PHP" (Rolf Joseph)
+  https://github.com/owsPro/OWS_for_All_PHP/
+  A spinn-off for PHP Versions 5.4 to 8.2 from:
+  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
+
+  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
+
+  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
+
+*****************************************************************************/
+include($_SERVER['DOCUMENT_ROOT'].'/classes/WebSoccer.class.php');define('BASE_FOLDER',__DIR__ .'/..');define('PHP_MIN_VERSION','5.3.0');define('CONFIGFILE',BASE_FOLDER.'/generated/config.inc.php');ini_set('session.cookie_httponly',1);
+ini_set('session.use_only_cookies',1);
+ini_set('session.cookie_secure',1);session_start();
 $supportedLanguages=["de"=>"deutsch","en"=>"english","es"=>"español","pt"=>"português","dk"=>"dansk","ee"=>"eesti","fi"=>"suomalainen","fr"=>"français","id"=>"indonesia","it"=>"italiano","lv"=>"latvieši","lt"=>"lietuviškas","nl"=>"nederlands","pl"=>"polska",
 	"br"=>"brasil","ro"=>"rumenic","se"=>"svenskt","sk"=>"slovenské","si"=>"slovenski","cz"=>"Česky","tr"=>"TÜRKÇE","hu"=>"magyar","jp"=>"ジャパニーズ"];$setAdmin=1;global$setAdmin;$setAdmin='1';?>
 <!DOCTYPE html>

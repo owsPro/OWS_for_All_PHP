@@ -46,7 +46,11 @@ class Facebook extends BaseFacebook
    */
   public function __construct($config) {
     if (!session_id()) {
-      session_start();
+    	// secure cookies
+    	ini_set('session.cookie_httponly',1);
+		ini_set('session.use_only_cookies',1);
+		ini_set('session.cookie_secure',1);
+    	session_start();
     }
     parent::__construct($config);
     if (!empty($config['sharedSession'])) {

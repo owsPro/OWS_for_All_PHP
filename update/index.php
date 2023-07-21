@@ -1,29 +1,25 @@
 <?php
-/******************************************************
+/*This file is part of "OWS for All PHP" (Rolf Joseph)
+  https://github.com/owsPro/OWS_for_All_PHP/
+  A spinn-off for PHP Versions 5.4 to 8.2 from:
+  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
-HSE WebSoccer-Sim
+  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
 
-Copyright (c) 2013-2014 by
+  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
-Hofmann Software Engineering
-EMail: info@websoccer-sim.com
-Homepage: http://www.websoccer-sim.com
-
-THIS IS NOT FREEWARE! YOU NEED TO OBTAIN A
-VALID LICENCE IN ORDER TO BE ALLOWED TO USE
-THIS SOURCE CODE!
-
-DIES IST KEINE FREEWARE (KEINE KOSTENLOSE SOFTWARE).
-SIE MUESSEN EINE KORREKTE LIZENZ BESITZEN, UM DIESEN
-PROGRAMMCODE BENUTZEN ZU DUERFEN!
-
-******************************************************/
+*****************************************************************************/
 error_reporting(E_ALL);
 define("WRITABLE_FOLDERS", "generated/");
 define("DEFAULT_DB_PREFIX", "ws3");
 define("CONFIGFILE",$_SERVER['DOCUMENT_ROOT']. "/generated/config.inc.php");
 define("CONFIGFILE_OLD",$_SERVER['DOCUMENT_ROOT']. "/admin/config/config.inc.php");
 define("DDL_FILE", "update_ddl.sql");
+ini_set('session.cookie_httponly',1);
+ini_set('session.use_only_cookies',1);
+ini_set('session.cookie_secure',1);
 session_start();
 $supportedLanguages = array("de" => "Deutsch", "en" => "English");
 

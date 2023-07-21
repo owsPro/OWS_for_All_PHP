@@ -124,9 +124,12 @@ session_set_save_handler(
 	array($handler, 'gc')
 );
 
-// the following prevents unexpected effects when using objects as save handlers
-// see http://php.net/manual/en/function.session-set-save-handler.php
+
 register_shutdown_function('session_write_close');
+
+ini_set('session.cookie_httponly',1);
+ini_set('session.use_only_cookies',1);
+ini_set('session.cookie_secure',1);
 session_start();
 
 // always set time zone in order to prevent PHP warnings

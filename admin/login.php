@@ -44,8 +44,9 @@ if ($inputUser or $inputPassword) {
 			$admin = $result->fetch_array();
 			$hashedPw = SecurityUtil::hashPassword($inputPassword, $admin['passwort_salt']);
 			if ($admin['passwort'] == $hashedPw || $admin['passwort_neu'] == $hashedPw) {
-				//- owsPro - Error: session_regenerate_id(): Cannot regenerate session id - session is not active at PHP 8 prevent with session_start();
-				//- session_regenerate_id();
+				ini_set('session.cookie_httponly',1);
+				ini_set('session.use_only_cookies',1);
+				ini_set('session.cookie_secure',1);
 				session_start();
 				$_SESSION['valid'] = 1;
 				$_SESSION['userid'] = $admin['id'];
