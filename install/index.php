@@ -37,7 +37,7 @@ $supportedLanguages=["de"=>"deutsch","en"=>"english","es"=>"español","pt"=>"por
 		<div class="container">
 			<h1>owsPro Installation</h1>
 			<hr>
-			<?php if(file_exists(CONFIGFILE)){echo '<b>There is already a configuration. Please delete or rename the config.inc.php file in the "generated" directory.';exit();}
+			<?php
 				$errors=[];
 				$messagesIncluded=FALSE;
 				if(isset($_SESSION["lang"])){
