@@ -194,7 +194,7 @@ $positions = array('T','LV','IV', 'RV', 'LM', 'DM', 'ZM', 'OM', 'RM', 'LS', 'MS'
 echo "<form action=\"". escapeOutput($_SERVER['PHP_SELF']) . "\" class=\"form-horizontal\" method=\"post\">";
 echo "<input type=\"hidden\" name=\"action\" value=\"create\">";
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\">";
-echo "<input type=\"hidden\" name=\"match\" value=\"$matchId\">";
+echo "<input type=\"hidden\" name=\"match\" value=\"escapeOutput($matchId)\">";
 
 echo "<fieldset><legend>". $i18n->getMessage("match_manage_createplayer_title") ."</legend>";
 
@@ -202,8 +202,8 @@ echo "<div class=\"control-group\">";
 echo "<label class=\"control-label\" for=\"team_id\">". $i18n->getMessage("entity_player_verein_id") . "</label>";
 echo "<div class=\"controls\">";
 echo "<select name=\"team_id\" id=\"team_id\">";
-echo "<option value=\"". $match["match_home_id"] . "\">". escapeOutput($match["match_home_name"]) . "</option>";
-echo "<option value=\"". $match["match_guest_id"] . "\">". escapeOutput($match["match_guest_name"]) . "</option>";
+echo "<option value=\"". escapeOutput($match["match_home_id"]) . "\">". escapeOutput($match["match_home_name"]) . "</option>";
+echo "<option value=\"". escapeOutput($match["match_guest_id"]) . "\">". escapeOutput($match["match_guest_name"]) . "</option>";
 echo "</select>";
 echo "</div>";
 echo "</div>";
@@ -218,7 +218,7 @@ echo "<label class=\"control-label\" for=\"position\">". $i18n->getMessage("enti
 echo "<div class=\"controls\">";
 echo "<select name=\"position\" id=\"position\">";
 foreach ($positions as $position) {
-	echo "<option value=\"". $position . "\">". $i18n->getMessage("option_" . $position). "</option>";
+	echo "<option value=\"". $position . "\">".Message("option_" . escapeOutput($position)). "</option>";
 }
 echo "</select>";
 echo "</div>";
@@ -232,21 +232,21 @@ echo "</div></form>";
 
 // ******** list players and enable editing
 
-echo "<form action=\"". $_SERVER['PHP_SELF'] . "\" method=\"post\">";
+echo "<form action=\"". escapeOutput($_SERVER['PHP_SELF']) . "\" method=\"post\">";
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\"/>";
 echo "<input type=\"hidden\" name=\"action\" value=\"update\"/>";
-echo "<input type=\"hidden\" name=\"match\" value=\"$matchId\"/>";
+echo "<input type=\"hidden\" name=\"match\" value=\"escapeOutput($matchId)\"/>";
 
 foreach ($teamPrefixes as $teamPrefix) {
-	echo "<h2><a href=\"". $website->getInternalUrl("team", "id=" . $match["match_". $teamPrefix . "_id"]) . "\" target=\"_blank\">". escapeOutput($match["match_". $teamPrefix . "_name"]) . "</a></h2>";
+	echo "<h2><a href=\"". $website->getInternalUrl("team", "id=" . escapeOutput($match["match_"). $teamPrefix . "_id"]) . "\" target=\"_blank\">". escapeOutput($match["match_". $teamPrefix . "_name"]) . "</a></h2>";
 
 	// tactic
 	echo "<div class=\"form-horizontal\">";
-	echo FormBuilder::createFormGroup($i18n, $teamPrefix . "_offensive", array("type" => "number",
+	echo escapeOutput(FormBuilder::createFormGroup($i18n, $teamPrefix) . "_offensive", array("type" => "number",
 			"value" => $match["match_". $teamPrefix . "_offensive"]), $match["match_". $teamPrefix . "_offensive"], "formation_");
-	echo FormBuilder::createFormGroup($i18n, $teamPrefix . "_longpasses", array("type" => "boolean",
+	echo escapeOutput(FormBuilder::createFormGroup($i18n, $teamPrefix) . "_longpasses", array("type" => "boolean",
 			"value" => $match["match_". $teamPrefix . "_longpasses"]), $match["match_". $teamPrefix . "_longpasses"], "formation_");
-	echo FormBuilder::createFormGroup($i18n, $teamPrefix . "_counterattacks", array("type" => "boolean",
+	echo escapeOutput(FormBuilder::createFormGroup($i18n, $teamPrefix) . "_counterattacks", array("type" => "boolean",
 			"value" => $match["match_". $teamPrefix . "_counterattacks"]), $match["match_". $teamPrefix . "_counterattacks"], "formation_");
 	echo "</div>";
 
@@ -266,7 +266,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 		$formationCount = $fresult->fetch_array();
 		$fresult->free();
 		if ($formationCount && $formationCount["hits"]) {
-			echo "<p><a href=\"?site=$site&match=$matchId&team=$teamPrefix&action=generate\" class=\"btn\"><i class=\"icon-hand-right\"></i> ". $i18n->getMessage("match_manage_playerstatistics_createfromfrmation") . "</a></p>";
+			echo "<p><a href=\"?site=$site&match=escapeOutput($matchId&team)=$teamPrefix&action=generate\" class=\"btn\"><i class=\"icon-hand-right\"></i> ". Message("match_manage_playerstatistics_createfromfrmation") . "</a></p>";
 		} else {
 			echo "<p><i class=\"icon-warning-sign\"></i> ". $i18n->getMessage("match_manage_playerstatistics_noformationavailable") . "</p>";
 		}
@@ -298,16 +298,16 @@ foreach ($teamPrefixes as $teamPrefix) {
 			echo "<tr>";
 
 			echo "<td>";
-			echo "<select name=\"" . $fieldPrefix . "_pos\" class=\"input-medium\">";
+			echo "<select name=\"" . escapeOutput($fieldPrefix) . "_pos\" class=\"input-medium\">";
 
 			// position
 			foreach ($positions as $position) {
-				echo "<option value=\"". $position . "\"";
+				echo "<option value=\"". escapeOutput($position) . "\"";
 				if ($position == $player["position_main"]) echo " selected";
-				echo ">". $i18n->getMessage("option_" . $position). "</option>";
+				echo ">". $i18n->getMessage("option_" . escapeOutput($position)). "</option>";
 			}
 			echo "</select><br/>";
-			echo "<select name=\"" . $fieldPrefix . "_feld\" class=\"input-medium\">";
+			echo "<select name=\"" . escapeOutput($fieldPrefix) . "_feld\" class=\"input-medium\">";
 			echo "<option value=\"1\"";
 			if ($player["feld"] === "1") echo " selected";
 			echo ">". $i18n->getMessage("match_manage_position_field_1") . "</option>";
@@ -322,13 +322,13 @@ foreach ($teamPrefixes as $teamPrefix) {
 			echo "</select></td>";
 
 			// name
-			echo "<td>". $player["name"];
+			echo "<td>". escapeOutput(escapeOutput($player["name"]));
 			echo " <a href=\"?site=$site&action=delete&match=$matchId&player=". $player["spieler_id"] . "\" title=\"". $i18n->getMessage("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a>";
 			echo "</td>";
 
 			// statistics
 			foreach ($formFields as $formField) {
-				echo "<td><input type=\"text\" class=\"input-mini\" name=\"". $fieldPrefix . "_". $formField . "\" title=\"". $i18n->getMessage("match_manage_" . $formField) . "\" value=\"". $player[$formField] . "\"/></td>";
+				echo "<td><input type=\"text\" class=\"input-mini\" name=\"". escapeOutput($fieldPrefix) . "_". $formField . "\" title=\"". $i18n->getMessage("match_manage_" . $formField) . "\" value=\"". $player[$formField] . "\"/></td>";
 			}
 
 			echo "</tr>";
@@ -336,7 +336,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 
 		echo "</tbody>";
 		echo "</table>";
-		echo "<input type=\"hidden\" name=\"". $teamPrefix . "_players\" value=\"". implode(";", $playerIds) . "\"/>";
+		echo "<input type=\"hidden\" name=\"". escapeOutput($teamPrefix) . "_players\" value=\"". implode(";", $playerIds) . "\"/>";
 
 		// substitutions
 		echo "<h4>". $i18n->getMessage("match_manage_substitutions") . "</h4>";
@@ -356,7 +356,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 					echo "<tr>";
 
 					// out
-					echo "<td><select name=\"". $teamPrefix . "_sub" . $subNo . "_out\"><option> </option>";
+					echo "<td><select name=\"". escapeOutput($teamPrefix) . "_sub" . $subNo . "_out\"><option> </option>";
 					foreach ($players as $playerId => $playerName) {
 						echo "<option value=\"". $playerId . "\"";
 						if ($match["match_". $teamPrefix . "_sub" . $subNo . "_out"] == $playerId) echo " selected";
@@ -365,7 +365,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 					echo "</select></td>";
 
 					// in
-					echo "<td><select name=\"". $teamPrefix . "_sub" . $subNo . "_in\"><option> </option>";
+					echo "<td><select name=\"". escapeOutput($teamPrefix) . "_sub" . $subNo . "_in\"><option> </option>";
 					foreach ($players as $playerId => $playerName) {
 						echo "<option value=\"". $playerId . "\"";
 						if ($match["match_". $teamPrefix . "_sub" . $subNo . "_in"] == $playerId) echo " selected";
@@ -374,7 +374,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 					echo "</select></td>";
 
 					// condition
-					echo "<td><select name=\"". $teamPrefix . "_sub" . $subNo . "_condition\"><option> </option>";
+					echo "<td><select name=\"". escapeOutput($teamPrefix) . "_sub" . $subNo . "_condition\"><option> </option>";
 
 					echo "<option value=\"Tie\"";
 					if ($match["match_". $teamPrefix . "_sub" . $subNo . "_condition"] == "Tie") echo " selected";
@@ -391,7 +391,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 					echo "</td>";
 
 					// minute
-					echo "<td><input class=\"input-mini\" type=\"number\" name=\"". $teamPrefix . "_sub" . $subNo . "_minute\" value=\"". $match["match_". $teamPrefix . "_sub" . $subNo . "_minute"] . "\"/></td>";
+					echo "<td><input class=\"input-mini\" type=\"number\" name=\"". escapeOutput($teamPrefix) . "_sub" . $subNo . "_minute\" value=\"". $match["match_". escapeOutput($teamPrefix) . "_sub" . $subNo . "_minute"] . "\"/></td>";
 
 					echo "</tr>";
 				}

@@ -106,7 +106,7 @@ if (!$show) {
 		} else {
 
 			?>
-			<form action='<?php echo $_SERVER['PHP_SELF']; ?>' method='post' class='form-horizontal' id='frmMain' name='frmMain'>
+			<form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal' id='frmMain' name='frmMain'>
 				<input type='hidden' name='site' value='<?php echo $site; ?>'>
 				<input type='hidden' name='show' value='selectoptions'>
 				<table class='table table-striped table-hover'>
@@ -157,7 +157,7 @@ elseif ($show == 'selectoptions') {
 	} else {
 ?>
 
-  <form action='<?php echo $_SERVER['PHP_SELF']; ?>' method='post' class='form-horizontal'>
+  <form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal'>
 	<input type='hidden' name='site' value='<?php echo $site; ?>'>
 	<input type='hidden' name='show' value='dismiss'>
 	<input type='hidden' name='teamids' value='<?php echo implode(',', $_POST['selectedteams']) ?>'>

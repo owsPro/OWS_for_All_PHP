@@ -78,12 +78,12 @@ if ($action == "complete") {
 	$observer = new DataUpdateSimulatorObserver($website, $db);
 	$observer->onMatchCompleted($matchModel);
 	echo createSuccessMessage(Message("match_manage_complete_success"), "");}
-echo"<h3><a href=\"".escapeoutput($website->getInternalUrl("team","id=".$match["match_home_id"]))."\" target=\"_blank\">". escapeOutput($match["match_home_name"]) . "</a> - <a href=\"". $website->getInternalUrl("team", "id=" . $match["match_guest_id"]) . "\" target=\"_blank\">". escapeOutput($match["match_guest_name"]) . "</a></h3>";
+echo"<h3><a href=\"".$website->getInternalUrl("team","id=".escapeOutput($match["match_home_id"]))."\" target=\"_blank\">". escapeOutput($match["match_home_name"]) . "</a> - <a href=\"". $website->getInternalUrl("team", "id=" . escapeOutput($match["match_guest_id"])) . "\" target=\"_blank\">". escapeOutput($match["match_guest_name"]) . "</a></h3>";
 echo"<div class=\"well\">".Message("match_manage_complete_intro") . "</div>";
 echo"<form action=\"". escapeOutput($_SERVER['PHP_SELF']) . "\" method=\"post\" class=\"form-horizontal\">";
 echo"<input type=\"hidden\" name=\"site\" value=\"$site\"/>";
 echo"<input type=\"hidden\" name=\"action\" value=\"complete\"/>";
-echo"<input type=\"hidden\" name=\"match\" value=\"$matchId\"/>";
+echo"<input type=\"hidden\" name=\"match\" value=\"escapeOutput($matchId)\"/>";
 echoFormBuilder::createFormGroup($i18n,'computetickets',array('type'=>'boolean','value'=>'1'),'1','match_manage_complete_');
 echo"<div class=\"form-actions\">";
 echo"<button type=\"submit\" class=\"btn btn-primary\">".Message("match_manage_complete_button") . "</button>";

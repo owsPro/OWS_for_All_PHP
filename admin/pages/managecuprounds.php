@@ -242,8 +242,8 @@ function renderRound($roundNode) {
 		?>
 		<div class="control-group">
 			<div class="controls">
-				<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("button_save"); ?>">
-				<a href="<?php echo "?site=" . $site . "&cup=" . $cupid; ?>" class="btn"><?php echo $i18n->getMessage("button_cancel"); ?></a>
+				<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("button_save"); ?>">
+				<a href="<?php echo "?site=" . escapeOutput($site) . "&cup=" . $cupid; ?>" class="btn"><?php echo $i18n->getMessage("button_cancel"); ?></a>
 			</div>
 		</div>
 	  </form>
@@ -261,8 +261,8 @@ function renderRound($roundNode) {
 		}
 		echo "</strong>";
 
-		echo " <a href=\"?site=". $site . "&cup=". $cupid . "&action=edit&id=". $roundNode["round"]["id"] . "\" title=\"". $i18n->getMessage("manage_edit") . "\"><i class=\"icon-pencil\"></i></a>";
-		echo " <a class=\"deleteLink\" href=\"?site=". $site . "&cup=". $cupid . "&action=delete&id=". $roundNode["round"]["id"] . "\" title=\"". $i18n->getMessage("manage_delete") . "\"><i class=\"icon-trash\"></i></a>";
+		echo " <a href=\"?site=". escapeOutput($site) . "&cup=". $cupid . "&action=edit&id=". $roundNode["round"]["id"] . "\" title=\"". $i18n->getMessage("manage_edit") . "\"><i class=\"icon-pencil\"></i></a>";
+		echo " <a class=\"deleteLink\" href=\"?site=". escapeOutput($site) . "&cup=". $cupid . "&action=delete&id=". $roundNode["round"]["id"] . "\" title=\"". $i18n->getMessage("manage_delete") . "\"><i class=\"icon-trash\"></i></a>";
 
 		echo "</p>";
 		echo "<ul>";
@@ -311,7 +311,7 @@ function renderRound($roundNode) {
 
 // Create new round
 ?>
-  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-horizontal">
+  <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="action" value="create">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
 	<input type="hidden" name="cup" value="<?php echo $cupid; ?>">

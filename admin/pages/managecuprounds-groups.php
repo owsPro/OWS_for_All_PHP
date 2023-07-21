@@ -293,7 +293,7 @@ if (count($groups)) {
 			echo "</ul>\n";
 
 			?>
-			<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="form-inline">
+			<form method="post" action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" class="form-inline">
 				<input type="hidden" name="action" value="addteam">
 				<input type="hidden" name="site" value="<?php echo $site; ?>">
 				<input type="hidden" name="round" value="<?php echo $roundid; ?>">
@@ -311,7 +311,7 @@ if (count($groups)) {
 			echo "<td>";
 
 			?>
-			<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="form-inline">
+			<form method="post" action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" class="form-inline">
 				<input type="hidden" name="action" value="saveranks">
 				<input type="hidden" name="site" value="<?php echo $site; ?>">
 				<input type="hidden" name="round" value="<?php echo $roundid; ?>">
@@ -439,7 +439,7 @@ if (count($groups)) {
 		<p><a href="#generateModal" role="button" class="btn" data-toggle="modal"><?php echo $i18n->getMessage("managecuprounds_groups_open_generate_matches_popup"); ?></a></p>
 	</div>
 
-	<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-horizontal">
+	<form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
 	    <input type="hidden" name="action" value="generateschedule">
 		<input type="hidden" name="site" value="<?php echo $site; ?>">
 		<input type="hidden" name="round" value="<?php echo $roundid; ?>">
@@ -471,7 +471,7 @@ if (count($groups)) {
 // Create form
 ?>
 
-  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-horizontal">
+  <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="action" value="create">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
 	<input type="hidden" name="round" value="<?php echo $roundid; ?>">

@@ -54,7 +54,7 @@ elseif ($show == 'select') {
 	$result->free();?>
 	<form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal'>
 	<input type='hidden' name='show' value='complete'>
-	<input type='hidden' name='id' value='<?php echo $id; ?>'>
+	<input type='hidden' name='id' value='<?php echo escapeOutput($id); ?>'>
 	<input type='hidden' name='site' value='<?php echo $site; ?>'>
 	<fieldset>
 	<legend><?php echo escapeOutput($season['name']); ?></legend><?php

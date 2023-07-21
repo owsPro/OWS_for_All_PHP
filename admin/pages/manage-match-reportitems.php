@@ -41,14 +41,14 @@ elseif ($action == "create") {
 echo "<form action=\"". escapeOutput($_SERVER['PHP_SELF']) . "\" class=\"form-horizontal\" method=\"post\">";
 echo "<input type=\"hidden\" name=\"action\" value=\"create\">";
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\">";
-echo "<input type=\"hidden\" name=\"match\" value=\"$matchId\">";
+echo "<input type=\"hidden\" name=\"match\" value=\"escapeOutput($matchId)\">";
 echo "<fieldset><legend>". $i18n->getMessage("match_manage_createmessage_title") ."</legend>";
 echo "<div class=\"control-group\">";
 echo "<label class=\"control-label\" for=\"team_id\">". $i18n->getMessage("entity_player_verein_id") . "</label>";
 echo "<div class=\"controls\">";
 echo "<select name=\"team_id\" id=\"team_id\">";
-echo "<option value=\"". $match["match_home_id"] . "\">". escapeOutput($match["match_home_name"]) . "</option>";
-echo "<option value=\"". $match["match_guest_id"] . "\">". escapeOutput($match["match_guest_name"]) . "</option>";
+echo "<option value=\"". escapeOutput($match["match_home_id"]) . "\">". escapeOutput($match["match_home_name"]) . "</option>";
+echo "<option value=\"". escapeOutput($match["match_guest_id"]) . "\">". escapeOutput($match["match_guest_name"]) . "</option>";
 echo "</select>";
 echo "</div>";
 echo "</div>";
@@ -83,11 +83,11 @@ else {
 		if ($reportItem["active_home"])echo $homeTeam;
 		else echo $guestTeam;
 		echo "</small><br>";
-		echo $i18n->getMessage("option_" . $reportItem["type"]);
+		echo Message("option_" . escapeOutput($reportItem["type"]));
 		echo "</td>";
-		echo "<td>". $reportItem["message"] . "</td>";
-		echo "<td>". $reportItem["playerNames"] . "</td>";
-		echo "<td>". $reportItem["goals"] . "</td>";
+		echo "<td>". escapeOutput($reportItem["message"]) . "</td>";
+		echo "<td>". escapeOutput($reportItem["playerNames"]) . "</td>";
+		echo "<td>". escapeOutput($reportItem["goals"]) . "</td>";
 		echo "</tr>";}
 	echo "</tbody>";
 	echo "</table>";}
