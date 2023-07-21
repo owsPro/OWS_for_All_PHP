@@ -47,7 +47,7 @@ if (!$show) {
 
   <h1><?php echo $mainTitle; ?></h1>
 
-  <form action='<?php echo $_SERVER['PHP_SELF']; ?>' method='post' class='form-horizontal'>
+  <form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal'>
     <input type='hidden' name='show' value='speichern'>
 	<input type='hidden' name='site' value='<?php echo $site; ?>'>
 

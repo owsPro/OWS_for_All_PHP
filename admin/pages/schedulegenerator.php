@@ -37,7 +37,7 @@ if (!$show) {
 
   ?>
 
-  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-horizontal">
+  <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="show" value="generate">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
 

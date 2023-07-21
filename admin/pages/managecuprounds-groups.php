@@ -268,7 +268,7 @@ if (count($groups)) {
 			if ($showEditForm && $_REQUEST["group"] == $groupName) {
 				$nameValue = (isset($_REQUEST["groupname"])) ? $_REQUEST["groupname"] : $groupName;
 				?>
-				<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="form-inline">
+				<form method="post" action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" class="form-inline">
 					<input type="hidden" name="action" value="editsave">
 					<input type="hidden" name="site" value="<?php echo $site; ?>">
 					<input type="hidden" name="round" value="<?php echo $roundid; ?>">

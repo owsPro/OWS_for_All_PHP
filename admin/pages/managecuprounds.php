@@ -218,7 +218,7 @@ function renderRound($roundNode) {
 	if($showEditForm) {
 		?>
 
-		  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-horizontal">
+		  <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
 	    <input type="hidden" name="action" value="edit-save">
 		<input type="hidden" name="site" value="<?php echo $site; ?>">
 		<input type="hidden" name="cup" value="<?php echo $cupid; ?>">

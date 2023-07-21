@@ -3,19 +3,19 @@
 
   This file is part of OpenWebSoccer-Sim.
 
-  OpenWebSoccer-Sim is free software: you can redistribute it 
-  and/or modify it under the terms of the 
-  GNU Lesser General Public License 
+  OpenWebSoccer-Sim is free software: you can redistribute it
+  and/or modify it under the terms of the
+  GNU Lesser General Public License
   as published by the Free Software Foundation, either version 3 of
   the License, or any later version.
 
   OpenWebSoccer-Sim is distributed in the hope that it will be
   useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the GNU Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public 
-  License along with OpenWebSoccer-Sim.  
+  You should have received a copy of the GNU Lesser General Public
+  License along with OpenWebSoccer-Sim.
   If not, see <http://www.gnu.org/licenses/>.
 
 ******************************************************/
@@ -33,33 +33,33 @@ if (!$show) {
   <h1><?php echo $mainTitle; ?></h1>
 
   <p><?php echo escapeOutput($i18n->getMessage('imprint_introduction')); ?></p>
-  
-  <form action='<?php echo $_SERVER['PHP_SELF']; ?>' method='post' class='form-horizontal'>
+
+  <form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal'>
     <input type='hidden' name='show' value='save'>
 	<input type='hidden' name='site' value='<?php echo $site; ?>'>
-	
+
 	<fieldset>
-	<?php 
+	<?php
 	$formFields = array();
-	
+
 	$filecontent = '';
 	if (file_exists(IMPRINT_FILE)) {
 		$filecontent = file_get_contents(IMPRINT_FILE);
 	}
-	
+
 	$formFields['content'] = array('type' => 'html', 'value' => $filecontent, 'required' => 'true');
 	foreach ($formFields as $fieldId => $fieldInfo) {
 		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], 'imprint_label_');
-	}	
+	}
 	?>
 	</fieldset>
 	<div class='form-actions'>
-		<input type='submit' class='btn btn-primary' accesskey='s' title='Alt + s' value='<?php echo $i18n->getMessage('button_save'); ?>'> 
+		<input type='submit' class='btn btn-primary' accesskey='s' title='Alt + s' value='<?php echo $i18n->getMessage('button_save'); ?>'>
 		<input type='reset' class='btn' value='<?php echo $i18n->getMessage('button_reset'); ?>'>
-	</div>    
+	</div>
   </form>
 
-  
+
   <?php
 
 }
@@ -81,7 +81,7 @@ elseif ($show == 'save') {
     $fw = new FileWriter(IMPRINT_FILE);
     $fw->writeLine(stripslashes($_POST['content']));
     $fw->close();
-    
+
 	echo createSuccessMessage($i18n->getMessage('alert_save_success'), '');
 
       echo '<p>&raquo; <a href=\'?site='. $site .'\'>'. $i18n->getMessage('back_label') . '</a></p>';

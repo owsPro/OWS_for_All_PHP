@@ -21,7 +21,7 @@
 ******************************************************/
 echo "<h1>".  $i18n->getMessage("match_manage_reportitems") . "</h1>";
 if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin["r_spiele"])throw new Exception($i18n->getMessage("error_access_denied"));
-echo "<p><a href=\"?site=manage&entity=match\" class=\"btn\">". $i18n->getMessage("back_label") . "</a></p>";
+echo "<p><a href=\"?site=manage&entity=match\"class=\"btn\">".Message("back_label")."</a></p>";
 $matchId = (isset($_REQUEST["match"]) && is_numeric($_REQUEST["match"])) ? $_REQUEST["match"] : 0;
 $match = MatchesDataService::getMatchById($website, $db, $matchId, FALSE, FALSE);
 if (!count($match))throw new Exception("illegal match id");
@@ -38,7 +38,7 @@ elseif ($action == "create") {
 	$playerNames = $_POST["playernames"];
 	$goals = $_POST["intermediateresult"];
 	if ($message_id && $minute){$db->queryInsert(array("match_id" => $matchId,"message_id" => $message_id,"active_home" => $homeActive,"minute" => $minute,"goals" => $goals,"playernames" => $playerNames),Config("db_prefix") . "_matchreport");}}
-echo "<form action=\"". $_SERVER['PHP_SELF'] . "\" class=\"form-horizontal\" method=\"post\">";
+echo "<form action=\"". escapeOutput($_SERVER['PHP_SELF']) . "\" class=\"form-horizontal\" method=\"post\">";
 echo "<input type=\"hidden\" name=\"action\" value=\"create\">";
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\">";
 echo "<input type=\"hidden\" name=\"match\" value=\"$matchId\">";

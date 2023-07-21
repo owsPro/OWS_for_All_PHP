@@ -26,7 +26,7 @@ if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin["r_spiele"]) {
 	throw new Exception($i18n->getMessage("error_access_denied"));
 }
 
-echo "<p><a href=\"?site=manage&entity=match\" class=\"btn\">". $i18n->getMessage("back_label") . "</a></p>";
+echo "<p><a href=\"?site=manage&entity=match\" class=\"btn\">".Message("back_label") . "</a></p>";
 
 $matchId = (isset($_REQUEST["match"]) && is_numeric($_REQUEST["match"])) ? $_REQUEST["match"] : 0;
 
@@ -191,7 +191,7 @@ if (!count($match)) {
 $positions = array('T','LV','IV', 'RV', 'LM', 'DM', 'ZM', 'OM', 'RM', 'LS', 'MS', 'RS');
 
 // ******** form for adding players
-echo "<form action=\"". $_SERVER['PHP_SELF'] . "\" class=\"form-horizontal\" method=\"post\">";
+echo "<form action=\"". escapeOutput($_SERVER['PHP_SELF']) . "\" class=\"form-horizontal\" method=\"post\">";
 echo "<input type=\"hidden\" name=\"action\" value=\"create\">";
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\">";
 echo "<input type=\"hidden\" name=\"match\" value=\"$matchId\">";
