@@ -11,5 +11,5 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-DirectTransfersDataService::executeTransferFromOffer($website,$db,$website->getRequestParameter('id'));$db->queryUpdate(array('admin_approval_pending'=>'0'),Config('db_prefix').'_transfer_offer','id=%d',$website->getRequestParameter('id'));
-echo createSuccessMessage($i18n->getMessage('transferoffer_approval_success'),'');
+	DirectTransfersDataService::executeTransferFromOffer($website,$db,$website->getRequestParameter('id'));$db->queryUpdate(array('admin_approval_pending'=>'0'),Config('db_prefix').'_transfer_offer','id=%d',$website->getRequestParameter('id'));
+	echo createSuccessMessage(Message('transferoffer_approval_success'),'');

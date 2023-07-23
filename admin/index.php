@@ -26,7 +26,7 @@ foreach ($adminpage as $pageId => $pageData) {
 		continue;
 	}
 	if (isset($pageInfo['entity']) && $pageInfo['entity']) {
-		$siteInfo['label'] = $i18n->getMessage('entity_' . $pageInfo['entity']);
+		$siteInfo['label'] =Message('entity_' . $pageInfo['entity']);
 		$siteInfo['pageid'] = 'manage';
 		$siteInfo['entity'] = $pageInfo['entity'];
 	} else {
@@ -51,7 +51,7 @@ if(isset($_GET['DBSave']))DBSave();?><a href='index.php?DBSave=true'><pre>	DBSav
 <!DOCTYPE html>
 <html lang="<?php echo $i18n->getCurrentLanguage(); ?>">
   <head>
-    <title><?php echo $i18n->getMessage("main_title")?></title>
+    <title><?php echo Message("main_title")?></title>
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="bootstrap-datepicker/css/datepicker.css" rel="stylesheet">
     <link href="bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" >
@@ -87,18 +87,18 @@ if(isset($_GET['DBSave']))DBSave();?><a href='index.php?DBSave=true'><pre>	DBSav
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="index.php" title="<?php echo $i18n->getMessage("admincenter_homelink_tooltip"); ?>"><?php echo $i18n->getMessage("admincenter_brand") ?></a>
+          <a class="brand" href="index.php" title="<?php echo Message("admincenter_homelink_tooltip"); ?>"><?php echo Message("admincenter_brand") ?></a>
           <div class="nav-collapse collapse">
             <p class="navbar-text pull-right">
-              <?php echo $i18n->getMessage("admincenter_loggedin_as"); ?> <a href="?site=profile" class="navbar-link" title="<?php echo $i18n->getMessage("admincenter_editprofile_tooltip"); ?>"><?php echo escapeOutput($admin['name']); ?></a> (<a href="logout.php" class="navbar-link"><?php echo $i18n->getMessage("admincenter_logout"); ?></a>)
+              <?php echo Message("admincenter_loggedin_as"); ?> <a href="?site=profile" class="navbar-link" title="<?php echo Message("admincenter_editprofile_tooltip"); ?>"><?php echo escapeOutput($admin['name']); ?></a> (<a href="logout.php" class="navbar-link"><?php echo Message("admincenter_logout"); ?></a>)
             </p>
             <ul class="nav">
               <li><a href="<?php
               $contextRoot=Config("context_root");
-              echo  (strlen($contextRoot)) ? $contextRoot : "/"; ?>"><i class="icon-globe icon-white"></i> <?php echo $i18n->getMessage("admincenter_link_website"); ?></a></li>
-			  <li><a href="?site=profile"><i class="icon-user icon-white"></i> <?php echo $i18n->getMessage("admincenter_link_profile"); ?></a></li>
-			  <li><a href="?site=clearcache"><i class="icon-refresh icon-white"></i> <?php echo $i18n->getMessage("admincenter_link_clear_cache"); ?></a></li>
-			  <li><a href="logout.php"><i class="icon-off icon-white"></i> <?php echo $i18n->getMessage("admincenter_logout"); ?></a></li>
+              echo  (strlen($contextRoot)) ? $contextRoot : "/"; ?>"><i class="icon-globe icon-white"></i> <?php echo Message("admincenter_link_website"); ?></a></li>
+			  <li><a href="?site=profile"><i class="icon-user icon-white"></i> <?php echo Message("admincenter_link_profile"); ?></a></li>
+			  <li><a href="?site=clearcache"><i class="icon-refresh icon-white"></i> <?php echo Message("admincenter_link_clear_cache"); ?></a></li>
+			  <li><a href="logout.php"><i class="icon-off icon-white"></i> <?php echo Message("admincenter_logout"); ?></a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
@@ -134,10 +134,10 @@ if (preg_match('#^[a-z0-9_-]+$#i', $site) && file_exists($includeFile) ) {
 	try {
 		include( $includeFile );
 	} catch(Exception $e) {
-		echo createErrorMessage($i18n->getMessage('alert_error_title'), $e->getMessage());
+		echo createErrorMessage(Message('alert_error_title'), $e->getMessage());
 	}
 } else {
-	echo createErrorMessage($i18n->getMessage('alert_error_title'), $i18n->getMessage('error_page_not_found'));
+	echo createErrorMessage(Message('alert_error_title'),Message('error_page_not_found'));
 }
 ?>
         </div>
@@ -165,12 +165,12 @@ if (preg_match('#^[a-z0-9_-]+$#i', $site) && file_exists($includeFile) ) {
 	<script src="js/bootstrap-tag.js"></script>
 	<script>
 	$(function(){$(document).on("click", ".deleteBtn", function(e) {
-			bootbox.confirm("<?php echo $i18n->getMessage("manage_delete_multiselect_confirm"); ?>","<?php echo $i18n->getMessage("option_no"); ?>","<?php echo $i18n->getMessage("option_yes"); ?>",
+			bootbox.confirm("<?php echo Message("manage_delete_multiselect_confirm"); ?>","<?php echo Message("option_no"); ?>","<?php echo Message("option_yes"); ?>",
 			function(result){if(result){document.frmMain.submit();}});});
 		$(document).on("click", ".deleteLink", function(e) {e.preventDefault();
 			var link = $(this);
-			bootbox.confirm("<?php echo $i18n->getMessage("manage_delete_link_confirm"); ?>",
-					"<?php echo $i18n->getMessage("option_no"); ?>","<?php echo $i18n->getMessage("option_yes"); ?>",
+			bootbox.confirm("<?php echo Message("manage_delete_link_confirm"); ?>",
+					"<?php echo Message("option_no"); ?>","<?php echo Message("option_yes"); ?>",
 			function(result){if(result)window.location = link.attr("href");}});});
 		$(".datepicker").datepicker({
 			format: "<?php echo str_replace("Y", "yyyy",Config("date_format")); ?>",

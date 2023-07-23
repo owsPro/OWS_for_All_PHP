@@ -11,21 +11,7 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-require($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');
-include(CONFIGCACHE_FILE_FRONTEND);
-//+ owsPro - Include basic configuration and settings, which is supplemented or overwritten by include(CONFIGCACHE_FILE_FRONTEND);.
-include($_SERVER['DOCUMENT_ROOT'].'/generated/settingsconfig.php');
-$authenticatorClasses=explode(',',$website->getConfig('authentication_mechanism'));
-foreach($authenticatorClasses as$authenticatorClass){
-	$authenticatorClass=trim($authenticatorClass);
-	if(!class_exists($authenticatorClass))throw new Exception('Class not found: '.$authenticatorClass);
-	$authenticator=new $authenticatorClass($website);
-	$authenticator->verifyAndUpdateCurrentUser($website->getUser());}
-$i18n=I18n::getInstance($website->getConfig('supported_languages'));
-if($website->getUser()->language!=null){
-	try{$i18n->setCurrentLanguage($website->getUser()->language);}
-	catch(Exception$e){}}
-include(sprintf(CONFIGCACHE_MESSAGES,$i18n->getCurrentLanguage()));
-include(sprintf(CONFIGCACHE_ENTITYMESSAGES,$i18n->getCurrentLanguage()));
-//+ owsPro - Provide statutory language.
-include(sprintf($_SERVER['DOCUMENT_ROOT'].'/languages/messages_%s.php',$i18n->getCurrentLanguage()));
+	require($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');include(CONFIGCACHE_FILE_FRONTEND);include($_SERVER['DOCUMENT_ROOT'].'/generated/settingsconfig.php');$authenticatorClasses=explode(',',Config('authentication_mechanism'));
+	foreach($authenticatorClasses as$authenticatorClass){$authenticatorClass=trim($authenticatorClass);if(!class_exists($authenticatorClass))throw new Exception('Class not found: '.$authenticatorClass);$authenticator=new $authenticatorClass($website);
+	$authenticator->verifyAndUpdateCurrentUser($website->getUser());}$i18n=I18n::getInstance(Config('supported_languages'));if($website->getUser()->language!=null){try{$i18n->setCurrentLanguage($website->getUser()->language);}catch(Exception$e){}}
+	include(sprintf(CONFIGCACHE_MESSAGES,$i18n->getCurrentLanguage()));include(sprintf(CONFIGCACHE_ENTITYMESSAGES,$i18n->getCurrentLanguage()));include(sprintf($_SERVER['DOCUMENT_ROOT'].'/languages/messages_%s.php',$i18n->getCurrentLanguage()));

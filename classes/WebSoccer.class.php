@@ -142,53 +142,14 @@ if(!function_exists('mb_strtolower')){function mb_strtolower($string){return str
 if(version_compare('5.5.0',phpversion(),'>=')){try{throw new Exception();}catch(Exception $e){echo' Minimum requirements: PHP 5.5';}exit;}
 if(!file_exists($_SERVER['DOCUMENT_ROOT'].'/cache')){mkdir($_SERVER['DOCUMENT_ROOT'].'/cache',0777,true);}
 class LoginCheck{
-	function __construct($portable_hashes){
-		$db=DbConnection::getInstance();
-		$this->_db=$db;
-		$this->itoa64='./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-		$this->portable_hashes=$portable_hashes;
-		$this->random_state=microtime();
+	function __construct($portable_hashes){$db=DbConnection::getInstance();$this->_db=$db;$this->itoa64='./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';$this->portable_hashes=$portable_hashes;$this->random_state=microtime();
 		if(function_exists('getmypid'))$this->random_state.=getmypid();}
-	function encode64($input,$count){
-		$output='';
-		$i=0;
-		do{$value=ord($input[$i++]);
-			$output.=$this->itoa64[$value&0x3f];
-			if($i<$count)$value|=ord($input[$i])<<8;
-			$output.=$this->itoa64[($value>>6)&0x3f];
-			if($i++>=$count)break;
-			if($i<$count)$value|=ord($input[$i])<<16;
-			$output.=$this->itoa64[($value>>12)&0x3f];
-			if($i++>=$count)break;
-			$output.=$this->itoa64[($value>>18)&0x3f];}
-		while($i<$count);
+	function encode64($input,$count){$output='';$i=0;do{$value=ord($input[++$i]);$output.=$this->itoa64[$value&0x3f];if($i<$count)$value|=ord($input[$i])<<8;$output.=$this->itoa64[($value>>6)&0x3f];if(++$i>=$count)break;if($i<$count)$value|=ord($input[$i])<<16;
+		$output.=$this->itoa64[($value>>12)&0x3f];if(++$i>=$count)break;$output.=$this->itoa64[($value>>18)&0x3f];}while($i<$count);return$output;}
+	function crypt_private($password,$setting){$output='*0';if(substr($setting,0,2)===$output)$output='*1';$id=substr($setting,0,3);if($id!=='$P$'&&$id!=='$H$')return$output;$count_log2=strpos($this->itoa64,$setting[3]);if($count_log2<7||$count_log2>30)return$output;
+		$count=1<<$count_log2;$salt=substr($setting,4,8);if(strlen($salt)!==8)return$output;$hash=hash('sha256',$salt.$password,TRUE);do{$hash=hash('sha256',$hash.$password,TRUE);}while(--$count);$output=substr($setting,0,12);$output.=$this->encode64($hash,16);
 		return$output;}
-	function crypt_private($password,$setting){
-		$output='*0';
-		if(substr($setting,0,2)===$output)$output='*1';
-		$id=substr($setting,0,3);
-		if($id!=='$P$'&&$id!=='$H$')return$output;
-		$count_log2=strpos($this->itoa64,$setting[3]);
-		if($count_log2<7||$count_log2>30)return$output;
-		$count=1<<$count_log2;
-		$salt=substr($setting,4,8);
-		if(strlen($salt)!==8)return$output;
-		$hash=hash('sha256',$salt.$password,TRUE);
-		do{$hash=hash('sha256',$hash.$password,TRUE);}
-		while(--$count);
-		$output=substr($setting,0,12);
-		$output.=$this->encode64($hash,16);
-		return$output;}
-	function CheckPassword($password,$stored_hash){
-		$hash=$this->crypt_private($password,$stored_hash);
-		if($hash[0]==='*')$hash=crypt($password,$stored_hash);
-		return$hash===$stored_hash;}}
-/**
-*Browsersprache ermitteln
-*
-* $i18n=I18n::getInstance(Config('supported_languages'));
-* $lang=BrowserLanguage($i18n->getCurrentLanguage(), 'en', null, false);
- */
+	function CheckPassword($password,$stored_hash){$hash=$this->crypt_private($password,$stored_hash);if($hash[0]==='*')$hash=crypt($password,$stored_hash);return$hash===$stored_hash;}}
 function BrowserLanguage($allowed_languages,$default_language,$lang_variable=null,$strict_mode=true){
 	if($lang_variable===null)$lang_variable=$_SERVER['HTTP_ACCEPT_LANGUAGE'];
 	if(empty($lang_variable))return$default_language;
@@ -235,16 +196,6 @@ class WordpressUserLoginMethod extends LoginCheck{
 		$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
 		if($userId>0)return$userId;
 		return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['user_login'],$userEmail);}}
-
-//  owsPro - Fatal error: Uncaught TypeError: strlen()expects parameter 1 to be string, null given
-//- if(strlen($queryString))
-//+ if(strlen((string)$queryString)
-
-//  owsPro - Fatal error: Uncaught TypeError: strlen()expects parameter 1 to be string, null given
-//- if($pageId!='home'||strlen($queryString))
-//+ if($pageId!='home'||strlen((string)$queryString))
-
-
 class WebSoccer{
 	private static$_instance;
 	private $_skin,$_pageId,$_templateEngine,$_frontMessages,$_user,$_contextParameters;
@@ -276,15 +227,15 @@ class ActionHandler {
 		if($actionId==NULL)return;
 		if(isset($_SESSION[DOUBLE_SUBMIT_CHECK_SESSIONKEY_ACTIONID])&& $_SESSION[DOUBLE_SUBMIT_CHECK_SESSIONKEY_ACTIONID]==$actionId && isset($_SESSION[DOUBLE_SUBMIT_CHECK_SESSIONKEY_TIME])
 			&&($_SESSION[DOUBLE_SUBMIT_CHECK_SESSIONKEY_TIME] + DOUBLE_SUBMIT_CHECK_SECONDS)>$website->getNowAsTimestamp()){
-			throw new Exception($i18n->getMessage('error_double_submit'));}
+			throw new Exception(Message('error_double_submit'));}
 		$actionConfig=json_decode($website->getAction($actionId), true);
 		$actionXml=ModuleConfigHelper::findModuleConfigAsXmlObject($actionConfig['module']);
 		$user=$website->getUser();
 		if(strpos($actionConfig['role'],'admin')!==false){
-			if(!$user->isAdmin())throw new AccessDeniedException($i18n->getMessage('error_access_denied'));}
+			if(!$user->isAdmin())throw new AccessDeniedException(Message('error_access_denied'));}
 		else{
 			$requiredRoles=explode(',',$actionConfig['role']);
-			if(!in_array($user->getRole(),$requiredRoles))throw new AccessDeniedException($i18n->getMessage('error_access_denied'));}
+			if(!in_array($user->getRole(),$requiredRoles))throw new AccessDeniedException(Message('error_access_denied'));}
 		$params=$actionXml->xpath('//action[@id="'.$actionId.'"]/param');
 		$validatedParams=[];
 		if($params)$validatedParams=self::_validateParameters($params,$website,$i18n);
@@ -305,17 +256,17 @@ class ActionHandler {
 			$validatorName=(string)$param->attributes()->validator;
 			$paramValue=$website->getRequestParameter($paramId);
 			if($type=='boolean')$paramValue=($paramValue)? '1' : '0';
-			if($required && $paramValue==null)$errorMessages[$paramId]=$i18n->getMessage('validation_error_required');
+			if($required && $paramValue==null)$errorMessages[$paramId]=Message('validation_error_required');
 			elseif($paramValue!=null){
-				if($type=='text' && $min>0 && strlen($paramValue)< $min)$errorMessages[$paramId]=sprintf($i18n->getMessage('validation_error_min_length'),$min);
-				elseif($type=='text' && $max>0 && strlen($paramValue)>$max)$errorMessages[$paramId]=sprintf($i18n->getMessage('validation_error_max_length'),$max);
-				elseif($type=='number' &&!is_numeric($paramValue))$errorMessages[$paramId]=$i18n->getMessage('validation_error_not_a_number');
-				elseif($type=='number' && $paramValue<$min)$errorMessages[$paramId]=$i18n->getMessage('validation_error_min_number',$min);
-				elseif($type=='number' && $max>0 && $paramValue>$max)$errorMessages[$paramId]=$i18n->getMessage('validation_error_max_number',$max);
-				elseif($type=='url' &&!filter_var($paramValue, FILTER_VALIDATE_URL))$errorMessages[$paramId]=$i18n->getMessage('validation_error_not_a_url');
+				if($type=='text' && $min>0 && strlen($paramValue)< $min)$errorMessages[$paramId]=sprintf(Message('validation_error_min_length'),$min);
+				elseif($type=='text' && $max>0 && strlen($paramValue)>$max)$errorMessages[$paramId]=sprintf(Message('validation_error_max_length'),$max);
+				elseif($type=='number' &&!is_numeric($paramValue))$errorMessages[$paramId]=Message('validation_error_not_a_number');
+				elseif($type=='number' && $paramValue<$min)$errorMessages[$paramId]=Message('validation_error_min_number',$min);
+				elseif($type=='number' && $max>0 && $paramValue>$max)$errorMessages[$paramId]=Message('validation_error_max_number',$max);
+				elseif($type=='url' &&!filter_var($paramValue, FILTER_VALIDATE_URL))$errorMessages[$paramId]=Message('validation_error_not_a_url');
 				elseif($type=='date'){
 					$format=Config('date_format');
-					if(!DateTime::createFromFormat($format,$paramValue))$errorMessages[$paramId]=$i18n->getMessage('validation_error_invaliddate',$format);}
+					if(!DateTime::createFromFormat($format,$paramValue))$errorMessages[$paramId]=Message('validation_error_invaliddate',$format);}
 				if(strlen($validatorName)){
 					if(!class_exists($validatorName))throw new Exception('Validator not found: '.$validatorName);
 					$validator=new $validatorName($i18n,$website,$paramValue);
@@ -1386,11 +1337,11 @@ class FileUploadHelper {
 		$filename=$_FILES[$requestParameter]['name'];
 		$ext=strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 		$allowedExtensions=explode(',', ALLOWED_EXTENSIONS);
-		if(!in_array($ext,$allowedExtensions))throw new Exception($i18n->getMessage('validationerror_imageupload_noimagefile'));
+		if(!in_array($ext,$allowedExtensions))throw new Exception(Message('validationerror_imageupload_noimagefile'));
 		$imagesize=getimagesize($_FILES[$requestParameter]['tmp_name']);
-		if($imagesize===FALSE)throw new Exception($i18n->getMessage('validationerror_imageupload_noimagefile'));
+		if($imagesize===FALSE)throw new Exception(Message('validationerror_imageupload_noimagefile'));
 		$type=substr($imagesize['mime'],strrpos($imagesize['mime'],'/')+ 1);
-		if(!in_array($type,$allowedExtensions))throw new Exception($i18n->getMessage('validationerror_imageupload_noimagefile'));
+		if(!in_array($type,$allowedExtensions))throw new Exception(Message('validationerror_imageupload_noimagefile'));
 		$targetFilename .= '.'.$ext;
 		self::_uploadFile($i18n,$requestParameter,$targetFilename,$targetDirectory);
 		return$ext;}
@@ -1400,8 +1351,8 @@ class FileUploadHelper {
 			$tmp_name=$_FILES[$requestParameter]['tmp_name'];
 			$name=$targetFilename;
 			$uploaded=@move_uploaded_file($tmp_name, UPLOAD_FOLDER .$targetDirectory.'/'.$name);
-			if(!$uploaded)throw new Exception($i18n->getMessage('error_file_upload_failed'));}
-		else throw new Exception($i18n->getMessage('error_file_upload_failed'));}}
+			if(!$uploaded)throw new Exception(Message('error_file_upload_failed'));}
+		else throw new Exception(Message('error_file_upload_failed'));}}
 class FileWriter {
 	private $_filePointer;
 	function __construct($file,$truncateExistingFile=TRUE){
@@ -1433,17 +1384,17 @@ class FormBuilder {
 		echo '<div class=\'control-group\'>';
 		$helpText='';
 		$inlineHelpKey=$labelKeyPrefix .$fieldId.'_help';
-		if($i18n->hasMessage($inlineHelpKey))$helpText='<span class=\'help-inline\'>'.$i18n->getMessage($inlineHelpKey).'</span>';
+		if($i18n->hasMessage($inlineHelpKey))$helpText='<span class=\'help-inline\'>'.Message($inlineHelpKey).'</span>';
 		if($type=='boolean'){
 			echo '<label class=\'checkbox\'>';
 			echo '<input type=\'checkbox\' value=\'1\' name=\''.$fieldId.'\'';
 			if($fieldValue=='1')echo ' checked';
 			echo '>';
-			echo $i18n->getMessage($labelKeyPrefix .$fieldId);
+			echo Message($labelKeyPrefix .$fieldId);
 			echo '</label>';
 			echo $helpText;}
 		else{
-			$labelOutput=$i18n->getMessage($labelKeyPrefix .$fieldId);
+			$labelOutput=Message($labelKeyPrefix .$fieldId);
 			if(isset($fieldInfo['required'])&& $fieldInfo['required']=='true')$labelOutput='<strong>'.$labelOutput.'</strong>';
 			echo '<label class=\'control-label\' for=\''.$fieldId.'\'>'.$labelOutput.'</label>';
 			echo '<div class=\'controls\'>';
@@ -1481,7 +1432,7 @@ class FormBuilder {
 						if($selectItem==$selectValue)echo ' selected';
 						echo '>';
 						$label=$selectItem;
-						if($i18n->hasMessage('option_'.$selectItem))$label=$i18n->getMessage('option_'.$selectItem);
+						if($i18n->hasMessage('option_'.$selectItem))$label=Message('option_'.$selectItem);
 						echo $label.'</option>';}
 					echo '</select>';
 					break;
@@ -1502,7 +1453,7 @@ class FormBuilder {
 							$htmlType='text';
 							$additionalAttrs=' class=\'input-small\' ';}
 						elseif($type=='tags')$additionalAttrs=' class=\'input-tag\' data-provide=\'tag\' ';
-						else $additionalAttrs='placeholder=\''.$i18n->getMessage($labelKeyPrefix .$fieldId).'\' ';
+						else $additionalAttrs='placeholder=\''.Message($labelKeyPrefix .$fieldId).'\' ';
 						echo '<input type=\''.$htmlType.'\' id=\''.$fieldId.'\' '.$additionalAttrs.'name=\''.$fieldId.'\' value=\'';
 						if($type!='password')echo escapeOutput($fieldValue);
 						echo '\'';
@@ -1516,21 +1467,21 @@ class FormBuilder {
 	static function validateField($i18n,$fieldId,$fieldInfo,$fieldValue,$labelKeyPrefix){
 		$textLength=strlen(trim($fieldValue));
 		$isEmpty=!$textLength;
-		if($fieldInfo['type']!='boolean' && $fieldInfo['required'] && $isEmpty)throw new Exception(sprintf($i18n->getMessage('validationerror_required'),$i18n->getMessage($labelKeyPrefix .$fieldId)));
+		if($fieldInfo['type']!='boolean' && $fieldInfo['required'] && $isEmpty)throw new Exception(sprintf(Message('validationerror_required'),Message($labelKeyPrefix .$fieldId)));
 		if(!$isEmpty){
-			if($fieldInfo['type']=='text' && $textLength>255)throw new Exception(sprintf($i18n->getMessage('validationerror_text_too_long'),$i18n->getMessage($labelKeyPrefix .$fieldId)));
-			if($fieldInfo['type']=='email' &&!filter_var($fieldValue, FILTER_VALIDATE_EMAIL))throw new Exception($i18n->getMessage('validationerror_email'));
-			if($fieldInfo['type']=='url' &&!filter_var($fieldValue, FILTER_VALIDATE_URL))throw new Exception(sprintf($i18n->getMessage('validationerror_url'),$i18n->getMessage($labelKeyPrefix .$fieldId)));
-			if($fieldInfo['type']=='number' &&!is_numeric($fieldValue))throw new Exception(sprintf($i18n->getMessage('validationerror_number'),$i18n->getMessage($labelKeyPrefix .$fieldId)));
-			if($fieldInfo['type']=='percent' && filter_var($fieldValue, FILTER_VALIDATE_INT)===FALSE)throw new Exception(sprintf($i18n->getMessage('validationerror_percent'),$i18n->getMessage($labelKeyPrefix .$fieldId)));
+			if($fieldInfo['type']=='text' && $textLength>255)throw new Exception(sprintf(Message('validationerror_text_too_long'),Message($labelKeyPrefix .$fieldId)));
+			if($fieldInfo['type']=='email' &&!filter_var($fieldValue, FILTER_VALIDATE_EMAIL))throw new Exception(Message('validationerror_email'));
+			if($fieldInfo['type']=='url' &&!filter_var($fieldValue, FILTER_VALIDATE_URL))throw new Exception(sprintf(Message('validationerror_url'),Message($labelKeyPrefix .$fieldId)));
+			if($fieldInfo['type']=='number' &&!is_numeric($fieldValue))throw new Exception(sprintf(Message('validationerror_number'),Message($labelKeyPrefix .$fieldId)));
+			if($fieldInfo['type']=='percent' && filter_var($fieldValue, FILTER_VALIDATE_INT)===FALSE)throw new Exception(sprintf(Message('validationerror_percent'),Message($labelKeyPrefix .$fieldId)));
 			if($fieldInfo['type']=='date'){
 				$website=WebSoccer::getInstance();
 				$format=Config('date_format');
-				if(!DateTime::createFromFormat($format,$fieldValue))throw new Exception(sprintf($i18n->getMessage('validationerror_date'),$i18n->getMessage($labelKeyPrefix .$fieldId),$format));}}
+				if(!DateTime::createFromFormat($format,$fieldValue))throw new Exception(sprintf(Message('validationerror_date'),Message($labelKeyPrefix .$fieldId),$format));}}
 		if(isset($fieldInfo['validator'])&& strlen($fieldInfo['validator'])){
 			$website=WebSoccer::getInstance();
 			$validator=new $fieldInfo['validator']($i18n,$website,$fieldValue);
-			if(!$validator->isValid())throw new Exception($i18n->getMessage($labelKeyPrefix .$fieldId).': '.$validator->getMessage());}}
+			if(!$validator->isValid())throw new Exception(Message($labelKeyPrefix .$fieldId).': '.$validator->getMessage());}}
 	static function createForeignKeyField($i18n,$fieldId,$fieldInfo,$fieldValue){
 		$website=WebSoccer::getInstance();
 		$db=DbConnection::getInstance();
@@ -1539,7 +1490,7 @@ class FormBuilder {
 		$items=$result->fetch_array();
 		if($items['hits'] <= 20){
 			echo '<select id=\''.$fieldId.'\' name=\''.$fieldId.'\'>';
-			echo '<option value=\'\'>'.$i18n->getMessage('manage_select_placeholder').'</option>';
+			echo '<option value=\'\'>'.Message('manage_select_placeholder').'</option>';
 			$whereCondition='1=1 ORDER BY '.$fieldInfo['labelcolumns'].' ASC';
 			$result=$db->querySelect('id, '.$fieldInfo['labelcolumns'],$fromTable,$whereCondition, '', 2000);
 			while($row=$result->fetch_array()){
@@ -1555,8 +1506,8 @@ class FormBuilder {
 				echo '>'. escapeOutput($label).'</option>';}
 			echo '</select>';}
 		else echo '<input type=\'hidden\' class=\'pkpicker\' id=\''.$fieldId.'\' name=\''.$fieldId.'\' value=\''.$fieldValue.'\' data-dbtable=\''.$fieldInfo['jointable'].'\' data-labelcolumns=\''.$fieldInfo['labelcolumns'].'\' data-placeholder=\'' .
-				$i18n->getMessage('manage_select_placeholder').'\'>';
-		echo ' <a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''.$i18n->getMessage('manage_add').'\'><i class=\'icon-plus-sign\'></i></a>';}}
+				Message('manage_select_placeholder').'\'>';
+		echo ' <a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''.Message('manage_add').'\'><i class=\'icon-plus-sign\'></i></a>';}}
 class FrontMessage {
 	function __construct($type,$title,$message){
 		if($type !==MESSAGE_TYPE_INFO && $type !==MESSAGE_TYPE_SUCCESS && $type !==MESSAGE_TYPE_ERROR && $type !==MESSAGE_TYPE_WARNING)throw new Exception('unknown FrontMessage type: '.$type);
@@ -2053,7 +2004,7 @@ class PageIdRouter {
 			$freePageIds=array(LOGIN_PAGE_ID, 'register', 'register-success', 'activate-user', 'forgot-password', 'imprint', 'logout', 'termsandconditions');
 			if(!Config('password_protected_startpage'))$freePageIds[]=DEFAULT_PAGE_ID;
 			if(!in_array($pageId,$freePageIds)){
-				$websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,$i18n->getMessage('requireslogin_box_title'),$i18n->getMessage('requireslogin_box_message')));
+				$websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message('requireslogin_box_title'),Message('requireslogin_box_message')));
 				$pageId=LOGIN_PAGE_ID;}}
 		if($pageId=='team' && $websoccer->getRequestParameter('id')==null)$pageId='leagues';
 		if($user->getRole()==ROLE_USER &&!strlen($user->username))$pageId=ENTERUSERNAME_PAGE_ID;
@@ -2587,8 +2538,8 @@ class SimulationHelper {
 					$positionMapping = self::getPositionsMapping();
 					$position = $positionMapping[$mainPosition];}
 				$strength = $substitution->playerIn->strength;
-				if($position != $substitution->playerIn->position) $strength = round($strength * (1 - WebSoccer::getInstance()->getConfig("sim_strength_reduction_wrongposition") / 100));
-				elseif($mainPosition != NULL && $mainPosition != $substitution->playerIn->mainPosition) $strength = round($strength * (1 - WebSoccer::getInstance()->getConfig("sim_strength_reduction_secondary") / 100));
+				if($position != $substitution->playerIn->position) $strength = round($strength * (1 -Config("sim_strength_reduction_wrongposition") / 100));
+				elseif($mainPosition != NULL && $mainPosition != $substitution->playerIn->mainPosition) $strength = round($strength * (1 -Config("sim_strength_reduction_secondary") / 100));
 				$substitution->playerIn->position = $position;
 				$substitution->playerIn->strength = $strength;
 				$substitution->playerIn->mainPosition = $mainPosition;
@@ -3141,9 +3092,9 @@ class StringUtil {
 		return (substr($message, -$length)===$needle);}
 	static function convertTimestampToWord($timestamp,$nowAsTimestamp,$i18n){
 		if($timestamp >= strtotime('tomorrow',$nowAsTimestamp)+ 24*3600)return '';
-		if($timestamp >= strtotime('tomorrow',$nowAsTimestamp))return$i18n->getMessage('date_tomorrow');
-		elseif($timestamp >= strtotime('today',$nowAsTimestamp))return$i18n->getMessage('date_today');
-		elseif($timestamp >= strtotime('yesterday',$nowAsTimestamp))return$i18n->getMessage('date_yesterday');
+		if($timestamp >= strtotime('tomorrow',$nowAsTimestamp))return Message('date_tomorrow');
+		elseif($timestamp >= strtotime('today',$nowAsTimestamp))return Message('date_today');
+		elseif($timestamp >= strtotime('yesterday',$nowAsTimestamp))return Message('date_yesterday');
 		return '';}}
 //+ owsPro: New funtion - delDir($dir);
 function delDir($dir){
@@ -3169,7 +3120,7 @@ class TemplateEngine{
 	function loadTemplate($templateName){return$this->_environment->load($this->_skin->getTemplate($templateName));}
 	function clearCache(){delDir($_SERVER['DOCUMENT_ROOT'].'/cache/templates');}
 	function getEnvironment(){return$this->_environment;}
-	function _addSettingsSupport(){$function=new Twig_SimpleFunction(CONFIG_FUNCTION_NAME,function($key){global $i18n;return$i18n->getMessage($key);});$this->_environment->addFunction($function);}
+	function _addSettingsSupport(){$function=new Twig_SimpleFunction(CONFIG_FUNCTION_NAME,function($key){global $i18n;return Message($key);});$this->_environment->addFunction($function);}
 	function _initTwig(){
 		$twigConfig=array('cache'=> CACHE_FOLDER,);
 		if(version_compare(PHP_VERSION,'7.1.0')>=0){
@@ -3256,10 +3207,10 @@ class ViewHandler {
 		$this->_validationMessages=$validationMessages;}
 	function handlePage($pageId,$parameters){
 		if($pageId==NULL)return;
-		if(!isset($this->_pages[$pageId]))throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($this->_pages[$pageId]))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$pageConfig=json_decode($this->_pages[$pageId],TRUE);
 		$requiredRoles=explode(',',$pageConfig['role']);
-		if(!in_array($this->_website->getUser()->getRole(),$requiredRoles))throw new AccessDeniedException($this->_i18n->getMessage('error_access_denied'));
+		if(!in_array($this->_website->getUser()->getRole(),$requiredRoles))throw new AccessDeniedException(Message('error_access_denied'));
 		if(isset($pageConfig['premiumBalanceMin'])){
 			$minPremiumBalanceRequired=(int)$pageConfig['premiumBalanceMin'];
 			if($minPremiumBalanceRequired>$this->_website->getUser()->premiumBalance){
@@ -3509,14 +3460,14 @@ class AcceptStadiumConstructionWorkController extends Controller {
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$construction=StadiumsDataService::getCurrentConstructionOrderOfTeam($this->_websoccer,$this->_db,$clubId);
-		if($construction==NULL||$construction["deadline"]>$this->_websoccer->getNowAsTimestamp())throw new Exception($this->_i18n->getMessage("stadium_acceptconstruction_err_nonedue"));
+		if($construction==NULL||$construction["deadline"]>$this->_websoccer->getNowAsTimestamp())throw new Exception(Message("stadium_acceptconstruction_err_nonedue"));
 		$pStatus["completed"]=$construction["builder_reliability"];
 		$pStatus["notcompleted"]=100 - $pStatus["completed"];
 		$constructionResult=SimulationHelper::selectItemFromProbabilities($pStatus);
 		if($constructionResult=="notcompleted"){
 			$newDeadline=$this->_websoccer->getNowAsTimestamp()+Config("stadium_construction_delay")* 24*3600;
 			$this->_db->queryUpdate(array("deadline"=>$newDeadline),Config("db_prefix")."_stadium_construction","id=%d",$construction["id"]);
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,$this->_i18n->getMessage("stadium_acceptconstruction_notcompleted_title"),$this->_i18n->getMessage("stadium_acceptconstruction_notcompleted_details")));}
+			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("stadium_acceptconstruction_notcompleted_title"),Message("stadium_acceptconstruction_notcompleted_details")));}
 		else{
 			$stadium=StadiumsDataService::getStadiumByTeamId($this->_websoccer,$this->_db,$clubId);
 			$columns=[];
@@ -3527,7 +3478,7 @@ class AcceptStadiumConstructionWorkController extends Controller {
 			$columns["p_vip"]=$stadium["places_vip"] + $construction["p_vip"];
 			$this->_db->queryUpdate($columns,Config("db_prefix")."_stadion","id=%d",$stadium["stadium_id"]);
 			$this->_db->queryDelete(Config("db_prefix")."_stadium_construction","id=%d",$construction["id"]);
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("stadium_acceptconstruction_completed_title"),$this->_i18n->getMessage("stadium_acceptconstruction_completed_details")));}
+			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("stadium_acceptconstruction_completed_title"),Message("stadium_acceptconstruction_completed_details")));}
 		return null;}}
 class AcceptYouthMatchRequestController extends Controller {
 	function executeAction($parameters){
@@ -3537,11 +3488,11 @@ class AcceptYouthMatchRequestController extends Controller {
 		$fromTable=Config("db_prefix")."_youthmatch_request";
 		$result=$this->_db->querySelect("*",$fromTable,"id=%d",$parameters["id"]);
 		$request=$result->fetch_array();
-		if(!$request)throw new Exception($this->_i18n->getMessage("youthteam_matchrequest_cancel_err_notfound"));
-		if($clubId==$request["team_id"])throw new Exception($this->_i18n->getMessage("youthteam_matchrequest_accept_err_ownrequest"));
-		if(YouthPlayersDataService::countYouthPlayersOfTeam($this->_websoccer,$this->_db,$clubId)< 11)throw new Exception($this->_i18n->getMessage("youthteam_matchrequest_create_err_notenoughplayers"));
+		if(!$request)throw new Exception(Message("youthteam_matchrequest_cancel_err_notfound"));
+		if($clubId==$request["team_id"])throw new Exception(Message("youthteam_matchrequest_accept_err_ownrequest"));
+		if(YouthPlayersDataService::countYouthPlayersOfTeam($this->_websoccer,$this->_db,$clubId)< 11)throw new Exception(Message("youthteam_matchrequest_create_err_notenoughplayers"));
 		$maxMatchesPerDay=Config("youth_match_maxperday");
-		if(YouthMatchesDataService::countMatchesOfTeamOnSameDay($this->_websoccer,$this->_db,$clubId,$request["matchdate"])>= $maxMatchesPerDay)throw new Exception($this->_i18n->getMessage("youthteam_matchrequest_err_maxperday_violated",$maxMatchesPerDay));
+		if(YouthMatchesDataService::countMatchesOfTeamOnSameDay($this->_websoccer,$this->_db,$clubId,$request["matchdate"])>= $maxMatchesPerDay)throw new Exception(Message("youthteam_matchrequest_err_maxperday_violated",$maxMatchesPerDay));
 		$homeTeam=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$request["team_id"]);
 		$guestTeam=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
 		if($request["reward"]){
@@ -3551,88 +3502,88 @@ class AcceptYouthMatchRequestController extends Controller {
 		$this->_db->queryDelete($fromTable,"id=%d",$parameters["id"]);
 		NotificationsDataService::createNotification($this->_websoccer,$this->_db,$homeTeam["user_id"],"youthteam_matchrequest_accept_notification",array("team"=>$guestTeam["team_name"],"date"=>$this->_websoccer->getFormattedDatetime($request["matchdate"])),
 			"youthmatch_accept","youth-matches",null,$request["team_id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("youthteam_matchrequest_accept_success"),$this->_i18n->getMessage("youthteam_matchrequest_accept_success_details")));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_matchrequest_accept_success"),Message("youthteam_matchrequest_accept_success_details")));
 		return "youth-matches";}}
 class AddNationalPlayerController extends Controller {
 	function executeAction($parameters){
 		if(!Config("nationalteams_enabled"))return NULL;
 		$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
-		if(!$teamId)throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
+		if(!$teamId)throw new Exception(Message("nationalteams_user_requires_team"));
 		$result=$this->_db->querySelect("name",Config("db_prefix")."_verein","id=%d",$teamId);
 		$team=$result->fetch_array();
 		$fromTable=Config("db_prefix")."_spieler";
 		$result=$this->_db->querySelect("nation",$fromTable,"id=%d",$parameters["id"]);
 		$player=$result->fetch_array();
-		if(!$player)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!$player)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		if($player["nation"]!=$team["name"])throw new Exception("Player is from different nation.");
 		$fromTable=Config("db_prefix")."_nationalplayer";
 		$result=$this->_db->querySelect("COUNT(*)AS hits",$fromTable,"player_id=%d",$parameters["id"]);
 		$players=$result->fetch_array();
-		if($players && $players["hits"])throw new Exception($this->_i18n->getMessage("nationalteams_addplayer_err_alreadyinteam"));
+		if($players && $players["hits"])throw new Exception(Message("nationalteams_addplayer_err_alreadyinteam"));
 		$result=$this->_db->querySelect("COUNT(*)AS hits",$fromTable,"team_id=%d",$teamId);
 		$existingplayers=$result->fetch_array();
-		if($existingplayers["hits"] >= 30)throw new Exception($this->_i18n->getMessage("nationalteams_addplayer_err_toomanyplayer",30));
+		if($existingplayers["hits"] >= 30)throw new Exception(Message("nationalteams_addplayer_err_toomanyplayer",30));
 		$this->_db->queryInsert(array("team_id"=>$teamId,"player_id"=>$parameters["id"]),$fromTable);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("nationalteams_addplayer_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("nationalteams_addplayer_success"),""));
 		return "nationalteam";}}
 class BookCampController extends Controller {
 	function executeAction($parameters){
 		$now=$this->_websoccer->getNowAsTimestamp();
 		$user=$this->_websoccer->getUser();
 		$teamId=$user->getClubId($this->_websoccer,$this->_db);
-		if($teamId<1)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($teamId<1)throw new Exception($Message("feature_requires_team"));
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$teamId);
 		$min=Config("trainingcamp_min_days");
 		$max=Config("trainingcamp_max_days");
-		if($parameters["days"]<$min||$parameters["days"]>$max)throw new Exception(sprintf($this->_i18n->getMessage("trainingcamp_booking_err_invaliddays"),$min,$max));
+		if($parameters["days"]<$min||$parameters["days"]>$max)throw new Exception(sprintf(Message("trainingcamp_booking_err_invaliddays"),$min,$max));
 		$startDateObj=DateTime::createFromFormat(Config("date_format")." H:i",$parameters["start_date"]." 00:00");
 		$startDateTimestamp=$startDateObj->getTimestamp();
 		$endDateTimestamp=$startDateTimestamp + 3600*24*$parameters["days"];
-		if($startDateTimestamp <= $now)throw new Exception($this->_i18n->getMessage("trainingcamp_booking_err_dateinpast"));
+		if($startDateTimestamp <= $now)throw new Exception(Message("trainingcamp_booking_err_dateinpast"));
 		$maxDate=$now +Config("trainingcamp_booking_max_days_in_future")* 3600*24;
-		if($startDateTimestamp>$maxDate)throw new Exception($this->_i18n->getMessage("trainingcamp_booking_err_datetoofar",Config("trainingcamp_booking_max_days_in_future")));
+		if($startDateTimestamp>$maxDate)throw new Exception(Message("trainingcamp_booking_err_datetoofar",Config("trainingcamp_booking_max_days_in_future")));
 		$camp=TrainingcampsDataService::getCampById($this->_websoccer,$this->_db,$parameters["id"]);
 		if(!$camp)throw new Exception("Illegal ID");
 		$existingBookings=TrainingcampsDataService::getCampBookingsByTeam($this->_websoccer,$this->_db,$teamId);
-		if(count($existingBookings))throw new Exception($this->_i18n->getMessage("trainingcamp_booking_err_existingbookings"));
+		if(count($existingBookings))throw new Exception(Message("trainingcamp_booking_err_existingbookings"));
 		$playersOfTeam=PlayersDataService::getPlayersOfTeamById($this->_websoccer,$this->_db,$teamId);
 		$totalCosts=$camp["costs"]*$parameters["days"]*count($playersOfTeam);
-		if($totalCosts >= $team["team_budget"])throw new Exception($this->_i18n->getMessage("trainingcamp_booking_err_tooexpensive"));
+		if($totalCosts >= $team["team_budget"])throw new Exception(Message("trainingcamp_booking_err_tooexpensive"));
 		$matches=MatchesDataService::getMatchesByTeamAndTimeframe($this->_websoccer,$this->_db,$teamId,$startDateTimestamp,$endDateTimestamp);
-		if(count($matches))throw new Exception($this->_i18n->getMessage("trainingcamp_booking_err_matcheswithintimeframe"));
+		if(count($matches))throw new Exception(Message("trainingcamp_booking_err_matcheswithintimeframe"));
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$teamId,$totalCosts,"trainingcamp_booking_costs_subject",$camp["name"]);
 		$columns["verein_id"]=$teamId;
 		$columns["lager_id"]=$camp["id"];
 		$columns["datum_start"]=$startDateTimestamp;
 		$columns["datum_ende"]=$endDateTimestamp;
 		$this->_db->queryInsert($columns,Config("db_prefix")."_trainingslager_belegung");
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("trainingcamp_booking_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("trainingcamp_booking_success"),""));
 		return "trainingcamp";}}
 class BorrowPlayerController extends Controller {
 	function executeAction($parameters){
 		if(!Config("lending_enabled"))return NULL;
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
-		if($clubId==null)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($clubId==null)throw new Exception(Message("feature_requires_team"));
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
-		if($clubId==$player["team_id"])throw new Exception($this->_i18n->getMessage("lending_hire_err_ownplayer"));
-		if($player["lending_owner_id"]>0)throw new Exception($this->_i18n->getMessage("lending_hire_err_borrowed_player"));
-		if($player["lending_fee"]==0)throw new Exception($this->_i18n->getMessage("lending_hire_err_notoffered"));
-		if($player["player_transfermarket"]>0)throw new Exception($this->_i18n->getMessage("lending_err_on_transfermarket"));
+		if($clubId==$player["team_id"])throw new Exception(Message("lending_hire_err_ownplayer"));
+		if($player["lending_owner_id"]>0)throw new Exception(Message("lending_hire_err_borrowed_player"));
+		if($player["lending_fee"]==0)throw new Exception(Message("lending_hire_err_notoffered"));
+		if($player["player_transfermarket"]>0)throw new Exception(Message("lending_err_on_transfermarket"));
 		if($parameters["matches"] <Config("lending_matches_min")|| $parameters["matches"] >Config("lending_matches_max")){
-			throw new Exception(sprintf($this->_i18n->getMessage("lending_hire_err_illegalduration"),Config("lending_matches_min"),Config("lending_matches_max")));}
-		if($parameters["matches"] >= $player["player_contract_matches"])throw new Exception($this->_i18n->getMessage("lending_hire_err_contractendingtoosoon",$player["player_contract_matches"]));
+			throw new Exception(sprintf(Message("lending_hire_err_illegalduration"),Config("lending_matches_min"),Config("lending_matches_max")));}
+		if($parameters["matches"] >= $player["player_contract_matches"])throw new Exception(Message("lending_hire_err_contractendingtoosoon",$player["player_contract_matches"]));
 		$fee=$parameters["matches"]*$player["lending_fee"];
 		$minBudget=$fee + 5*$player["player_contract_salary"];
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
-		if($team["team_budget"]<$minBudget)throw new Exception($this->_i18n->getMessage("lending_hire_err_budget_too_low"));
+		if($team["team_budget"]<$minBudget)throw new Exception(Message("lending_hire_err_budget_too_low"));
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$clubId,$fee,"lending_fee_subject",$player["team_name"]);
 		BankAccountDataService::creditAmount($this->_websoccer,$this->_db,$player["team_id"],$fee,"lending_fee_subject",$team["team_name"]);
 		$this->updatePlayer($player["player_id"],$player["team_id"],$clubId,$parameters["matches"]);
 		$playerName=(strlen($player["player_pseudonym"]))? $player["player_pseudonym"] : $player["player_firstname"]." ".$player["player_lastname"];
 		if($player["team_user_id"]){ NotificationsDataService::createNotification($this->_websoccer,$this->_db,$player["team_user_id"],"lending_notification_lent",array("player"=>$playerName,"matches"=>$parameters["matches"],"newteam"=>$team["team_name"]),
 			"lending_lent","player","id=".$player["player_id"]);}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("lending_hire_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("lending_hire_success"),""));
 		return "myteam";}
 	function updatePlayer($playerId,$ownerId,$clubId,$matches){
 		$columns=array("lending_matches"=>$matches,"lending_owner_id"=>$ownerId,"verein_id"=>$clubId);
@@ -3644,37 +3595,37 @@ class BuyYouthPlayerController extends Controller {
 		if(!Config("youth_enabled"))return NULL;
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
-		if($clubId<1)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($clubId<1)throw new Exception(Message("feature_requires_team"));
 		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$parameters["id"]);
-		if($clubId==$player["team_id"])throw new Exception($this->_i18n->getMessage("youthteam_buy_err_ownplayer"));
+		if($clubId==$player["team_id"])throw new Exception(Message("youthteam_buy_err_ownplayer"));
 		$result=$this->_db->querySelect("user_id",Config("db_prefix")."_verein","id=%d",$player["team_id"]);
 		$playerteam=$result->fetch_array();
 		$result->free_result();
-		if($playerteam["user_id"]==$user->id)throw new Exception($this->_i18n->getMessage("youthteam_buy_err_ownplayer_otherteam"));
+		if($playerteam["user_id"]==$user->id)throw new Exception(Message("youthteam_buy_err_ownplayer_otherteam"));
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
-		if($team["team_budget"] <= $player["transfer_fee"])throw new Exception($this->_i18n->getMessage("youthteam_buy_err_notenoughbudget"));
+		if($team["team_budget"] <= $player["transfer_fee"])throw new Exception(Message("youthteam_buy_err_notenoughbudget"));
 		$prevTeam=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$player["team_id"]);
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$clubId,$player["transfer_fee"],"youthteam_transferfee_subject",$prevTeam["team_name"]);
 		BankAccountDataService::creditAmount($this->_websoccer,$this->_db,$player["team_id"],$player["transfer_fee"],"youthteam_transferfee_subject",$team["team_name"]);
 		$this->_db->queryUpdate(array("team_id"=>$clubId,"transfer_fee"=> 0),Config("db_prefix")."_youthplayer","id=%d",$parameters["id"]);
 		NotificationsDataService::createNotification($this->_websoccer,$this->_db,$prevTeam["user_id"],"youthteam_transfer_notification",array("player"=>$player["firstname"]." ".$player["lastname"],"newteam"=>$team["team_name"]),"youth_transfer","team",
 			"id=".$clubId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("youthteam_buy_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_buy_success"),""));
 		return "youth-team";}}
 class CancelCampController extends Controller {
 	function executeAction($parameters){
 		$user=$this->_websoccer->getUser();
 		$teamId=$user->getClubId($this->_websoccer,$this->_db);
-		if($teamId<1)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($teamId<1)throw new Exception(Message("feature_requires_team"));
 		$existingBookings=TrainingcampsDataService::getCampBookingsByTeam($this->_websoccer,$this->_db,$teamId);
-		if(!count($existingBookings))throw new Exception($this->_i18n->getMessage("trainingcamp_cancel_illegalid"));
+		if(!count($existingBookings))throw new Exception(Message("trainingcamp_cancel_illegalid"));
 		$deleted=FALSE;
 		foreach($existingBookings as $booking){
 			if($booking["id"]==$parameters["bookingid"]){
 				$this->_db->queryDelete(Config("db_prefix")."_trainingslager_belegung","id=%d",$booking["id"]);
 				$deleted=TRUE;}}
-		if(!$deleted)throw new Exception($this->_i18n->getMessage("trainingcamp_cancel_illegalid"));
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("trainingcamp_cancel_success"),""));
+		if(!$deleted)throw new Exception(Message("trainingcamp_cancel_illegalid"));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("trainingcamp_cancel_success"),""));
 		return "trainingcamp";}}
 class CancelYouthMatchRequestController extends Controller {
 	function executeAction($parameters){
@@ -3684,35 +3635,35 @@ class CancelYouthMatchRequestController extends Controller {
 		$fromTable=Config("db_prefix")."_youthmatch_request";
 		$result=$this->_db->querySelect("*",$fromTable,"id=%d",$parameters["id"]);
 		$request=$result->fetch_array();
-		if(!$request)throw new Exception($this->_i18n->getMessage("youthteam_matchrequest_cancel_err_notfound"));
+		if(!$request)throw new Exception(Message("youthteam_matchrequest_cancel_err_notfound"));
 		if($clubId!=$request["team_id"])throw new Exception("nice try");
 		$this->_db->queryDelete($fromTable,"id=%d",$parameters["id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("youthteam_matchrequest_cancel_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_matchrequest_cancel_success"),""));
 		return "youth-matchrequests";}}
 class ChooseAdditionalTeamController extends Controller {
 	function executeAction($parameters){
 		$user=$this->_websoccer->getUser();
 		$maxTeams=(int)Config('max_number_teams_per_user');
-		if(!Config('assign_team_automatically')&& $maxTeams>1)throw new Exception($this->_i18n->getMessage('freeclubs_msg_error'));
+		if(!Config('assign_team_automatically')&& $maxTeams>1)throw new Exception(Message('freeclubs_msg_error'));
 		$minHighscore=(int)Config('additional_team_min_highscore');
 		if($minHighscore){
 			$result=$this->_db->querySelect('highscore',Config('db_prefix').'_user', 'id=%d',$user->id);
 			$userinfo=$result->fetch_array();
-			if($minHighscore>$userinfo['highscore'])throw new Exception($this->_i18n->getMessage('freeclubs_msg_error_minhighscore',$minHighscore));}
+			if($minHighscore>$userinfo['highscore'])throw new Exception(Message('freeclubs_msg_error_minhighscore',$minHighscore));}
 		$fromTable=Config('db_prefix').'_verein';
 		$result=$this->_db->querySelect('id,liga_id',$fromTable, 'user_id=%d',$user->id);
 		$teamsOfUser=[];
 		while($teamOfUser=$result->fetch_array())$teamsOfUser[$teamOfUser['liga_id']][]=$teamOfUser['id'];
 		$result->free_result();
-		if(count($teamsOfUser)>=Config('max_number_teams_per_user'))throw new Exception($this->_i18n->getMessage('freeclubs_msg_error_max_number_of_teams',$maxTeams));
+		if(count($teamsOfUser)>=Config('max_number_teams_per_user'))throw new Exception(Message('freeclubs_msg_error_max_number_of_teams',$maxTeams));
 		$teamId=$parameters['teamId'];
 		$result=$this->_db->querySelect('id,user_id,liga_id,interimmanager',$fromTable, 'id=%d AND status=1',$teamId);
 		$club=$result->fetch_array();
-		if($club['user_id'] &&!$club['interimmanager'])throw new Exception($this->_i18n->getMessage('freeclubs_msg_error'));
-		if(isset($teamsOfUser[$club['liga_id']]))throw new Exception($this->_i18n->getMessage('freeclubs_msg_error_no_club_from_same_league'));
+		if($club['user_id'] &&!$club['interimmanager'])throw new Exception(Message('freeclubs_msg_error'));
+		if(isset($teamsOfUser[$club['liga_id']]))throw new Exception(Message('freeclubs_msg_error_no_club_from_same_league'));
 		$this->_db->queryUpdate(array('user_id'=>$user->id),$fromTable,"id=%d",$teamId);
 		$user->setClubId($teamId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage('freeclubs_msg_success'), ''));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message('freeclubs_msg_success'), ''));
 		return 'office';}}
 class ChooseSponsorController extends Controller {
 	function executeAction($parameters){
@@ -3720,66 +3671,66 @@ class ChooseSponsorController extends Controller {
 		$teamId=$user->getClubId($this->_websoccer,$this->_db);
 		if($teamId<1)return null;
 		$sponsor=SponsorsDataService::getSponsorinfoByTeamId($this->_websoccer,$this->_db,$teamId);
-		if($sponsor)throw new Exception($this->_i18n->getMessage("sponsor_choose_stillcontract"));
+		if($sponsor)throw new Exception(Message("sponsor_choose_stillcontract"));
 		$teamMatchday=MatchesDataService::getMatchdayNumberOfTeam($this->_websoccer,$this->_db,$teamId);
-		if($teamMatchday <Config("sponsor_earliest_matchday"))throw new Exception($this->_i18n->getMessage("sponsor_choose_tooearly",Config("sponsor_earliest_matchday")));
+		if($teamMatchday <Config("sponsor_earliest_matchday"))throw new Exception(Message("sponsor_choose_tooearly",Config("sponsor_earliest_matchday")));
 		$sponsors=SponsorsDataService::getSponsorOffers($this->_websoccer,$this->_db,$teamId);
 		$found=FALSE;
 		foreach($sponsors as $availableSponsor){
 			if($availableSponsor["sponsor_id"]==$parameters["id"]){
 				$found=TRUE;
 				break;}}
-		if(!$found)throw new Exception($this->_i18n->getMessage("sponsor_choose_novalidsponsor"));
+		if(!$found)throw new Exception(Message("sponsor_choose_novalidsponsor"));
 		$columns["sponsor_id"]=$parameters["id"];
 		$columns["sponsor_spiele"]=Config("sponsor_matches");
 		$fromTable=Config("db_prefix")."_verein";
 		$whereCondition="id=%d";
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$teamId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("sponsor_choose_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("sponsor_choose_success"),""));
 		return null;}}
 class ChooseTeamController extends Controller {
 	function executeAction($parameters){
 		$user=$this->_websoccer->getUser();
-		if(!Config("assign_team_automatically"))throw new Exception($this->_i18n->getMessage("freeclubs_msg_error"));
-		if($user->getClubId($this->_websoccer,$this->_db)>0)throw new Exception($this->_i18n->getMessage("freeclubs_msg_error_user_is_already_manager"));
+		if(!Config("assign_team_automatically"))throw new Exception(Message("freeclubs_msg_error"));
+		if($user->getClubId($this->_websoccer,$this->_db)>0)throw new Exception(Message("freeclubs_msg_error_user_is_already_manager"));
 		$teamId=$parameters["teamId"];
 		$fromTable=Config("db_prefix")."_verein";
 		$whereCondition="id=%d AND status=1 AND (user_id=0 OR user_id IS NULL OR interimmanager='1')";
 		$result=$this->_db->querySelect("id",$fromTable,$whereCondition,$teamId);
 		$club=$result->fetch_array();
-		if(!isset($club["id"]))throw new Exception($this->_i18n->getMessage("freeclubs_msg_error"));
+		if(!isset($club["id"]))throw new Exception(Message("freeclubs_msg_error"));
 		$columns=[];
 		$columns["user_id"]=$user->id;
 		$columns["interimmanager"]="0";
 		if(count($columns))$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$teamId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("freeclubs_msg_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("freeclubs_msg_success"),""));
 		return "office";}}
 class ChooseTrainerController extends Controller {
 	function executeAction($parameters){
 		$user=$this->_websoccer->getUser();
 		$teamId=$user->getClubId($this->_websoccer,$this->_db);
-		if($teamId<1)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
-		if(TrainingDataService::countRemainingTrainingUnits($this->_websoccer,$this->_db,$teamId))throw new Exception($this->_i18n->getMessage("training_choose_trainer_err_existing_units"));
+		if($teamId<1)throw new Exception(Message("feature_requires_team"));
+		if(TrainingDataService::countRemainingTrainingUnits($this->_websoccer,$this->_db,$teamId))throw new Exception(Message("training_choose_trainer_err_existing_units"));
 		$trainer=TrainingDataService::getTrainerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if(!isset($trainer["id"]))throw new Exception("invalid ID");
 		$numberOfUnits=(int)$parameters["units"];
 		$totalCosts=$numberOfUnits*$trainer["salary"];
 		$teamInfo=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$teamId);
-		if($teamInfo["team_budget"] <= $totalCosts)throw new Exception($this->_i18n->getMessage("training_choose_trainer_err_too_expensive"));
+		if($teamInfo["team_budget"] <= $totalCosts)throw new Exception(Message("training_choose_trainer_err_too_expensive"));
 		if($trainer['premiumfee'])PremiumDataService::debitAmount($this->_websoccer,$this->_db,$user->id,$trainer['premiumfee'],"choose-trainer");
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$teamId,$totalCosts,"training_trainer_salary_subject",$trainer["name"]);
 		$columns["team_id"]=$teamId;
 		$columns["trainer_id"]=$trainer["id"];
 		$fromTable=Config("db_prefix")."_training_unit";
 		for($unitNo=1; $unitNo <= $numberOfUnits; $unitNo++)$this->_db->queryInsert($columns,$fromTable);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("saved_message_title"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("saved_message_title"),""));
 		return "training";}}
 class CreateYouthMatchRequestController extends Controller {
 	function executeAction($parameters){
 		if(!Config("youth_enabled")|| !Config("youth_matchrequests_enabled"))return NULL;
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
-		if($clubId<1)throw new Exception($this->_i18n->getMessage("error_action_required_team"));
+		if($clubId<1)throw new Exception(Message("error_action_required_team"));
 		$tooLateBoundary=$this->_websoccer->getNowAsTimestamp()+ 3600*24*(1 +Config("youth_matchrequest_max_futuredays"));
 		$validTimes=explode(",",$Config("youth_matchrequest_allowedtimes"));
 		$timeIsValid=FALSE;
@@ -3788,31 +3739,31 @@ class CreateYouthMatchRequestController extends Controller {
 			if($matchTime==trim($validTime)){
 				$timeIsValid=TRUE;
 				break;}}
-		if(!$timeIsValid||$parameters["matchdate"]>$tooLateBoundary)throw new Exception($this->_i18n->getMessage("youthteam_matchrequest_create_err_invaliddate"));
+		if(!$timeIsValid||$parameters["matchdate"]>$tooLateBoundary)throw new Exception(Message("youthteam_matchrequest_create_err_invaliddate"));
 		$fromTable=Config("db_prefix")."_youthmatch_request";
 		$result=$this->_db->querySelect("COUNT(*)AS hits",$fromTable,"team_id=%d",$clubId);
 		$requests=$result->fetch_array();
 		$maxNoOfRequests=(int)Config("youth_matchrequest_max_open_requests");
-		if($requests && $requests["hits"] >= $maxNoOfRequests)throw new Exception($this->_i18n->getMessage("youthteam_matchrequest_create_err_too_many_open_requests",$maxNoOfRequests));
+		if($requests && $requests["hits"] >= $maxNoOfRequests)throw new Exception(Message("youthteam_matchrequest_create_err_too_many_open_requests",$maxNoOfRequests));
 		if($parameters["reward"]){
 			$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
-			if($team["team_budget"] <= $parameters["reward"])throw new Exception($this->_i18n->getMessage("youthteam_matchrequest_create_err_budgetnotenough"));}
-		if(YouthPlayersDataService::countYouthPlayersOfTeam($this->_websoccer,$this->_db,$clubId)< 11)throw new Exception($this->_i18n->getMessage("youthteam_matchrequest_create_err_notenoughplayers"));
+			if($team["team_budget"] <= $parameters["reward"])throw new Exception(Message("youthteam_matchrequest_create_err_budgetnotenough"));}
+		if(YouthPlayersDataService::countYouthPlayersOfTeam($this->_websoccer,$this->_db,$clubId)< 11)throw new Exception(Message("youthteam_matchrequest_create_err_notenoughplayers"));
 		$maxMatchesPerDay=Config("youth_match_maxperday");
-		if(YouthMatchesDataService::countMatchesOfTeamOnSameDay($this->_websoccer,$this->_db,$clubId,$parameters["matchdate"])>= $maxMatchesPerDay)throw new Exception($this->_i18n->getMessage("youthteam_matchrequest_err_maxperday_violated",$maxMatchesPerDay));
+		if(YouthMatchesDataService::countMatchesOfTeamOnSameDay($this->_websoccer,$this->_db,$clubId,$parameters["matchdate"])>= $maxMatchesPerDay)throw new Exception(Message("youthteam_matchrequest_err_maxperday_violated",$maxMatchesPerDay));
 		$columns=array( "team_id"=>$clubId,"matchdate"=>$parameters["matchdate"],"reward"=>$parameters["reward"]);
 		$this->_db->queryInsert($columns,$fromTable);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("youthteam_matchrequest_create_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_matchrequest_create_success"),""));
 		return "youth-matchrequests";}}
 class DeleteMessageController extends Controller {
 	function executeAction($parameters){
 		$id=$parameters["id"];
 		$message=MessagesDataService::getMessageById($this->_websoccer,$this->_db,$id);
-		if($message==null)throw new Exception($this->_i18n->getMessage("messages_delete_invalidid"));
+		if($message==null)throw new Exception(Message("messages_delete_invalidid"));
 		$fromTable=Config("db_prefix")."_briefe";
 		$whereCondition="id=%d";
 		$this->_db->queryDelete($fromTable,$whereCondition,$id);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("messages_delete_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("messages_delete_success"),""));
 		return null;}}
 class DeleteProfilePictureController extends Controller {
 	function executeAction($parameters){
@@ -3825,7 +3776,7 @@ class DeleteProfilePictureController extends Controller {
 		if(strlen($userinfo["picture"])&& file_exists(PROFPIC_UPLOADFOLDER."/".$userinfo["picture"]))unlink(PROFPIC_UPLOADFOLDER."/".$userinfo["picture"]);
 		$this->_db->queryUpdate(array("picture"=>""),$fromTable,$whereCondition,$userId);
 		$this->_websoccer->getUser()->setProfilePicture($this->_websoccer, null);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("delete-profile-picture_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("delete-profile-picture_success"),""));
 		return "user";}}
 class DeleteShoutBoxMessageController extends Controller {
 	function executeAction($parameters){
@@ -3838,46 +3789,46 @@ class DirectTransferAcceptController extends Controller {
 		$result=$this->_db->querySelect("*",Config("db_prefix")."_transfer_offer","id=%d AND rejected_date=0 AND admin_approval_pending='0'",$parameters["id"]);
 		$offer=$result->fetch_array();
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$offer["player_id"]);
-		if($player["player_transfermarket"])throw new Exception($this->_i18n->getMessage("transferoffer_err_unsellable"));
+		if($player["player_transfermarket"])throw new Exception(Message("transferoffer_err_unsellable"));
 		if($offer["offer_player1"]||$offer["offer_player2"]){
 			$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
 			if($offer["offer_player1"])$this->checkExchangePlayer($offer["offer_player1"],$offer["sender_user_id"],$team["team_budget"]);
 			if($offer["offer_player2"])$this->checkExchangePlayer($offer["offer_player2"],$offer["sender_user_id"],$team["team_budget"]);}
 		$teamSize=TeamsDataService::getTeamSize($this->_websoccer,$this->_db,$clubId);
-		if($teamSize <Config("transfermarket_min_teamsize"))throw new Exception($this->_i18n->getMessage("sell_player_teamsize_too_small",$teamSize));
+		if($teamSize <Config("transfermarket_min_teamsize"))throw new Exception(Message("sell_player_teamsize_too_small",$teamSize));
 		if(Config("transferoffers_adminapproval_required")){
 			$this->_db->queryUpdate(array("admin_approval_pending"=>"1"),Config("db_prefix")."_transfer_offer","id=%d",$parameters["id"]);
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("transferoffer_accepted_title"),$this->_i18n->getMessage("transferoffer_accepted_message_approvalpending")));}
+			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transferoffer_accepted_title"),Message("transferoffer_accepted_message_approvalpending")));}
 		else{
 			DirectTransfersDataService::executeTransferFromOffer($this->_websoccer,$this->_db,$parameters["id"]);
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("transferoffer_accepted_title"),$this->_i18n->getMessage("transferoffer_accepted_message")));}
+			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transferoffer_accepted_title"),Message("transferoffer_accepted_message")));}
 		return null;}
 	function checkExchangePlayer($playerId,$userId,$teamBudget){
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		$playerName=(strlen($player["player_pseudonym"]))? $player["player_pseudonym"] : $player["player_firstname"]." ".$player["player_lastname"];
-		if($player["player_transfermarket"])throw new Exception($this->_i18n->getMessage("transferoffer_accept_err_exchangeplayer_on_transfermarket",$playerName));
-		if($player["team_user_id"]!=$userId)throw new Exception($this->_i18n->getMessage("transferoffer_accept_err_exchangeplayer_notinteam",$playerName));
+		if($player["player_transfermarket"])throw new Exception(Message("transferoffer_accept_err_exchangeplayer_on_transfermarket",$playerName));
+		if($player["team_user_id"]!=$userId)throw new Exception(Message("transferoffer_accept_err_exchangeplayer_notinteam",$playerName));
 		$minBudget=40*$player["player_contract_salary"];
-		if($teamBudget<$minBudget)throw new Exception($this->_i18n->getMessage("transferoffer_accept_err_exchangeplayer_salarytoohigh",$playerName));}}
+		if($teamBudget<$minBudget)throw new Exception(Message("transferoffer_accept_err_exchangeplayer_salarytoohigh",$playerName));}}
 class DirectTransferCancelController extends Controller {
 	function executeAction($parameters){
 		if(Config("transferoffers_enabled"))return;
 		$userId=$this->_websoccer->getUser()->id;
 		$result=$this->_db->querySelect("*",Config("db_prefix")."_transfer_offer","id=%d AND sender_user_id=%d",array($parameters["id"],$userId));
 		$offer=$result->fetch_array();
-		if(!$offer)throw new Exception($this->_i18n->getMessage("transferoffers_offer_cancellation_notfound"));
+		if(!$offer)throw new Exception(Message("transferoffers_offer_cancellation_notfound"));
 		$this->_db->queryDelete(Config("db_prefix")."_transfer_offer","id=%d",$offer["id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("transferoffers_offer_cancellation_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transferoffers_offer_cancellation_success"),""));
 		return null;}}
 class DirectTransferOfferController extends Controller {
 	function executeAction($parameters){
 		if(!Config("transferoffers_enabled"))return;
 		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		if($clubId==null)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($clubId==null)throw new Exception(Message("feature_requires_team"));
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$this->_websoccer->getRequestParameter("id"));
-		if(!$player["team_user_id"])throw new Exception($this->_i18n->getMessage("transferoffer_err_nomanager"));
-		if($player["team_user_id"]==$this->_websoccer->getUser()->id)throw new Exception($this->_i18n->getMessage("transferoffer_err_ownplayer"));
-		if($player["player_unsellable"]||$player["player_transfermarket"])throw new Exception($this->_i18n->getMessage("transferoffer_err_unsellable"));
+		if(!$player["team_user_id"])throw new Exception(Message("transferoffer_err_nomanager"));
+		if($player["team_user_id"]==$this->_websoccer->getUser()->id)throw new Exception(Message("transferoffer_err_ownplayer"));
+		if($player["player_unsellable"]||$player["player_transfermarket"])throw new Exception(Message("transferoffer_err_unsellable"));
 		$this->checkIfThereAreAlreadyOpenOffersFromUser($player["team_id"]);
 		$this->checkIfUserIsAllowedToSendAlternativeOffers($player["player_id"]);
 		$this->checkPlayersTransferStop($player["player_id"]);
@@ -3886,42 +3837,42 @@ class DirectTransferOfferController extends Controller {
 		if($parameters["exchangeplayer1"]||$parameters["exchangeplayer2"]){
 			$teamSize=TeamsDataService::getTeamSize($this->_websoccer,$this->_db,$clubId);
 			$numberOfSizeReduction=($parameters["exchangeplayer2"])? 1 : 0;
-			if($teamSize<(Config("transfermarket_min_teamsize")- $numberOfSizeReduction))throw new Exception($this->_i18n->getMessage("sell_player_teamsize_too_small",$teamSize));}
+			if($teamSize<(Config("transfermarket_min_teamsize")- $numberOfSizeReduction))throw new Exception(Message("sell_player_teamsize_too_small",$teamSize));}
 		$noOfTransactions=TransfermarketDataService::getTransactionsBetweenUsers($this->_websoccer,$this->_db,$player["team_user_id"],$this->_websoccer->getUser()->id);
 		$maxTransactions=Config("transfermarket_max_transactions_between_users");
-		if($noOfTransactions >= $maxTransactions)throw new Exception($this->_i18n->getMessage("transfer_bid_too_many_transactions_with_user",$noOfTransactions));
+		if($noOfTransactions >= $maxTransactions)throw new Exception(Message("transfer_bid_too_many_transactions_with_user",$noOfTransactions));
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
 		$totalOffers=$this->getSumOfAllOpenOffers()+ $parameters["amount"];
-		if($team["team_budget"]<$totalOffers)throw new Exception($this->_i18n->getMessage("transferoffer_err_totaloffers_too_high"));
+		if($team["team_budget"]<$totalOffers)throw new Exception(Message("transferoffer_err_totaloffers_too_high"));
 		TeamsDataService::validateWhetherTeamHasEnoughBudgetForSalaryBid($this->_websoccer,$this->_db,$this->_i18n,$clubId,$player["player_contract_salary"]);
 		DirectTransfersDataService::createTransferOffer($this->_websoccer,$this->_db,$player["player_id"],$this->_websoccer->getUser()->id,$clubId,$player["team_user_id"],$player["team_id"],$parameters["amount"],$parameters["comment"],
 			$parameters["exchangeplayer1"],$parameters["exchangeplayer2"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("transferoffer_submitted_title"),$this->_i18n->getMessage("transferoffer_submitted_message")));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transferoffer_submitted_title"),Message("transferoffer_submitted_message")));
 		return null;}
 	function checkIfThereAreAlreadyOpenOffersFromUser($teamId){
 		if(Config("transferoffers_adminapproval_required"))return;
 		$result=$this->_db->querySelect("COUNT(*)AS hits",Config("db_prefix")."_transfer_offer","rejected_date=0 AND sender_user_id=%d AND receiver_club_id=%d",array($this->_websoccer->getUser()->id,$teamId));
 		$count=$result->fetch_array();
-		if($count["hits"])throw new Exception($this->_i18n->getMessage("transferoffer_err_open_offers_exist"));}
+		if($count["hits"])throw new Exception(Message("transferoffer_err_open_offers_exist"));}
 	function checkIfUserIsAllowedToSendAlternativeOffers($playerId){
 		$result=$this->_db->querySelect("COUNT(*)AS hits",Config("db_prefix")."_transfer_offer","rejected_date>0 AND rejected_allow_alternative='0' AND player_id=%d AND sender_user_id=%d",array($playerId,$this->_websoccer->getUser()->id));
 		$count=$result->fetch_array();
-		if($count["hits"])throw new Exception($this->_i18n->getMessage("transferoffer_err_noalternative_allowed"));}
+		if($count["hits"])throw new Exception(Message("transferoffer_err_noalternative_allowed"));}
 	function checkPlayersTransferStop($playerId){
 		if(Config("transferoffers_transfer_stop_days")< 1)return;
 		$transferBoundary=$this->_websoccer->getNowAsTimestamp()- 24*3600 *Config("transferoffers_transfer_stop_days");
 		$result=$this->_db->querySelect("COUNT(*)AS hits",Config("db_prefix")."_transfer","spieler_id=%d AND datum>%d",array($playerId,$transferBoundary));
 		$count=$result->fetch_array();
-		if($count["hits"])throw new Exception($this->_i18n->getMessage("transferoffer_err_transferstop",Config("transferoffers_transfer_stop_days")));}
+		if($count["hits"])throw new Exception(Message("transferoffer_err_transferstop",Config("transferoffers_transfer_stop_days")));}
 	function checkExchangePlayer($playerId){
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		$playerName=(strlen($player["player_pseudonym"]))? $player["player_pseudonym"] : $player["player_firstname"]." ".$player["player_lastname"];
-		if($player["player_transfermarket"]||$player["team_user_id"]!=$this->_websoccer->getUser()->id)throw new Exception($this->_i18n->getMessage("transferoffer_err_exchangeplayer_on_transfermarket",$playerName));
+		if($player["player_transfermarket"]||$player["team_user_id"]!=$this->_websoccer->getUser()->id)throw new Exception(Message("transferoffer_err_exchangeplayer_on_transfermarket",$playerName));
 		$result=$this->_db->querySelect("COUNT(*)AS hits",Config("db_prefix")."_transfer_offer","rejected_date=0 AND (offer_player1=%d OR offer_player2=%d)",array($playerId,$playerId,$playerId));
 		$count=$result->fetch_array();
-		if($count["hits"])throw new Exception($this->_i18n->getMessage("transferoffer_err_exchangeplayer_involved_in_other_offers",$playerName));
+		if($count["hits"])throw new Exception(Message("transferoffer_err_exchangeplayer_involved_in_other_offers",$playerName));
 		try { $this->checkPlayersTransferStop($playerId);}
-		catch(Exception $e){ throw new Exception($this->_i18n->getMessage("transferoffer_err_exchangeplayer_transferstop",$playerName));}}
+		catch(Exception $e){ throw new Exception(Message("transferoffer_err_exchangeplayer_transferstop",$playerName));}}
 	function getSumOfAllOpenOffers(){
 		$result=$this->_db->querySelect("SUM(offer_amount)AS amount",Config("db_prefix")."_transfer_offer","rejected_date=0 AND sender_user_id=%d",$this->_websoccer->getUser()->id);
 		$sum=$result->fetch_array();
@@ -3933,14 +3884,14 @@ class DirectTransferRejectController extends Controller {
 		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$result=$this->_db->querySelect("*",Config("db_prefix")."_transfer_offer","id=%d AND receiver_club_id=%d",array($parameters["id"],$clubId));
 		$offer=$result->fetch_array();
-		if(!$offer)throw new Exception($this->_i18n->getMessage("transferoffers_offer_cancellation_notfound"));
+		if(!$offer)throw new Exception(Message("transferoffers_offer_cancellation_notfound"));
 		$this->_db->queryUpdate(array( "rejected_date"=>$this->_websoccer->getNowAsTimestamp(),"rejected_message"=>$parameters["comment"],"rejected_allow_alternative"=>($parameters["allow_alternative"])? 1 : 0),Config("db_prefix")."_transfer_offer","id=%d",$offer["id"]);
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$offer["player_id"]);
 		if($player["player_pseudonym"])$playerName=$player["player_pseudonym"];
 		else $playerName=$player["player_firstname"]." ".$player["player_lastname"];
 		NotificationsDataService::createNotification($this->_websoccer,$this->_db,$offer["sender_user_id"],"transferoffer_notification_rejected",array("playername"=>$playerName,"receivername"=>$this->_websoccer->getUser()->username),"transferoffer",
 			"transferoffers#sent");
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("transferoffers_offer_reject_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transferoffers_offer_reject_success"),""));
 		return null;}}
 class DisableAccountController extends Controller {
 	function executeAction($parameters){
@@ -3953,7 +3904,7 @@ class DisableAccountController extends Controller {
 			if(!class_exists($authenticatorClass))throw new Exception("Class not found: ".$authenticatorClass);
 			$authenticator=new $authenticatorClass($this->_websoccer);
 			$authenticator->logoutUser($this->_websoccer->getUser());}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("cancellation_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("cancellation_success"),""));
 		return "home";}}
 class ExchangePremiumController extends Controller {
 	function executeAction($parameters){
@@ -3961,14 +3912,14 @@ class ExchangePremiumController extends Controller {
 		$exchangeRate=(int)Config("premium_exchangerate_gamecurrency");
 		if($exchangeRate <= 0)throw new Exception("featue is disabled!");
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
-		if(!$clubId)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if(!$clubId)throw new Exception(Message("feature_requires_team"));
 		$amount=$parameters["amount"];
 		$balance=$user->premiumBalance;
-		if($balance<$amount)throw new Exception($this->_i18n->getMessage("premium-exchange_err_balancenotenough"));
+		if($balance<$amount)throw new Exception(Message("premium-exchange_err_balancenotenough"));
 		if($parameters["validateonly"])return "premium-exchange-confirm";
 		BankAccountDataService::creditAmount($this->_websoccer,$this->_db,$clubId,$amount*$exchangeRate,"premium-exchange_team_subject",$user->username);
 		PremiumDataService::debitAmount($this->_websoccer,$this->_db,$user->id,$amount,"exchange-premium");
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("premium-exchange_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("premium-exchange_success"),""));
 		return "premiumaccount";}}
 class ExecuteTrainingController extends Controller {
 	function executeAction($parameters){
@@ -3977,16 +3928,16 @@ class ExecuteTrainingController extends Controller {
 		if($teamId<1)return null;
 		$unit=TrainingDataService::getTrainingUnitById($this->_websoccer,$this->_db,$teamId,$parameters["id"]);
 		if(!isset($unit["id"]))throw new Exception("invalid ID");
-		if($unit["date_executed"])throw new Exception($this->_i18n->getMessage("training_execute_err_already_executed"));
+		if($unit["date_executed"])throw new Exception(Message("training_execute_err_already_executed"));
 		$previousExecution=TrainingDataService::getLatestTrainingExecutionTime($this->_websoccer,$this->_db,$teamId);
 		$earliestValidExecution=$previousExecution + 3600 *Config("training_min_hours_between_execution");
 		$now=$this->_websoccer->getNowAsTimestamp();
-		if($now<$earliestValidExecution)throw new Exception($this->_i18n->getMessage("training_execute_err_too_early",$this->_websoccer->getFormattedDatetime($earliestValidExecution)));
+		if($now<$earliestValidExecution)throw new Exception(Message("training_execute_err_too_early",$this->_websoccer->getFormattedDatetime($earliestValidExecution)));
 		$campBookings=TrainingcampsDataService::getCampBookingsByTeam($this->_websoccer,$this->_db,$teamId);
 		foreach($campBookings as $booking){
-			if($booking["date_start"] <= $now && $booking["date_end"] >= $now)throw new Exception($this->_i18n->getMessage("training_execute_err_team_in_training_camp"));}
+			if($booking["date_start"] <= $now && $booking["date_end"] >= $now)throw new Exception(Message("training_execute_err_team_in_training_camp"));}
 		$liveMatch=MatchesDataService::getLiveMatchByTeam($this->_websoccer,$this->_db,$teamId);
-		if(isset($liveMatch["match_id"]))throw new Exception($this->_i18n->getMessage("training_execute_err_match_simulating"));
+		if(isset($liveMatch["match_id"]))throw new Exception(Message("training_execute_err_match_simulating"));
 		$trainer=TrainingDataService::getTrainerById($this->_websoccer,$this->_db,$unit["trainer_id"]);
 		$columns["focus"]=$parameters["focus"];
 		$unit["focus"]=$parameters["focus"];
@@ -3997,7 +3948,7 @@ class ExecuteTrainingController extends Controller {
 		$fromTable=Config("db_prefix")."_training_unit";
 		$whereCondition="id=%d";
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$unit["id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("training_execute_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("training_execute_success"),""));
 		return null;}
 	function trainPlayers($teamId,$trainer,$unit){
 		$players=PlayersDataService::getPlayersOfTeamById($this->_websoccer,$this->_db,$teamId);
@@ -4057,9 +4008,9 @@ class ExtendContractController extends Controller {
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception("nice try");
 		$satisfaction=$player["player_strength_satisfaction"];
-		if($satisfaction<MINIMUM_SATISFACTION_FOR_EXTENSION)throw new Exception($this->_i18n->getMessage("extend-contract_player_is_unhappy"));
-		if($player["player_transfermarket"])throw new Exception($this->_i18n->getMessage("sell_player_already_on_list"));
-		if($parameters["salary"]<$player["player_contract_salary"])throw new Exception($this->_i18n->getMessage("extend-contract_lower_than_current_salary"));
+		if($satisfaction<MINIMUM_SATISFACTION_FOR_EXTENSION)throw new Exception(Message("extend-contract_player_is_unhappy"));
+		if($player["player_transfermarket"])throw new Exception(Message("sell_player_already_on_list"));
+		if($parameters["salary"]<$player["player_contract_salary"])throw new Exception(Message("extend-contract_lower_than_current_salary"));
 		$averageSalary=$this->getAverageSalary($player["player_strength"]);
 		if($player["player_contract_salary"]>$averageSalary)$salaryFactor=1.10;
 		else $salaryFactor=(200 - $satisfaction)/ 100;
@@ -4070,13 +4021,13 @@ class ExtendContractController extends Controller {
 			$minSalary=max($minSalary,$minSalaryOfAverage);}
 		if($parameters["salary"]<$minSalary){
 			$this->decreaseSatisfaction($player["player_id"],$player["player_strength_satisfaction"]);
-			throw new Exception($this->_i18n->getMessage("extend-contract_salary_too_low"));}
+			throw new Exception(Message("extend-contract_salary_too_low"));}
 		TeamsDataService::validateWhetherTeamHasEnoughBudgetForSalaryBid($this->_websoccer,$this->_db,$this->_i18n,$clubId,$parameters["salary"]);
 		$minGoalBonus=$player["player_contract_goalbonus"]*1.3;
-		if($parameters["goal_bonus"]<$minGoalBonus)throw new Exception($this->_i18n->getMessage("extend-contract_goalbonus_too_low"));
+		if($parameters["goal_bonus"]<$minGoalBonus)throw new Exception(Message("extend-contract_goalbonus_too_low"));
 		$this->updatePlayer($player["player_id"],$player["player_strength_satisfaction"],$parameters["salary"],$parameters["goal_bonus"],$parameters["matches"]);
 		UserInactivityDataService::resetContractExtensionField($this->_websoccer,$this->_db,$user->id);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("extend-contract_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("extend-contract_success"),""));
 		return null;}
 	function getAverageSalary($playerStrength){
 		$columns="AVG(vertrag_gehalt)AS average_salary";
@@ -4114,12 +4065,12 @@ class ExtendStadiumController extends Controller {
 		$stadium=StadiumsDataService::getStadiumByTeamId($this->_websoccer,$this->_db,$teamId);
 		if(!$stadium)return null;
 		$seatsSide=$stadium["places_stands"] + $stadium["places_seats"] + $parameters["side_standing"] + $parameters["side_seats"];
-		if($seatsSide >Config("stadium_max_side"))throw new Exception($this->_i18n->getMessage("stadium_extend_err_exceed_max_side",Config("stadium_max_side")));
+		if($seatsSide >Config("stadium_max_side"))throw new Exception(Message("stadium_extend_err_exceed_max_side",Config("stadium_max_side")));
 		$seatsGrand=$stadium["places_stands_grand"] + $stadium["places_seats_grand"] + $parameters["grand_standing"] + $parameters["grand_seats"];
-		if($seatsGrand >Config("stadium_max_grand"))throw new Exception($this->_i18n->getMessage("stadium_extend_err_exceed_max_grand",Config("stadium_max_grand")));
+		if($seatsGrand >Config("stadium_max_grand"))throw new Exception(Message("stadium_extend_err_exceed_max_grand",Config("stadium_max_grand")));
 		$seatsVip=$stadium["places_vip"] + $parameters["vip"];
-		if($seatsVip >Config("stadium_max_vip"))throw new Exception($this->_i18n->getMessage("stadium_extend_err_exceed_max_vip",Config("stadium_max_vip")));
-		if(StadiumsDataService::getCurrentConstructionOrderOfTeam($this->_websoccer,$this->_db,$teamId)!= NULL)throw new Exception($this->_i18n->getMessage("stadium_extend_err_constructionongoing"));
+		if($seatsVip >Config("stadium_max_vip"))throw new Exception(Message("stadium_extend_err_exceed_max_vip",Config("stadium_max_vip")));
+		if(StadiumsDataService::getCurrentConstructionOrderOfTeam($this->_websoccer,$this->_db,$teamId)!= NULL)throw new Exception(Message("stadium_extend_err_constructionongoing"));
 		if(isset($parameters["validate-only"])&& $parameters["validate-only"])return "stadium-extend-confirm";
 		$builderId=$this->_websoccer->getRequestParameter("offerid");
 		$offers=StadiumsDataService::getBuilderOffersForExtension($this->_websoccer,$this->_db,$teamId, (int)$this->_websoccer->getRequestParameter("side_standing"), (int)$this->_websoccer->getRequestParameter("side_seats"),
@@ -4128,13 +4079,13 @@ class ExtendStadiumController extends Controller {
 		$offer=$offers[$builderId];
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$teamId);
 		$totalCosts=$offer["totalCosts"];
-		if($team["team_budget"] <= $totalCosts)throw new Exception($this->_i18n->getMessage("stadium_extend_err_too_expensive"));
+		if($team["team_budget"] <= $totalCosts)throw new Exception(Message("stadium_extend_err_too_expensive"));
 		if($offer["builder_premiumfee"])PremiumDataService::debitAmount($this->_websoccer,$this->_db,$user->id,$offer["builder_premiumfee"],"extend-stadium");
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$teamId,$totalCosts,"stadium_extend_transaction_subject",$offer["builder_name"]);
 		$this->_db->queryInsert(array("team_id"=>$teamId,"builder_id"=>$builderId,"started"=>$this->_websoccer->getNowAsTimestamp(),"deadline"=>$offer["deadline"],"p_steh"=>($parameters["side_standing"])? $parameters["side_standing"] : 0,
 			"p_sitz"=>($parameters["side_seats"])? $parameters["side_seats"] : 0,"p_haupt_steh"=>($parameters["grand_standing"])? $parameters["grand_standing"] : 0,"p_haupt_sitz"=>($parameters["grand_seats"])? $parameters["grand_seats"] : 0,
 			"p_vip"=>($parameters["vip"])? $parameters["vip"] : 0),Config("db_prefix")."_stadium_construction");
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("stadium_extend_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("stadium_extend_success"),""));
 		ActionLogDataService::createOrUpdateActionLog($this->_websoccer,$this->_db,$user->id,"extend-stadium");
 		$seats=$parameters["side_standing"] + $parameters["side_seats"] + $parameters["grand_standing"] + $parameters["grand_seats"] + $parameters["vip"];
 		BadgesDataService::awardBadgeIfApplicable($this->_websoccer,$this->_db,$user->id, 'stadium_construction_by_x',$seats);
@@ -4143,20 +4094,20 @@ class FacebookLoginController extends Controller {
 	function executeAction($parameters){
 		$userEmail=FacebookSdk::getInstance($this->_websoccer)->getUserEmail();
 		if(!strlen($userEmail)){
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,$this->_i18n->getMessage("facebooklogin_failure"),""));
+			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("facebooklogin_failure"),""));
 			return "home";}
 		$userEmail=strtolower($userEmail);
 		$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
 		if($userId<1)$userId=UsersDataService::createLocalUser($this->_websoccer,$this->_db, null,$userEmail);
 		SecurityUtil::loginFrontUserUsingApplicationSession($this->_websoccer,$userId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("facebooklogin_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("facebooklogin_success"),""));
 		return (strlen($this->_websoccer->getUser()->username))? "office" : "enter-username";}}
 class FacebookLogoutController extends Controller {
 	function executeAction($parameters){
 		if(strlen(FacebookSdk::getInstance($this->_websoccer)->getUserEmail())){
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_ERROR,$this->_i18n->getMessage("facebooklogout_failure"),""));
+			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_ERROR,Message("facebooklogout_failure"),""));
 			return null;}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("facebooklogout_success"),$this->_i18n->getMessage("facebooklogout_success_details")));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("facebooklogout_success"),Message("facebooklogout_success_details")));
 		return "home";}}
 class FirePlayerController extends Controller {
 	function executeAction($parameters){
@@ -4166,14 +4117,14 @@ class FirePlayerController extends Controller {
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception("nice try");
 		$teamSize=$this->getTeamSize($clubId);
-		if($teamSize <=Config("transfermarket_min_teamsize"))throw new Exception($this->_i18n->getMessage("sell_player_teamsize_too_small",$teamSize));
+		if($teamSize <=Config("transfermarket_min_teamsize"))throw new Exception(Message("sell_player_teamsize_too_small",$teamSize));
 		if(Config("player_resignation_compensation_matches")>0){
 			$compensation=Config("player_resignation_compensation_matches")* $player["player_contract_salary"];
 			$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
-			if($team["team_budget"] <= $compensation)throw new Exception($this->_i18n->getMessage("fireplayer_tooexpensive"));
+			if($team["team_budget"] <= $compensation)throw new Exception(Message("fireplayer_tooexpensive"));
 			BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$clubId,$compensation,"fireplayer_compensation_subject",$player["player_firstname"]." ".$player["player_lastname"]);}
 		$this->updatePlayer($player["player_id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("fireplayer_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("fireplayer_success"),""));
 		return null;}
 	function updatePlayer($playerId){
 		$columns["verein_id"]="";
@@ -4196,9 +4147,9 @@ class FireYouthPlayerController extends Controller {
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$parameters["id"]);
-		if($clubId!=$player["team_id"])throw new Exception($this->_i18n->getMessage("youthteam_err_notownplayer"));
+		if($clubId!=$player["team_id"])throw new Exception(Message("youthteam_err_notownplayer"));
 		$this->_db->queryDelete(Config("db_prefix")."_youthplayer","id=%d",$parameters["id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("youthteam_fire_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_fire_success"),""));
 		return "youth-team";}}
 class FormLoginController extends Controller {
 	function executeAction($parameters){
@@ -4209,7 +4160,7 @@ class FormLoginController extends Controller {
 		else $userId=$loginMethod->authenticateWithUsername($parameters["loginstr"],$parameters["loginpassword"]);
 		if(!$userId){
 			sleep(SLEEP_SECONDS_ON_FAILURE);
-			throw new Exception($this->_i18n->getMessage("formlogin_invalid_data"));}
+			throw new Exception(Message("formlogin_invalid_data"));}
 		SecurityUtil::loginFrontUserUsingApplicationSession($this->_websoccer,$userId);
 		if(isset($parameters["rememberme"])&& $parameters["rememberme"]==1){
 			$fromTable=Config("db_prefix")."_user";
@@ -4228,13 +4179,13 @@ class GoogleplusLoginController extends Controller {
 	function executeAction($parameters){
 		$userEmail=GoogleplusSdk::getInstance($this->_websoccer)->authenticateUser();
 		if(!$userEmail){
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,$this->_i18n->getMessage("googlepluslogin_failure"),""));
+			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("googlepluslogin_failure"),""));
 			return "home";}
 		$userEmail=strtolower($userEmail);
 		$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
 		if($userId<1)$userId=UsersDataService::createLocalUser($this->_websoccer,$this->_db, null,$userEmail);
 		SecurityUtil::loginFrontUserUsingApplicationSession($this->_websoccer,$userId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("googlepluslogin_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("googlepluslogin_success"),""));
 		return (strlen($this->_websoccer->getUser()->username))? "office" : "enter-username";}}
 class LanguageSwitcherController extends Controller {
 	function executeAction($parameters){
@@ -4258,16 +4209,16 @@ class LendPlayerController extends Controller {
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
-		if($clubId!=$player["team_id"])throw new Exception($this->_i18n->getMessage("lending_err_notownplayer"));
-		if($player["lending_owner_id"]>0)throw new Exception($this->_i18n->getMessage("lending_err_borrowed_player"));
-		if($player["lending_fee"]>0)throw new Exception($this->_i18n->getMessage("lending_err_alreadyoffered"));
-		if($player["player_transfermarket"]>0)throw new Exception($this->_i18n->getMessage("lending_err_on_transfermarket"));
+		if($clubId!=$player["team_id"])throw new Exception(Message("lending_err_notownplayer"));
+		if($player["lending_owner_id"]>0)throw new Exception(Message("lending_err_borrowed_player"));
+		if($player["lending_fee"]>0)throw new Exception(Message("lending_err_alreadyoffered"));
+		if($player["player_transfermarket"]>0)throw new Exception(Message("lending_err_on_transfermarket"));
 		$teamSize=TeamsDataService::getTeamSize($this->_websoccer,$this->_db,$clubId);
-		if($teamSize <=Config("transfermarket_min_teamsize"))throw new Exception($this->_i18n->getMessage("lending_err_teamsize_too_small",$teamSize));
+		if($teamSize <=Config("transfermarket_min_teamsize"))throw new Exception(Message("lending_err_teamsize_too_small",$teamSize));
 		$minBidBoundary=round($player["player_marketvalue"] / 2);
-		if($player["player_contract_matches"] <=Config("lending_matches_min"))throw new Exception($this->_i18n->getMessage("lending_err_contract_too_short"));
+		if($player["player_contract_matches"] <=Config("lending_matches_min"))throw new Exception(Message("lending_err_contract_too_short"));
 		$this->updatePlayer($player["player_id"],$parameters["fee"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("lend_player_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("lend_player_success"),""));
 		return "myteam";}
 	function updatePlayer($playerId,$fee){
 		$columns=array("lending_fee"=>$fee);
@@ -4283,7 +4234,7 @@ class LogoutController extends Controller {
 			if(!class_exists($authenticatorClass))throw new Exception("Class not found: ".$authenticatorClass);
 			$authenticator=new $authenticatorClass($this->_websoccer);
 			$authenticator->logoutUser($this->_websoccer->getUser());}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("logout_message_title"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("logout_message_title"),""));
 		return "home";}}
 class MarkAsUnsellableController extends Controller {
 	function executeAction($parameters){
@@ -4296,7 +4247,7 @@ class MarkAsUnsellableController extends Controller {
 		$whereCondition="id=%d";
 		$parameters=$parameters["id"];
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("myteam_unsellable_player_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("myteam_unsellable_player_success"),""));
 		return null;}}
 class MicropaymentRedirectController extends Controller {
 	function executeAction($parameters){
@@ -4339,17 +4290,17 @@ class MoveYouthPlayerToProfessionalController extends Controller {
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$parameters["id"]);
-		if($clubId!=$player["team_id"])throw new Exception($this->_i18n->getMessage("youthteam_err_notownplayer"));
-		if($player["age"] <Config("youth_min_age_professional"))throw new Exception($this->_i18n->getMessage("youthteam_makeprofessional_err_tooyoung",Config("youth_min_age_professional")));
+		if($clubId!=$player["team_id"])throw new Exception(Message("youthteam_err_notownplayer"));
+		if($player["age"] <Config("youth_min_age_professional"))throw new Exception(Message("youthteam_makeprofessional_err_tooyoung",Config("youth_min_age_professional")));
 		if($player["position"]=="Torwart")$validPositions=array("T");
 		elseif($player["position"]=="Abwehr")$validPositions=array("LV","IV","RV");
 		elseif($player["position"]=="Mittelfeld")$validPositions=array("LM","RM","DM","OM","ZM");
 		else $validPositions=array("LS","RS","MS");
-		if(!in_array($parameters["mainposition"],$validPositions))throw new Exception($this->_i18n->getMessage("youthteam_makeprofessional_err_invalidmainposition"));
+		if(!in_array($parameters["mainposition"],$validPositions))throw new Exception(Message("youthteam_makeprofessional_err_invalidmainposition"));
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
-		if($team["team_budget"] <= TeamsDataService::getTotalPlayersSalariesOfTeam($this->_websoccer,$this->_db,$clubId))throw new Exception($this->_i18n->getMessage("youthteam_makeprofessional_err_budgettooless"));
+		if($team["team_budget"] <= TeamsDataService::getTotalPlayersSalariesOfTeam($this->_websoccer,$this->_db,$clubId))throw new Exception(Message("youthteam_makeprofessional_err_budgettooless"));
 		$this->createPlayer($player,$parameters["mainposition"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("youthteam_makeprofessional_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_makeprofessional_success"),""));
 		return "myteam";}
 	function createPlayer($player,$mainPosition){
 		$time=strtotime("-".$player["age"]." years",$this->_websoccer->getNowAsTimestamp());
@@ -4365,21 +4316,21 @@ class OrderBuildingController extends Controller {
 		$buildingId=$parameters['id'];
 		$user=$this->_websoccer->getUser();
 		$teamId=$user->getClubId($this->_websoccer,$this->_db);
-		if(!$teamId)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if(!$teamId)throw new Exception(Message("feature_requires_team"));
 		$dbPrefix=Config('db_prefix');
 		$result=$this->_db->querySelect('*',$dbPrefix.'_stadiumbuilding', 'id=%d',$buildingId);
 		$building=$result->fetch_array();
 		if(!$building)throw new Exception('illegal building.');
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$teamId);
-		if($team['team_budget'] <= $building['costs'])throw new Exception($this->_i18n->getMessage('stadiumenvironment_build_err_too_expensive'));
+		if($team['team_budget'] <= $building['costs'])throw new Exception(Message('stadiumenvironment_build_err_too_expensive'));
 		$result=$this->_db->querySelect('*',$dbPrefix.'_buildings_of_team', 'team_id=%d AND building_id=%d',array($teamId,$buildingId));
 		$buildingExists=$result->fetch_array();
-		if($buildingExists)throw new Exception($this->_i18n->getMessage('stadiumenvironment_build_err_already_exists'));
+		if($buildingExists)throw new Exception(Message('stadiumenvironment_build_err_already_exists'));
 		if($building['required_building_id']){
 			$result=$this->_db->querySelect('*',$dbPrefix.'_buildings_of_team', 'team_id=%d AND building_id=%d',array($teamId,$building['required_building_id']));
 			$requiredBuildingExists=$result->fetch_array();
-			if(!$requiredBuildingExists)throw new Exception($this->_i18n->getMessage('stadiumenvironment_build_err_requires_building'));}
-		if($building['premiumfee']>$user->premiumBalance)throw new Exception($this->_i18n->getMessage('stadiumenvironment_build_err_premium_balance'));
+			if(!$requiredBuildingExists)throw new Exception(Message('stadiumenvironment_build_err_requires_building'));}
+		if($building['premiumfee']>$user->premiumBalance)throw new Exception(Message('stadiumenvironment_build_err_premium_balance'));
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$teamId,$building['costs'],'building_construction_fee_subject',$building['name']);
 		$constructionDeadline=$this->_websoccer->getNowAsTimestamp()+ $building['construction_time_days']*24*3600;
 		$this->_db->queryInsert(array('building_id'=>$buildingId, 'team_id'=>$teamId, 'construction_deadline'=>$constructionDeadline),$dbPrefix.'_buildings_of_team');
@@ -4389,7 +4340,7 @@ class OrderBuildingController extends Controller {
 			$userinfo=$result->fetch_array();
 			$popularity=min(100, max(1,$building['effect_fanpopularity'] + $userinfo['fanbeliebtheit']));
 			$this->_db->queryUpdate(array('fanbeliebtheit'=>$popularity),$dbPrefix.'_user', 'id=%d',$user->id);}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("stadiumenvironment_build_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("stadiumenvironment_build_success"),""));
 		return null;}}
 class PaypalPaymentNotificationController extends Controller {
 	function executeAction($parameters){
@@ -4431,15 +4382,15 @@ class PremiumActionDummyController extends Controller {
 		return null;}}
 class RegisterFormController extends Controller {
 	function executeAction($parameters){
-		if(!Config("allow_userregistration"))throw new Exception($this->_i18n->getMessage("registration_disabled"));
+		if(!Config("allow_userregistration"))throw new Exception(Message("registration_disabled"));
 		$illegalUsernames=explode(",",strtolower(str_replace(",",",",Config("illegal_usernames"))));
-		if(array_search(strtolower($parameters["nick"]),$illegalUsernames))throw new Exception($this->_i18n->getMessage("registration_illegal_username"));
-		if($parameters["email"] !==$parameters["email_repeat"])throw new Exception($this->_i18n->getMessage("registration_repeated_email_notmatching"));
-		if($parameters["pswd"] !==$parameters["pswd_repeat"])throw new Exception($this->_i18n->getMessage("registration_repeated_password_notmatching"));
+		if(array_search(strtolower($parameters["nick"]),$illegalUsernames))throw new Exception(Message("registration_illegal_username"));
+		if($parameters["email"] !==$parameters["email_repeat"])throw new Exception(Message("registration_repeated_email_notmatching"));
+		if($parameters["pswd"] !==$parameters["pswd_repeat"])throw new Exception(Message("registration_repeated_password_notmatching"));
 		if(Config("register_use_captcha")&& strlen(Config("register_captcha_publickey"))&& strlen(Config("register_captcha_privatekey"))){
 			include_once($_SERVER['DOCUMENT_ROOT']."/lib/recaptcha/recaptchalib.php");
 			$captchaResponse=recaptcha_check_answer(Config("register_captcha_privatekey"),$_SERVER["REMOTE_ADDR"],$_POST["recaptcha_challenge_field"],$_POST["recaptcha_response_field"]);
-			if(!$captchaResponse->is_valid)throw new Exception($this->_i18n->getMessage("registration_invalidcaptcha"));}
+			if(!$captchaResponse->is_valid)throw new Exception(Message("registration_invalidcaptcha"));}
 		$columns="COUNT(*)AS hits";
 		$fromTable=Config("db_prefix")."_user";
 		$maxNumUsers=(int)Config("max_number_of_users");
@@ -4447,13 +4398,13 @@ class RegisterFormController extends Controller {
 			$wherePart="status=1";
 			$result=$this->_db->querySelect($columns,$fromTable,$wherePart);
 			$rows=$result->fetch_array();
-			if($rows["hits"] >= $maxNumUsers)throw new Exception($this->_i18n->getMessage("registration_max_number_users_exceeded"));}
+			if($rows["hits"] >= $maxNumUsers)throw new Exception(Message("registration_max_number_users_exceeded"));}
 		$wherePart="UPPER(nick)='%s' OR UPPER(email)='%s'";
 		$result=$this->_db->querySelect($columns,$fromTable,$wherePart,array(strtoupper($parameters["nick"]), strtoupper($parameters["email"])));
 		$rows=$result->fetch_array();
-		if($rows["hits"])throw new Exception($this->_i18n->getMessage("registration_user_exists"));
+		if($rows["hits"])throw new Exception(Message("registration_user_exists"));
 		$this->_createUser($parameters,$fromTable);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("register-success_message_title"),$this->_i18n->getMessage("register-success_message_content")));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("register-success_message_title"),Message("register-success_message_content")));
 		return "register-success";}
 	function _createUser($parameters,$fromTable){
 		$dbcolumns=[];
@@ -4473,7 +4424,7 @@ class RegisterFormController extends Controller {
 		$newuser=$result->fetch_array();
 		$querystr="key=".$dbcolumns["schluessel"] ."&userid=".$newuser["id"];
 		$tplparameters["activationlink"]=$this->_websoccer->getInternalActionUrl("activate",$querystr,"activate-user",TRUE);
-		EmailHelper::sendSystemEmailFromTemplate($this->_websoccer,$this->_i18n,$dbcolumns["email"],$this->_i18n->getMessage("activation_email_subject"),"useractivation",$tplparameters);
+		EmailHelper::sendSystemEmailFromTemplate($this->_websoccer,$this->_i18n,$dbcolumns["email"],Message("activation_email_subject"),"useractivation",$tplparameters);
 		$event=new UserRegisteredEvent($this->_websoccer,$this->_db,$this->_i18n,$newuser["id"],$dbcolumns["nick"],$dbcolumns["email"]);
 		PluginMediator::dispatchEvent($event);}}
 class RemoveFormationTemplateController extends Controller {
@@ -4489,16 +4440,16 @@ class RemoveNationalPlayerController extends Controller{
 	function executeAction($parameters){
 		if(!Config("nationalteams_enabled"))return NULL;
 		$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
-		if(!$teamId)throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
+		if(!$teamId)throw new Exception(Message("nationalteams_user_requires_team"));
 		$result=$this->_db->querySelect("name",Config("db_prefix")."_verein","id=%d",$teamId);
 		$team=$result->fetch_array();
 		$fromTable=Config("db_prefix")."_spieler";
 		$result=$this->_db->querySelect("nation",$fromTable,"id=%d",$parameters["id"]);
 		$player=$result->fetch_array();
-		if(!$player)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!$player)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		if($player["nation"]!=$team["name"])throw new Exception("Player is from different nation.");
 		$this->_db->queryDelete(Config("db_prefix")."_nationalplayer","player_id=%d AND team_id=%d",array($parameters["id"],$teamId));
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("nationalteams_removeplayer_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("nationalteams_removeplayer_success"),""));
 		return "nationalteam";}}
 class RemovePlayerFromTransfermarketController extends Controller {
 	function executeAction($parameters){
@@ -4508,9 +4459,9 @@ class RemovePlayerFromTransfermarketController extends Controller {
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception("nice try");
 		$highestBid=TransfermarketDataService::getHighestBidForPlayer($this->_websoccer,$this->_db,$parameters["id"],$player["transfer_start"],$player["transfer_end"]);
-		if($highestBid)throw new Exception($this->_i18n->getMessage("transfermarket_remove_err_bidexists"));
+		if($highestBid)throw new Exception(Message("transfermarket_remove_err_bidexists"));
 		$this->_db->queryUpdate(array('transfermarkt'=> '0', 'transfer_start'=> 0, 'transfer_ende'=> 0),Config('db_prefix').'_spieler', 'id=%d',$parameters['id']);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("transfermarket_remove_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transfermarket_remove_success"),""));
 		return "myteam";}}
 class RemoveYouthPlayerFromMarketController extends Controller {
 	function executeAction($parameters){
@@ -4518,9 +4469,9 @@ class RemoveYouthPlayerFromMarketController extends Controller {
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$parameters["id"]);
-		if($clubId!=$player["team_id"])throw new Exception($this->_i18n->getMessage("youthteam_err_notownplayer"));
+		if($clubId!=$player["team_id"])throw new Exception(Message("youthteam_err_notownplayer"));
 		$this->updatePlayer($parameters["id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("youthteam_removefrommarket_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_removefrommarket_success"),""));
 		return "youth-team";}
 	function updatePlayer($playerId){
 		$columns=array("transfer_fee"=> 0);
@@ -4537,22 +4488,22 @@ class RenameClubController extends Controller {
 		$short=strtoupper($parameters['kurz']);
 		$this->_db->queryUpdate(array('name'=>$parameters['name'],'kurz'=>$short),Config('db_prefix').'_verein', 'id=%d',$clubId);
 		$this->_db->queryUpdate(array('S.name'=>$parameters['stadium']),Config('db_prefix').'_verein AS C INNER JOIN '.Config('db_prefix').'_stadion AS S ON S.id=C.stadion_id', 'C.id=%d',$clubId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("rename-club_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("rename-club_success"),""));
 		return 'league';}}
 class ReportAbsenceController extends Controller {
 	function executeAction($parameters){
 		$userId=$this->_websoccer->getUser()->id;
 		$deputyId=UsersDataService::getUserIdByNick($this->_websoccer,$this->_db,$parameters["deputynick"]);
-		if($deputyId<1)throw new Exception($this->_i18n->getMessage("absence_err_invaliddeputy"));
-		if($userId==$deputyId)throw new Exception($this->_i18n->getMessage("absence_err_deputyisself"));
+		if($deputyId<1)throw new Exception(Message("absence_err_invaliddeputy"));
+		if($userId==$deputyId)throw new Exception(Message("absence_err_deputyisself"));
 		AbsencesDataService::makeUserAbsent($this->_websoccer,$this->_db,$userId,$deputyId,$parameters['days']);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("absence_report_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("absence_report_success"),""));
 		return null;}}
 class ReturnFromAbsenceController extends Controller {
 	function executeAction($parameters){
 		$userId=$this->_websoccer->getUser()->id;
 		AbsencesDataService::confirmComeback($this->_websoccer,$this->_db,$userId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("absence_return_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("absence_return_success"),""));
 		return "office";}}
 class SaveFormationController extends Controller {
 	function executeAction($parameters){
@@ -4561,7 +4512,7 @@ class SaveFormationController extends Controller {
 		if($this->_isNationalTeam)$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
 		else $teamId=$user->getClubId($this->_websoccer,$this->_db);
 		$nextMatches=MatchesDataService::getNextMatches($this->_websoccer,$this->_db,$teamId,Config('formation_max_next_matches'));
-		if(!count($nextMatches))throw new Exception($this->_i18n->getMessage('formation_err_nonextmatch'));
+		if(!count($nextMatches))throw new Exception(Message('formation_err_nonextmatch'));
 		$matchId=$parameters['id'];
 		foreach($nextMatches as $nextMatch){
 			if($nextMatch['match_id']==$matchId){
@@ -4594,19 +4545,19 @@ class SaveFormationController extends Controller {
 				$this->validateSubstitution($playerIn,$playerOut,$playerMinute,$players);
 				$validSubstitutions[]=$subNo;}}
 		$this->saveFormation($teamId,$matchinfo['match_id'],$parameters,$validSubstitutions);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage('saved_message_title'), ''));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message('saved_message_title'), ''));
 		return null;}
 	function validatePlayer($playerId,$players,$bench=FALSE){
 		if($playerId==null||$playerId==0)return;
-		if(!isset($players[$playerId]))throw new Exception($this->_i18n->getMessage('formation_err_invalidplayer'));
+		if(!isset($players[$playerId]))throw new Exception(Message('formation_err_invalidplayer'));
 		$position=$players[$playerId]['position'];
-		if(isset($this->_addedPlayers[$position][$playerId]))throw new Exception($this->_i18n->getMessage('formation_err_duplicateplayer'));
-		if($players[$playerId]['matches_injured']>0||$players[$playerId]['matches_blocked']>0)throw new Exception($this->_i18n->getMessage('formation_err_blockedplayer'));
+		if(isset($this->_addedPlayers[$position][$playerId]))throw new Exception(Message('formation_err_duplicateplayer'));
+		if($players[$playerId]['matches_injured']>0||$players[$playerId]['matches_blocked']>0)throw new Exception(Message('formation_err_blockedplayer'));
 		$this->_addedPlayers[$position][$playerId]=TRUE;}
 	function validateSubstitution($playerIn,$playerOut,$minute,$players){
 		if(!isset($players[$playerIn])|| !isset($players[$playerOut])|| !isset($this->_addedPlayers[$players[$playerIn]['position']][$playerIn])|| !isset($this->_addedPlayers[$players[$playerOut]['position']][$playerOut])){
-			throw new Exception($this->_i18n->getMessage('formation_err_invalidplayer'));}
-		if($minute<2||$minute>90)throw new Exception($this->_i18n->getMessage('formation_err_invalidsubstitutionminute'));}
+			throw new Exception(Message('formation_err_invalidplayer'));}
+		if($minute<2||$minute>90)throw new Exception(Message('formation_err_invalidsubstitutionminute'));}
 	function saveFormation($teamId,$matchId,$parameters,$validSubstitutions){
 		$fromTable=Config('db_prefix').'_aufstellung';
 		$columns['verein_id']=$teamId;
@@ -4644,8 +4595,8 @@ class SaveFormationController extends Controller {
 			$existingTemplates=$result->fetch_array();
 			if($existingTemplates && $existingTemplates['templates'] >=Config('formation_max_templates')){
 				$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,
-					$this->_i18n->getMessage('formation_template_saving_failed_because_boundary_title',Config('formation_max_templates')),
-					$this->_i18n->getMessage('formation_template_saving_failed_because_boundary_details')));}
+					Message('formation_template_saving_failed_because_boundary_title',Config('formation_max_templates')),
+					Message('formation_template_saving_failed_because_boundary_details')));}
 			else{
 				$columns['match_id']=NULL;
 				$columns['templatename']=$parameters['templatename'];
@@ -4658,9 +4609,9 @@ class SaveMatchChangesController extends Controller {
 		$nationalTeamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
 		$matchId=$parameters['id'];
 		$matchinfo=MatchesDataService::getMatchSubstitutionsById($this->_websoccer,$this->_db,$matchId);
-		if(!isset($matchinfo['match_id']))throw new Exception($this->_i18n->getMessage('formation_err_nonextmatch'));
+		if(!isset($matchinfo['match_id']))throw new Exception(Message('formation_err_nonextmatch'));
 		if($matchinfo['match_home_id']!=$teamId && $matchinfo['match_guest_id']!=$teamId && $matchinfo['match_home_id']!=$nationalTeamId && $matchinfo['match_guest_id']!=$nationalTeamId)throw new Exception('nice try');
-		if($matchinfo['match_simulated'])throw new Exception($this->_i18n->getMessage('match_details_match_completed'));
+		if($matchinfo['match_simulated'])throw new Exception(Message('match_details_match_completed'));
 		$columns=[];
 		$teamPrefix=($matchinfo['match_home_id']==$teamId||$matchinfo['match_home_id']==$nationalTeamId)? 'home' : 'guest';
 		$teamPrefixDb=($matchinfo['match_home_id']==$teamId||$matchinfo['match_home_id']==$nationalTeamId)? 'home' : 'gast';
@@ -4692,7 +4643,7 @@ class SaveMatchChangesController extends Controller {
 				if($slot && $newOut && $newIn && $newMinute){
 					if($saveSub && $newMinute<$nextPossibleMinute){
 						$newMinute=$nextPossibleMinute;
-						$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING, '',$this->_i18n->getMessage('match_details_changes_too_late_altered',$subNo)));}
+						$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING, '',Message('match_details_changes_too_late_altered',$subNo)));}
 					$columns[$teamPrefixDb.'_w'.$slot.'_raus']=$newOut;
 					$columns[$teamPrefixDb.'_w'.$slot.'_rein']=$newIn;
 					$columns[$teamPrefixDb.'_w'.$slot.'_minute']=$newMinute;
@@ -4706,7 +4657,7 @@ class SaveMatchChangesController extends Controller {
 		if(!$prevCounterattacks)$prevCounterattacks='0';
 		if($prevOffensive !==$parameters['offensive']||$prevLongpasses !==$parameters['longpasses']||$prevCounterattacks !==$parameters['counterattacks']){
 			$alreadyChanged=$matchinfo['match_'.$teamPrefix.'_offensive_changed'];
-			if($alreadyChanged >=Config('sim_allow_offensivechanges'))throw new Exception($this->_i18n->getMessage('match_details_changes_too_often',Config('sim_allow_offensivechanges')));
+			if($alreadyChanged >=Config('sim_allow_offensivechanges'))throw new Exception(Message('match_details_changes_too_often',Config('sim_allow_offensivechanges')));
 			$columns[$teamPrefixDb.'_offensive']=$parameters['offensive'];
 			$columns[$teamPrefixDb.'_longpasses']=$parameters['longpasses'];
 			$columns[$teamPrefixDb.'_counterattacks']=$parameters['counterattacks'];
@@ -4719,7 +4670,7 @@ class SaveMatchChangesController extends Controller {
 			$whereCondition='id=%d';
 			$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$matchId);}
 		$this->_updatePlayerPosition($parameters,$matchId,$teamId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage('saved_message_title'), ''));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message('saved_message_title'), ''));
 		return "match";}
 	function _updatePlayerPosition($parameters,$matchId,$teamId){
 		$players=MatchesDataService::getMatchPlayerRecordsByField($this->_websoccer,$this->_db,$matchId,$teamId);
@@ -4769,10 +4720,10 @@ class SaveProfileController extends Controller {
 			$tplparameters["activationlink"]=$this->_websoccer->getInternalActionUrl("activate",$querystr,"activate-user",TRUE);
 			EmailHelper::sendSystemEmailFromTemplate($this->_websoccer,$this->_i18n,
 			$user->email,
-			$this->_i18n->getMessage("activation_changedemail_subject"),
+			Message("activation_changedemail_subject"),
 			"changed_email_activation",
 			$tplparameters);
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,$this->_i18n->getMessage("profile_changedemail_message_title"),$this->_i18n->getMessage("profile_changedemail_message_content")));}
+			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("profile_changedemail_message_title"),Message("profile_changedemail_message_content")));}
 		$columns["name"]=$parameters["realname"];
 		$columns["wohnort"]=$parameters["place"];
 		$columns["land"]=$parameters["country"];
@@ -4788,7 +4739,7 @@ class SaveProfileController extends Controller {
 			$fromTable=Config("db_prefix")."_user";
 			$whereCondition="id=%d";
 			$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$user->id);}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("saved_message_title"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("saved_message_title"),""));
 		return "profile";}}
 class SaveTicketsController extends Controller {
 	function executeAction($parameters){
@@ -4804,18 +4755,18 @@ class SaveTicketsController extends Controller {
 		$whereCondition="id=%d";
 		$parameters=$clubId;
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("saved_message_title"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("saved_message_title"),""));
 		return null;}}
 class SaveUsernameController extends Controller {
 	function executeAction($parameters){
 		if(strlen($this->_websoccer->getUser()->username))throw new Exception("user name is already set.");
 		$illegalUsernames=explode(",",strtolower(str_replace(",",",",Config("illegal_usernames"))));
-		if(array_search(strtolower($parameters["nick"]),$illegalUsernames))throw new Exception($this->_i18n->getMessage("registration_illegal_username"));
+		if(array_search(strtolower($parameters["nick"]),$illegalUsernames))throw new Exception(Message("registration_illegal_username"));
 		$fromTable=Config("db_prefix")."_user";
 		$wherePart="UPPER(nick)='%s'";
 		$result=$this->_db->querySelect("COUNT(*)AS hits",$fromTable,$wherePart, strtoupper($parameters["nick"]));
 		$rows=$result->fetch_array();
-		if($rows["hits"])throw new Exception($this->_i18n->getMessage("registration_user_exists"));
+		if($rows["hits"])throw new Exception(Message("registration_user_exists"));
 		$this->_db->queryUpdate(array("nick"=>$parameters["nick"]),$fromTable,"id=%d",$this->_websoccer->getUser()->id);
 		$this->_websoccer->getUser()->username=$parameters["nick"];
 		return "office";}}
@@ -4826,8 +4777,8 @@ class SaveYouthFormationController extends Controller{
 		$matchinfo=YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer,$this->_db,$this->_i18n,$parameters["matchid"]);
 		if($matchinfo["home_team_id"]==$teamId)$teamPrefix="home";
 		elseif($matchinfo["guest_team_id"]==$teamId)$teamPrefix="guest";
-		else throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
-		if($matchinfo["matchdate"]<$this->_websoccer->getNowAsTimestamp()|| $matchinfo["simulated"])throw new Exception($this->_i18n->getMessage("youthformation_err_matchexpired"));
+		else throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($matchinfo["matchdate"]<$this->_websoccer->getNowAsTimestamp()|| $matchinfo["simulated"])throw new Exception(Message("youthformation_err_matchexpired"));
 		$this->validatePlayer($parameters["player1"]);
 		$this->validatePlayer($parameters["player2"]);
 		$this->validatePlayer($parameters["player3"]);
@@ -4853,16 +4804,16 @@ class SaveYouthFormationController extends Controller{
 				$this->validateSubstitution($playerIn,$playerOut,$playerMinute);
 				$validSubstitutions[]=$subNo;}}
 		$this->saveFormation($teamId,$parameters,$validSubstitutions,$matchinfo,$teamPrefix);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("saved_message_title"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("saved_message_title"),""));
 		return null;}
 	function validatePlayer($playerId){
 		$this->_addedPlayers=[];
 		if($playerId==null||$playerId==0)return;
-		if(isset($this->_addedPlayers[$playerId]))throw new Exception($this->_i18n->getMessage("formation_err_duplicateplayer"));
+		if(isset($this->_addedPlayers[$playerId]))throw new Exception(Message("formation_err_duplicateplayer"));
 		$this->_addedPlayers[$playerId]=TRUE;}
 	function validateSubstitution($playerIn,$playerOut,$minute){
-		if(!isset($this->_addedPlayers[$playerIn])|| !isset($this->_addedPlayers[$playerOut]))throw new Exception($this->_i18n->getMessage("formation_err_invalidplayer"));
-		if($minute<1||$minute>90)throw new Exception($this->_i18n->getMessage("formation_err_invalidsubstitutionminute"));}
+		if(!isset($this->_addedPlayers[$playerIn])|| !isset($this->_addedPlayers[$playerOut]))throw new Exception(Message("formation_err_invalidplayer"));
+		if($minute<1||$minute>90)throw new Exception(Message("formation_err_invalidsubstitutionminute"));}
 	function saveFormation($teamId,$parameters,$validSubstitutions,$matchinfo,$teamPrefix){$this->_db->queryDelete(Config("db_prefix")."_youthmatch_player","match_id=%d AND team_id=%d",array($parameters["matchid"],$teamId));
 		$setupParts=explode("-", $parameters["setup"]);
 		if(count($setupParts)!= 5)throw new Exception("illegal formation setup");
@@ -4944,22 +4895,22 @@ class ScoutYouthPlayerController extends Controller {
 		if(!Config("youth_enabled")&&Config("youth_scouting_enabled"))return NULL;
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
-		if($clubId<1)throw new Exception($this->_i18n->getMessage("error_action_required_team"));
+		if($clubId<1)throw new Exception(Message("error_action_required_team"));
 		$lastExecutionTimestamp=YouthPlayersDataService::getLastScoutingExecutionTime($this->_websoccer,$this->_db,$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db));
 		$nextPossibleExecutionTimestamp=$lastExecutionTimestamp +Config("youth_scouting_break_hours")* 3600;
 		$now=$this->_websoccer->getNowAsTimestamp();
-		if($now<$nextPossibleExecutionTimestamp)throw new Exception($this->_i18n->getMessage("youthteam_scouting_err_breakviolation",$this->_websoccer->getFormattedDatetime($nextPossibleExecutionTimestamp)));
+		if($now<$nextPossibleExecutionTimestamp)throw new Exception(Message("youthteam_scouting_err_breakviolation",$this->_websoccer->getFormattedDatetime($nextPossibleExecutionTimestamp)));
 		$namesFolder=NAMES_DIRECTORY."/".$parameters["country"];
-		if(!file_exists($namesFolder."/firstnames.txt")|| !file_exists($namesFolder."/lastnames.txt"))throw new Exception($this->_i18n->getMessage("youthteam_scouting_err_invalidcountry"));
+		if(!file_exists($namesFolder."/firstnames.txt")|| !file_exists($namesFolder."/lastnames.txt"))throw new Exception(Message("youthteam_scouting_err_invalidcountry"));
 		$scout=YouthPlayersDataService::getScoutById($this->_websoccer,$this->_db,$this->_i18n,$parameters["scoutid"]);
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
-		if($team["team_budget"] <= $scout["fee"])throw new Exception($this->_i18n->getMessage("youthteam_scouting_err_notenoughbudget"));
+		if($team["team_budget"] <= $scout["fee"])throw new Exception(Message("youthteam_scouting_err_notenoughbudget"));
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$clubId,$scout["fee"],"youthteam_scouting_fee_subject",$scout["name"]);
 		$found=TRUE;
 		$succesProbability=(int)Config("youth_scouting_success_probability");
 		if(Config("youth_scouting_success_probability")< 100)$found=SimulationHelper::selectItemFromProbabilities(array(TRUE=>$succesProbability, FALSE=> 100 - $succesProbability));
 		if($found)$this->createYouthPlayer($clubId,$scout,$parameters["country"]);
-		else $this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,$this->_i18n->getMessage("youthteam_scouting_failure"),""));
+		else $this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("youthteam_scouting_failure"),""));
 		$this->_db->queryUpdate(array("scouting_last_execution"=>$now),Config("db_prefix")."_verein","id=%d",$clubId);
 		return($found)? "youth-team" : "youth-scouting";}
 	function createYouthPlayer($clubId,$scout,$country){
@@ -4984,11 +4935,11 @@ class ScoutYouthPlayerController extends Controller {
 		$this->_db->queryInsert(array("team_id"=>$clubId,"firstname"=>$firstName,"lastname"=>$lastName,"age"=>$age,"position"=>$position,"nation"=>$country,"strength"=>$strength),Config("db_prefix")."_youthplayer");
 		$event=new YouthPlayerScoutedEvent($this->_websoccer,$this->_db,$this->_i18n,$clubId,$scout["id"],$this->_db->getLastInsertedId());
 		PluginMediator::dispatchEvent($event);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("youthteam_scouting_success"),$this->_i18n->getMessage("youthteam_scouting_success_details",$firstName." ".$lastName)));}
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_scouting_success"),Message("youthteam_scouting_success_details",$firstName." ".$lastName)));}
 	function getItemFromFile($fileName){
 		$items=file($fileName, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 		$itemsCount=count($items);
-		if(!$itemsCount)throw new Exception($this->_i18n->getMessage("youthteam_scouting_err_invalidcountry"));
+		if(!$itemsCount)throw new Exception(Message("youthteam_scouting_err_invalidcountry"));
 		return$items[mt_rand(0,$itemsCount - 1)];}}
 class SelectCaptainController extends Controller {
 	function executeAction($parameters){
@@ -4998,14 +4949,14 @@ class SelectCaptainController extends Controller {
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception("nice try");
 		$this->_db->queryUpdate(array("captain_id"=>$parameters["id"]),Config("db_prefix")."_verein","id=%d",$clubId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("myteam_player_select_as_captain_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("myteam_player_select_as_captain_success"),""));
 		if($team["captain_id"] && $team["captain_id"]!=$parameters["id"]){
 			$oldPlayer=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$team["captain_id"]);
 			if($oldPlayer["team_id"]==$clubId){
 				$newSatisfaction=round($oldPlayer["player_strength_satisfaction"]*0.6);
 				$this->_db->queryUpdate(array("w_zufriedenheit"=>$newSatisfaction),Config("db_prefix")."_spieler","id=%d",$oldPlayer["player_id"]);
 				$playername=(strlen($oldPlayer["player_pseudonym"]))? $oldPlayer["player_pseudonym"] : $oldPlayer["player_firstname"]." ".$oldPlayer["player_lastname"];
-				$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,$this->_i18n->getMessage("myteam_player_select_as_captain_warning_old_captain",$playername),""));}}
+				$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("myteam_player_select_as_captain_warning_old_captain",$playername),""));}}
 		return null;}}
 class SelectTeamController extends Controller {
 	function executeAction($parameters){
@@ -5026,14 +4977,14 @@ class SellPlayerController extends Controller{
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception("nice try");
-		if($player["player_transfermarket"])throw new Exception($this->_i18n->getMessage("sell_player_already_on_list"));
-		if($player["lending_fee"]>0)throw new Exception($this->_i18n->getMessage("lending_err_alreadyoffered"));
+		if($player["player_transfermarket"])throw new Exception(Message("sell_player_already_on_list"));
+		if($player["lending_fee"]>0)throw new Exception(Message("lending_err_alreadyoffered"));
 		$teamSize=TeamsDataService::getTeamSize($this->_websoccer,$this->_db,$clubId);
-		if($teamSize <=Config("transfermarket_min_teamsize"))throw new Exception($this->_i18n->getMessage("sell_player_teamsize_too_small",$teamSize));
+		if($teamSize <=Config("transfermarket_min_teamsize"))throw new Exception(Message("sell_player_teamsize_too_small",$teamSize));
 		$minBidBoundary=round($player["player_marketvalue"] / 2);
-		if($parameters["min_bid"]<$minBidBoundary)throw new Exception($this->_i18n->getMessage("sell_player_min_bid_too_low"));
+		if($parameters["min_bid"]<$minBidBoundary)throw new Exception(Message("sell_player_min_bid_too_low"));
 		$this->updatePlayer($player["player_id"],$parameters["min_bid"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("sell_player_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("sell_player_success"),""));
 		return "transfermarket";}
 	function updatePlayer($playerId,$minBid){
 		$now=$this->_websoccer->getNowAsTimestamp();
@@ -5051,10 +5002,10 @@ class SellYouthPlayerController extends Controller {
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$parameters["id"]);
-		if($clubId!=$player["team_id"])throw new Exception($this->_i18n->getMessage("youthteam_err_notownplayer"));
-		if($player["transfer_fee"])throw new Exception($this->_i18n->getMessage("youthteam_sell_err_alreadyonmarket"));
+		if($clubId!=$player["team_id"])throw new Exception(Message("youthteam_err_notownplayer"));
+		if($player["transfer_fee"])throw new Exception(Message("youthteam_sell_err_alreadyonmarket"));
 		$this->updatePlayer($parameters["id"],$parameters["transfer_fee"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("youthteam_sell_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_sell_success"),""));
 		return "youth-team";}
 	function updatePlayer($playerId,$transferFee){
 		$columns=array("transfer_fee"=>$transferFee);
@@ -5064,14 +5015,14 @@ class SellYouthPlayerController extends Controller {
 class SendMessageController extends Controller {
 	function executeAction($parameters){
 		$senderId=$this->_websoccer->getUser()->id;
-		if(!Config("messages_enabled"))throw new Exception($this->_i18n->getMessage("messages_err_messagesdisabled"));
+		if(!Config("messages_enabled"))throw new Exception(Message("messages_err_messagesdisabled"));
 		$recipientId=UsersDataService::getUserIdByNick($this->_websoccer,$this->_db,$parameters["nick"]);
-		if($recipientId<1)throw new Exception($this->_i18n->getMessage("messages_send_err_invalidrecipient"));
-		if($senderId==$recipientId)throw new Exception($this->_i18n->getMessage("messages_send_err_sendtoyourself"));
+		if($recipientId<1)throw new Exception(Message("messages_send_err_invalidrecipient"));
+		if($senderId==$recipientId)throw new Exception(Message("messages_send_err_sendtoyourself"));
 		$now=$this->_websoccer->getNowAsTimestamp();
 		$lastMessage=MessagesDataService::getLastMessageOfUserId($this->_websoccer,$this->_db,$senderId);
 		$timebreakBoundary=$now -Config("messages_break_minutes")* 60;
-		if($lastMessage!=null && $lastMessage["date"] >= $timebreakBoundary)throw new Exception($this->_i18n->getMessage("messages_send_err_timebreak",Config("messages_break_minutes")));
+		if($lastMessage!=null && $lastMessage["date"] >= $timebreakBoundary)throw new Exception(Message("messages_send_err_timebreak",Config("messages_break_minutes")));
 		$columns["empfaenger_id"]=$recipientId;
 		$columns["absender_id"]=$senderId;
 		$columns["datum"]=$now;
@@ -5082,7 +5033,7 @@ class SendMessageController extends Controller {
 		$this->_db->queryInsert($columns,$fromTable);
 		$columns["typ"]="ausgang";
 		$this->_db->queryInsert($columns,$fromTable);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("messages_send_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("messages_send_success"),""));
 		$_REQUEST["subject"]="";
 		$_REQUEST["msgcontent"]="";
 		$_REQUEST["nick"]="";
@@ -5093,7 +5044,7 @@ class SendPasswordController extends Controller {
 		if(Config("register_use_captcha")&& strlen(Config("register_captcha_publickey"))&& strlen(Config("register_captcha_privatekey"))){
 			include_once($_SERVER['DOCUMENT_ROOT']."/lib/recaptcha/recaptchalib.php");
 			$captchaResponse=recaptcha_check_answer(Config("register_captcha_privatekey"),$_SERVER["REMOTE_ADDR"],$_POST["recaptcha_challenge_field"],$_POST["recaptcha_response_field"]);
-			if(!$captchaResponse->is_valid)throw new Exception($this->_i18n->getMessage("registration_invalidcaptcha"));}
+			if(!$captchaResponse->is_valid)throw new Exception(Message("registration_invalidcaptcha"));}
 		$email=$parameters["useremail"];
 		$fromTable=Config("db_prefix")."_user";
 		$columns="id, passwort_salt, passwort_neu_angefordert";
@@ -5102,10 +5053,10 @@ class SendPasswordController extends Controller {
 		$userdata=$result->fetch_array();
 		if(!isset($userdata["id"])){
 			sleep(5);
-			throw new Exception($this->_i18n->getMessage("forgot-password_email-not-found"));}
+			throw new Exception(Message("forgot-password_email-not-found"));}
 		$now=$this->_websoccer->getNowAsTimestamp();
 		$timeBoundary=$now - 24*3600;
-		if($userdata["passwort_neu_angefordert"]>$timeBoundary)throw new Exception($this->_i18n->getMessage("forgot-password_already-sent"));
+		if($userdata["passwort_neu_angefordert"]>$timeBoundary)throw new Exception(Message("forgot-password_already-sent"));
 		$salt=$userdata["passwort_salt"];
 		if(!strlen($salt))$salt=SecurityUtil::generatePasswordSalt();
 		$password=SecurityUtil::generatePassword();
@@ -5115,11 +5066,11 @@ class SendPasswordController extends Controller {
 		$parameter=$userdata["id"];
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameter);
 		$this->_sendEmail($email,$password);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("forgot-password_message_title"),$this->_i18n->getMessage("forgot-password_message_content")));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("forgot-password_message_title"),Message("forgot-password_message_content")));
 		return "login";}
 	function _sendEmail($email,$password){
 		$tplparameters["newpassword"]=$password;
-		EmailHelper::sendSystemEmailFromTemplate($this->_websoccer,$this->_i18n,$email,$this->_i18n->getMessage("sendpassword_email_subject"),"sendpassword",$tplparameters);}}
+		EmailHelper::sendSystemEmailFromTemplate($this->_websoccer,$this->_i18n,$email,Message("sendpassword_email_subject"),"sendpassword",$tplparameters);}}
 class SendShoutBoxMessageController extends Controller {
 	function executeAction($parameters){
 		$userId=$this->_websoccer->getUser()->id;
@@ -5194,43 +5145,43 @@ class TransferBidController extends Controller {
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$playerId=$parameters['id'];
-		if($clubId<1)throw new Exception($this->_i18n->getMessage('error_action_required_team'));
+		if($clubId<1)throw new Exception(Message('error_action_required_team'));
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
-		if($user->id==$player['team_user_id'])throw new Exception($this->_i18n->getMessage('transfer_bid_on_own_player'));
-		if(!$player['player_transfermarket'])throw new Exception($this->_i18n->getMessage('transfer_bid_player_not_on_list'));
+		if($user->id==$player['team_user_id'])throw new Exception(Message('transfer_bid_on_own_player'));
+		if(!$player['player_transfermarket'])throw new Exception(Message('transfer_bid_player_not_on_list'));
 		$now=$this->_websoccer->getNowAsTimestamp();
-		if($now>$player['transfer_end'])throw new Exception($this->_i18n->getMessage('transfer_bid_auction_ended'));
+		if($now>$player['transfer_end'])throw new Exception(Message('transfer_bid_auction_ended'));
 		$minSalary=$player['player_contract_salary']*1.1;
-		if($parameters['contract_salary']<$minSalary)throw new Exception($this->_i18n->getMessage('transfer_bid_salary_too_less'));
+		if($parameters['contract_salary']<$minSalary)throw new Exception(Message('transfer_bid_salary_too_less'));
 		$minGoalBonus=$player['player_contract_goalbonus']*1.1;
-		if($parameters['contract_goal_bonus']<$minGoalBonus)throw new Exception($this->_i18n->getMessage('transfer_bid_goalbonus_too_less'));
+		if($parameters['contract_goal_bonus']<$minGoalBonus)throw new Exception(Message('transfer_bid_goalbonus_too_less'));
 		if($player['team_id']>0){
 			$noOfTransactions=TransfermarketDataService::getTransactionsBetweenUsers($this->_websoccer,$this->_db,$player['team_user_id'],$user->id);
 			$maxTransactions=Config('transfermarket_max_transactions_between_users');
-			if($noOfTransactions >= $maxTransactions)throw new Exception($this->_i18n->getMessage('transfer_bid_too_many_transactions_with_user',$noOfTransactions));}
+			if($noOfTransactions >= $maxTransactions)throw new Exception(Message('transfer_bid_too_many_transactions_with_user',$noOfTransactions));}
 		$highestBid=TransfermarketDataService::getHighestBidForPlayer($this->_websoccer,$this->_db,$parameters['id'],$player['transfer_start'],$player['transfer_end']);
 		if($player['team_id']>0){
 			$minBid=$player['transfer_min_bid'] - 1;
 			if(isset($highestBid['amount']))$minBid=$highestBid['amount'];
-			if($parameters['amount'] <= $minBid)throw new Exception($this->_i18n->getMessage('transfer_bid_amount_must_be_higher',$minBid));}
+			if($parameters['amount'] <= $minBid)throw new Exception(Message('transfer_bid_amount_must_be_higher',$minBid));}
 		elseif(isset($highestBid['contract_matches'])){
 			$ownBidValue=$parameters['handmoney'] + $parameters['contract_matches']*$parameters['contract_salary'];
 			$opponentSalary=$highestBid['hand_money'] + $highestBid['contract_matches']*$highestBid['contract_salary'];
 			if($player['player_position']=='midfield'||$player['player_position']=='striker'){
 				$ownBidValue += 10*$parameters['contract_goal_bonus'];
 				$opponentSalary += 10*$highestBid['contract_goalbonus'];}
-			if($ownBidValue <= $opponentSalary)throw new Exception($this->_i18n->getMessage('transfer_bid_contract_conditions_too_low'));}
+			if($ownBidValue <= $opponentSalary)throw new Exception(Message('transfer_bid_contract_conditions_too_low'));}
 		TeamsDataService::validateWhetherTeamHasEnoughBudgetForSalaryBid($this->_websoccer,$this->_db,$this->_i18n,$clubId,$parameters['contract_salary']);
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
 		$result=$this->_db->querySelect('SUM(abloese)+ SUM(handgeld)AS bidsamount',Config('db_prefix').'_transfer_angebot', 'user_id=%d AND ishighest=\'1\'',$user->id);
 		$bids=$result->fetch_array();
-		if(isset($bids['bidsamount'])&&($parameters['handmoney'] + $parameters['amount'] + $bids['bidsamount'])>= $team['team_budget'])throw new Exception($this->_i18n->getMessage('transfer_bid_budget_for_all_bids_too_less'));
+		if(isset($bids['bidsamount'])&&($parameters['handmoney'] + $parameters['amount'] + $bids['bidsamount'])>= $team['team_budget'])throw new Exception(Message('transfer_bid_budget_for_all_bids_too_less'));
 		$this->saveBid($playerId,$user->id,$clubId,$parameters);
 		if(isset($highestBid['bid_id']))$this->_db->queryUpdate(array('ishighest'=> '0'),Config('db_prefix').'_transfer_angebot', 'id=%d',$highestBid['bid_id']);
 		if(isset($highestBid['user_id'])&& $highestBid['user_id']){
 			$playerName=(strlen($player['player_pseudonym']))? $player['player_pseudonym'] : $player['player_firstname'].' '.$player['player_lastname'];
 			NotificationsDataService::createNotification($this->_websoccer,$this->_db,$highestBid['user_id'],'transfer_bid_notification_outbidden',array('player'=>$playerName), 'transfermarket', 'transfer-bid', 'id='.$playerId);}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage('transfer_bid_success'), ''));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message('transfer_bid_success'), ''));
 		return null;}
 	function saveBid($playerId,$userId,$clubId,$parameters){
 		$columns['spieler_id']=$playerId;
@@ -5250,14 +5201,14 @@ class UnmarkLendableController extends Controller {
 		$user=$this->_websoccer->getUser();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
-		if($clubId!=$player["team_id"])throw new Exception($this->_i18n->getMessage("lending_err_notownplayer"));
-		if($player["lending_owner_id"]>0)throw new Exception($this->_i18n->getMessage("lending_err_borrowed_player"));
+		if($clubId!=$player["team_id"])throw new Exception(Message("lending_err_notownplayer"));
+		if($player["lending_owner_id"]>0)throw new Exception(Message("lending_err_borrowed_player"));
 		$columns=array("lending_fee"=> 0);
 		$fromTable=Config("db_prefix")."_spieler";
 		$whereCondition="id=%d";
 		$parameters=$parameters["id"];
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("lending_lendable_unmark_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("lending_lendable_unmark_success"),""));
 		return null;}}
 class UnmarkUnsellableController extends Controller {
 	function executeAction($parameters){
@@ -5270,7 +5221,7 @@ class UnmarkUnsellableController extends Controller {
 		$whereCondition="id=%d";
 		$parameters=$parameters["id"];
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("myteam_remove_unsellable_player_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("myteam_remove_unsellable_player_success"),""));
 		return null;}}
 class UpgradeStadiumController extends Controller {
 	function executeAction($parameters){
@@ -5282,39 +5233,39 @@ class UpgradeStadiumController extends Controller {
 		$stadium=StadiumsDataService::getStadiumByTeamId($this->_websoccer,$this->_db,$teamId);
 		if(!$stadium)return null;
 		$existingLevel=$stadium["level_".$type];
-		if($existingLevel >= 5)throw new Exception($this->_i18n->getMessage("stadium_upgrade_err_not_upgradable"));
+		if($existingLevel >= 5)throw new Exception(Message("stadium_upgrade_err_not_upgradable"));
 		$costs=StadiumsDataService::computeUpgradeCosts($this->_websoccer,$type,$stadium);
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$teamId);
-		if($team["team_budget"] <= $costs)throw new Exception($this->_i18n->getMessage("stadium_extend_err_too_expensive"));
+		if($team["team_budget"] <= $costs)throw new Exception(Message("stadium_extend_err_too_expensive"));
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$teamId,$costs,"stadium_upgrade_transaction_subject",$stadium["name"]);
 		$maintenanceDue=(int)Config("stadium_maintenanceinterval_".$type);
 		$this->_db->queryUpdate(array("level_".$type=>$existingLevel + 1,"maintenance_".$type=>$maintenanceDue),Config("db_prefix")."_stadion","id=%d",$stadium["stadium_id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("stadium_upgrade_success"),$this->_i18n->getMessage("stadium_upgrade_success_details")));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("stadium_upgrade_success"),Message("stadium_upgrade_success_details")));
 		return "stadium";}}
 class UploadClubPictureController extends Controller {
 	function executeAction($parameters){
 		if(!Config("upload_clublogo_max_size"))throw new Exception("feature is not enabled.");
 		$clubId=$this->_websoccer->getUser()->getClubId();
 		if(!$clubId)throw new Exception("requires team");
-		if(!isset($_FILES["picture"]))throw new Exception($this->_->getMessage("change-profile-picture_err_notprovied"));
+		if(!isset($_FILES["picture"]))throw new Exception(Message("change-profile-picture_err_notprovied"));
 		$errorcode=$_FILES["picture"]["error"];
-		if($errorcode==UPLOAD_ERR_FORM_SIZE)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfilesize"));
+		if($errorcode==UPLOAD_ERR_FORM_SIZE)throw new Exception(Message("change-profile-picture_err_illegalfilesize"));
 		$filename=$_FILES["picture"]["name"];
 		$ext=strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 		$allowedExtensions=explode(",",ALLOWED_PROFPIC_EXTENSIONS);
-		if(!in_array($ext,$allowedExtensions))throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfiletype"));
+		if(!in_array($ext,$allowedExtensions))throw new Exception(Message("change-profile-picture_err_illegalfiletype"));
 		$imagesize=getimagesize($_FILES["picture"]["tmp_name"]);
-		if($imagesize===FALSE)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfiletype"));
+		if($imagesize===FALSE)throw new Exception(Message("change-profile-picture_err_illegalfiletype"));
 		$type=substr($imagesize["mime"],strrpos($imagesize["mime"],"/")+ 1);
-		if(!in_array($type,$allowedExtensions))throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfiletype"));
+		if(!in_array($type,$allowedExtensions))throw new Exception(Message("change-profile-picture_err_illegalfiletype"));
 		$maxFilesize=Config("upload_clublogo_max_size")* 1024;
-		if($_POST["MAX_FILE_SIZE"]!=$maxFilesize||$_FILES["picture"]["size"]>$maxFilesize)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfilesize"));
+		if($_POST["MAX_FILE_SIZE"]!=$maxFilesize||$_FILES["picture"]["size"]>$maxFilesize)throw new Exception(Message("change-profile-picture_err_illegalfilesize"));
 		if($errorcode==UPLOAD_ERR_OK){
 			$tmp_name=$_FILES["picture"]["tmp_name"];
 			$name=hash('sha256',$clubId . time()).".".$ext;
 			$uploaded=@move_uploaded_file($tmp_name, CLUBPICTURE_UPLOAD_DIR."/".$name);
-			if(!$uploaded)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_failed"));}
-		else throw new Exception($this->_i18n->getMessage("change-profile-picture_err_failed"));
+			if(!$uploaded)throw new Exception(Message("change-profile-picture_err_failed"));}
+		else throw new Exception(Message("change-profile-picture_err_failed"));
 		if($imagesize[0]!=120||$imagesize[1]!=120)$this->resizeImage(CLUBPICTURE_UPLOAD_DIR."/".$name, 120,$imagesize[0],$imagesize[1],$ext=="png");
 		$fromTable=Config("db_prefix")."_verein";
 		$whereCondition="id=%d";
@@ -5322,7 +5273,7 @@ class UploadClubPictureController extends Controller {
 		$clubinfo=$result->fetch_array();
 		if(strlen($clubinfo["bild"])&& file_exists(CLUBPICTURE_UPLOAD_DIR."/".$clubinfo["bild"]))unlink(CLUBPICTURE_UPLOAD_DIR."/".$clubinfo["bild"]);
 		$this->_db->queryUpdate(array("bild"=>$name),$fromTable,$whereCondition,$clubId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("upload-clublogo_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("upload-clublogo_success"),""));
 		return null;}
 	function resizeImage($file,$width,$oldWidth,$oldHeight,$isPng){
 		if(!$isPng)$src=imagecreatefromjpeg($file);
@@ -5334,26 +5285,26 @@ class UploadClubPictureController extends Controller {
 class UploadProfilePictureController extends Controller {
 	function executeAction($parameters){
 		if(!Config("user_picture_upload_enabled"))throw new Exception("feature is not enabled.");
-		if(!isset($_FILES["picture"]))throw new Exception($this->_->getMessage("change-profile-picture_err_notprovied"));
+		if(!isset($_FILES["picture"]))throw new Exception(Message("change-profile-picture_err_notprovied"));
 		$errorcode=$_FILES["picture"]["error"];
-		if($errorcode==UPLOAD_ERR_FORM_SIZE)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfilesize"));
+		if($errorcode==UPLOAD_ERR_FORM_SIZE)throw new Exception(Message("change-profile-picture_err_illegalfilesize"));
 		$filename=$_FILES["picture"]["name"];
 		$ext=strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 		$allowedExtensions=explode(",",ALLOWED_PROFPIC_EXTENSIONS);
-		if(!in_array($ext,$allowedExtensions))throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfiletype"));
+		if(!in_array($ext,$allowedExtensions))throw new Exception(Message("change-profile-picture_err_illegalfiletype"));
 		$imagesize=getimagesize($_FILES["picture"]["tmp_name"]);
-		if($imagesize===FALSE)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfiletype"));
+		if($imagesize===FALSE)throw new Exception(Message("change-profile-picture_err_illegalfiletype"));
 		$type=substr($imagesize["mime"],strrpos($imagesize["mime"],"/")+ 1);
-		if(!in_array($type,$allowedExtensions))throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfiletype"));
+		if(!in_array($type,$allowedExtensions))throw new Exception(Message("change-profile-picture_err_illegalfiletype"));
 		$maxFilesize=Config("user_picture_upload_maxsize_kb")* 1024;
-		if($_POST["MAX_FILE_SIZE"]!=$maxFilesize||$_FILES["picture"]["size"]>$maxFilesize)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_illegalfilesize"));
+		if($_POST["MAX_FILE_SIZE"]!=$maxFilesize||$_FILES["picture"]["size"]>$maxFilesize)throw new Exception(Message("change-profile-picture_err_illegalfilesize"));
 		$userId=$this->_websoccer->getUser()->id;
 		if($errorcode==UPLOAD_ERR_OK){
 			$tmp_name=$_FILES["picture"]["tmp_name"];
 			$name=hash('sha256',$userId . time()).".".$ext;
 			$uploaded=@move_uploaded_file($tmp_name, PROFPIC_UPLOADFOLDER."/".$name);
-			if(!$uploaded)throw new Exception($this->_i18n->getMessage("change-profile-picture_err_failed"));}
-		else throw new Exception($this->_i18n->getMessage("change-profile-picture_err_failed"));
+			if(!$uploaded)throw new Exception(Message("change-profile-picture_err_failed"));}
+		else throw new Exception(Message("change-profile-picture_err_failed"));
 		if($imagesize[0]!=120||$imagesize[1]!=120)$this->resizeImage(PROFPIC_UPLOADFOLDER."/".$name, 120,$imagesize[0],$imagesize[1],$ext=="png");
 		$fromTable=Config("db_prefix")."_user";
 		$whereCondition="id=%d";
@@ -5362,7 +5313,7 @@ class UploadProfilePictureController extends Controller {
 		if(strlen($userinfo["picture"])&& file_exists(PROFPIC_UPLOADFOLDER."/".$userinfo["picture"]))unlink(PROFPIC_UPLOADFOLDER."/".$userinfo["picture"]);
 		$this->_db->queryUpdate(array("picture"=>$name),$fromTable,$whereCondition,$userId);
 		$this->_websoccer->getUser()->setProfilePicture($this->_websoccer,$name);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("change-profile-picture_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("change-profile-picture_success"),""));
 		return "user";}
 	function resizeImage($file,$width,$oldWidth,$oldHeight,$isPng){
 		if(!$isPng)$src=imagecreatefromjpeg($file);
@@ -5383,12 +5334,12 @@ class UserActivationController extends Controller {
 		$userdata=$result->fetch_array();
 		if(!isset($userdata["id"])){
 			sleep(5);
-			throw new Exception($this->_i18n->getMessage("activate-user_user-not-found"));}
+			throw new Exception(Message("activate-user_user-not-found"));}
 		$columns=array("status"=> 1);
 		$whereCondition="id=%d";
 		$parameter=$userdata["id"];
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameter);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,$this->_i18n->getMessage("activate-user_message_title"),$this->_i18n->getMessage("activate-user_message_content")));
+		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("activate-user_message_title"),Message("activate-user_message_content")));
 		return null;}}
 class Converter {
 	function __construct($i18n,$websoccer){
@@ -5399,7 +5350,7 @@ class Converter {
 	function toDbValue($value){ return$this->toText($value);}}
 class CupRoundsLinkConverter extends Converter {
 	function toHtml($row){
-		$output=' <a href=\'?site=managecuprounds&cup='.$row['id'].'\' title=\''.$this->_i18n->getMessage('manage_show_details').'\' >'.$row['entity_cup_rounds'].' <i class=\'icon-tasks\'></i></a>';
+		$output=' <a href=\'?site=managecuprounds&cup='.$row['id'].'\' title=\''.Message('manage_show_details').'\' >'.$row['entity_cup_rounds'].' <i class=\'icon-tasks\'></i></a>';
 		return$output;}}
 class AdminPasswordConverter extends Converter {
 	function toDbValue($value){
@@ -5419,7 +5370,7 @@ class InactivityConverter extends Converter{
 		if(!is_array($row))return (int)$value.'%';
 		$rate=(int)$this->_format($row['entity_user_inactivity']);
 		$color=$this->_color($rate);
-		$output='<a href=\'#actPopup'.$row['id'].'\' role=\'button\' data-toggle=\'modal\' title=\''.$this->_i18n->getMessage('manage_show_details').'\' style=\'color: '.$color.'\'>'.$rate.' %</a>';
+		$output='<a href=\'#actPopup'.$row['id'].'\' role=\'button\' data-toggle=\'modal\' title=\''.Message('manage_show_details').'\' style=\'color: '.$color.'\'>'.$rate.' %</a>';
 		$output .= $this->_renderInActivityPopup($row);
 		return$output;}
 	function _color($rate){
@@ -5430,36 +5381,36 @@ class InactivityConverter extends Converter{
 	function _renderInActivityPopup($row){
 		$popup='';
 		$popup .= '<div id=\'actPopup'.$row['id'].'\' class=\'modal hide fade\' tabindex=\'-1\' role=\'dialog\' aria-labelledby=\'actPopupLabel\' aria-hidden=\'true\'>';
-		$popup .= '<div class=\'modal-header\'><button type=\'button\' class=\'close\' data-dismiss=\'modal\' aria-hidden=\'true\' title=\''.$this->_i18n->getMessage('button_close').'\'>&times;</button>';
-		$popup .= '<h3 id=\'actPopupLabel'.$row['id'].'\'>'.$this->_i18n->getMessage('entity_user_inactivity').': '. escapeOutput($row['entity_users_nick']).'</h3></div>';
+		$popup .= '<div class=\'modal-header\'><button type=\'button\' class=\'close\' data-dismiss=\'modal\' aria-hidden=\'true\' title=\''.Message('button_close').'\'>&times;</button>';
+		$popup .= '<h3 id=\'actPopupLabel'.$row['id'].'\'>'.Message('entity_user_inactivity').': '. escapeOutput($row['entity_users_nick']).'</h3></div>';
 		$popup .= '<div class=\'modal-body\'>';
 		$gesamt=$row['entity_user_inactivity_login'] + $row['entity_user_inactivity_aufstellung'] + $row['entity_user_inactivity_transfer']+ $row['entity_user_inactivity_vertragsauslauf'];
 		$popup .= '<table class=\'table table-bordered\'>
           <thead><tr>
-            <th>'.$this->_i18n->getMessage('popup_user_inactivity_title_action').'</th>
-            <th>'.$this->_i18n->getMessage('entity_user_inactivity').'</th>
+            <th>'.Message('popup_user_inactivity_title_action').'</th>
+            <th>'.Message('entity_user_inactivity').'</th>
           </tr></thead>
           <tbody><tr>
-            <td><b>'.$this->_i18n->getMessage('entity_user_inactivity_login').'</b><br>
-            <small>'.$this->_i18n->getMessage('entity_users_lastonline').': '. date('d.m.y, H:i',$row['entity_users_lastonline']).'</small></td>
+            <td><b>'.Message('entity_user_inactivity_login').'</b><br>
+            <small>'.Message('entity_users_lastonline').': '. date('d.m.y, H:i',$row['entity_users_lastonline']).'</small></td>
             <td style=\'text-align: center; font-weight: bold; color: '.$this->_color($this->_format($row['entity_user_inactivity_login'])).'\'>'.$this->_format($row['entity_user_inactivity_login']).' %</td>
           </tr>
           <tr>
-            <td><b>'.$this->_i18n->getMessage('entity_user_inactivity_aufstellung').'</b></td>
+            <td><b>'.Message('entity_user_inactivity_aufstellung').'</b></td>
             <td style=\'text-align: center; font-weight: bold; color: '.$this->_color($this->_format($row['entity_user_inactivity_aufstellung'])).'\'>'.$this->_format($row['entity_user_inactivity_aufstellung']).' %</td>
           </tr>
           <tr>
-            <td><b>'.$this->_i18n->getMessage('entity_user_inactivity_transfer').'</b><br>
-            <small>'. sprintf($this->_i18n->getMessage('entity_user_inactivity_transfer_check'), date('d.m.y, H:i',$row['entity_user_inactivity_transfer_check'])).'</small></td>
+            <td><b>'.Message('entity_user_inactivity_transfer').'</b><br>
+            <small>'. sprintf(Message('entity_user_inactivity_transfer_check'), date('d.m.y, H:i',$row['entity_user_inactivity_transfer_check'])).'</small></td>
             <td style=\'text-align: center; font-weight: bold; color: '.$this->_color($this->_format($row['entity_user_inactivity_transfer'])).'\'>'.$this->_format($row['entity_user_inactivity_transfer']).' %</td>
           </tr>
           <tr>
-            <td><b>'.$this->_i18n->getMessage('entity_user_inactivity_vertragsauslauf').'</b></td>
+            <td><b>'.Message('entity_user_inactivity_vertragsauslauf').'</b></td>
             <td style=\'text-align: center; font-weight: bold; color: '.$this->_color($this->_format($row['entity_user_inactivity_vertragsauslauf'])).'\'>'.$this->_format($row['entity_user_inactivity_vertragsauslauf']).' %</td>
           </tr></tbody>
           <tfoot>
           <tr>
-            <td><b>'.$this->_i18n->getMessage('popup_user_inactivity_total').'</b></td>
+            <td><b>'.Message('popup_user_inactivity_total').'</b></td>
             <td style=\'text-align: center; font-weight: bold; color: '.$this->_color($this->_format($gesamt)).'\'>'.$this->_format($gesamt).' %';
 		if($gesamt>100)$popup .= '<br/>('.$gesamt.'%)';
 		$popup .= '</td>
@@ -5467,7 +5418,7 @@ class InactivityConverter extends Converter{
 		</tfoot>
         </table>';
 		$popup .= '</div>';
-		$popup .= '<div class=\'modal-footer\'><button class=\'btn btn-primary\' data-dismiss=\'modal\' aria-hidden=\'true\'>'.$this->_i18n->getMessage('button_close').'</button></div>';
+		$popup .= '<div class=\'modal-footer\'><button class=\'btn btn-primary\' data-dismiss=\'modal\' aria-hidden=\'true\'>'.Message('button_close').'</button></div>';
 		$popup .= '</div>';
 		return$popup;}
 	function _format($rate){
@@ -5479,12 +5430,12 @@ class MatchReportLinkConverter extends Converter {
 	function toHtml($row){
 		$output='<div class=\'btn-group\'>';
 		$output .= '<a class=\'btn btn-small dropdown-toggle\' data-toggle=\'dropdown\' href=\'#\'>';
-		$output .= $this->_i18n->getMessage('entity_match_matchreportitems').' <span class=\'caret\'></span>';
+		$output .= Message('entity_match_matchreportitems').' <span class=\'caret\'></span>';
 		$output .= '</a>';
 		$output .= '<ul class=\'dropdown-menu\'>';
-		$output .= '<li><a href=\'?site=manage-match-playerstatistics&match='.$row['id'].'\'><i class=\'icon-cog\'></i> '.$this->_i18n->getMessage('match_manage_playerstatistics').'</a></li>';
-		$output .= '<li><a href=\'?site=manage-match-reportitems&match='.$row['id'].'\'><i class=\'icon-th-list\'></i> '.$this->_i18n->getMessage('match_manage_reportitems').'</a></li>';
-		if(!$row['entity_match_berechnet'])$output .= '<li><a href=\'?site=manage-match-complete&match='.$row['id'].'\'><i class=\'icon-ok-sign\'></i> '.$this->_i18n->getMessage('match_manage_complete').'</a></li>';
+		$output .= '<li><a href=\'?site=manage-match-playerstatistics&match='.$row['id'].'\'><i class=\'icon-cog\'></i> '.Message('match_manage_playerstatistics').'</a></li>';
+		$output .= '<li><a href=\'?site=manage-match-reportitems&match='.$row['id'].'\'><i class=\'icon-th-list\'></i> '.Message('match_manage_reportitems').'</a></li>';
+		if(!$row['entity_match_berechnet'])$output .= '<li><a href=\'?site=manage-match-complete&match='.$row['id'].'\'><i class=\'icon-ok-sign\'></i> '.Message('match_manage_complete').'</a></li>';
 		$output .= '</ul>';
 		$output .= '</div>';
 		return$output;}}
@@ -5529,7 +5480,7 @@ class PremiumTransactionConverter extends Converter {
 class TransferOfferApprovalLinkConverter extends Converter {
 	function toHtml($row){
 		if($row['entity_transfer_offer_admin_approval_pending']){
-			$output=' <a href=\'?site=manage&entity=transfer_offer&action=transferofferapprove&id='.$row['id'].'\' class=\'btn btn-small btn-success\'><i class=\'icon-ok icon-white\'></i> '.$this->_i18n->getMessage('button_approve').'</a>';}
+			$output=' <a href=\'?site=manage&entity=transfer_offer&action=transferofferapprove&id='.$row['id'].'\' class=\'btn btn-small btn-success\'><i class=\'icon-ok icon-white\'></i> '.Message('button_approve').'</a>';}
 		else $output='<i class=\'icon-ban-circle\'></i>';
 		return$output;}}
 class UserPasswordConverter extends Converter {
@@ -5900,7 +5851,7 @@ class EmailValidator {
 	function isValid(){
 		$this->_value=$value;
 		return filter_var($this->_value, FILTER_VALIDATE_EMAIL);}
-	function getMessage(){ return$this->_i18n->getMessage('validation_error_email');}}
+	function getMessage(){ returnMessage('validation_error_email');}}
 class PasswordValidator {
 	function isValid(){
 		$this->_value=$value;
@@ -5908,7 +5859,7 @@ class PasswordValidator {
 		$blacklist=array('test123', 'abc123', 'passw0rd', 'passw0rt');
 		if(in_array(strtolower($this->_value),$blacklist))return FALSE;
 		return TRUE;}
-	function getMessage(){ return$this->_i18n->getMessage('validation_error_password');}}
+	function getMessage(){ returnMessage('validation_error_password');}}
 class UniqueCupNameValidator {
 	function isValid(){
 		$this->_value=$value;
@@ -5920,10 +5871,8 @@ class UniqueCupNameValidator {
 		$matches=$result->fetch_array();
 		if($matches['hits'] &&!isset($_POST['id']))return FALSE;
 		return TRUE;}
-	function getMessage(){ return$this->_i18n->getMessage('validation_error_uniquecupname');}}
-//+ owsPro: Base for all models, sets the required basic functions, which are overwritten by the executing class, depending on the required change of the basic code. */
+	function getMessage(){ returnMessage('validation_error_uniquecupname');}}
 class Model{
-	//- owsPro: '__construct'  Available for compatibility reasons and in owsPro obsolet
 	function __construct($db,$i18n,$websoccer){ $this->_websoccer=$websoccer; $this->_db=$db; $this->_i18n=$i18n;}
 	function getTemplateParameters(){ return array();}
 	function renderView(){ return TRUE;}}
@@ -6012,7 +5961,7 @@ class DirectTransferOfferModel extends Model {
 		return array("players"=>$players,"player"=>$this->_player);}
 		function renderView(){
 		$playerId=(int)$this->_websoccer->getRequestParameter("id");
-		if($playerId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$this->_player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		if(!Config("transferoffers_enabled"))return FALSE;
 		return (!$this->_player["player_unsellable"] && $this->_player["team_user_id"]>0 && $this->_player["team_user_id"] !==$this->_websoccer->getUser()->id &&!$this->_player["player_transfermarket"] && $this->_player["lending_owner_id"]==0);}}
@@ -6022,7 +5971,7 @@ class FacebookLoginModel extends Model {
 class FinancesModel extends Model {
 	function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		if($teamId<1)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($teamId<1)throw new Exception(Message("feature_requires_team"));
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$teamId);
 		$count=BankAccountDataService::countAccountStatementsOfTeam($this->_websoccer,$this->_db,$teamId);
 		$eps=Config("entries_per_page");
@@ -6044,7 +5993,7 @@ class FinancesSummaryModel extends Model {
 class FindNationalPlayersModel extends Model {
 	function getTemplateParameters(){
 		$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
-		if(!$teamId)throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
+		if(!$teamId)throw new Exception(Message("nationalteams_user_requires_team"));
 		$result=$this->_db->querySelect("name",Config("db_prefix")."_verein","id=%d",$teamId);
 		$team=$result->fetch_array();
 		$firstName=$this->_websoccer->getRequestParameter("fname");
@@ -6078,7 +6027,7 @@ class FormationModel extends Model {
 		if($this->_nationalteam)$clubId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
 		else $clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$nextMatches=MatchesDataService::getNextMatches($this->_websoccer,$this->_db,$clubId,Config('formation_max_next_matches'));
-		if(!count($nextMatches))throw new Exception($this->_i18n->getMessage('next_match_block_no_nextmatch'));
+		if(!count($nextMatches))throw new Exception(Message('next_match_block_no_nextmatch'));
 		$matchId=$this->_websoccer->getRequestParameter('id');
 		if(!$matchId)$matchinfo=$nextMatches[0];
 		else{
@@ -6186,7 +6135,7 @@ class FormationModel extends Model {
 				elseif($setup['om']<2)$setup['om']=$setup['om'] + 1;
 				else $setup['striker']=$setup['striker'] + 1;}
 			$altered=TRUE;}
-		if($altered)$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,$this->_i18n->getMessage('formation_setup_altered_warn_title'),$this->_i18n->getMessage('formation_setup_altered_warn_details')));
+		if($altered)$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message('formation_setup_altered_warn_title'),Message('formation_setup_altered_warn_details')));
 		return$setup;}
 	function renderView(){
 		$this->_nationalteam=($websoccer->getRequestParameter('nationalteam'))? TRUE : FALSE;
@@ -6262,7 +6211,7 @@ class LeagueDetailsModel extends Model{
 				$leagueId=$club["liga_id"];}}
 		if($leagueId>0){
 			$league=LeagueDataService::getLeagueById($this->_websoccer,$this->_db,$leagueId);
-			if(!isset($league["league_id"]))throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));}
+			if(!isset($league["league_id"]))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));}
 		return array("league"=>$league,"leagues"=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
 class LeagueSelectionModel extends Model {
 	function getTemplateParameters(){
@@ -6355,9 +6304,9 @@ class LiveMatchBlockModel extends Model {
 class MatchChangesModel extends FormationModel {
 	function getTemplateParameters(){
 		$matchId=(int)$this->_websoccer->getRequestParameter('id');
-		if($matchId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($matchId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$match=MatchesDataService::getMatchSubstitutionsById($this->_websoccer,$this->_db,$matchId);
-		if($match['match_simulated'])throw new Exception($this->_i18n->getMessage('match_details_match_completed'));
+		if($match['match_simulated'])throw new Exception(Message('match_details_match_completed'));
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		if($match['match_home_id'] !==$teamId && $match['match_guest_id'] !==$teamId)$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
 		if($teamId !==$match['match_home_id'] && $match['match_guest_id'] !==$teamId)throw new Exception('illegal match');
@@ -6424,9 +6373,9 @@ class MatchDayResultsModel extends Model {
 class MatchDetailsModel extends Model {
 	function getTemplateParameters(){
 		$matchId=(int)$this->_websoccer->getRequestParameter('id');
-		if($matchId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($matchId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$match=MatchesDataService::getMatchById($this->_websoccer,$this->_db,$matchId);
-		if(!isset($match['match_id']))throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($match['match_id']))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$allowTacticChanges=FALSE;
 		$reportmessages=[];
 		if($match['match_minutes']>0){
@@ -6446,7 +6395,7 @@ class MatchDetailsModel extends Model {
 class MatchPlayersModel extends Model {
 	function getTemplateParameters(){
 		$matchId=(int)$this->_websoccer->getRequestParameter("id");
-		if($matchId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($matchId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$match=MatchesDataService::getMatchById($this->_websoccer,$this->_db,$matchId, FALSE, TRUE);
 		$home_players=MatchesDataService::getMatchReportPlayerRecords($this->_websoccer,$this->_db,$matchId,$match["match_home_id"]);
 		$guest_players=MatchesDataService::getMatchReportPlayerRecords($this->_websoccer,$this->_db,$matchId,$match["match_guest_id"]);
@@ -6492,7 +6441,7 @@ class MatchPreviewModel extends Model {
 class MatchStatisticsModel extends Model {
 	function getTemplateParameters(){
 		$matchId=(int)$this->_websoccer->getRequestParameter("id");
-		if($matchId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($matchId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$match=MatchesDataService::getMatchById($this->_websoccer,$this->_db,$matchId);
 		$columns["SUM(shoots)"]="shoots";
 		$columns["SUM(ballcontacts)"]="ballcontacts";
@@ -6582,7 +6531,7 @@ class MyYouthTeamModel extends Model {
 class NationalMatchResultsModel extends Model {
 	function getTemplateParameters(){
 		$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
-		if(!$teamId)throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
+		if(!$teamId)throw new Exception(Message("nationalteams_user_requires_team"));
 		$matchesCount=NationalteamsDataService::countSimulatedMatches($this->_websoccer,$this->_db,$teamId);
 		$eps=5;
 		$paginator=new Paginator($matchesCount,$eps,$this->_websoccer);
@@ -6594,7 +6543,7 @@ class NationalMatchResultsModel extends Model {
 class NationalNextMatchesModel extends Model {
 	function getTemplateParameters(){
 		$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
-		if(!$teamId)throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
+		if(!$teamId)throw new Exception(Message("nationalteams_user_requires_team"));
 		$matchesCount=NationalteamsDataService::countNextMatches($this->_websoccer,$this->_db,$teamId);
 		$eps=5;
 		$paginator=new Paginator($matchesCount,$eps,$this->_websoccer);
@@ -6617,7 +6566,7 @@ class NationalNextMatchModel extends Model {
 class NationalPlayersModel extends Model {
 	function getTemplateParameters(){
 		$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
-		if(!$teamId)throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
+		if(!$teamId)throw new Exception(Message("nationalteams_user_requires_team"));
 		$result=$this->_db->querySelect("name",Config("db_prefix")."_verein","id=%d",$teamId);
 		$team=$result->fetch_array();
 		return array("team_name"=>$team["name"],"players"=> NationalteamsDataService::getNationalPlayersOfTeamByPosition($this->_websoccer,$this->_db,$teamId));}
@@ -6625,7 +6574,7 @@ class NationalPlayersModel extends Model {
 class NationalTeamMatchesModel extends Model {
 	function getTemplateParameters(){
 		$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
-		if(!$teamId)throw new Exception($this->_i18n->getMessage("nationalteams_user_requires_team"));
+		if(!$teamId)throw new Exception(Message("nationalteams_user_requires_team"));
 		return array();}
 	function renderView(){ return Config("nationalteams_enabled");}}
 class NewsDetailsModel extends Model {
@@ -6636,7 +6585,7 @@ class NewsDetailsModel extends Model {
 		$parameters=(int)$this->_websoccer->getRequestParameter("id");
 		$result=$this->_db->querySelect("NewsTab.*, AdminTab.name AS author_name",$fromTable,$whereCondition,$parameters);
 		$item=$result->fetch_array();
-		if(!$item)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!$item)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$message=$item["nachricht"];
 		if($item["c_br"])$message=nl2br($message);
 		if($item["c_links"])$message=$this->_strToLink($message);
@@ -6702,16 +6651,16 @@ class PaypalLinkModel extends Model {
 class PlayerDetailsModel extends Model {
 	function getTemplateParameters(){
 		$playerId=(int)$this->_websoccer->getRequestParameter("id");
-		if($playerId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
-		if(!isset($player["player_id"]))throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($player["player_id"]))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		return array("player"=>$player);}}
 class PlayerDetailsWithDependenciesModel extends Model {
 	function getTemplateParameters(){
 		$playerId=(int)$this->_websoccer->getRequestParameter("id");
-		if($playerId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
-		if(!isset($player["player_id"]))throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($player["player_id"]))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$grades=$this->_getGrades($playerId);
 		$transfers=TransfermarketDataService::getCompletedTransfersOfPlayer($this->_websoccer,$this->_db,$playerId);
 		return array("player"=>$player,"grades"=>$grades,"completedtransfers"=>$transfers);}
@@ -6751,7 +6700,7 @@ class PlayersSearchModel extends Model {
 class PlayerStatisticsModel extends Model {
 	function getTemplateParameters(){
 		$playerId=(int)$this->_websoccer->getRequestParameter('id');
-		if($playerId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$leagueStatistics=[];
 		$cupStatistics=[];
 		$columns=array('L.name'=> 'league_name', 'SEAS.name'=> 'season_name', 'M.pokalname'=> 'cup_name', 'COUNT(S.id)'=> 'matches', 'SUM(S.assists)'=> 'assists', 'AVG(S.note)'=> 'grade', 'SUM(S.tore)'=> 'goals', 'SUM(S.karte_gelb)'=> 'yellowcards',
@@ -6816,7 +6765,7 @@ class ProjectStatisticsModel extends Model {
 			$this->_db),"numberOfFreeTeams"=> TeamsDataService::countTeamsWithoutManager($this->_websoccer,$this->_db));}}
 class RegisterFormModel extends Model {
 	function getTemplateParameters(){
-		if(!Config("allow_userregistration"))throw new Exception($this->_i18n->getMessage("registration_disabled"));
+		if(!Config("allow_userregistration"))throw new Exception(Message("registration_disabled"));
 		$parameters=[];
 		if(Config("register_use_captcha")&& strlen(Config("register_captcha_publickey"))&& strlen(Config("register_captcha_privatekey"))){
 			include_once($_SERVER['DOCUMENT_ROOT']."/lib/recaptcha/recaptchalib.php");
@@ -6890,7 +6839,7 @@ class ShoutboxModel extends Model {
 class SponsorModel extends Model {
 	function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		if($teamId<1)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($teamId<1)throw new Exception(Message("feature_requires_team"));
 		$sponsor=SponsorsDataService::getSponsorinfoByTeamId($this->_websoccer,$this->_db,$teamId);
 		$sponsors=[];
 		$teamMatchday=0;
@@ -6901,7 +6850,7 @@ class SponsorModel extends Model {
 class StadiumEnvironmentModel extends Model {
 	function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		if($teamId<1)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($teamId<1)throw new Exception(Message("feature_requires_team"));
 		$dbPrefix=Config('db_prefix');
 		$existingBuildings=[];
 		$result=$this->_db->querySelect('*',$dbPrefix.'_buildings_of_team INNER JOIN '.$dbPrefix.'_stadiumbuilding ON id=building_id', 'team_id=%d ORDER BY construction_deadline DESC',$teamId);
@@ -6913,8 +6862,8 @@ class StadiumEnvironmentModel extends Model {
 		$result=$this->_db->querySelect('*',$dbPrefix.'_stadiumbuilding', 'id NOT IN (SELECT building_id FROM '.$dbPrefix.'_buildings_of_team WHERE team_id=%d)'.' AND (required_building_id IS NULL OR required_building_id IN (SELECT building_id FROM ' .
 			$dbPrefix.'_buildings_of_team WHERE team_id=%d AND construction_deadline<%d))'.' ORDER BY name ASC',array($teamId,$teamId,$now));
 		while($building=$result->fetch_array()){
-			if($this->_i18n->hasMessage($building['name']))$building['name']=$this->_i18n->getMessage($building['name']);
-			if($this->_i18n->hasMessage($building['description']))$building['description']=$this->_i18n->getMessage($building['description']);
+			if($this->_i18n->hasMessage($building['name']))$building['name']=Message($building['name']);
+			if($this->_i18n->hasMessage($building['description']))$building['description']=Message($building['description']);
 			$availableBuildings[]=$building;}
 		return array('existingBuildings'=>$existingBuildings, 'availableBuildings'=>$availableBuildings);}}
 class StadiumExtensionModel extends Model {
@@ -6938,9 +6887,9 @@ class StadiumModel extends Model {
 class TableHistoryModel extends Model {
 	function getTemplateParameters(){
 		$teamId=(int)$this->_websoccer->getRequestParameter('id');
-		if($teamId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($teamId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$team=TeamsDataService::getTeamById($this->_websoccer,$this->_db,$teamId);
-		if(!isset($team['team_id']))throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($team['team_id']))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$result=$this->_db->querySelect('id',Config('db_prefix').'_saison', 'liga_id=%d AND beendet=\'0\' ORDER BY name DESC',$team['team_league_id'],1);
 		$season=$result->fetch_array();
 		$history=[];
@@ -6955,9 +6904,9 @@ class TableHistoryModel extends Model {
 class TeamDetailsModel extends Model {
 	function getTemplateParameters(){
 		$teamId=(int)$this->_websoccer->getRequestParameter('id');
-		if($teamId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($teamId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$team=TeamsDataService::getTeamById($this->_websoccer,$this->_db,$teamId);
-		if(!isset($team['team_id']))throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($team['team_id']))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$stadium=StadiumsDataService::getStadiumByTeamId($this->_websoccer,$this->_db,$teamId);
 		if($team['is_nationalteam']){
 			$dbPrefix=Config('db_prefix');
@@ -7160,13 +7109,13 @@ class TermsAndConditionsModel extends Model {
 		if(!file_exists($termsFile))throw new Exception("File does not exist: ".$termsFile);
 		$xml=simplexml_load_file($termsFile);
 		$termsConfig=$xml->xpath("//pagecontent[@lang='".$this->_i18n->getCurrentLanguage()."'][1]");
-		if(!$termsConfig)throw new Exception($this->_i18n->getMessage("termsandconditions_err_notavilable"));
+		if(!$termsConfig)throw new Exception(Message("termsandconditions_err_notavilable"));
 		$terms=(string)$termsConfig[0];
 		return array("terms"=> nl2br($terms));}}
 class TicketsModel extends Model {
 	function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		if($teamId<1)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($teamId<1)throw new Exception(Message("feature_requires_team"));
 		$columns["T.preis_stehen"]="p_stands";
 		$columns["T.preis_sitz"]="p_seats";
 		$columns["T.preis_haupt_stehen"]="p_stands_grand";
@@ -7227,14 +7176,14 @@ class TrainerDetailsModel extends Model {
 class TrainingCampsDetailsModel extends Model {
 	function getTemplateParameters(){
 		$camp=TrainingcampsDataService::getCampById($this->_websoccer,$this->_db,$this->_websoccer->getRequestParameter("id"));
-		if(!$camp)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!$camp)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$defaultDate=$this->_websoccer->getNowAsTimestamp()+ 24*3600;
 		return array("camp"=>$camp,"defaultDate"=>$defaultDate);}}
 class TrainingCampsModel extends Model {
 	function getTemplateParameters(){
 		$user=$this->_websoccer->getUser();
 		$teamId=$user->getClubId($this->_websoccer,$this->_db);
-		if($teamId<1)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($teamId<1)throw new Exception(Message("feature_requires_team"));
 		$camps=[];
 		$bookedCamp=[];
 		$bookedCamps=TrainingcampsDataService::getCampBookingsByTeam($this->_websoccer,$this->_db,$teamId);
@@ -7271,13 +7220,13 @@ class TransferBidModel extends Model {
 		return array("player"=>$this->_player,"highestbid"=>$highestBid);}
 	function renderView(){
 		$playerId=(int)$this->_websoccer->getRequestParameter("id");
-		if($playerId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$this->_player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		return($this->_player["transfer_end"]>$this->_websoccer->getNowAsTimestamp());}}
 class TransfermarketOverviewModel extends Model {
 	function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		if($teamId<1)throw new Exception($this->_i18n->getMessage("feature_requires_team"));
+		if($teamId<1)throw new Exception(Message("feature_requires_team"));
 		$positionInput=$this->_websoccer->getRequestParameter("position");
 		$positionFilter=null;
 		if($positionInput=="goaly")$positionFilter="Torwart";
@@ -7330,7 +7279,7 @@ class UserDetailsModel extends Model {
 		$userId=(int)$this->_websoccer->getRequestParameter('id');
 		if($userId<1)$userId=$this->_websoccer->getUser()->id;
 		$user=UsersDataService::getUserById($this->_websoccer,$this->_db,$userId);
-		if(!isset($user['id']))throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($user['id']))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$fromTable=Config('db_prefix').'_verein';
 		$whereCondition='user_id=%d AND status=\'1\' AND nationalteam!=\'1\' ORDER BY name ASC';
 		$result=$this->_db->querySelect('id,name',$fromTable,$whereCondition,$userId);
@@ -7418,8 +7367,8 @@ class YouthMatchFormationModel extends Model {
 		$matchinfo=YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer,$this->_db,$this->_i18n,$this->_websoccer->getRequestParameter("matchid"));
 		if($matchinfo["home_team_id"]==$clubId)$teamPrefix="home";
 		elseif($matchinfo["guest_team_id"]==$clubId)$teamPrefix="guest";
-		else throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
-		if($matchinfo["matchdate"] <= $this->_websoccer->getNowAsTimestamp()|| $matchinfo["simulated"])throw new Exception($this->_i18n->getMessage("youthformation_err_matchexpired"));
+		else throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($matchinfo["matchdate"] <= $this->_websoccer->getNowAsTimestamp()|| $matchinfo["simulated"])throw new Exception(Message("youthformation_err_matchexpired"));
 		$players=null;
 		if($clubId>0)$players=YouthPlayersDataService::getYouthPlayersOfTeamByPosition($this->_websoccer,$this->_db,$clubId,"DESC");
 		$formation=$this->_getFormation($teamPrefix,$matchinfo);
@@ -7473,7 +7422,7 @@ class YouthMatchFormationModel extends Model {
 				elseif($setup["om"]<2)$setup["om"]=$setup["om"] + 1;
 				else $setup["striker"]=$setup["striker"] + 1;}
 			$altered=TRUE;}
-		if($altered)$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,$this->_i18n->getMessage("formation_setup_altered_warn_title"),$this->_i18n->getMessage("formation_setup_altered_warn_details")));
+		if($altered)$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("formation_setup_altered_warn_title"),Message("formation_setup_altered_warn_details")));
 		return$setup;}
 	function _getFormation($teamPrefix,$matchinfo){
 		$formation=[];
@@ -7576,7 +7525,7 @@ class YouthMatchRequestsModel extends Model {
 class YouthPlayerDetailsModel extends Model {
 	function getTemplateParameters(){
 		$playerId=(int)$this->_websoccer->getRequestParameter("id");
-		if($playerId<1)throw new Exception($this->_i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$playerId);
 		return array("player"=>$player);}
 	function renderView(){ return Config("youth_enabled");}}
@@ -7794,7 +7743,7 @@ class DataGeneratorService {
 	static function _throwException($messageKey,$parameter=null){
 		$websoccer=WebSoccer::getInstance();
 		$i18n=I18n::getInstance(Config('supported_languages'));
-		throw new Exception($i18n->getMessage($messageKey,$parameter));}
+		throw new Exception(Message($messageKey,$parameter));}
 	static function _createTeam($websoccer,$db,$league,$country,$cityName,$prefixes,$suffixes,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip){
 		$teamName=$cityName;
 		$shortName=strtoupper(substr($cityName, 0, 3));
@@ -8377,7 +8326,7 @@ class MatchesDataService {
 			//- 	$rmsg=stripslashes($rmsg);
 			//- }
 			$msgKey=strip_tags($rmsg);
-			if($i18n->hasMessage($msgKey))$rmsg=$i18n->getMessage($msgKey);
+			if($i18n->hasMessage($msgKey))$rmsg=Message($msgKey);
 			for($playerIndex=1; $playerIndex <= count($players); $playerIndex++)$rmsg=str_replace('{sp'.$playerIndex.'}',$players[$playerIndex - 1],$rmsg);
 			if(strpos($rmsg, '{ma1}')|| strpos($rmsg, '{ma2}')){
 				if($match==null)$match=self::getMatchById($websoccer,$db,$matchId, FALSE);
@@ -8612,7 +8561,7 @@ class NotificationsDataService {
 		$notifications=[];
 		while($row=$result->fetch_array()){
 			$notification=array('id'=>$row['id'],'eventdate'=>$row['eventdate'],'eventtype'=>$row['eventtype'],'seen'=>$row['seen']);
-			if($i18n->hasMessage($row['message_key']))$message=$i18n->getMessage($row['message_key']);
+			if($i18n->hasMessage($row['message_key']))$message=Message($row['message_key']);
 			else $message=$row['message_key'];
 			if(strlen($row['message_data'])){
 				$messageData=json_decode($row['message_data'],true);
@@ -8949,7 +8898,7 @@ class PremiumDataService {
 		if($amount<0)throw new Exception('amount illegal: '.$amount);
 		if($user['premium_balance']<$amount){
 			$i18n=I18n::getInstance(Config('supported_languages'));
-			throw new Exception($i18n->getMessage('premium_balance_notenough'));}
+			throw new Exception(Message('premium_balance_notenough'));}
 		$amount=0 - $amount;
 		self::createTransaction($websoccer,$db,$user,$userId,$amount,$subject,$data);}
 	static function createTransaction($websoccer,$db,$user,$userId,$amount,$subject,$data){
@@ -9372,7 +9321,7 @@ class TeamsDataService {
 		$players=$result->fetch_array();
 		$minBudget=($players['salary_sum'] + $salary)* 2;
 		$team=self::getTeamSummaryById($websoccer,$db,$clubId);
-		if($team['team_budget']<$minBudget)throw new Exception($i18n->getMessage('extend-contract_cannot_afford_offer'));}
+		if($team['team_budget']<$minBudget)throw new Exception(Message('extend-contract_cannot_afford_offer'));}
 	static function _getFromPart($websoccer){
 		$tablePrefix=Config('db_prefix');
 		$fromTable=$tablePrefix.'_verein AS C LEFT JOIN '.$tablePrefix.'_liga AS L ON C.liga_id=L.id LEFT JOIN '.$tablePrefix.'_sponsor AS SPON ON C.sponsor_id=SPON.id LEFT JOIN '.$tablePrefix.'_user AS U ON C.user_id=U.id LEFT JOIN ' .
@@ -9890,7 +9839,7 @@ class YouthMatchesDataService {
 		$fromTable=Config('db_prefix').'_youthmatch AS M INNER JOIN '.Config('db_prefix'). '_verein AS HOME ON HOME.id=M.home_team_id INNER JOIN '.Config('db_prefix'). '_verein AS GUEST ON GUEST.id=M.guest_team_id';
 		$result=$db->querySelect($columns,$fromTable,'M.id=%d',$matchId);
 		$match=$result->fetch_array();
-		if(!$match)throw new Exception($i18n->getMessage(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!$match)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
 		return$match;}
 	static function countMatchesOfTeamOnSameDay($websoccer,$db,$teamId,$timestamp){
 		$fromTable=Config('db_prefix').'_youthmatch';
@@ -9950,7 +9899,7 @@ class YouthMatchesDataService {
 		$result=$db->querySelect('*',Config('db_prefix').'_youthmatch_reportitem','match_id=%d ORDER BY minute ASC',$matchId);
 		$items=[];
 		while($item=$result->fetch_array()){
-			$message=$i18n->getMessage($item['message_key']);
+			$message=Message($item['message_key']);
 			if(strlen($item['message_data'])){
 				$messageData=json_decode($item['message_data'],true);
 				if($messageData){
@@ -9961,7 +9910,7 @@ class YouthPlayersDataService {
 	static function getYouthPlayerById($websoccer,$db,$i18n,$playerId){
 		$fromTable=Config('db_prefix').'_youthplayer';
 		$players=$db->queryCachedSelect('*',$fromTable,'id=%d',$playerId);
-		if(!count($players))throw new Exception($i18n->getMessage('error_page_not_found'));
+		if(!count($players))throw new Exception(Message('error_page_not_found'));
 		return$players[0];}
 	static function getYouthPlayersOfTeam($websoccer,$db,$teamId){
 		$fromTable=Config('db_prefix').'_youthplayer';
@@ -10032,7 +9981,7 @@ class YouthPlayersDataService {
 	static function getScoutById($websoccer,$db,$i18n,$scoutId){
 		$result=$db->querySelect('*',Config('db_prefix').'_youthscout','id=%d',$scoutId);
 		$scout=$result->fetch_array();
-		if(!$scout)throw new Exception($i18n->getMessage('youthteam_scouting_err_invalidscout'));
+		if(!$scout)throw new Exception(Message('youthteam_scouting_err_invalidscout'));
 		return$scout;}
 	static function getLastScoutingExecutionTime($websoccer,$db,$teamId){
 		$result=$db->querySelect('scouting_last_execution',Config('db_prefix').'_verein','id=%d',$teamId);
@@ -10286,8 +10235,8 @@ function setAdminScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><fo
 	echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/><input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}
 	echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"action\"value=\"actionSetLanguage\"></form>";}
 function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
-	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo(escapeOutput(isset($_POST['db_host']))?$_POST['db_host']:'localhost');?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div><div
-	class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php escapeOutput(echoescapeOutput(isset($_POST['db_name']))?$_POST['db_name']:'');?>"></div></div>
+	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo(isset($_POST['db_host']))?$_POST['db_host']:'localhost';?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div><div
+	class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo(isset($_POST['db_name']))?$_POST['db_name']:'';?>"></div></div>
 	<div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'required value="<?php echo(isset($_POST['db_user']))?$_POST['db_user']:'';?>"></div>
 	</div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label><div class='controls'>
 	<input type=text'id='db_password'name='db_password'required value="<?php echo(isset($_POST['db_password']))?$_POST['db_password']:'';?>"></div></div><div class='control-group'><label class='control-label'for='name'><?php echo$messages['label_name']?></label>
@@ -10295,3 +10244,28 @@ function setAdminForm($messages){?><form method='post'class='form-horizontal'><f
 	<div class='controls'><input type='password'id='password'name='password'required value="<?php echo(isset($_POST['password']))?$_POST['password']:'';?>"></div></div><div class='control-group'>
 	<label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value="<?php echo(isset($_POST['email']))?$_POST['email']:'';?>"></div></div></fieldset>
 	<div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
+function flags($site){?><a href=<?php echo$site?>de><img src='/img/flags/de.png'width='24'height='24'alt='deutsch'title='deutsch'/></a><a href=<?php echo$site?>en><img src='/img/flags/en.png'width='24'height='24'alt='english'title='english'/></a><a href=<?php
+	echo$site?>es><img src='/img/flags/es.png'width='24'height='24'alt='español'title='español'/></a><a href=<?php echo$site?>pt><img src='/img/flags/pt.png'width='24'height='24'alt='português'title='português'/></a><a href=<?php echo$site?>dk>
+	<img src='/img/flags/dk.png'width='24'height='24'alt='dansk'title='dansk'/></a><a href=<?php echo$site?>ee><img src='/img/flags/ee.png'width='24'height='24'alt='eesti'title='eesti'/></a><a href=<?php echo$site?>fi><img src='/img/flags/fi.png'width='24'height='24'
+	alt='suomalainen'title='suomalainen'/></a><a href=<?php echo$site?>fr><img src='/img/flags/fr.png'width='24'height='24'alt='français'title='français'/></a><a href=<?php echo$site?>id><img src='/img/flags/id.png'width='24'height='24'alt='indonesia'
+	title='indonesia'/></a><a href=<?php echo$site?>it><img src='/img/flags/it.png'width='24'height='24'alt='italiano'title='italiano'/></a><a href=<?php echo$site?>lv><img src='/img/flags/lv.png'width='24'height='24'alt='latvieši'title='latvieši'/></a><a href=<?php
+	echo$site?>lt><img src='/img/flags/lt.png'width='24'height='24'alt='lietuviškas'title='lietuviškas'/></a><a href=<?php echo$site?>nl><img src='/img/flags/nl.png'width='24'height='24'alt='nederlands'title='nederlands'/></a><a href=<?php echo$site?>pl><img
+	src='/img/flags/pl.png'width='24'height='24'alt='polska'title='polska'/></a><a href=<?php echo$site?>br><img src='/img/flags/br.png'width='24'height='24'alt='???lang_label_br???'title='???lang_label_br???'/></a><a href=<?php echo$site?>ro><img src=
+	'/img/flags/ro.png'width='24'height='24'alt='???lang_label_ro???'title='???lang_label_ro???'/></a><a href=<?php echo$site?>se><img src='/img/flags/se.png'width='24'height='24'alt='???lang_label_se???'title='???lang_label_se???'/></a><a href=<?php echo$site?>sk>
+	<img src='/img/flags/sk.png'width='24'height='24'alt='???lang_label_sk???'title='???lang_label_sk???'/></a><a href=<?php echo$site?>si><img src='/img/flags/si.png'width='24'height='24'alt='???lang_label_si???'title='???lang_label_si???'/></a><a href=<?php
+	echo$site?>cz><img src='/img/flags/cz.png'width='24'height='24'alt='???lang_label_cz???'title='???lang_label_cz???'/></a><a href=<?php echo$site?>tr><img src='/img/flags/tr.png'width='24'height='24'alt='???lang_label_tr???'title='???lang_label_tr???'/></a>
+	<a href=<?php echo$site?>hu><img src='/img/flags/hu.png'width='24'height='24'alt='???lang_label_hu???'title='???lang_label_hu???'/></a><a href=<?php echo$site?>jp><img src='/img/flags/jp.png'width='24'height='24'alt='???lang_label_jp???'title='???lang_label_jp???'/>
+	</a><br><br><?php }
+function classes_autoloader($class){$subforder='';if(substr($class,-9)==='Converter')$subforder='converters/';elseif(substr($class,-4)==='Skin')$subforder='skins/';elseif(substr($class,-5)==='Model')$subforder='models/';elseif(substr($class,-9)==='Validator')$subforder=
+	'validators/';elseif(substr($class,-10)==='Controller')$subforder='actions/';elseif(substr($class,-7)==='Service')$subforder='services/';elseif(substr($class,-3)==='Job')$subforder='jobs/';elseif(substr($class,-11)==='LoginMethod')$subforder='loginmethods/';
+	elseif(substr($class,-5)==='Event')$subforder='events/';elseif(substr($class,-6)==='Plugin')$subforder='plugins/';@include(BASEFOLDER.'/classes/'.$subforder.$class.'.class.php');}
+function sendEmail($email,$password,$website,$i18n){$tplparameters['newpassword']=$password;EmailHelper::sendSystemEmailFromTemplate($website,$i18n,$email,Message('sendpassword_admin_email_subject'),'sendpassword_admin',$tplparameters);}
+function escapeOutput($message){return htmlspecialchars($message,ENT_COMPAT,'UTF-8');}
+function createWarningMessage($title,$message){return createMessage('warning',$title,$message);}
+function createInfoMessage($title,$message){return createMessage('info',$title,$message);}
+function createErrorMessage($title,$message){return createMessage('error',$title,$message);}
+function createSuccessMessage($title,$message){return createMessage('success',$title,$message);}
+function createMessage($severity,$title,$message){$html='<div class=\'alert alert-'.$severity.'\'>'.'<button type=\'button\'class=\'close\'data-dismiss=\'alert\'>&times;</button>'.'<h4>'.$title.'</h4>'.$message.'</div>';return $html;}
+function logAdminAction(WebSoccer $websoccer,$type,$username,$entity,$entityValue){$userIp=getenv('REMOTE_ADDR');$message=$websoccer->getFormattedDatetime($websoccer->getNowAsTimestamp()).';'.$username.';'.$userIp.';'.$type.';'.$entity.';'.$entityValue;
+	$file=BASE_FOLDER.'/generated/entitylog.php';$fw=new FileWriter($file,FALSE);$fw->writeLine($message);$fw->close();}
+function renderErrorPage($website,$i18n,$viewHandler,$message,$parameters){$parameters['title']=$message;$parameters['message']='';print_r($website->getTemplateEngine($i18n,$viewHandler)->loadTemplate('error')->render($parameters));}

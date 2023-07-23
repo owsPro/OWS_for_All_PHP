@@ -19,52 +19,7 @@
   If not, see <http://www.gnu.org/licenses/>.
 
 ******************************************************/
-define('JOB','//job[@id = \''. $jobId . '\']');
-include($_SERVER['DOCUMENT_ROOT']. '/admin/config/global.inc.php');
-define('JOBS_CONFIG_FILE',$_SERVER['DOCUMENT_ROOT']. '/admin/config/jobs.xml');
-
-// execution enabled?
-if (!$website->getConfig('webjobexecution_enabled')) {
-	die('External job execution disabled');
-}
-
-// do not execute if site is in offline mode
-if ($website->getConfig('offline') == 'offline') {
-	die('Site is in offline mode');
-}
-
-if (!isset($_REQUEST['sectoken'])) {
-	die('no security token provided');
-}
-if (!isset($_REQUEST['jobid'])) {
-	die('no job ID provided');
-}
-
-$securityToken = $_REQUEST['sectoken'];
-$jobId = $_REQUEST['jobid'];
-
-// check security token
-if ($website->getConfig('webjobexecution_key') !== $securityToken) {
-	die('invalid security token');
-}
-
-// get job
-$xml = simplexml_load_file(JOBS_CONFIG_FILE);
-$jobConfig = $xml->xpath(JOB);
-if (!$jobConfig) {
-	die('Job config not found.');
-}
-
-// execute
-$jobClass = (string) $jobConfig[0]->attributes()->class;
-if (class_exists($jobClass)) {
-
-	$i18n = I18n::getInstance($website->getConfig('supported_languages'));
-	$job = new $jobClass($website, $db, $i18n, $jobId);
-
-} else {
-	die('class not found: ' . $jobClass);
-}
-
-$job->execute();
-?>
+	define('JOB','//job[@id=\''.$jobId.'\']');include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');define('JOBS_CONFIG_FILE',$_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');if(!Config('webjobexecution_enabled'))die('External job execution disabled');
+	if(Config('offline')=='offline'){die('Site is in offline mode');if(!isset($_REQUEST['sectoken']))die('no security token provided');if(!isset($_REQUEST['jobid']))die('no job ID provided');$securityToken=$_REQUEST['sectoken'];$jobId=$_REQUEST['jobid'];
+	if(Config('webjobexecution_key')!==$securityToken)die('invalid security token');$xml=simplexml_load_file(JOBS_CONFIG_FILE);$jobConfig=$xml->xpath(JOB);if(!$jobConfig)die('Job config not found.');$jobClass=(string)$jobConfig[0]->attributes()->class;
+	if(class_exists($jobClass)){$i18n=I18n::getInstance(Config('supported_languages'));$job=new $jobClass($website,$db,$i18n,$jobId);}else die('class not found: '.$jobClass);$job->execute();

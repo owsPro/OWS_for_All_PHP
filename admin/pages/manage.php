@@ -33,12 +33,11 @@ if($action=='save'){
 	$show=='add')$dbcolumns[$fieldId]=$fieldValue;}if($show=='add')$db->queryInsert($dbcolumns,$dbTable);else{$whereCondition='id=%d';$parameter=$id;$db->queryUpdate($dbcolumns,$dbTable,$whereCondition,$parameter);if($loggingEnabled){
 	$result=$db->querySelect($loggingColumns,$dbTable,$whereCondition,$parameter);$item=$result->fetch_array(MYSQLI_ASSOC);$result->free();logAdminAction($website,LOG_TYPE_EDIT,$admin['name'],$entity,json_encode($item));}}
 	echo createSuccessMessage(Message('alert_save_success'),'');$showOverview=TRUE;}catch(Exception$e){echo createErrorMessage(Message('subpage_error_alertbox_title'),$e->getMessage());}}}
-if($show=='add'){
-	if(!$showOverview){?><form action='<?php echo escapeOutput($_SERVER['PHP_SELF']);?>'method='post'class='form-horizontal'<?php if($enableFileUpload)echo'enctype=\'multipart/form-data\'';?>><input type='hidden'name='show'value='<?php echo$show;?>'>
-	<input type='hidden'name='entity'value='<?php echo$entity;?>'><input type='hidden'name='action'value='save'><input type='hidden'name='site"value='<?php echo$site;?>'><fieldset><legend><?php echo Message('manage_add_title');?></legend><?php
+if($show=='add'){if(!$showOverview){?><form action='<?php echo escapeOutput($_SERVER['PHP_SELF']);?>'method='post'class='form-horizontal'<?php if($enableFileUpload)echo'enctype=\'multipart/form-data\'';?>><input type='hidden'name='show'value='<?php echo$show;?>'>
+	<input type='hidden'name='entity'value='<?php echo $entity;?>'><input type='hidden'name='action'value='save'><input type='hidden'name='site'value='<?php echo$site;?>'><fieldset><legend><?php echo Message('manage_add_title');?></legend><?php
 	foreach($formFields as$fieldId=>$fieldInfo){$fieldValue=null;if(isset($_REQUEST[$fieldId]))$fieldValue=$_REQUEST[$fieldId];elseif(!count($_POST)&&strlen($fieldInfo['default']))$fieldValue=$fieldInfo['default'];
 	echo escapeOutput(FormBuilder::createFormGroup($i18n,$fieldId,$fieldInfo,$fieldValue,$labelPrefix));}?></fieldset><div class='form-actions'><input type='submit'class='btn btn-primary'accesskey='s'title='Alt + s'value='<?php echo Message('button_save');?>'>
-	<a class='btn'href='?site=<?php echo$site;?>&entity=<?php echo$entity;?>'><?php echo Message('button_cancel');?></a></div></form><?php }}
+	<a class='btn'href='?site=<?php echo $site;?>&entity=<?php echo $entity; ?>'><?php echo Message('button_cancel');?></a></div></form><?php }}
 elseif($show=="edit"){
 	if(!$showOverview){$columns='*';$whereCondition='id=%d';$result=$db->querySelect($columns,$dbTable,$whereCondition,$id,1);$row=$result->fetch_array();if(!$row)throw new Exception('Invalid URL - Item does not exist.');$result->free();?>
 	<form action='<?php echo escapeOutput($_SERVER['PHP_SELF']);?>#item<?php echo escapeOutput($row['id']);?>'method='post'class='form-horizontal'<?php if($enableFileUpload)echo'enctype=\'multipart/form-data\'';?>><input type='hidden'name='show'value='<?php echo$show;?>'>

@@ -1,37 +1,16 @@
 <?php
-/******************************************************
+/*This file is part of "OWS for All PHP" (Rolf Joseph)
+  https://github.com/owsPro/OWS_for_All_PHP/
+  A spinn-off for PHP Versions 5.5 to 8.2 from:
+  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
-  This file is part of OpenWebSoccer-Sim.
+  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
 
-  OpenWebSoccer-Sim is free software: you can redistribute it
-  and/or modify it under the terms of the
-  GNU Lesser General Public License
-  as published by the Free Software Foundation, either version 3 of
-  the License, or any later version.
+  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
-  OpenWebSoccer-Sim is distributed in the hope that it will be
-  useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with OpenWebSoccer-Sim.
-  If not, see <http://www.gnu.org/licenses/>.
-
-******************************************************/
-include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');
-define('PARAM_PAGE','page');
-include(CONFIGCACHE_FILE_FRONTEND);
-$i18n=I18n::getInstance($website->getConfig('supported_languages'));
-$lang=$website->getRequestParameter('lang');
-if($lang){
-	try{$i18n->setCurrentLanguage($lang);}
-	catch (Exception$e){}}
-include(sprintf(CONFIGCACHE_MESSAGES,$i18n->getCurrentLanguage()));
-include(sprintf(CONFIGCACHE_ENTITYMESSAGES,$i18n->getCurrentLanguage()));
-$pageId=$website->getRequestParameter(PARAM_PAGE);
-$website->setPageId($pageId);
-header('Content-type:application/rss+xml;charset=utf-8');
-$viewHandler=new ViewHandler($website,$db,$i18n,$page,$block,null);
-try{echo$viewHandler->handlePage($pageId,[]);}
-catch(Exception$e){echo$e->getMessage();}
+*****************************************************************************/
+	include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');define('PARAM_PAGE','page');include(CONFIGCACHE_FILE_FRONTEND);$i18n=I18n::getInstance(Config('supported_languages'));$lang=$website->getRequestParameter('lang');if($lang){
+	try{$i18n->setCurrentLanguage($lang);}catch(Exception$e){}}include(sprintf(CONFIGCACHE_MESSAGES,$i18n->getCurrentLanguage()));include(sprintf(CONFIGCACHE_ENTITYMESSAGES,$i18n->getCurrentLanguage()));$pageId=$website->getRequestParameter(PARAM_PAGE);
+	$website->setPageId($pageId);header('Content-type:application/rss+xml;charset=utf-8');$viewHandler=new ViewHandler($website,$db,$i18n,$page,$block,null);try{echo$viewHandler->handlePage($pageId,[]);}catch(Exception$e){echo$e->getMessage();}

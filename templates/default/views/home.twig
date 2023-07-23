@@ -5,11 +5,10 @@
 
 {% block browser_title %}
 {{ i18n.getMessage("home_title", env.getConfig("projectname")) }}
-	<br><small>OpenWebSoccer-Sim 5.2.4 by owsPro for PHP -> 5.5 to 8.2</small><br> PHP {{constant('PHP_VERSION')}} | Twig {{constant('Twig\\Environment::VERSION')}}<br>
 {% endblock %}
 
 {% block page_header %}
-
+	<small>PHP {{constant('PHP_VERSION')}} | Twig {{constant('Twig\\Environment::VERSION')}}</small><br>
 {% if env.user.id == null %}
 <div class="hero-unit">
   <h1>{{ block("browser_title") }}</h1>
