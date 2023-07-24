@@ -481,13 +481,13 @@ class ConverterFactory {
 class CookieHelper {
 	static function createCookie($name,$value,$lifetimeInDays=null){
 		$expiry=($lifetimeInDays!=null)? time()+ 86400*$lifetimeInDays : 0;
-		setcookie(COOKIE_PREFIX .$name,$value,$expiry);}
+		setcookie(COOKIE_PREFIX .$name,$value,$expiry,null,null,true,true);}
 	static function getCookieValue($name){
 		if(!isset($_COOKIE[COOKIE_PREFIX .$name]))return null;
 		return$_COOKIE[COOKIE_PREFIX .$name];}
 	static function destroyCookie($name){
 		if(!isset($_COOKIE[COOKIE_PREFIX .$name]))return;
-		setcookie(COOKIE_PREFIX .$name, '', time()-86400);}}
+		setcookie(COOKIE_PREFIX .$name, '', time()-86400,null,null,true,true);}}
 class DataUpdateSimulatorObserver {
 	private $_teamsWithSoonEndingContracts;
 	function __construct($websoccer,$db){
@@ -1390,7 +1390,7 @@ class FormBuilder {
 			echo '<input type=\'checkbox\' value=\'1\' name=\''.$fieldId.'\'';
 			if($fieldValue=='1')echo ' checked';
 			echo '>';
-			echo Message(escapeOutput($labelKeyPrefix.$fieldId));
+			echo escapeOutput(Message($labelKeyPrefix.$fieldId));
 			echo '</label>';
 			echo escapeOutput($helpText);}
 		else{
@@ -1490,7 +1490,7 @@ class FormBuilder {
 		$items=$result->fetch_array();
 		if($items['hits'] <= 20){
 			echo '<select id=\''.$fieldId.'\' name=\''.$fieldId.'\'>';
-			echo '<option value=\'\'>'.Message(escapeOutput('manage_select_placeholder')).'</option>';
+			echo '<option value=\'\'>'.escapeOutput(Message('manage_select_placeholder')).'</option>';
 			$whereCondition='1=1 ORDER BY '.$fieldInfo['labelcolumns'].' ASC';
 			$result=$db->querySelect('id, '.$fieldInfo['labelcolumns'],$fromTable,$whereCondition, '', 2000);
 			while($row=$result->fetch_array()){
@@ -1505,9 +1505,9 @@ class FormBuilder {
 				if($fieldValue==$row['id'])echo ' selected';
 				echo '>'. escapeOutput($label).'</option>';}
 			echo '</select>';}
-		else echo '<input type=\'hidden\' class=\'pkpicker\' id=\''.$fieldId.'\' name=\''.$fieldId.'\' value=\''.$fieldValue.'\' data-dbtable=\''.escapeOutput($fieldInfo['jointable']).'\' data-labelcolumns=\''.escapeOutput($fieldInfo['labelcolumns']).'\' data-placeholder=\'' .
-				Message('manage_select_placeholder').'\'>';
-		echo ' <a href=\'?site=manage&entity='.escapeOutput($fieldInfo['entity']).'&show=add\' title=\''.Message('manage_add').'\'><i class=\'icon-plus-sign\'></i></a>';}}
+		else echo escapeOutput('<input type=\'hidden\' class=\'pkpicker\' id=\''.$fieldId.'\' name=\''.$fieldId.'\' value=\''.$fieldValue.'\' data-dbtable=\''.$fieldInfo['jointable'].'\' data-labelcolumns=\''.escapeOutput($fieldInfo['labelcolumns']).'\' data-placeholder=\'' .
+				Message('manage_select_placeholder').'\'>');
+		echo escapeOutput('<a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''.Message('manage_add').'\'><i class=\'icon-plus-sign\'></i></a>');}}
 class FrontMessage {
 	function __construct($type,$title,$message){
 		if($type !==MESSAGE_TYPE_INFO && $type !==MESSAGE_TYPE_SUCCESS && $type !==MESSAGE_TYPE_ERROR && $type !==MESSAGE_TYPE_WARNING)throw new Exception('unknown FrontMessage type: '.$type);
@@ -4281,7 +4281,7 @@ class MicropaymentRedirectController extends Controller {
 		$seal=hash('sha256',$parameters .$accessKey);
 		$queryStr .= '&seal='.$seal;
 		$paymentUrl .= $queryStr;
-		escapeOutput(header('Location: '.$paymentUrl));
+		header('Location: '.escapeOutput($paymentUrl));
 		exit;
 		return null;}}
 class MoveYouthPlayerToProfessionalController extends Controller {
@@ -10218,7 +10218,7 @@ function loadAndExecuteDdl($file,DbConnection$db){$script=file_get_contents($fil
 function printCreateUserForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='name'><?php echo$messages['label_name']?></label>
 	<div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div>
 	<div class='control-group'><label class='control-label'for='password'><?php echo$messages['label_password']?></label>
-	<div class='controls'><input type='password'id='password'name='password'required value='<?php echo escapeOutput(isset($_POST['password'])?$_POST['password']:'');?>'</div></div><br>
+	<div class='controls'><input type='password'id='password'name='password'required value='escapeOutput(echo isset($_POST['password']?$_POST['password']:'');?>'</div></div><br>
 	<div class='control-group'><label class='control-label'for='email'><?php echo$messages['label_email']?></label>
 	<div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities((isset($_POST['email']))?$_POST['email']:'');?>'</div></div></fieldset>
 	<div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
@@ -10237,7 +10237,7 @@ function setAdminScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><fo
 function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
 	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo escapeOutput(isset($_POST['db_host'])?$_POST['db_host']:'localhost');?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div>
 	</div><div class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo escapeOutput(isset($_POST['db_name'])?
-	$_POST['db_name']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'required value="<?php 
+	$_POST['db_name']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'required value="<?php
 	echo escapeOutput(isset($_POST['db_user'])?$_POST['db_user']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label><div class='controls'>
 	<input type=text'id='db_password'name='db_password'required value="<?php echo escapeOutput(isset($_POST['db_password'])?$_POST['db_password']:'');?>"></div></div><div class='control-group'><label class='control-label'for='name'>
 	<?php echo$messages['label_name']?></label><div class='controls'><input type='text'id='name'name='name'required value="<?php echo escapeOutput(isset($_POST['name'])?$_POST['name']:'');?>"></div></div><div class='control-group'><label class='control-label'

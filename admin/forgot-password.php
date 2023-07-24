@@ -11,8 +11,8 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-	include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');$i18n=I18n::getInstance(Config('supported_languages'));if(isset($_GET['lang']))$i18n->setCurrentLanguage($_GET['lang']);include(sprintf(CONFIGCACHE_ADMINMESSAGES,
-	escapeOutput($i18n->getCurrentLanguage())));include(sprintf(escapeOutput($_SERVER['DOCUMENT_ROOT']).'/languages/messages_%s.php',$i18n->getCurrentLanguage()));$errors=[];$inputEmail=(isset($_POST['inputEmail']))?trim($_POST['inputEmail']):FALSE;if($inputEmail)
+	include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');$i18n=I18n::getInstance(Config('supported_languages'));if(isset($_GET['lang']))$i18n->setCurrentLanguage($_GET['lang']);include(escapeOutput(sprintf(CONFIGCACHE_ADMINMESSAGES,
+	$i18n->getCurrentLanguage())));include(escapeOutput(sprintf($_SERVER['DOCUMENT_ROOT']).'/languages/messages_%s.php',$i18n->getCurrentLanguage()));$errors=[];$inputEmail=(isset($_POST['inputEmail']))?trim($_POST['inputEmail']):FALSE;if($inputEmail)
 	{$now=$website->getNowAsTimestamp();if(count($errors)==0){$columns=array('id','passwort_neu_angefordert','name','passwort_salt');$fromTable=$conf['db_prefix'].'_admin';$whereCondition='email=\'%s\'';$parameters=$inputEmail;$result=
 	$db->querySelect($columns,$fromTable,$whereCondition,$parameters);$admin=$result->fetch_array();if($result->num_rows<1)$errors['inputEmail']=Message('sendpassword_admin_usernotfound');elseif($admin['passwort_neu_angefordert']>($now-120*60))
 	$errors['inputEmail']=Message('sendpassword_admin_alreadysent');else{$newPassword=SecurityUtil::generatePassword();$hashedPw=SecurityUtil::hashPassword($newPassword,$admin['passwort_salt']);$columns=array('passwort_neu'=>$hashedPw,'passwort_neu_angefordert'=>$now);
