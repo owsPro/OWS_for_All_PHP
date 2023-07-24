@@ -12,7 +12,7 @@
 
 *****************************************************************************/
 $mainTitle=Message('termsandconditions_navlabel');if(!$admin['r_admin']&&!$admin['r_demo']&&!$admin[$page['permissionrole']])throw new Exception(Message('error_access_denied'));$selectedLang=(isset($_POST['lang']))?$_POST['lang']:$i18n->getCurrentLanguage();
-$termsFile = BASE_FOLDER.'/admin/config/termsandconditions.xml';if(!file_exists($termsFile))throw new Exception('File does not exist: '.$termsFile);$xml=simplexml_load_file($termsFile);$termsConfig=$xml->xpath(escape("//pagecontent[@lang='".$selectedLang."'][1]"));
+$termsFile = BASE_FOLDER.'/admin/config/termsandconditions.xml';if(!file_exists($termsFile))throw new Exception('File does not exist: '.$termsFile);$xml=simplexml_load_file($termsFile);$termsConfig=$xml->xpath("//pagecontent[@lang='".$selectedLang."'][1]");
 if(!$termsConfig)throw new Exception('No terms and conditions available for this language. Create manually a new entry at '.$termsFile);if(!$show){?><h1><?php echo$mainTitle;?></h1><p><?php echo Message('termsandconditions_introduction');?></p>
 <form action='<?php echo escapeOutput($_SERVER['PHP_SELF']);?>'method='post'class='form-inline'><input type='hidden'name='site'value='<?php echo$site;?>'><label for='lang'><?php echo Message('termsandconditions_label_language');?></label> <select name='lang'id='lang'>
 <?php foreach($i18n->getSupportedLanguages() as$language){echo"<option value=\"$language\"";if($language==$selectedLang)echo' selected';echo">$language</option>";}?></select><button type='submit'class='btn'><?php echo Message('button_display');?></button></form>

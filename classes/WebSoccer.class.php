@@ -481,13 +481,13 @@ class ConverterFactory {
 class CookieHelper {
 	static function createCookie($name,$value,$lifetimeInDays=null){
 		$expiry=($lifetimeInDays!=null)? time()+ 86400*$lifetimeInDays : 0;
-		setcookie(COOKIE_PREFIX .$name,$value,$expiry,null,null,true,true);}
+		setcookie(COOKIE_PREFIX .$name,$value,$expiry);}
 	static function getCookieValue($name){
 		if(!isset($_COOKIE[COOKIE_PREFIX .$name]))return null;
 		return$_COOKIE[COOKIE_PREFIX .$name];}
 	static function destroyCookie($name){
 		if(!isset($_COOKIE[COOKIE_PREFIX .$name]))return;
-		setcookie(COOKIE_PREFIX .$name, '', time()-86400,null,null,true,true);}}
+		setcookie(COOKIE_PREFIX .$name, '', time()-86400);}}
 class DataUpdateSimulatorObserver {
 	private $_teamsWithSoonEndingContracts;
 	function __construct($websoccer,$db){
@@ -1379,7 +1379,7 @@ class FormBuilder {
 				$dateObj=DateTime::createFromFormat('Y-m-d',$fieldValue);
 				if($dateObj !==FALSE){
 					$website=WebSoccer::getInstance();
-					$dateFormat=$Config('date_format');
+					$dateFormat=Config('date_format');
 					$fieldValue=$dateObj->format($dateFormat);}}}
 		echo '<div class=\'control-group\'>';
 		$helpText='';
@@ -1390,13 +1390,13 @@ class FormBuilder {
 			echo '<input type=\'checkbox\' value=\'1\' name=\''.$fieldId.'\'';
 			if($fieldValue=='1')echo ' checked';
 			echo '>';
-			echo escapeOutput(Message($labelKeyPrefix.$fieldId));
+			echo Message($labelKeyPrefix .$fieldId);
 			echo '</label>';
-			echo escapeOutput($helpText);}
+			echo $helpText;}
 		else{
 			$labelOutput=Message($labelKeyPrefix .$fieldId);
 			if(isset($fieldInfo['required'])&& $fieldInfo['required']=='true')$labelOutput='<strong>'.$labelOutput.'</strong>';
-			echo escapeOutput('<label class=\'control-label\' for=\''.$fieldId.'\'>'.$labelOutput.'</label>');
+			echo '<label class=\'control-label\' for=\''.$fieldId.'\'>'.$labelOutput.'</label>';
 			echo '<div class=\'controls\'>';
 			switch($type){
 				case 'foreign_key':
@@ -1428,12 +1428,12 @@ class FormBuilder {
 					echo '<option></option>';
 					foreach($selection as $selectItem){
 						$selectItem=trim($selectItem);
-						echo escapeOutput('<option value=\''.$selectItem.'\'');
+						echo '<option value=\''.$selectItem.'\'';
 						if($selectItem==$selectValue)echo ' selected';
 						echo '>';
 						$label=$selectItem;
 						if($i18n->hasMessage('option_'.$selectItem))$label=Message('option_'.$selectItem);
-						echo escapeOutput($label).'</option>';}
+						echo $label.'</option>';}
 					echo '</select>';
 					break;
 				default:
@@ -1454,14 +1454,14 @@ class FormBuilder {
 							$additionalAttrs=' class=\'input-small\' ';}
 						elseif($type=='tags')$additionalAttrs=' class=\'input-tag\' data-provide=\'tag\' ';
 						else $additionalAttrs='placeholder=\''.Message($labelKeyPrefix .$fieldId).'\' ';
-						echo escapeOutput('<input type=\''.$htmlType.'\' id=\''.$fieldId.'\' '.$additionalAttrs.'name=\''.$fieldId.'\' value=\'');
+						echo '<input type=\''.$htmlType.'\' id=\''.$fieldId.'\' '.$additionalAttrs.'name=\''.$fieldId.'\' value=\'';
 						if($type!='password')echo escapeOutput($fieldValue);
 						echo '\'';
 						if(isset($fieldInfo['required'])&& $fieldInfo['required'])echo ' required';
 						echo '>';
 						if($type=='date')echo '<span class=\'add-on\'><i class=\'icon-calendar\'></i></span></div>';}}
 			if($type=='percent')echo ' % ';
-			echo escapeOutput($helpText);
+			echo $helpText;
 			echo '</div>';}
 		echo '</div>';}
 	static function validateField($i18n,$fieldId,$fieldInfo,$fieldValue,$labelKeyPrefix){
@@ -1490,7 +1490,7 @@ class FormBuilder {
 		$items=$result->fetch_array();
 		if($items['hits'] <= 20){
 			echo '<select id=\''.$fieldId.'\' name=\''.$fieldId.'\'>';
-			echo '<option value=\'\'>'.escapeOutput(Message('manage_select_placeholder')).'</option>';
+			echo '<option value=\'\'>'.Message('manage_select_placeholder').'</option>';
 			$whereCondition='1=1 ORDER BY '.$fieldInfo['labelcolumns'].' ASC';
 			$result=$db->querySelect('id, '.$fieldInfo['labelcolumns'],$fromTable,$whereCondition, '', 2000);
 			while($row=$result->fetch_array()){
@@ -1505,9 +1505,9 @@ class FormBuilder {
 				if($fieldValue==$row['id'])echo ' selected';
 				echo '>'. escapeOutput($label).'</option>';}
 			echo '</select>';}
-		else echo escapeOutput('<input type=\'hidden\' class=\'pkpicker\' id=\''.$fieldId.'\' name=\''.$fieldId.'\' value=\''.$fieldValue.'\' data-dbtable=\''.$fieldInfo['jointable'].'\' data-labelcolumns=\''.escapeOutput($fieldInfo['labelcolumns']).'\' data-placeholder=\'' .
-				Message('manage_select_placeholder').'\'>');
-		echo escapeOutput('<a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''.Message('manage_add').'\'><i class=\'icon-plus-sign\'></i></a>');}}
+		else echo '<input type=\'hidden\' class=\'pkpicker\' id=\''.$fieldId.'\' name=\''.$fieldId.'\' value=\''.$fieldValue.'\' data-dbtable=\''.$fieldInfo['jointable'].'\' data-labelcolumns=\''.$fieldInfo['labelcolumns'].'\' data-placeholder=\'' .
+				Message('manage_select_placeholder').'\'>';
+		echo ' <a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''.Message('manage_add').'\'><i class=\'icon-plus-sign\'></i></a>';}}
 class FrontMessage {
 	function __construct($type,$title,$message){
 		if($type !==MESSAGE_TYPE_INFO && $type !==MESSAGE_TYPE_SUCCESS && $type !==MESSAGE_TYPE_ERROR && $type !==MESSAGE_TYPE_WARNING)throw new Exception('unknown FrontMessage type: '.$type);
@@ -4281,7 +4281,7 @@ class MicropaymentRedirectController extends Controller {
 		$seal=hash('sha256',$parameters .$accessKey);
 		$queryStr .= '&seal='.$seal;
 		$paymentUrl .= $queryStr;
-		header('Location: '.escapeOutput($paymentUrl));
+		header('Location: '.$paymentUrl);
 		exit;
 		return null;}}
 class MoveYouthPlayerToProfessionalController extends Controller {
@@ -10218,7 +10218,7 @@ function loadAndExecuteDdl($file,DbConnection$db){$script=file_get_contents($fil
 function printCreateUserForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='name'><?php echo$messages['label_name']?></label>
 	<div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div>
 	<div class='control-group'><label class='control-label'for='password'><?php echo$messages['label_password']?></label>
-	<div class='controls'><input type='password'id='password'name='password'required value='escapeOutput(echo isset($_POST['password']?$_POST['password']:'');?>'</div></div><br>
+	<div class='controls'><input type='password'id='password'name='password'required value='<?php echo htmlentities((isset($_POST['password']))?$_POST['password']:'');?>'</div></div><br>
 	<div class='control-group'><label class='control-label'for='email'><?php echo$messages['label_email']?></label>
 	<div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities((isset($_POST['email']))?$_POST['email']:'');?>'</div></div></fieldset>
 	<div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
@@ -10235,15 +10235,15 @@ function setAdminScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><fo
 	echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/><input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}
 	echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"action\"value=\"actionSetLanguage\"></form>";}
 function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
-	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo escapeOutput(isset($_POST['db_host'])?$_POST['db_host']:'localhost');?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div>
-	</div><div class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo escapeOutput(isset($_POST['db_name'])?
-	$_POST['db_name']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'required value="<?php
-	echo escapeOutput(isset($_POST['db_user'])?$_POST['db_user']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label><div class='controls'>
-	<input type=text'id='db_password'name='db_password'required value="<?php echo escapeOutput(isset($_POST['db_password'])?$_POST['db_password']:'');?>"></div></div><div class='control-group'><label class='control-label'for='name'>
-	<?php echo$messages['label_name']?></label><div class='controls'><input type='text'id='name'name='name'required value="<?php echo escapeOutput(isset($_POST['name'])?$_POST['name']:'');?>"></div></div><div class='control-group'><label class='control-label'
-	for='password'><?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value="<?php echo(escapeOutput(isset($_POST['password']))?$_POST['password']:'');?>"></div></div>
-	<div class='control-group'><label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value="<?php echo(escapeOutput(isset($_POST['email'])))?
-	escapeOutput($_POST['email']):'';?>"></div></div></fieldset><div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
+	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo(isset($_POST['db_host']))?$_POST['db_host']:'localhost';?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div><div
+	class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo(isset($_POST['db_name']))?$_POST['db_name']:'';?>"></div></div>
+	<div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'required value="<?php echo(isset($_POST['db_user']))?$_POST['db_user']:'';?>"></div>
+	</div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label><div class='controls'>
+	<input type=text'id='db_password'name='db_password'required value="<?php echo(isset($_POST['db_password']))?$_POST['db_password']:'';?>"></div></div><div class='control-group'><label class='control-label'for='name'><?php echo$messages['label_name']?></label>
+	<div class='controls'><input type='text'id='name'name='name'required value="<?php echo(isset($_POST['name']))?$_POST['name']:'';?>"></div></div><div class='control-group'><label class='control-label'for='password'><?php echo$messages['label_password']?></label>
+	<div class='controls'><input type='password'id='password'name='password'required value="<?php echo(isset($_POST['password']))?$_POST['password']:'';?>"></div></div><div class='control-group'>
+	<label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value="<?php echo(isset($_POST['email']))?$_POST['email']:'';?>"></div></div></fieldset>
+	<div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
 function flags($site){?><a href=<?php echo$site?>de><img src='/img/flags/de.png'width='24'height='24'alt='deutsch'title='deutsch'/></a><a href=<?php echo$site?>en><img src='/img/flags/en.png'width='24'height='24'alt='english'title='english'/></a><a href=<?php
 	echo$site?>es><img src='/img/flags/es.png'width='24'height='24'alt='español'title='español'/></a><a href=<?php echo$site?>pt><img src='/img/flags/pt.png'width='24'height='24'alt='português'title='português'/></a><a href=<?php echo$site?>dk>
 	<img src='/img/flags/dk.png'width='24'height='24'alt='dansk'title='dansk'/></a><a href=<?php echo$site?>ee><img src='/img/flags/ee.png'width='24'height='24'alt='eesti'title='eesti'/></a><a href=<?php echo$site?>fi><img src='/img/flags/fi.png'width='24'height='24'
@@ -10260,7 +10260,7 @@ function classes_autoloader($class){$subforder='';if(substr($class,-9)==='Conver
 	'validators/';elseif(substr($class,-10)==='Controller')$subforder='actions/';elseif(substr($class,-7)==='Service')$subforder='services/';elseif(substr($class,-3)==='Job')$subforder='jobs/';elseif(substr($class,-11)==='LoginMethod')$subforder='loginmethods/';
 	elseif(substr($class,-5)==='Event')$subforder='events/';elseif(substr($class,-6)==='Plugin')$subforder='plugins/';@include(BASEFOLDER.'/classes/'.$subforder.$class.'.class.php');}
 function sendEmail($email,$password,$website,$i18n){$tplparameters['newpassword']=$password;EmailHelper::sendSystemEmailFromTemplate($website,$i18n,$email,Message('sendpassword_admin_email_subject'),'sendpassword_admin',$tplparameters);}
-function escapeOutput($message){return htmlspecialchars($message,ENT_COMPAT,'UTF-8');}
+function escapeOutput($message){return htmlspecialchars((string)$message,ENT_COMPAT,'UTF-8');}
 function createWarningMessage($title,$message){return createMessage('warning',$title,$message);}
 function createInfoMessage($title,$message){return createMessage('info',$title,$message);}
 function createErrorMessage($title,$message){return createMessage('error',$title,$message);}

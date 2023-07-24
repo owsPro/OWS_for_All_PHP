@@ -41,7 +41,7 @@ elseif ($action == "create") {
 echo "<form action=\"". escapeOutput($_SERVER['PHP_SELF']) . "\" class=\"form-horizontal\" method=\"post\">";
 echo "<input type=\"hidden\" name=\"action\" value=\"create\">";
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\">";
-echo "<input type=\"hidden\" name=\"match\" value=\"<?php escapeOutput($matchId)?>\">";
+echo "<input type=\"hidden\" name=\"match\" value=\"escapeOutput($matchId)\">";
 echo "<fieldset><legend>". $i18n->getMessage("match_manage_createmessage_title") ."</legend>";
 echo "<div class=\"control-group\">";
 echo "<label class=\"control-label\" for=\"team_id\">". $i18n->getMessage("entity_player_verein_id") . "</label>";
@@ -78,12 +78,12 @@ else {
 	$guestTeam = escapeOutput($match["match_guest_name"]);
 	foreach ($reportItems as $reportItem) {
 		echo "<tr>";
-		echo "<td><a href=\"?site=$site&action=delete&match=$matchId&itemid=". $reportItem["report_id"] . "\" title=\"".Message("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a> ". $reportItem["minute"] . "</td>";
+		echo "<td><a href=\"?site=$site&action=delete&match=$matchId&itemid=". $reportItem["report_id"] . "\" title=\"". $i18n->getMessage("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a> ". $reportItem["minute"] . "</td>";
 		echo "<td><small>";
 		if ($reportItem["active_home"])echo $homeTeam;
 		else echo $guestTeam;
 		echo "</small><br>";
-		echo Message("option_" . <?php escapeOutput($reportItem["type"])?>);
+		echo Message("option_" . escapeOutput($reportItem["type"]));
 		echo "</td>";
 		echo "<td>". escapeOutput($reportItem["message"]) . "</td>";
 		echo "<td>". escapeOutput($reportItem["playerNames"]) . "</td>";
