@@ -1360,8 +1360,6 @@ class FileWriter {
 		if($this->_filePointer===FALSE)throw new Exception('Could not create or open file '.$file.'! Verify that the file or its folder is writable.');}
 	function writeLine($line){ if(@fwrite($this->_filePointer,$line . PHP_EOL)===FALSE)throw new Exception('Could not write line \''.$line.'\' into file '.$file.'!');}
 	function close(){
-		//- owsPro - Fatal error: Uncaught TypeError: the function supplied resource is not a valid stream resource
-		//- if($this->_filePointer){
 		if($this->_filePointer===FALSE)@fclose($this->_filePointer);}
 	function __destruct(){ $this->close();}}
 class FormBuilder {
@@ -10235,14 +10233,14 @@ function setAdminScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><fo
 	echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/><input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}
 	echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"action\"value=\"actionSetLanguage\"></form>";}
 function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
-	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo(isset($_POST['db_host']))?$_POST['db_host']:'localhost';?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div><div
-	class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo(isset($_POST['db_name']))?$_POST['db_name']:'';?>"></div></div>
-	<div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'required value="<?php echo(isset($_POST['db_user']))?$_POST['db_user']:'';?>"></div>
+	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo escapeOutput(isset($_POST['db_host']))?$_POST['db_host']:'localhost';?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div><div
+	class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo escapeOutput(isset($_POST['db_name'])?$_POST['db_name']:'');?>"></div></div>
+	<div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'required value="<?php echo escapeOutput(isset($_POST['db_user'])?$_POST['db_user']:'');?>"></div>
 	</div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label><div class='controls'>
-	<input type=text'id='db_password'name='db_password'required value="<?php echo(isset($_POST['db_password']))?$_POST['db_password']:'';?>"></div></div><div class='control-group'><label class='control-label'for='name'><?php echo$messages['label_name']?></label>
-	<div class='controls'><input type='text'id='name'name='name'required value="<?php echo(isset($_POST['name']))?$_POST['name']:'';?>"></div></div><div class='control-group'><label class='control-label'for='password'><?php echo$messages['label_password']?></label>
-	<div class='controls'><input type='password'id='password'name='password'required value="<?php echo(isset($_POST['password']))?$_POST['password']:'';?>"></div></div><div class='control-group'>
-	<label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value="<?php echo(isset($_POST['email']))?$_POST['email']:'';?>"></div></div></fieldset>
+	<input type=text'id='db_password'name='db_password'required value="<?php echo escapeOutput(isset($_POST['db_password'])?$_POST['db_password']:'');?>"></div></div><div class='control-group'><label class='control-label'for='name'><?php echo$messages['label_name']?></label>
+	<div class='controls'><input type='text'id='name'name='name'required value="<?php echo escapeOutput(isset($_POST['name'])?$_POST['name']:'');?>"></div></div><div class='control-group'><label class='control-label'for='password'><?php echo$messages['label_password']?></label>
+	<div class='controls'><input type='password'id='password'name='password'required value="<?php echo escapeOutput(isset($_POST['password'])?$_POST['password']:'');?>"></div></div><div class='control-group'>
+	<label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value="<?php echo escapeOutput(isset($_POST['email'])?$_POST['email']:'');?>"></div></div></fieldset>
 	<div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
 function flags($site){?><a href=<?php echo$site?>de><img src='/img/flags/de.png'width='24'height='24'alt='deutsch'title='deutsch'/></a><a href=<?php echo$site?>en><img src='/img/flags/en.png'width='24'height='24'alt='english'title='english'/></a><a href=<?php
 	echo$site?>es><img src='/img/flags/es.png'width='24'height='24'alt='español'title='español'/></a><a href=<?php echo$site?>pt><img src='/img/flags/pt.png'width='24'height='24'alt='português'title='português'/></a><a href=<?php echo$site?>dk>
