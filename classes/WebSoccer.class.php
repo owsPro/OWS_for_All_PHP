@@ -1459,7 +1459,7 @@ class FormBuilder {
 						echo '>';
 						if($type=='date')echo '<span class=\'add-on\'><i class=\'icon-calendar\'></i></span></div>';}}
 			if($type=='percent')echo ' % ';
-			echo $helpText;
+			echo '<?php $helpText?>';
 			echo '</div>';}
 		echo '</div>';}
 	static function validateField($i18n,$fieldId,$fieldInfo,$fieldValue,$labelKeyPrefix){
