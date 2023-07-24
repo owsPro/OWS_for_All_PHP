@@ -1388,13 +1388,13 @@ class FormBuilder {
 			echo '<input type=\'checkbox\' value=\'1\' name=\''.$fieldId.'\'';
 			if($fieldValue=='1')echo ' checked';
 			echo '>';
-			echo Message($labelKeyPrefix .$fieldId);
+			echo Message(escapeOutput($labelKeyPrefix.$fieldId));
 			echo '</label>';
-			echo $helpText;}
+			echo escapeOutput($helpText);}
 		else{
 			$labelOutput=Message($labelKeyPrefix .$fieldId);
 			if(isset($fieldInfo['required'])&& $fieldInfo['required']=='true')$labelOutput='<strong>'.$labelOutput.'</strong>';
-			echo '<label class=\'control-label\' for=\''.$fieldId.'\'>'.$labelOutput.'</label>';
+			echo '<label class=\'control-label\' for=\''.escapeOutput($fieldId).'\'>'.$labelOutput.'</label>';
 			echo '<div class=\'controls\'>';
 			switch($type){
 				case 'foreign_key':
@@ -1426,12 +1426,12 @@ class FormBuilder {
 					echo '<option></option>';
 					foreach($selection as $selectItem){
 						$selectItem=trim($selectItem);
-						echo '<option value=\''.$selectItem.'\'';
+						echo '<option value=\''.escapeOutput($selectItem).'\'';
 						if($selectItem==$selectValue)echo ' selected';
 						echo '>';
 						$label=$selectItem;
 						if($i18n->hasMessage('option_'.$selectItem))$label=Message('option_'.$selectItem);
-						echo $label.'</option>';}
+						echo escapeOutput($label).'</option>';}
 					echo '</select>';
 					break;
 				default:
@@ -1452,7 +1452,7 @@ class FormBuilder {
 							$additionalAttrs=' class=\'input-small\' ';}
 						elseif($type=='tags')$additionalAttrs=' class=\'input-tag\' data-provide=\'tag\' ';
 						else $additionalAttrs='placeholder=\''.Message($labelKeyPrefix .$fieldId).'\' ';
-						echo '<input type=\''.$htmlType.'\' id=\''.$fieldId.'\' '.$additionalAttrs.'name=\''.$fieldId.'\' value=\'';
+						echo '<input type=\''.escapeOutput($htmlType).'\' id=\''.escapeOutput($fieldId).'\' '.escapeOutput($additionalAttrs).'name=\''.escapeOutput($fieldId).'\' value=\'';
 						if($type!='password')echo escapeOutput($fieldValue);
 						echo '\'';
 						if(isset($fieldInfo['required'])&& $fieldInfo['required'])echo ' required';
@@ -1488,7 +1488,7 @@ class FormBuilder {
 		$items=$result->fetch_array();
 		if($items['hits'] <= 20){
 			echo '<select id=\''.$fieldId.'\' name=\''.$fieldId.'\'>';
-			echo '<option value=\'\'>'.Message('manage_select_placeholder').'</option>';
+			echo escapeOutput('<option value=\'\'>'.Message('manage_select_placeholder').'</option>');
 			$whereCondition='1=1 ORDER BY '.$fieldInfo['labelcolumns'].' ASC';
 			$result=$db->querySelect('id, '.$fieldInfo['labelcolumns'],$fromTable,$whereCondition, '', 2000);
 			while($row=$result->fetch_array()){
@@ -1505,7 +1505,7 @@ class FormBuilder {
 			echo '</select>';}
 		else echo '<input type=\'hidden\' class=\'pkpicker\' id=\''.$fieldId.'\' name=\''.$fieldId.'\' value=\''.$fieldValue.'\' data-dbtable=\''.$fieldInfo['jointable'].'\' data-labelcolumns=\''.$fieldInfo['labelcolumns'].'\' data-placeholder=\'' .
 				Message('manage_select_placeholder').'\'>';
-		echo ' <a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''.Message('manage_add').'\'><i class=\'icon-plus-sign\'></i></a>';}}
+		echo ' <a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''. escapeOutput(Message('manage_add')).'\'><i class=\'icon-plus-sign\'></i></a>';}}
 class FrontMessage {
 	function __construct($type,$title,$message){
 		if($type !==MESSAGE_TYPE_INFO && $type !==MESSAGE_TYPE_SUCCESS && $type !==MESSAGE_TYPE_ERROR && $type !==MESSAGE_TYPE_WARNING)throw new Exception('unknown FrontMessage type: '.$type);
@@ -4279,7 +4279,7 @@ class MicropaymentRedirectController extends Controller {
 		$seal=hash('sha256',$parameters .$accessKey);
 		$queryStr .= '&seal='.$seal;
 		$paymentUrl .= $queryStr;
-		header('Location: '.$paymentUrl);
+		header('Location: '.escapeOutput($paymentUrl));
 		exit;
 		return null;}}
 class MoveYouthPlayerToProfessionalController extends Controller {
@@ -10233,7 +10233,7 @@ function setAdminScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><fo
 	echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/><input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}
 	echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"action\"value=\"actionSetLanguage\"></form>";}
 function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
-	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo escapeOutput(isset($_POST['db_host']))?$_POST['db_host']:'localhost';?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div><div
+	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo escapeOutput(isset($_POST['db_host'])?$_POST['db_host']:'localhost');?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div><div
 	class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo escapeOutput(isset($_POST['db_name'])?$_POST['db_name']:'');?>"></div></div>
 	<div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'required value="<?php echo escapeOutput(isset($_POST['db_user'])?$_POST['db_user']:'');?>"></div>
 	</div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label><div class='controls'>
