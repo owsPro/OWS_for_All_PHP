@@ -81,7 +81,7 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 	}
 
 	echo createSuccessMessage($i18n->getMessage("managecuprounds_generate_success"), "");
-	echo "<p><a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn btn-primary\">" . $i18n->getMessage("managecuprounds_generate_success_overviewlink") ."</a></p>";
+	echo "<p><a href=\"?site=managecuprounds&cup=". escapeOutput($round["cup_id"]) . "\" class=\"btn btn-primary\">" . $i18n->getMessage("managecuprounds_generate_success_overviewlink") ."</a></p>";
 }
 
 // ****** Display selection form ***********
@@ -97,7 +97,7 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
   <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="action" value="generate">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
-	<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+	<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
 
 	<fieldset>
     	<legend><?php echo $i18n->getMessage("managecuprounds_generate_formlabel"); ?> (<span id="numberOfTeamsSelected">0</span>)</legend>
@@ -138,7 +138,7 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 	<div class="form-actions">
 		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("managecuprounds_generate_submitbutton"); ?>">
 		<?php
-		echo " <a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . $i18n->getMessage("button_cancel") ."</a>";
+		echo " <a href=\"?site=managecuprounds&cup=". escapeOutput($round["cup_id"]) . "\" class=\"btn\">" . $i18n->getMessage("button_cancel") ."</a>";
 		?>
 	</div>
   </form>
