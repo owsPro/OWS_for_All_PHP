@@ -14,10 +14,10 @@
 ignore_user_abort(TRUE);
 set_time_limit(300);
 
-$mainTitle = $i18n->getMessage('firemanagers_navlabel');
+$mainTitle = Message('firemanagers_navlabel');
 
 if (!$admin['r_admin'] && !$admin['r_demo'] && !$admin[$page['permissionrole']]) {
-	throw new Exception($i18n->getMessage('error_access_denied'));
+	throw new Exception(Message('error_access_denied'));
 }
 
 echo '<h1>$mainTitle</h1>';
@@ -26,13 +26,13 @@ echo '<h1>$mainTitle</h1>';
 if (!$show) {
   ?>
 
-  <p><?php echo $i18n->getMessage('firemanagers_introduction'); ?></p>
+  <p><?php echo Message('firemanagers_introduction'); ?></p>
 
   <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
 
 	<fieldset>
-    <legend><?php echo $i18n->getMessage('firemanagers_search_label'); ?></legend>
+    <legend><?php echo Message('firemanagers_search_label'); ?></legend>
 
 	<?php
 	$formFields = array();
@@ -52,8 +52,8 @@ if (!$show) {
 	?>
 	</fieldset>
 	<div class="form-actions">
-		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage('button_search'); ?>">
-		<input type="reset" class="btn" value="<?php echo $i18n->getMessage('button_reset'); ?>">
+		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message('button_search'); ?>">
+		<input type="reset" class="btn" value="<?php echo Message('button_reset'); ?>">
 	</div>
   </form>
 
@@ -102,7 +102,7 @@ if (!$show) {
 
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $parameters, 50);
 		if (!$result->num_rows) {
-			echo createInfoMessage($i18n->getMessage('firemanagers_search_nohits'), '');
+			echo createInfoMessage(Message('firemanagers_search_nohits'), '');
 		} else {
 
 			?>
@@ -113,11 +113,11 @@ if (!$show) {
 					<thead>
 						<tr>
 							<th></th>
-							<th><?php echo $i18n->getMessage('entity_club'); ?></th>
-							<th><?php echo $i18n->getMessage('entity_users'); ?></th>
-							<th><?php echo $i18n->getMessage('entity_users_lastonline'); ?></th>
-							<th><?php echo $i18n->getMessage('entity_club_finanz_budget'); ?></th>
-							<th><?php echo $i18n->getMessage('entity_player'); ?></th>
+							<th><?php echo Message('entity_club'); ?></th>
+							<th><?php echo Message('entity_users'); ?></th>
+							<th><?php echo Message('entity_users_lastonline'); ?></th>
+							<th><?php echo Message('entity_club_finanz_budget'); ?></th>
+							<th><?php echo Message('entity_player'); ?></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -136,9 +136,9 @@ if (!$show) {
 					</tbody>
 				</table>
 
-				<p><label class='checkbox'><input type='checkbox' name='selAll' value='1' onClick='selectAll()'><?php echo $i18n->getMessage('manage_select_all_label'); ?></label></p>
+				<p><label class='checkbox'><input type='checkbox' name='selAll' value='1' onClick='selectAll()'><?php echo Message('manage_select_all_label'); ?></label></p>
 
-				<p><input type='submit' class='btn btn-primary' accesskey='l' title='Alt + l' value='<?php echo $i18n->getMessage('firemanagers_dismiss_button'); ?>'></p>
+				<p><input type='submit' class='btn btn-primary' accesskey='l' title='Alt + l' value='<?php echo Message('firemanagers_dismiss_button'); ?>'></p>
 			</form>
 
 
@@ -152,8 +152,8 @@ if (!$show) {
 //********** set dismiss options
 elseif ($show == 'selectoptions') {
 	if (!isset($_POST['selectedteams']) || !count($_POST['selectedteams'])) {
-		echo createErrorMessage($i18n->getMessage('firemanagers_dismiss_noneselected'), '');
-		echo '<a href=\'?site='. $site .'\' class=\'btn\'>'. $i18n->getMessage('back_label') .'</a>';
+		echo createErrorMessage(Message('firemanagers_dismiss_noneselected'), '');
+		echo '<a href=\'?site='. $site .'\' class=\'btn\'>'. Message('back_label') .'</a>';
 	} else {
 ?>
 
@@ -163,7 +163,7 @@ elseif ($show == 'selectoptions') {
 	<input type='hidden' name='teamids' value='<?php echo implode(',', $_POST['selectedteams']) ?>'>
 
 	<fieldset>
-    <legend><?php echo $i18n->getMessage('firemanagers_dismiss_label'); ?></legend>
+    <legend><?php echo Message('firemanagers_dismiss_label'); ?></legend>
 
 	<?php
 	$formFields = array();
@@ -180,7 +180,7 @@ elseif ($show == 'selectoptions') {
 	</fieldset>
 
 	<fieldset>
-    <legend><?php echo $i18n->getMessage('firemanagers_dismiss_label_players'); ?></legend>
+    <legend><?php echo Message('firemanagers_dismiss_label_players'); ?></legend>
 
 	<?php
 	$formFields = array();
@@ -197,8 +197,8 @@ elseif ($show == 'selectoptions') {
 	</fieldset>
 
 	<fieldset>
-    <legend><?php echo $i18n->getMessage('firemanagers_dismiss_label_minteamsize'); ?></legend>
-    <p><?php echo $i18n->getMessage('firemanagers_dismiss_label_minteamsize_intro'); ?></p>
+    <legend><?php echo Message('firemanagers_dismiss_label_minteamsize'); ?></legend>
+    <p><?php echo Message('firemanagers_dismiss_label_minteamsize_intro'); ?></p>
 	<?php
 	$formFields = array();
 
@@ -236,8 +236,8 @@ elseif ($show == 'selectoptions') {
 	?>
 	</fieldset>
 	<div class='form-actions'>
-		<input type='submit' class='btn btn-primary' accesskey='s' title='Alt + s' value='<?php echo $i18n->getMessage('firemanagers_dismiss_button'); ?>'>
-		<a class='btn' href='?site=<?php echo $site; ?>'><?php echo $i18n->getMessage('button_cancel'); ?></a>
+		<input type='submit' class='btn btn-primary' accesskey='s' title='Alt + s' value='<?php echo Message('firemanagers_dismiss_button'); ?>'>
+		<a class='btn' href='?site=<?php echo $site; ?>'><?php echo Message('button_cancel'); ?></a>
 	</div>
   </form>
 
@@ -249,7 +249,7 @@ elseif ($show == 'selectoptions') {
 //********** execute dismissals **********
 elseif ($show == 'dismiss') {
 
-  if ($admin['r_demo']) $err[] = $i18n->getMessage('validationerror_no_changes_as_demo');
+  if ($admin['r_demo']) $err[] = Message('validationerror_no_changes_as_demo');
 
   if (isset($err)) {
 
@@ -385,9 +385,9 @@ elseif ($show == 'dismiss') {
 		}
 	}
 
-	echo createSuccessMessage($i18n->getMessage('firemanagers_dismiss_success'), '');
+	echo createSuccessMessage(Message('firemanagers_dismiss_success'), '');
 
-    echo '<p>&raquo; <a href=\'?site='. $site .'\'>'. $i18n->getMessage('back_label') . '</a></p>';
+    echo '<p>&raquo; <a href=\'?site='. $site .'\'>'. Message('back_label') . '</a></p>';
 
   }
 

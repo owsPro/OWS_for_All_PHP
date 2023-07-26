@@ -3,11 +3,11 @@
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>{{ i18n.getMessage("transfer_date") }}</th>
-				<th>{{ i18n.getMessage("entity_player") }}</th>
-				<th>{{ i18n.getMessage("transfer_from") }}</th>
-				<th>{{ i18n.getMessage("transfer_to") }}</th>
-				<th>{{ i18n.getMessage("transfer_bid_amount") }}</th>
+				<th>{{ Message("transfer_date") }}</th>
+				<th>{{ Message("entity_player") }}</th>
+				<th>{{ Message("transfer_from") }}</th>
+				<th>{{ Message("transfer_to") }}</th>
+				<th>{{ Message("transfer_bid_amount") }}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -23,15 +23,15 @@
 				<td><a href="{{ env.getInternalUrl("team", "id=" ~ transfer.to_id) }}">{{ transfer.to_name }}</a></td>
 				<td>
 					{% if transfer.hand_money > 0 %}
-						<p><small>{{ i18n.getMessage("transfer_bid_handmoney") }}</small><br>
-						{{ transfer.hand_money|number_format(0, ',', ' ')  }} {{ env.getConfig("game_currency") }}</p>
+						<p><small>{{ Message("transfer_bid_handmoney") }}</small><br>
+						{{ transfer.hand_money|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</p>
 					{% endif %}
 				
 					<p>
 						{% if transfer.directtransfer_amount > 0 %}
-							{{ transfer.directtransfer_amount|number_format(0, ',', ' ')  }} {{ env.getConfig("game_currency") }}
+							{{ transfer.directtransfer_amount|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}
 						{% else %}
-							{{ transfer.amount|number_format(0, ',', ' ')  }} {{ env.getConfig("game_currency") }}
+							{{ transfer.amount|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}
 						{% endif %}
 						
 						{% if transfer.exchangeplayer1_id > 0 or transfer.exchangeplayer2_id > 0 %}
@@ -56,5 +56,5 @@
 
 
 {% else %}
-	<p>{{ i18n.getMessage("transfers_no_transfers") }}</p>
+	<p>{{ Message("transfers_no_transfers") }}</p>
 {% endif %}

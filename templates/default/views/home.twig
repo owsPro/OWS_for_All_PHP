@@ -4,7 +4,7 @@
 
 
 {% block browser_title %}
-{{ i18n.getMessage("home_title", env.getConfig("projectname")) }}
+{{ Message("home_title", Config("projectname")) }}
 {% endblock %}
 
 {% block page_header %}
@@ -12,14 +12,14 @@
 {% if env.user.id == null %}
 <div class="hero-unit">
   <h1>{{ block("browser_title") }}</h1>
-  <p>{{ i18n.getMessage("home_teaser") }}</p>
+  <p>{{ Message("home_teaser") }}</p>
 
-  	{% if env.getConfig("allow_userregistration") or env.getConfig("registration_url")|length > 0 %}
+  	{% if Config("allow_userregistration") or Config("registration_url")|length > 0 %}
 		{% set registerUrl = env.getInternalUrl("register") %}
-		{% if env.getConfig("registration_url")|length > 0 %}
-			{% set registerUrl = env.getConfig("registration_url") %}
+		{% if Config("registration_url")|length > 0 %}
+			{% set registerUrl = Config("registration_url") %}
 		{% endif %}
-		<div style="text-align:center;"><a href="{{ registerUrl }}" class="btn btn-large">{{ i18n.getMessage("home_teaser_link_register") }}</a></div>
+		<div style="text-align:center;"><a href="{{ registerUrl }}" class="btn btn-large">{{ Message("home_teaser_link_register") }}</a></div>
 	{% endif %}
 
 </div>

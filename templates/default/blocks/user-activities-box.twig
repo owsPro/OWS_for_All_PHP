@@ -1,7 +1,7 @@
 {% extends "box.twig" %}
 
 {% block box_title %}
-{{ i18n.getMessage('activitylog_box_title') }}
+{{ Message('activitylog_box_title') }}
 {% endblock %}
 
 {% block box_content %}
@@ -12,7 +12,7 @@
 	{% for activity in activities %}
 		{% set username = "<a href=\"" ~ env.getInternalUrl("user", "id=" ~ activity.user_id) ~ "\">" ~ activity.user_name|e ~ "</a>" %}
 		<tr>
-			<td>{{ i18n.getMessage("activitylog_" ~ activity.action_id)|format(username)|raw }}</td>
+			<td>{{ Message("activitylog_" ~ activity.action_id)|format(username)|raw }}</td>
 		</tr>
 	{% endfor %}
 	</table>

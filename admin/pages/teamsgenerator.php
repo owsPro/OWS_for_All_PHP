@@ -20,26 +20,26 @@
 
 ******************************************************/
 
-$mainTitle = $i18n->getMessage("teamsgenerator_navlabel");
+$mainTitle = Message("teamsgenerator_navlabel");
 
 echo "<h1>$mainTitle</h1>";
 
 if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin[$page["permissionrole"]]) {
-	throw new Exception($i18n->getMessage("error_access_denied"));
+	throw new Exception(Message("error_access_denied"));
 }
 
 if (!$show) {
 
   ?>
 
-  <p><?php echo $i18n->getMessage("teamsgenerator_intro"); ?></p>
+  <p><?php echo Message("teamsgenerator_intro"); ?></p>
 
   <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="show" value="generate">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
 
 	<fieldset>
-    <legend><?php echo $i18n->getMessage("generator_label"); ?></legend>
+    <legend><?php echo Message("generator_label"); ?></legend>
 
 	<?php
 	$formFields = array();
@@ -63,8 +63,8 @@ if (!$show) {
 	?>
 	</fieldset>
 	<div class="form-actions">
-		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("generator_button"); ?>">
-		<input type="reset" class="btn" value="<?php echo $i18n->getMessage("button_reset"); ?>">
+		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("generator_button"); ?>">
+		<input type="reset" class="btn" value="<?php echo Message("button_reset"); ?>">
 	</div>
   </form>
 
@@ -75,10 +75,10 @@ if (!$show) {
 //********** validate, generate **********
 elseif ($show == "generate") {
 
-  if (!isset($_POST['league']) || $_POST['league'] <= 0) $err[] = $i18n->getMessage("generator_validationerror_noleague");
-  if ($_POST['numberofteams'] <= 0) $err[] = $i18n->getMessage("generator_validationerror_numberofitems");
-  if ($_POST['numberofteams'] > 100) $err[] = $i18n->getMessage("generator_validationerror_numberofitems_max");
-  if ($admin['r_demo']) $err[] = $i18n->getMessage("validationerror_no_changes_as_demo");
+  if (!isset($_POST['league']) || $_POST['league'] <= 0) $err[] = Message("generator_validationerror_noleague");
+  if ($_POST['numberofteams'] <= 0) $err[] = Message("generator_validationerror_numberofitems");
+  if ($_POST['numberofteams'] > 100) $err[] = Message("generator_validationerror_numberofitems_max");
+  if ($admin['r_demo']) $err[] = Message("validationerror_no_changes_as_demo");
 
   if (isset($err)) {
 
@@ -90,9 +90,9 @@ elseif ($show == "generate") {
 	DataGeneratorService::generateTeams($website, $db, $_POST['numberofteams'], $_POST['league'], $_POST['budget'],
 		(isset($_POST['generatestadium']) && $_POST['generatestadium']), $_POST['stadiumpattern'], $_POST['stadium_p_stands'], $_POST['stadium_p_seats'], $_POST['stadium_p_stands_grand'], $_POST['stadium_p_seats_grand'], $_POST['stadium_p_vip'] );
 
-	echo createSuccessMessage($i18n->getMessage("generator_success"), "");
+	echo createSuccessMessage(Message("generator_success"), "");
 
-      echo "<p>&raquo; <a href=\"?site=". $site ."\">". $i18n->getMessage("back_label") . "</a></p>\n";
+      echo "<p>&raquo; <a href=\"?site=". $site ."\">". Message("back_label") . "</a></p>\n";
 
   }
 

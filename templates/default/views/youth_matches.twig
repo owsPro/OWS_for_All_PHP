@@ -3,7 +3,7 @@
 {% import "macros/paginator.twig" as pagination %}
 
 {% block page_title %}
-{{ i18n.getMessage("youthmatches_title") }}
+{{ Message("youthmatches_title") }}
 {% endblock %}
 
 {% block page_content %}
@@ -13,9 +13,9 @@
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>{{ i18n.getMessage("entity_youthmatch_matchdate") }}</th>
-				<th>{{ i18n.getMessage("entity_youthmatch_home_team_id") }}</th>
-				<th>{{ i18n.getMessage("entity_youthmatch_guest_team_id") }}</th>
+				<th>{{ Message("entity_youthmatch_matchdate") }}</th>
+				<th>{{ Message("entity_youthmatch_home_team_id") }}</th>
+				<th>{{ Message("entity_youthmatch_guest_team_id") }}</th>
 				<th></th>
 			</tr>
 		</thead>
@@ -25,7 +25,7 @@
 				<td>{{ env.getFormattedDatetime(match.date, i18n) }}</td>
 				<td>
 					{% if match.home_team_picture|length %}
-						<img src="{{ env.getConfig("context_root") }}/uploads/club/{{ match.home_team_picture }}" style="max-width: 20px"/>
+						<img src="{{ Config("context_root") }}/uploads/club/{{ match.home_team_picture }}" style="max-width: 20px"/>
 					{% endif %}
 					<a href="{{ env.getInternalUrl("team", "id=" ~ match.home_id) }}">{{ match.home_team }}</a>
 					
@@ -39,7 +39,7 @@
 				</td>
 				<td>
 					{% if match.guest_team_picture|length %}
-						<img src="{{ env.getConfig("context_root") }}/uploads/club/{{ match.guest_team_picture }}" style="max-width: 20px"/>
+						<img src="{{ Config("context_root") }}/uploads/club/{{ match.guest_team_picture }}" style="max-width: 20px"/>
 					{% endif %}
 					<a href="{{ env.getInternalUrl("team", "id=" ~ match.guest_id) }}">{{ match.guest_team }}</a>
 					
@@ -54,9 +54,9 @@
 				<td>
 					{% if match.simulated == 1 %}
 						<a href="{{ env.getInternalUrl("youth-match", "id=" ~ match.match_id) }}" 
-							title="{{ i18n.getMessage("match_navlabel") }}">{{ match.home_goals }} - {{ match.guest_goals }}</a>
+							title="{{ Message("match_navlabel") }}">{{ match.home_goals }} - {{ match.guest_goals }}</a>
 					{% else %}
-						<a href="{{ env.getInternalUrl("youth-formation", "matchid=" ~ match.match_id) }}" class="btn btn-small"><i class="icon-sitemap"></i> {{ i18n.getMessage("formation_navlabel") }}</a>
+						<a href="{{ env.getInternalUrl("youth-formation", "matchid=" ~ match.match_id) }}" class="btn btn-small"><i class="icon-sitemap"></i> {{ Message("formation_navlabel") }}</a>
 					{% endif %}
 				</td>
 			</tr>
@@ -67,7 +67,7 @@
 	{{ pagination.paginator(paginator) }}
 
 {% else %}
-	{{ messagebox.box(i18n.getMessage("youthmatches_no_matches"), "", "info") }}
+	{{ messagebox.box(Message("youthmatches_no_matches"), "", "info") }}
 {% endif %}
 
 {% endblock %}

@@ -20,10 +20,10 @@
 
 ******************************************************/
 
-$mainTitle = $i18n->getMessage('entitylogging_navlabel');
+$mainTitle = Message('entitylogging_navlabel');
 
 if (!$admin['r_admin'] && !$admin['r_demo']) {
-  echo '<p>'. $i18n->getMessage('error_access_denied') . '</p>';
+  echo '<p>'. Message('error_access_denied') . '</p>';
   exit;
 }
 
@@ -33,7 +33,7 @@ if (!$show) {
 
   <h1><?php echo $mainTitle; ?></h1>
 
-  <p><?php echo $i18n->getMessage('entitylogging_intro'); ?></p>
+  <p><?php echo Message('entitylogging_intro'); ?></p>
   
   <code>&lt;overview delete=&quot;true&quot; edit=&quot;true&quot; <strong>logging=&quot;true&quot; loggingcolumns=&quot;name,liga_id&quot;</strong>&gt;</code>
 
@@ -41,23 +41,23 @@ if (!$show) {
 
   $datei = '../generated/entitylog.php';
 
-  if (!file_exists($datei)) echo createErrorMessage($i18n->getMessage('alert_error_title'), $i18n->getMessage('all_logging_filenotfound'));
+  if (!file_exists($datei)) echo createErrorMessage(Message('alert_error_title'), Message('all_logging_filenotfound'));
   else {
 
     $datei_gr = filesize($datei);
 
-    if (!$datei_gr) echo '<p>'. $i18n->getMessage('empty_list') . '</p>';
+    if (!$datei_gr) echo '<p>'. Message('empty_list') . '</p>';
     else {
 
       ?>
 
             <table class='table table-bordered table-striped' style='margin-top: 10px'>
               <tr>
-                <th><?php echo $i18n->getMessage('entitylogging_label_no'); ?></th>
-                <th><?php echo $i18n->getMessage('entitylogging_label_time'); ?></th>
-                <th><?php echo $i18n->getMessage('entitylogging_label_user'); ?></th>
-                <th><?php echo $i18n->getMessage('entitylogging_label_type'); ?></th>
-                <th><?php echo $i18n->getMessage('entitylogging_label_data'); ?></th>
+                <th><?php echo Message('entitylogging_label_no'); ?></th>
+                <th><?php echo Message('entitylogging_label_time'); ?></th>
+                <th><?php echo Message('entitylogging_label_user'); ?></th>
+                <th><?php echo Message('entitylogging_label_type'); ?></th>
+                <th><?php echo Message('entitylogging_label_data'); ?></th>
               </tr>
               <?php
 
@@ -78,15 +78,15 @@ if (!$show) {
                   <td>'. escapeOutput($row[1]) .' ('. escapeOutput($row[2]) . ')</td>
                   <td>'; 
                   
-                  	if ($row[3] == LOG_TYPE_EDIT) {
-						echo '<span class=\'label label-info\'><i class=\'icon-white icon-pencil\'></i> '. $i18n->getMessage('entitylogging_action_edit') . '</span>';
-					} elseif ($row[3] == LOG_TYPE_DELETE) {
-						echo '<span class=\'label label-important\'><i class=\'icon-white icon-trash\'></i> '. $i18n->getMessage('entitylogging_action_delete') . '</span>';
+                  	if ($row[3] == 'edit') {
+						echo '<span class=\'label label-info\'><i class=\'icon-white icon-pencil\'></i> '. Message('entitylogging_action_edit') . '</span>';
+					} elseif ($row[3] == 'delete') {
+						echo '<span class=\'label label-important\'><i class=\'icon-white icon-trash\'></i> '. Message('entitylogging_action_delete') . '</span>';
 					} else {
 						echo $row[3];
 					}
                   echo '</td>
-				  <td>'. $i18n->getMessage('entity_' . $row[4]) .': { ';
+				  <td>'. Message('entity_' . $row[4]) .': { ';
                   	$itemFields = json_decode($row[5], TRUE);
                   	$firstField = TRUE;
                   	foreach ($itemFields as $fieldKey => $fieldValue) {

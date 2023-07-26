@@ -6,10 +6,10 @@
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>{{ i18n.getMessage("entity_match_datum") }}</th>
-				<th>{{ i18n.getMessage("entity_match_home_verein") }}</th>
-				<th>{{ i18n.getMessage("entity_match_gast_verein") }}</th>
-				<th>{{ i18n.getMessage("match_result") }}</th>
+				<th>{{ Message("entity_match_datum") }}</th>
+				<th>{{ Message("entity_match_home_verein") }}</th>
+				<th>{{ Message("entity_match_gast_verein") }}</th>
+				<th>{{ Message("match_result") }}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -17,21 +17,21 @@
 			<tr>
 				<td>
 					{% if match.type == "Ligaspiel" %}
-						<i class="icon-shield wstooltip" title="{{ i18n.getMessage("option_Ligaspiel") }}"></i>
+						<i class="icon-shield wstooltip" title="{{ Message("option_Ligaspiel") }}"></i>
 					{% elseif match.type == "Freundschaft" %}
-						<i class="icon-smile wstooltip" title="{{ i18n.getMessage("option_Freundschaft") }}"></i>
+						<i class="icon-smile wstooltip" title="{{ Message("option_Freundschaft") }}"></i>
 					{% else %}
-						<i class="icon-trophy wstooltip" title="{{ i18n.getMessage("option_Pokalspiel") }} ({{ match.cup_name }}, {{ match.cup_round }})"></i>
+						<i class="icon-trophy wstooltip" title="{{ Message("option_Pokalspiel") }} ({{ match.cup_name }}, {{ match.cup_round }})"></i>
 					{% endif %}
 					{{ env.getFormattedDatetime(match.date, i18n) }}
 				</td>
 				<td>
 					{% if match.home_team_picture|length %}
-						<img src="{{ env.getConfig("context_root") }}/uploads/club/{{ match.home_team_picture }}" style="max-width: 20px"/>
+						<img src="{{ Config("context_root") }}/uploads/club/{{ match.home_team_picture }}" style="max-width: 20px"/>
 					{% endif %}
 					<a href="{{ env.getInternalUrl("team", "id=" ~ match.home_id) }}">{{ match.home_team }}</a>
 					{% if match.home_noformation %}
-						<i class="icon-bolt wstooltip" title="{{ i18n.getMessage("match_details_noformation", match.home_team) }}"></i>
+						<i class="icon-bolt wstooltip" title="{{ Message("match_details_noformation", match.home_team) }}"></i>
 					{% endif %}
 					{% if match.home_user_id > 0 %}
 						<br>
@@ -43,11 +43,11 @@
 				</td>
 				<td>
 					{% if match.guest_team_picture|length %}
-						<img src="{{ env.getConfig("context_root") }}/uploads/club/{{ match.guest_team_picture }}" style="max-width: 20px"/>
+						<img src="{{ Config("context_root") }}/uploads/club/{{ match.guest_team_picture }}" style="max-width: 20px"/>
 					{% endif %}
 					<a href="{{ env.getInternalUrl("team", "id=" ~ match.guest_id) }}">{{ match.guest_team }}</a>
 					{% if match.guest_noformation %}
-						<i class="icon-bolt wstooltip" title="{{ i18n.getMessage("match_details_noformation", match.guest_team) }}"></i>
+						<i class="icon-bolt wstooltip" title="{{ Message("match_details_noformation", match.guest_team) }}"></i>
 					{% endif %}
 					{% if match.guest_user_id > 0 %}
 						<br>
@@ -57,13 +57,13 @@
 						<small><a href="{{ env.getInternalUrl("user", "id=" ~ match.guest_user_id) }}">{{ match.guest_user_nick }}</a></small>
 					{% endif %}
 				</td>
-				<td><a href="{{ env.getInternalUrl("match", "id=" ~ match.id) }}" title="{{ i18n.getMessage("match_navlabel") }}">
+				<td><a href="{{ env.getInternalUrl("match", "id=" ~ match.id) }}" title="{{ Message("match_navlabel") }}">
 				{% if match.simulated == 1 %}
 				{{ match.home_goals }} - {{ match.guest_goals }}
 				{% elseif match.minutes > 0  %}
-				<i class="icon-fire" title="{{ i18n.getMessage("match_live_label") }}"></i> {{ match.home_goals }} - {{ match.guest_goals }}
+				<i class="icon-fire" title="{{ Message("match_live_label") }}"></i> {{ match.home_goals }} - {{ match.guest_goals }}
 				{% else %}
-				{{ i18n.getMessage("match_navlabel") }}
+				{{ Message("match_navlabel") }}
 				{% endif %}
 				</a></td>
 			</tr>
@@ -76,5 +76,5 @@
 	{% endif %}
 	
 {% else %}
-	{{ messagebox.box(i18n.getMessage("results_no_matches_found"), "", "info") }}
+	{{ messagebox.box(Message("results_no_matches_found"), "", "info") }}
 {% endif %}

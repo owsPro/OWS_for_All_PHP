@@ -3,14 +3,14 @@
 {% import "macros/messagebox.twig" as messagebox %}
 
 {% block page_title %}
-{{ i18n.getMessage("topscorers_navlabel") }}
+{{ Message("topscorers_navlabel") }}
 {% endblock %}
 
 {% block page_content %}
 
 <form class="form-inline" method="post">
 
-	<label class="control-label" for="country">{{ i18n.getMessage("entity_league") }}</label> 
+	<label class="control-label" for="country">{{ Message("entity_league") }}</label> 
 	<select id="leagueid" name="leagueid">
 		<option></option>
 	{% for leagueItem in leagues %}
@@ -19,7 +19,7 @@
 	</select>
 
 	<button type="submit" class="btn btn-primary ajaxSubmit" 
-		data-ajaxtarget="pagecontent">{{ i18n.getMessage('button_display') }}</button>
+		data-ajaxtarget="pagecontent">{{ Message('button_display') }}</button>
 
 	<input type="hidden" name="page" value="topscorers" />
 </form>
@@ -30,11 +30,11 @@
 		<thead>
 			<tr>
 				<th>#</th>
-				<th>{{ i18n.getMessage("playertable_head_name") }}</th>
-				<th>{{ i18n.getMessage("entity_player_verein_id") }}</th>
-				<th>{{ i18n.getMessage("player_details_statistic_goals") }}</th>
-				<th>{{ i18n.getMessage("player_details_statistic_assists") }}</th>
-				<th>{{ i18n.getMessage("topscorers_head_score") }}</th>
+				<th>{{ Message("playertable_head_name") }}</th>
+				<th>{{ Message("entity_player_verein_id") }}</th>
+				<th>{{ Message("player_details_statistic_goals") }}</th>
+				<th>{{ Message("player_details_statistic_assists") }}</th>
+				<th>{{ Message("topscorers_head_score") }}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -60,7 +60,7 @@
 	</table>
 
 {% else %}
-	{{ messagebox.box(i18n.getMessage("no_players_found"), "", "info") }}
+	{{ messagebox.box(Message("no_players_found"), "", "info") }}
 {% endif %}
 
 {% endblock %}

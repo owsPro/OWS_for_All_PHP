@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>{% block browser_title %}{{ block("page_title") }} - {{ env.getConfig("projectname") }}{% endblock %}</title>
+		<title>{% block browser_title %}{{ block("page_title") }} - {{ Config("projectname") }}{% endblock %}</title>
 
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,16 +18,16 @@
 		{% endfor %}
 		{% if cssReferences is defined %}
 			{% for cssSource in cssReferences %}
-			<link href="{{ env.getConfig("context_root") }}/css/{{ cssSource }}" media="all" rel="stylesheet" type="text/css" />
+			<link href="{{ Config("context_root") }}/css/{{ cssSource }}" media="all" rel="stylesheet" type="text/css" />
 			{% endfor %}
 		{% endif %}
 
-		<link rel="shortcut icon" type="image/x-icon" href="{{ env.getConfig("context_root") }}/favicon.ico" />
+		<link rel="shortcut icon" type="image/x-icon" href="{{ Config("context_root") }}/favicon.ico" />
 
-		{% if env.getConfig("facebook_appid") %}
-		<meta property="fb:app_id" content="{{ env.getConfig("facebook_appid") }}"/>
+		{% if Config("facebook_appid") %}
+		<meta property="fb:app_id" content="{{ Config("facebook_appid") }}"/>
 		{% endif %}
-		{{ env.getConfig("head_code")|raw }}
+		{{ Config("head_code")|raw }}
 	</head>
 	<body>
 
@@ -96,7 +96,7 @@
 			<hr/>
 			<footer>
 	        	<p><a href="{{ env.getInternalUrl("termsandconditions") }}">{{Message("termsandconditions_navlabel") }}</a>
-	        	{% if env.getConfig("privacypolicy_url")|length > 0 %}| <a href="{{ env.getConfig("privacypolicy_url") }}">{{Message("privacypolicy_navlabel") }}</a>{% endif %}
+	        	{% if Config("privacypolicy_url")|length > 0 %}| <a href="{{ Config("privacypolicy_url") }}">{{Message("privacypolicy_navlabel") }}</a>{% endif %}
 	        	| <a href="{{ env.getInternalUrl("imprint") }}">{{Message("imprint_navlabel") }}</a>
 	        	| Powered by <a href="https://github.com/owsPro/OWS_for_All_PHP" target="_blank">OWS_for_All_PHP</a>
 	        	| <i class="icon-time"></i> {{ env.getFormattedDatetime(null) }}
@@ -112,7 +112,7 @@
 		{% endfor %}
 		{% if scriptReferences is defined %}
 			{% for jsSource in scriptReferences %}
-			<script src="{{ env.getConfig("context_root") }}/js/{{ jsSource }}" ></script>
+			<script src="{{ Config("context_root") }}/js/{{ jsSource }}" ></script>
 			{% endfor %}
 		{% endif %}
 

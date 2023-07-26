@@ -2,21 +2,21 @@
 {% import "macros/formelements.twig" as formelements %}
 
 {% block page_title %}
-{{ i18n.getMessage("change-profile-picture_navlabel") }}
+{{ Message("change-profile-picture_navlabel") }}
 {% endblock %}
 
 {% block page_content %}
-	<p>{{ i18n.getMessage("change-profile-picture_intro", env.getConfig("user_picture_upload_maxsize_kb"))|raw }}</p>
+	<p>{{ Message("change-profile-picture_intro", Config("user_picture_upload_maxsize_kb"))|raw }}</p>
 	
-	{% if env.getConfig("user_picture_upload_enabled") %}
+	{% if Config("user_picture_upload_enabled") %}
 		<form class="form-horizontal" method="post" enctype="multipart/form-data">
-			<input type="hidden" name="MAX_FILE_SIZE" value="{{ env.getConfig("user_picture_upload_maxsize_kb") * 1024 }}" />
+			<input type="hidden" name="MAX_FILE_SIZE" value="{{ Config("user_picture_upload_maxsize_kb") * 1024 }}" />
 			
-			{{ formelements.textfield('picture', i18n.getMessage('entity_users_picture'), env.getRequestParameter('picture'), true, validationMsg, 'file') }}
+			{{ formelements.textfield('picture', Message('entity_users_picture'), env.getRequestParameter('picture'), true, validationMsg, 'file') }}
 			
 			<div class="form-actions">
-				<button type="submit" class="btn btn-primary">{{ i18n.getMessage('button_save') }}</button>
-				<a href="{{ env.getInternalUrl("user", "id=" ~ env.user.id) }}" class="btn">{{ i18n.getMessage('button_cancel') }}</a>
+				<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
+				<a href="{{ env.getInternalUrl("user", "id=" ~ env.user.id) }}" class="btn">{{ Message('button_cancel') }}</a>
 			</div>
 			<input type="hidden" name="page" value="change-profile-picture"/>
 			<input type="hidden" name="action" value="upload-profile-picture"/>

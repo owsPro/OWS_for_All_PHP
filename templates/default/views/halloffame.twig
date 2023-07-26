@@ -1,12 +1,12 @@
 {% extends "base.twig" %}
 
 {% block page_title %}
-{{ i18n.getMessage("halloffame_navlabel") }}
+{{ Message("halloffame_navlabel") }}
 {% endblock %}
 
 {% block page_content %}
 
-<h3>{{ i18n.getMessage("entity_league") }}</h3>
+<h3>{{ Message("entity_league") }}</h3>
 {% if leagues|length > 0 %}
 
 	<div class="accordion" id="leagues">
@@ -14,7 +14,7 @@
 			{% set country = seasons[0].league_country %}
 			{% set nationImg = skin.getImage("flags/players/" ~ country ~ ".png") %}
 			{% if i18n.hasMessage("option_" ~ country) %}
-				{% set countryLabel = i18n.getMessage("option_" ~ country) %}
+				{% set countryLabel = Message("option_" ~ country) %}
 			{% else %}
 				{% set countryLabel = country %}
 			{% endif %}
@@ -28,8 +28,8 @@
 					<table class="table table-striped">
 						<thead>
 							<tr>
-								<th>{{ i18n.getMessage("entity_season") }}</th>
-								<th>{{ i18n.getMessage("entity_club") }}</th>
+								<th>{{ Message("entity_season") }}</th>
+								<th>{{ Message("entity_club") }}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -38,7 +38,7 @@
 								<td>{{ season.season_name }}</td>
 								<td>
 									{% if season.team_picture|length %}
-										<img src="{{ env.getConfig("context_root") }}/uploads/club/{{ season.team_picture }}" style="max-width: 40px"/>
+										<img src="{{ Config("context_root") }}/uploads/club/{{ season.team_picture }}" style="max-width: 40px"/>
 									{% endif %}
 									<a href="{{ env.getInternalUrl("team", "id=" ~ season.team_id ) }}">{{ season.team_name }}</a>
 								</td>
@@ -53,17 +53,17 @@
 	</div>
 
 {% else %}
-	<p>{{ i18n.getMessage("halloffame_no_seasons") }}</p>
+	<p>{{ Message("halloffame_no_seasons") }}</p>
 {% endif %}
 
-<h3>{{ i18n.getMessage("entity_cup") }}</h3>
+<h3>{{ Message("entity_cup") }}</h3>
 
 {% if cups|length > 0 %}
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>{{ i18n.getMessage("entity_cup_name") }}</th>
-				<th>{{ i18n.getMessage("entity_cup_winner_id") }}</th>
+				<th>{{ Message("entity_cup_name") }}</th>
+				<th>{{ Message("entity_cup_winner_id") }}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -72,7 +72,7 @@
 				<td>{{ cup.cup_name }}</td>
 				<td>
 					{% if cup.team_picture|length %}
-						<img src="{{ env.getConfig("context_root") }}/uploads/club/{{ cup.team_picture }}" style="max-width: 40px"/>
+						<img src="{{ Config("context_root") }}/uploads/club/{{ cup.team_picture }}" style="max-width: 40px"/>
 					{% endif %}
 					<a href="{{ env.getInternalUrl("team", "id=" ~ cup.team_id ) }}">{{ cup.team_name }}</a>
 				</td>
@@ -81,6 +81,6 @@
 		</tbody>
 	</table>
 {% else %}
-	<p>{{ i18n.getMessage("halloffame_no_cups") }}</p>
+	<p>{{ Message("halloffame_no_cups") }}</p>
 {% endif %}
 {% endblock %}

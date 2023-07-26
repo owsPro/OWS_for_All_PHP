@@ -1,7 +1,7 @@
 {% extends "box.twig" %}
 
 {% block box_title %}
-{{ i18n.getMessage('news_block_title') }}
+{{ Message('news_block_title') }}
 {% endblock %}
 
 {% block box_content %}
@@ -13,6 +13,6 @@
   
 </ul>
 
-<p><a href="{{ env.getInternalUrl("news") }}" class="btn btn-primary">{{ i18n.getMessage("button_more") }}</a></p>
+<p><a href="{{ env.getInternalUrl("news") }}" class="btn btn-primary">{{ Message("button_more") }}</a></p>
 
 {% endblock %}

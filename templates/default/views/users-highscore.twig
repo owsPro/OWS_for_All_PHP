@@ -2,7 +2,7 @@
 {% extends "base.twig" %}
 
 {% block page_title %}
-{{ i18n.getMessage("highscore_title") }}
+{{ Message("highscore_title") }}
 {% endblock %}
 
 {% block page_content %}
@@ -12,11 +12,11 @@
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th>{{ i18n.getMessage("highscore_rank") }}</th>
-				<th>{{ i18n.getMessage("highscore_user") }}</th>
-				<th>{{ i18n.getMessage("entity_club") }}</th>
-				<th>{{ i18n.getMessage("highscore_registration_date") }}</th>
-				<th>{{ i18n.getMessage("highscore_score") }}</th>
+				<th>{{ Message("highscore_rank") }}</th>
+				<th>{{ Message("highscore_user") }}</th>
+				<th>{{ Message("entity_club") }}</th>
+				<th>{{ Message("highscore_registration_date") }}</th>
+				<th>{{ Message("highscore_score") }}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -26,7 +26,7 @@
 			<td>
 				{% if user.picture|length > 0 %}
 					<a href="{{ env.getInternalUrl("user", "id=" ~ user.id) }}" 
-					title="{{ i18n.getMessage("user_navlabel") }}"><img src="{{ user.picture }}" alt="{{ user.nick }}" style="width: 40px; height: 40px"/></a>
+					title="{{ Message("user_navlabel") }}"><img src="{{ user.picture }}" alt="{{ user.nick }}" style="width: 40px; height: 40px"/></a>
 				{% endif %}
 				<a href="{{ env.getInternalUrl("user", "id=" ~ user.id) }}">{{ user.nick }}</a>
 			</td>
@@ -34,11 +34,11 @@
 				{% if user.team_id > 0 %}
 					{% if user.team_picture|length > 0 %}
 						<a href="{{ env.getInternalUrl("team", "id=" ~ user.team_id) }}" 
-						title="{{ i18n.getMessage("team_navlabel") }}"><img src="{{ env.getConfig("context_root") }}/uploads/club/{{ user.team_picture }}" alt="{{ user.team_name }}" style="max-width: 40px;"/></a>
+						title="{{ Message("team_navlabel") }}"><img src="{{ Config("context_root") }}/uploads/club/{{ user.team_picture }}" alt="{{ user.team_name }}" style="max-width: 40px;"/></a>
 					{% endif %}
 					
 					<a href="{{ env.getInternalUrl("team", "id=" ~ user.team_id) }}" 
-						title="{{ i18n.getMessage("team_navlabel") }}">{{ user.team_name }}</a>
+						title="{{ Message("team_navlabel") }}">{{ user.team_name }}</a>
 				{% else %}
 					-
 				{% endif %}

@@ -21,15 +21,15 @@
 ******************************************************/
 
 //##### Infos zur Rubrik #####
-$mainTitle = $i18n->getMessage("managecuprounds_navlabel");
+$mainTitle = Message("managecuprounds_navlabel");
 $r_prefix = ""; #Prefix der Datei
 
 echo "<h1>$mainTitle</h1>";
 
-echo "<p><a href=\"?site=manage&entity=cup\" class=\"btn\">" . $i18n->getMessage("button_cancel") ."</a></p>";
+echo "<p><a href=\"?site=manage&entity=cup\" class=\"btn\">" . Message("button_cancel") ."</a></p>";
 
 if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin["r_spiele"]) {
-	throw new Exception($i18n->getMessage("error_access_denied"));
+	throw new Exception(Message("error_access_denied"));
 }
 
 $cupid = (isset($_REQUEST["cup"]) && is_numeric($_REQUEST["cup"])) ? $_REQUEST["cup"] : 0;
@@ -44,13 +44,13 @@ if (!isset($cup["name"])) {
 ?>
 
 <div class="alert alert-info">
-	<h5><?php echo $i18n->getMessage("managecuprounds_infoalert_title"); ?></h5>
-	<p><?php echo $i18n->getMessage("managecuprounds_infoalert_msg"); ?></p>
+	<h5><?php echo Message("managecuprounds_infoalert_title"); ?></h5>
+	<p><?php echo Message("managecuprounds_infoalert_msg"); ?></p>
 </div>
 
 <?php
 
-echo "<h2>". $i18n->getMessage("entity_cup") . ": " . escapeOutput($cup["name"]) . "</h2>";
+echo "<h2>". Message("entity_cup") . ": " . escapeOutput($cup["name"]) . "</h2>";
 
 // configure create form
 $formFields = array();
@@ -64,7 +64,7 @@ $formFields["finalround"] = array("type" => "boolean", "value" => "");
 // Action: create new round
 if ($action == "create") {
 	if ($admin["r_demo"]) {
-		throw new Exception($i18n->getMessage("validationerror_no_changes_as_demo"));
+		throw new Exception(Message("validationerror_no_changes_as_demo"));
 	}
 
 	try {
@@ -113,18 +113,18 @@ if ($action == "create") {
 		$db->queryInsert($columns,Config("db_prefix") . "_cup_round");
 
 	} catch (Exception $e) {
-		echo createErrorMessage($i18n->getMessage("subpage_error_alertbox_title") , $e->getMessage());
+		echo createErrorMessage(Message("subpage_error_alertbox_title") , $e->getMessage());
 	}
 
 // Action: delete
 } elseif ($action == "delete") {
 	if ($admin["r_demo"]) {
-		throw new Exception($i18n->getMessage("validationerror_no_changes_as_demo"));
+		throw new Exception(Message("validationerror_no_changes_as_demo"));
 	}
 
 	$db->queryDelete(Config("db_prefix") . "_cup_round", "id = %d", $_GET["id"]);
 
-	echo createSuccessMessage($i18n->getMessage("manage_success_delete"), "");
+	echo createSuccessMessage(Message("manage_success_delete"), "");
 }
 
 // get existing rounds as hierarchy
@@ -176,7 +176,7 @@ function renderRound($roundNode) {
 	// save changes of edit
 	} elseif($action == "edit-save" && $_REQUEST["id"] == $roundNode["round"]["id"]) {
 		if (isset($admin["r_demo"]) && $admin["r_demo"]) {
-			throw new Exception($i18n->getMessage("validationerror_no_changes_as_demo"));
+			throw new Exception(Message("validationerror_no_changes_as_demo"));
 		}
 
 		$showEditForm = TRUE;
@@ -243,7 +243,7 @@ function renderRound($roundNode) {
 		<div class="control-group">
 			<div class="controls">
 				<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("button_save"); ?>">
-				<a href="<?php echo "?site=" . escapeOutput($site) . "&cup=" . $cupid; ?>" class="btn"><?php echo $i18n->getMessage("button_cancel"); ?></a>
+				<a href="<?php echo "?site=" . escapeOutput($site) . "&cup=" . $cupid; ?>" class="btn"><?php echo Message("button_cancel"); ?></a>
 			</div>
 		</div>
 	  </form>
@@ -261,22 +261,22 @@ function renderRound($roundNode) {
 		}
 		echo "</strong>";
 
-		echo " <a href=\"?site=". escapeOutput($site) . "&cup=". $cupid . "&action=edit&id=". $roundNode["round"]["id"] . "\" title=\"". $i18n->getMessage("manage_edit") . "\"><i class=\"icon-pencil\"></i></a>";
-		echo " <a class=\"deleteLink\" href=\"?site=". escapeOutput($site) . "&cup=". $cupid . "&action=delete&id=". $roundNode["round"]["id"] . "\" title=\"". $i18n->getMessage("manage_delete") . "\"><i class=\"icon-trash\"></i></a>";
+		echo " <a href=\"?site=". escapeOutput($site) . "&cup=". $cupid . "&action=edit&id=". $roundNode["round"]["id"] . "\" title=\"". Message("manage_edit") . "\"><i class=\"icon-pencil\"></i></a>";
+		echo " <a class=\"deleteLink\" href=\"?site=". escapeOutput($site) . "&cup=". $cupid . "&action=delete&id=". $roundNode["round"]["id"] . "\" title=\"". Message("manage_delete") . "\"><i class=\"icon-trash\"></i></a>";
 
 		echo "</p>";
 		echo "<ul>";
-		echo "<li><em>" . $i18n->getMessage("managecuprounds_label_firstround_date")  . ":</em> ". date($website->getFormattedDatetime($roundNode["round"]["firstround_date"])) . "</li>";
+		echo "<li><em>" . Message("managecuprounds_label_firstround_date")  . ":</em> ". date($website->getFormattedDatetime($roundNode["round"]["firstround_date"])) . "</li>";
 
 		if ($roundNode["round"]["secondround_date"]) {
-			echo "<li><em>" . $i18n->getMessage("managecuprounds_label_secondround_date")  . ":</em> ". date($website->getFormattedDatetime($roundNode["round"]["secondround_date"])) . "</li>";
+			echo "<li><em>" . Message("managecuprounds_label_secondround_date")  . ":</em> ". date($website->getFormattedDatetime($roundNode["round"]["secondround_date"])) . "</li>";
 		}
 
 		// show matches link
 		$matchesUrl = "?site=manage&entity=match&" . http_build_query(array(
 				"entity_match_pokalname" => escapeOutput($cup["name"]),
 				"entity_match_pokalrunde" => escapeOutput($roundNode["round"]["name"])));
-		echo "<li><a href=\"$matchesUrl\">". $i18n->getMessage("managecuprounds_show_matches") . "</a></li>";
+		echo "<li><a href=\"$matchesUrl\">". Message("managecuprounds_show_matches") . "</a></li>";
 
 		echo "</ul>";
 
@@ -287,21 +287,21 @@ function renderRound($roundNode) {
 				"spieltyp" => "Pokalspiel"));
 
 		if (!$roundNode["round"]["groupmatches"]) {
-			echo "<p><a href=\"$addMatchUrl\" class=\"btn btn-mini\"><i class=\"icon-plus-sign\"></i> ". $i18n->getMessage("managecuprounds_add_match") . "</a>";
-			echo " <a href=\"?site=managecuprounds-generate&round=". $roundNode["round"]["id"] . "\" class=\"btn btn-mini\"><i class=\"icon-random\"></i> ". $i18n->getMessage("managecuprounds_generate_matches") . "</a>";
+			echo "<p><a href=\"$addMatchUrl\" class=\"btn btn-mini\"><i class=\"icon-plus-sign\"></i> ". Message("managecuprounds_add_match") . "</a>";
+			echo " <a href=\"?site=managecuprounds-generate&round=". $roundNode["round"]["id"] . "\" class=\"btn btn-mini\"><i class=\"icon-random\"></i> ". Message("managecuprounds_generate_matches") . "</a>";
 			echo "</p>";
 		} else {
-			echo "<p><a href=\"?site=managecuprounds-groups&round=". $roundNode["round"]["id"] . "\" class=\"btn btn-mini\"><i class=\"icon-list\"></i> ". $i18n->getMessage("managecuprounds_manage_groups") . "</a>";
+			echo "<p><a href=\"?site=managecuprounds-groups&round=". $roundNode["round"]["id"] . "\" class=\"btn btn-mini\"><i class=\"icon-list\"></i> ". Message("managecuprounds_manage_groups") . "</a>";
 			echo "</p>";
 		}
 
 		if (isset($roundNode["winnerround"])) {
-				echo "<p><em>". $i18n->getMessage("managecuprounds_next_round_winners") . ":</em></p>\n";
+				echo "<p><em>". Message("managecuprounds_next_round_winners") . ":</em></p>\n";
 				renderRound($hierarchy[$roundNode["winnerround"]]);
 		}
 
 		if (isset($roundNode["looserround"])) {
-				echo "<p><em>". $i18n->getMessage("managecuprounds_next_round_loosers") . ":</em></p>\n";
+				echo "<p><em>". Message("managecuprounds_next_round_loosers") . ":</em></p>\n";
 				renderRound($hierarchy[$roundNode["looserround"]]);
 		}
 	}
@@ -317,7 +317,7 @@ function renderRound($roundNode) {
 	<input type="hidden" name="cup" value="<?php echo $cupid; ?>">
 
 	<fieldset>
-    <legend><?php echo $i18n->getMessage("managecuprounds_label_create"); ?></legend>
+    <legend><?php echo Message("managecuprounds_label_create"); ?></legend>
 
 	<?php
 	foreach ($formFields as $fieldId => $fieldInfo) {
@@ -338,7 +338,7 @@ function renderRound($roundNode) {
 	?>
 
 	<div class="control-group">
-		<label class="control-label" for="from_round_id"><?php echo $i18n->getMessage("managecuprounds_label_previous_round")?></label>
+		<label class="control-label" for="from_round_id"><?php echo Message("managecuprounds_label_previous_round")?></label>
 
 		<div class="controls">
 			<select name="from_round_id" id="from_round_id">
@@ -353,7 +353,7 @@ function renderRound($roundNode) {
 	</div>
 	</fieldset>
 	<div class="form-actions">
-		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("button_save"); ?>">
+		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("button_save"); ?>">
 	</div>
   </form>
 

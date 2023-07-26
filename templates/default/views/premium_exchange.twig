@@ -2,25 +2,25 @@
 {% import "macros/formelements.twig" as formelements %}
 
 {% block page_title %}
-{{ i18n.getMessage("premium-exchange_navlabel") }}
+{{ Message("premium-exchange_navlabel") }}
 {% endblock %}
 
 {% block page_content %}
 
 <div class="well">
-	<p>{{ i18n.getMessage("premium-exchange_intro") }}</p>
-	<p><strong>1 {{ env.getConfig("premium_credit_unit") }} = {{ env.getConfig("premium_exchangerate_gamecurrency")|number_format(0, ',', ' ') }} {{ env.getConfig("game_currency") }}</strong></p>
+	<p>{{ Message("premium-exchange_intro") }}</p>
+	<p><strong>1 {{ Config("premium_credit_unit") }} = {{ Config("premium_exchangerate_gamecurrency")|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</strong></p>
 </div>
 
-<h4>{{ i18n.getMessage("entity_users_premium_balance") }}: {{ env.user.premiumBalance|number_format(0, ',', ' ') }} {{ env.getConfig("premium_credit_unit") }}</h4>
+<h4>{{ Message("entity_users_premium_balance") }}: {{ env.user.premiumBalance|number_format(0, ',', ' ') }} {{ Config("premium_credit_unit") }}</h4>
 
 <form class="form-horizontal" method="post">
 
-	{{ formelements.textfield('amount', i18n.getMessage('premium-exchange_amount_label'), env.getRequestParameter('amount'), true, validationMsg, 'number', env.getConfig("premium_credit_unit")) }}
+	{{ formelements.textfield('amount', Message('premium-exchange_amount_label'), env.getRequestParameter('amount'), true, validationMsg, 'number', Config("premium_credit_unit")) }}
 	
 	<div class="form-actions">
-		<button type="submit" class="btn btn-primary">{{ i18n.getMessage('button_save') }}</button>
-		<a href="{{ env.getInternalUrl("premiumaccount") }}" class="btn">{{ i18n.getMessage('button_cancel') }}</a>
+		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
+		<a href="{{ env.getInternalUrl("premiumaccount") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="premium-exchange"/>
 	<input type="hidden" name="validateonly" value="1"/>

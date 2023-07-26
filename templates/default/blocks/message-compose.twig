@@ -1,8 +1,8 @@
 {% import "macros/formelements.twig" as formelements %}
  
-  {{ formelements.autocomplete("nick", i18n.getMessage("messages_recipient"), env.getRequestParameter('nick'), true, validationMsg, "usernick-search") }}
+  {{ formelements.autocomplete("nick", Message("messages_recipient"), env.getRequestParameter('nick'), true, validationMsg, "usernick-search") }}
   
-  {{ formelements.textfield('subject', i18n.getMessage('messages_subject'), env.getRequestParameter('subject'), true, validationMsg) }}
+  {{ formelements.textfield('subject', Message('messages_subject'), env.getRequestParameter('subject'), true, validationMsg) }}
 
-  {{ formelements.textarea('msgcontent', i18n.getMessage('messages_content'), env.getRequestParameter('msgcontent'), true, validationMsg) }}
+  {{ formelements.textarea('msgcontent', Message('messages_content'), env.getRequestParameter('msgcontent'), true, validationMsg) }}
   

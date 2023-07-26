@@ -2,13 +2,13 @@
 {% extends "base.twig" %}
 
 {% block page_title %}
-{{ i18n.getMessage("news_title") }}
+{{ Message("news_title") }}
 {% endblock %}
 
 {% block page_content %}
 
 {% if articles|length == 0 %}
-{{ i18n.getMessage("news_no_items") }}
+{{ Message("news_no_items") }}
 {% endif %}
 
 {% for article in articles %}

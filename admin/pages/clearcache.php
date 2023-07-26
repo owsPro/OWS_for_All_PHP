@@ -20,13 +20,13 @@
 
 ******************************************************/
 
-echo '<h1>'. $i18n->getMessage('clearcache_title') .'</h1>';
+echo '<h1>'. Message('clearcache_title') .'</h1>';
 
 $website->resetConfigCache();
 
 // clear templates cache
 $website->getTemplateEngine($i18n)->clearCache();
 
-echo createSuccessMessage($i18n->getMessage('clearcache_success_title'), $i18n->getMessage('clearcache_success_message'));
+echo createSuccessMessage(Message('clearcache_success_title'), Message('clearcache_success_message'));
 
 ?>

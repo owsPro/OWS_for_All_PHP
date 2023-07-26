@@ -20,10 +20,10 @@
 
 ******************************************************/
 
-$mainTitle = $i18n->getMessage('all_logging_title');
+$mainTitle = Message('all_logging_title');
 
 if (!$admin['r_admin'] && !$admin['r_demo']) {
-  echo '<p>'. $i18n->getMessage('error_access_denied') . '</p>';
+  echo '<p>'. Message('error_access_denied') . '</p>';
   exit;
 }
 
@@ -33,14 +33,14 @@ if (!$show) {
 
   <h1><?php echo $mainTitle; ?></h1>
 
-  <p><?php echo $i18n->getMessage('all_logging_intro'); ?></p>
+  <p><?php echo Message('all_logging_intro'); ?></p>
 
   <?php
 
   $datei = '../generated/adminlog.php';
 
-  if (!file_exists($datei)) echo createErrorMessage($i18n->getMessage('alert_error_title'), $i18n->getMessage('all_logging_filenotfound'));
-  elseif ($admin['r_demo']) echo createErrorMessage($i18n->getMessage('error_access_denied'), '');
+  if (!file_exists($datei)) echo createErrorMessage(Message('alert_error_title'), Message('all_logging_filenotfound'));
+  elseif ($admin['r_demo']) echo createErrorMessage(Message('error_access_denied'), '');
   else {
 
     if ($action == 'leeren') {
@@ -51,8 +51,8 @@ if (!$show) {
       fwrite($fp, $content);
       fclose($fp);
 
-      if ($fp) echo createSuccessMessage($i18n->getMessage('all_logging_alert_logfile_truncated'), '');
-      else echo createErrorMessage($i18n->getMessage('alert_error_title'), $i18n->getMessage('all_logging_error_not_truncated'));
+      if ($fp) echo createSuccessMessage(Message('all_logging_alert_logfile_truncated'), '');
+      else echo createErrorMessage(Message('alert_error_title'), Message('all_logging_error_not_truncated'));
 
     }
 
@@ -60,9 +60,9 @@ if (!$show) {
     $gr_kb = round($datei_gr / 1024);
     if ($datei_gr && !$gr_kb) $gr_kb = 1;
 
-    echo '<div class=\'well\'>'. sprintf($i18n->getMessage('all_logging_filesize'), number_format($gr_kb, 0, ' ', ',')) .'</div>';
+    echo '<div class=\'well\'>'. sprintf(Message('all_logging_filesize'), number_format($gr_kb, 0, ' ', ',')) .'</div>';
 
-    if (!$datei_gr) echo '<p>'. $i18n->getMessage('empty_list') . '</p>';
+    if (!$datei_gr) echo '<p>'. Message('empty_list') . '</p>';
     else {
 
       ?>
@@ -70,18 +70,18 @@ if (!$show) {
       <form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post'>
         <input type='hidden' name='action' value='leeren'>
 		<input type='hidden' name='site' value='<?php echo $site; ?>'>
-        <p><input type='submit' class='btn' value='<?php echo $i18n->getMessage('all_logging_button_empty_file'); ?>'></p>
+        <p><input type='submit' class='btn' value='<?php echo Message('all_logging_button_empty_file'); ?>'></p>
 
       </form>
 
-      <p>(<?php echo $i18n->getMessage('all_logging_only_last_entries_shown'); ?>)</p>
+      <p>(<?php echo Message('all_logging_only_last_entries_shown'); ?>)</p>
 
             <table class='table table-bordered table-striped'>
               <tr>
-                <th><?php echo $i18n->getMessage('all_logging_label_no'); ?></th>
-                <th><?php echo $i18n->getMessage('all_logging_label_user'); ?></th>
-                <th><?php echo $i18n->getMessage('all_logging_label_ip'); ?></th>
-                <th><?php echo $i18n->getMessage('all_logging_label_time'); ?></th>
+                <th><?php echo Message('all_logging_label_no'); ?></th>
+                <th><?php echo Message('all_logging_label_user'); ?></th>
+                <th><?php echo Message('all_logging_label_ip'); ?></th>
+                <th><?php echo Message('all_logging_label_time'); ?></th>
               </tr>
               <?php
 

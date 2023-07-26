@@ -12,10 +12,7 @@
 
 *****************************************************************************/
 
-define('BASE_FOLDER', __DIR__ .'/..');
-define('MAX_ITEMS', 20);
-
-include(BASE_FOLDER . '/admin/adminglobal.inc.php');
+include($_SERVER['DOCUMENT_ROOT'] . '/admin/adminglobal.inc.php');
 
 // validate parameters
 $dbTable = $_GET['dbtable'];
@@ -57,7 +54,7 @@ if ($itemId > 0) {
 
 
 $whereCondition .= ' ORDER BY '. $labelColumns . ' ASC';
-$result = $db->querySelect('id, ' . $labelColumns,Config('db_prefix') . '_' . $dbTable, $whereCondition, $queryParameters, MAX_ITEMS);
+$result = $db->querySelect('id, ' . $labelColumns,Config('db_prefix') . '_' . $dbTable, $whereCondition, $queryParameters, config(MAX_ITEMS));
 
 $items = array();
 // collect items;

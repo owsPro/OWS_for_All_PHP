@@ -11,10 +11,10 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-include(BASE_FOLDER.'/admin/config/global.inc.php');
-include(BASE_FOLDER.'/cache/wsconfigadmin.inc.php');
-include(BASE_FOLDER.'/generated/settingsconfig.php');
-include(CONFIGCACHE_FILE_ADMIN);
+include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');
+include($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');
+include($_SERVER['DOCUMENT_ROOT'].'/generated/settingsconfig.php');
+include($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');
 $site=(isset($_REQUEST['site']))?$_REQUEST['site']:'';
 $show=(isset($_REQUEST['show']))?$_REQUEST['show']:FALSE;
 $action=(isset($_REQUEST['action']))?$_REQUEST['action']:null;
@@ -33,7 +33,7 @@ $i18n=I18n::getInstance(Config('supported_languages'));
 if($admin['lang']){
 	try{$i18n->setCurrentLanguage($admin['lang']);}
 	catch(Exception$e){}}
-include(sprintf(CONFIGCACHE_ADMINMESSAGES,$i18n->getCurrentLanguage()));
-include(sprintf(CONFIGCACHE_ENTITYMESSAGES,$i18n->getCurrentLanguage()));
-include(sprintf(BASE_FOLDER.'/languages/messages_%s.php',$i18n->getCurrentLanguage()));
+include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_%s.inc.php',$i18n->getCurrentLanguage()));
+include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/entitymessages_%s.inc.php',$i18n->getCurrentLanguage()));
+include(sprintf($_SERVER['DOCUMENT_ROOT'].'/languages/messages_%s.php',$i18n->getCurrentLanguage()));
 header('Content-type:text/html;charset=utf-8');

@@ -2,7 +2,7 @@
 {% import "macros/messagebox.twig" as messagebox %}
 
 {% if leagues|length == 0 and cups|length == 0 %}
-	{{ messagebox.box("", i18n.getMessage("team_details_noleaguevictories"), "info") }}
+	{{ messagebox.box("", Message("team_details_noleaguevictories"), "info") }}
 {% else %}
 
 	{% for leagueName,seasons in leagues %}
@@ -11,9 +11,9 @@
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th>{{ i18n.getMessage("entity_season") }}</th>
-					<th>{{ i18n.getMessage("entity_users") }}</th>
-					<th>{{ i18n.getMessage("leaguetable_head_place") }}</th>
+					<th>{{ Message("entity_season") }}</th>
+					<th>{{ Message("entity_users") }}</th>
+					<th>{{ Message("leaguetable_head_place") }}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -29,14 +29,14 @@
 	{% endfor %}
 	
 	{% if cups|length > 0 %}
-		<h4>{{ i18n.getMessage("entity_cup") }}</h4>
+		<h4>{{ Message("entity_cup") }}</h4>
 		
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th>{{ i18n.getMessage("entity_cup") }}</th>
-					<th>{{ i18n.getMessage("entity_users") }}</th>
-					<th>{{ i18n.getMessage("entity_cup_rounds") }}</th>
+					<th>{{ Message("entity_cup") }}</th>
+					<th>{{ Message("entity_users") }}</th>
+					<th>{{ Message("entity_cup_rounds") }}</th>
 				</tr>
 			</thead>
 			<tbody>

@@ -12,11 +12,6 @@
 
 *****************************************************************************/
 error_reporting(E_ALL);
-define("WRITABLE_FOLDERS", "generated/");
-define("DEFAULT_DB_PREFIX", "ws3");
-define("CONFIGFILE",$_SERVER['DOCUMENT_ROOT']. "/generated/config.inc.php");
-define("CONFIGFILE_OLD",$_SERVER['DOCUMENT_ROOT']. "/admin/config/config.inc.php");
-define("DDL_FILE", "update_ddl.sql");
 ini_set('session.cookie_httponly',1);
 ini_set('session.use_only_cookies',1);
 ini_set('session.cookie_secure',1);

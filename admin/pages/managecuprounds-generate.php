@@ -20,12 +20,12 @@
 
 ******************************************************/
 
-$mainTitle = $i18n->getMessage("managecuprounds_generate_navlabel");
+$mainTitle = Message("managecuprounds_generate_navlabel");
 
 echo "<h1>$mainTitle</h1>";
 
 if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin["r_spiele"]) {
-	throw new Exception($i18n->getMessage("error_access_denied"));
+	throw new Exception(Message("error_access_denied"));
 }
 
 $roundid = (isset($_REQUEST["round"]) && is_numeric($_REQUEST["round"])) ? $_REQUEST["round"] : 0;
@@ -39,12 +39,12 @@ if (!isset($round["round_name"])) {
 	throw new Exception("illegal round id");
 }
 
-echo "<h2>". $i18n->getMessage("entity_cup") . " - " . escapeOutput($round["round_name"]) . "</h2>";
+echo "<h2>". Message("entity_cup") . " - " . escapeOutput($round["round_name"]) . "</h2>";
 
 // ****** Generate matches ***********
 if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])) {
 	if ($admin["r_demo"]) {
-		throw new Exception($i18n->getMessage("validationerror_no_changes_as_demo"));
+		throw new Exception(Message("validationerror_no_changes_as_demo"));
 	}
 
 	$teamIds = $_POST["teams"];
@@ -80,18 +80,18 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 		}
 	}
 
-	echo createSuccessMessage($i18n->getMessage("managecuprounds_generate_success"), "");
-	echo "<p><a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn btn-primary\">" . $i18n->getMessage("managecuprounds_generate_success_overviewlink") ."</a></p>";
+	echo createSuccessMessage(Message("managecuprounds_generate_success"), "");
+	echo "<p><a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn btn-primary\">" . Message("managecuprounds_generate_success_overviewlink") ."</a></p>";
 }
 
 // ****** Display selection form ***********
 ?>
 
 	<div id="noCupPossibleAlert" class="alert" style="display: none;">
-		<h5><?php echo $i18n->getMessage("managecuprounds_generate_noroundspossible"); ?></h5>
+		<h5><?php echo Message("managecuprounds_generate_noroundspossible"); ?></h5>
 	</div>
 	<div id="possibleCupRoundsAlert" class="alert alert-info" style="display: none;">
-		<h5><?php echo $i18n->getMessage("managecuprounds_generate_possiblerounds"); ?>: <span id="roundsNo">0</span></h5>
+		<h5><?php echo Message("managecuprounds_generate_possiblerounds"); ?>: <span id="roundsNo">0</span></h5>
 	</div>
 
   <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
@@ -100,7 +100,7 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 	<input type="hidden" name="round" value="<?php echo $roundid; ?>">
 
 	<fieldset>
-    	<legend><?php echo $i18n->getMessage("managecuprounds_generate_formlabel"); ?> (<span id="numberOfTeamsSelected">0</span>)</legend>
+    	<legend><?php echo Message("managecuprounds_generate_formlabel"); ?> (<span id="numberOfTeamsSelected">0</span>)</legend>
 
 		<div style="width: 600px; height: 300px; overflow: auto; border: 1px solid #cccccc;">
 			<table class="table table-striped table-hover">
@@ -112,8 +112,8 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 				<thead>
 					<tr>
 						<th>&nbsp;</th>
-						<th><?php echo $i18n->getMessage("entity_club")?></th>
-						<th><?php echo $i18n->getMessage("entity_league")?></th>
+						<th><?php echo Message("entity_club")?></th>
+						<th><?php echo Message("entity_league")?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -136,9 +136,9 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 		</div>
 	</fieldset>
 	<div class="form-actions">
-		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("managecuprounds_generate_submitbutton"); ?>">
+		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("managecuprounds_generate_submitbutton"); ?>">
 		<?php
-		echo " <a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . $i18n->getMessage("button_cancel") ."</a>";
+		echo " <a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . Message("button_cancel") ."</a>";
 		?>
 	</div>
   </form>

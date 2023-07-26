@@ -19,8 +19,8 @@
   If not, see <http://www.gnu.org/licenses/>.
 
 ******************************************************/
-    echo "<h1>". $mainTitle ." &raquo; ". $i18n->getMessage("subpage_save_title") . "</h1>";
+    echo "<h1>". $mainTitle ." &raquo; ". Message("subpage_save_title") . "</h1>";
 
-    echo createSuccessMessage($i18n->getMessage("alert_save_success"), "");
-    echo "<p>&raquo; <a href=\"". escapeOutput($_SERVER['PHP_SELF']) ."?site=".$site ."\">". $i18n->getMessage("back_label") . "</a></p>\n";
+    echo createSuccessMessage(Message("alert_save_success"), "");
+    echo "<p>&raquo; <a href=\"". escapeOutput($_SERVER['PHP_SELF']) ."?site=".$site ."\">". Message("back_label") . "</a></p>\n";
 ?>

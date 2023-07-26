@@ -8,36 +8,36 @@
 {% endfor %}
 
 {% if showForm %}
-	{{ formelements.textfield('amount', i18n.getMessage('transferoffer_label_amount'), env.getRequestParameter("amount"), true, validationMsg, 'number', env.getConfig("game_currency")) }}
-	
-	{{ formelements.textarea('comment', i18n.getMessage('transferoffer_label_comment'), env.getRequestParameter("comment"), false, validationMsg, null, 3) }}
-	
-	
+	{{ formelements.textfield('amount', Message('transferoffer_label_amount'), env.getRequestParameter("amount"), true, validationMsg, 'number', Config("game_currency")) }}
+
+	{{ formelements.textarea('comment', Message('transferoffer_label_comment'), env.getRequestParameter("comment"), false, validationMsg, null, 3) }}
+
+
 	<fieldset>
-		<legend>{{ i18n.getMessage('transferoffer_label_fieldset_playerexchange') }}</legend>
-		
-		{{ formelements.teamPlayerSelection("exchangeplayer1", i18n.getMessage('transferoffer_label_exchangeplayer1'), 
+		<legend>{{ Message('transferoffer_label_fieldset_playerexchange') }}</legend>
+
+		{{ formelements.teamPlayerSelection("exchangeplayer1", Message('transferoffer_label_exchangeplayer1'),
 			env.getRequestParameter("exchangeplayer1"), players) }}
-			
-		{{ formelements.teamPlayerSelection("exchangeplayer2", i18n.getMessage('transferoffer_label_exchangeplayer2'), 
+
+		{{ formelements.teamPlayerSelection("exchangeplayer2", Message('transferoffer_label_exchangeplayer2'),
 			env.getRequestParameter("exchangeplayer2"), players) }}
-		
+
 	</fieldset>
-	
+
 	<fieldset>
-		<legend>{{ i18n.getMessage('transferoffer_label_fieldset_contract') }}</legend>
-		
+		<legend>{{ Message('transferoffer_label_fieldset_contract') }}</legend>
+
 		<dl class="dl-horizontal">
-		  <dt>{{ i18n.getMessage("entity_player_vertrag_gehalt") }}</dt>
-		  <dd>{{ player.player_contract_salary|number_format(0, ',', ' ')  }} {{ env.getConfig("game_currency") }}</dd>
-		  
-		  <dt>{{ i18n.getMessage("entity_player_vertrag_torpraemie") }}</dt>
-		  <dd>{{ player.player_contract_goalbonus|number_format(0, ',', ' ')  }} {{ env.getConfig("game_currency") }}</dd>
-		  
-		  <dt>{{ i18n.getMessage("entity_player_vertrag_spiele") }}</dt>
-		  <dd>{{ env.getConfig("transferoffers_contract_matches")  }} {{ i18n.getMessage("player_details_unit_matches") }}</dd>
+		  <dt>{{ Message("entity_player_vertrag_gehalt") }}</dt>
+		  <dd>{{ player.player_contract_salary|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
+
+		  <dt>{{ Message("entity_player_vertrag_torpraemie") }}</dt>
+		  <dd>{{ player.player_contract_goalbonus|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
+
+		  <dt>{{ Message("entity_player_vertrag_spiele") }}</dt>
+		  <dd>{{ Config("transferoffers_contract_matches")  }} {{ Message("player_details_unit_matches") }}</dd>
 		</dl>
-		
+
 	</fieldset>
 {% else %}
 	<script>

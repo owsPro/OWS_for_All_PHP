@@ -3,9 +3,9 @@
 	<channel>
 		{% set pageId = env.getPageId() %}
 		<atom:link href="{{ env.getInternalUrl(pageId, "lang=" ~ i18n.getCurrentLanguage() ~ "&id=" ~ env.getRequestParameter("id"), TRUE) }}" rel="self" type="application/rss+xml" />
-		<title>{{ env.getConfig("projectname") }} - {{ i18n.getMessage(pageId ~ "_rss_title") }}</title>
+		<title>{{ Config("projectname") }} - {{ Message(pageId ~ "_rss_title") }}</title>
 		<link>{{ env.getInternalUrl("home", null, TRUE) }}</link>
-		<description>{{ i18n.getMessage(pageId ~ "_rss_description") }}</description>
+		<description>{{ Message(pageId ~ "_rss_description") }}</description>
 		<language>{{ i18n.getCurrentLanguage() }}</language>
 		<ttl>120</ttl>
 		{% for item in items %}

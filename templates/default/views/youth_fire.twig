@@ -1,20 +1,20 @@
 {% extends "base.twig" %}
 
 {% block page_title %}
-{{ i18n.getMessage("youthplayer-fire_navlabel") }}
+{{ Message("youthplayer-fire_navlabel") }}
 {% endblock %}
 
 {% block page_content %}
 <form class="form-horizontal" method="post">
 
 	<fieldset>
-		<legend>{{ i18n.getMessage("youthplayer-fire_formlabel") }}</legend>
+		<legend>{{ Message("youthplayer-fire_formlabel") }}</legend>
 		
-		<p><strong>{{ i18n.getMessage("youthplayer-fire_confirmationmsg") }}</strong></p>
+		<p><strong>{{ Message("youthplayer-fire_confirmationmsg") }}</strong></p>
 	</fieldset>
 	<div class="form-actions">
-		<button type="submit" class="btn btn-primary">{{ i18n.getMessage('button_confirm') }}</button>
-		<a href="{{ env.getInternalUrl("youth-team") }}" class="btn">{{ i18n.getMessage('button_cancel') }}</a>
+		<button type="submit" class="btn btn-primary">{{ Message('button_confirm') }}</button>
+		<a href="{{ env.getInternalUrl("youth-team") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="youthplayer-fire"/>
 	<input type="hidden" name="id" value="{{ env.getRequestParameter('id') }}"/>

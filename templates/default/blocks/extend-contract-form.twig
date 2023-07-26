@@ -1,27 +1,27 @@
 {% import "macros/formelements.twig" as formelements %}
 {% import "macros/statisticelements.twig" as statisticelements %}
 
-<p><h5>{{ i18n.getMessage('entity_player_w_zufriedenheit') }} ({{ player.player_strength_satisfaction }}%)</h5>
+<p><h5>{{ Message('entity_player_w_zufriedenheit') }} ({{ player.player_strength_satisfaction }}%)</h5>
 
 {{ statisticelements.progressbar(player.player_strength_satisfaction) }}
 
 {% if frontMessages is defined and frontMessages|length == 1 and frontMessages[0].type == "success" %}
-<a href="{{ env.getInternalUrl("myteam") }}" class="btn">{{ i18n.getMessage('myteam_navlabel') }}</a>
+<a href="{{ env.getInternalUrl("myteam") }}" class="btn">{{ Message('myteam_navlabel') }}</a>
 {% else %}
-<h3>{{ i18n.getMessage("extend-contract_offer_title") }}</h3>
+<h3>{{ Message("extend-contract_offer_title") }}</h3>
 
 <form class="form-horizontal" method="post">
 
-	{{ formelements.textfield('salary', i18n.getMessage('entity_player_vertrag_gehalt'), env.getRequestParameter('salary'), true, validationMsg, 'number') }}
+	{{ formelements.textfield('salary', Message('entity_player_vertrag_gehalt'), env.getRequestParameter('salary'), true, validationMsg, 'number') }}
 	
-	{{ formelements.textfield('goal_bonus', i18n.getMessage('entity_player_vertrag_torpraemie'), env.getRequestParameter('goal_bonus'), false, validationMsg, 'number') }}
+	{{ formelements.textfield('goal_bonus', Message('entity_player_vertrag_torpraemie'), env.getRequestParameter('goal_bonus'), false, validationMsg, 'number') }}
 	
-	{{ formelements.textfield('matches', i18n.getMessage('entity_player_vertrag_spiele'), env.getRequestParameter('matches'), true, validationMsg, 'number') }}
+	{{ formelements.textfield('matches', Message('entity_player_vertrag_spiele'), env.getRequestParameter('matches'), true, validationMsg, 'number') }}
 	
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary ajaxSubmit" 
-		data-ajaxtarget="pagecontent">{{ i18n.getMessage('button_submit') }}</button>
-		<a href="{{ env.getInternalUrl("myteam") }}" class="btn">{{ i18n.getMessage('button_cancel') }}</a>
+		data-ajaxtarget="pagecontent">{{ Message('button_submit') }}</button>
+		<a href="{{ env.getInternalUrl("myteam") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="extend-contract"/>
 	<input type="hidden" name="id" value="{{ env.getRequestParameter('id') }}"/>

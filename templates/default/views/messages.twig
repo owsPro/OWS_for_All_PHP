@@ -4,20 +4,20 @@
 {% extends "base.twig" %}
 
 {% block page_title %}
-{{ i18n.getMessage("messages_navlabel") }}
+{{ Message("messages_navlabel") }}
 {% endblock %}
 
 {% block page_content %}
 
-{% if env.getConfig("messages_enabled") %}
-	<p><a href="{{ env.getInternalUrl() }}" class="btn btn-small"><i class="icon-refresh"></i> {{ i18n.getMessage("button_refresh") }}</a>
-	<a href="#composeMessage" class="btn btn-small" data-toggle="modal"><i class="icon-pencil"></i> {{ i18n.getMessage("messages_compose_button") }}</a></p>
+{% if Config("messages_enabled") %}
+	<p><a href="{{ env.getInternalUrl() }}" class="btn btn-small"><i class="icon-refresh"></i> {{ Message("button_refresh") }}</a>
+	<a href="#composeMessage" class="btn btn-small" data-toggle="modal"><i class="icon-pencil"></i> {{ Message("messages_compose_button") }}</a></p>
 	<form class="form-horizontal">
 		<div id="composeMessage" class="modal hide fade" tabindex="-1" role="dialog" 
 			aria-labelledby="composeModalLabel" aria-hidden="true">
 		  <div class="modal-header">
 		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-		    <h3 id="composeModalLabel">{{ i18n.getMessage("messages_compose_title") }}</h3>
+		    <h3 id="composeModalLabel">{{ Message("messages_compose_title") }}</h3>
 		  </div>
 		  <div class="modal-body">
 		  
@@ -28,8 +28,8 @@
 		  </div>
 		  <div class="modal-footer">
 		  	<button type="submit" class="btn btn-primary ajaxSubmit" 
-				data-ajaxtarget="sendmsgbody" data-ajaxblock="compose-message-body" data-messagetarget="modalmessages">{{ i18n.getMessage('messages_send_button') }}</button>
-		    <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">{{ i18n.getMessage("button_close") }}</a>
+				data-ajaxtarget="sendmsgbody" data-ajaxblock="compose-message-body" data-messagetarget="modalmessages">{{ Message('messages_send_button') }}</button>
+		    <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">{{ Message("button_close") }}</a>
 		  </div>
 		</div>
 		
@@ -38,9 +38,9 @@
 {% endif %}
 
 <ul class="nav nav-tabs" id="teamTab">
-  <li class="active"><a href="#inbox" data-toggle="tab">{{ i18n.getMessage("messages_tab_inbox") }}</a></li>
+  <li class="active"><a href="#inbox" data-toggle="tab">{{ Message("messages_tab_inbox") }}</a></li>
   <li><a href="#outbox" data-toggle="tab" class="ajaxLink"
-  	data-ajaxtarget="outboxlist" data-ajaxblock="messages-outbox">{{ i18n.getMessage("messages_tab_outbox") }}</a></li>
+  	data-ajaxtarget="outboxlist" data-ajaxblock="messages-outbox">{{ Message("messages_tab_outbox") }}</a></li>
 </ul>
 
 <div class="tab-content">
@@ -51,9 +51,9 @@
   	<table class="table table-striped">
   		<thead>
   			<tr>
-  				<th>{{ i18n.getMessage("messages_date") }}</th>
-  				<th>{{ i18n.getMessage("messages_sender") }}</th>
-  				<th>{{ i18n.getMessage("messages_subject") }}</th>
+  				<th>{{ Message("messages_date") }}</th>
+  				<th>{{ Message("messages_sender") }}</th>
+  				<th>{{ Message("messages_subject") }}</th>
   				<th>&nbsp;</th>
   			</tr>
   		</thead>
@@ -68,7 +68,7 @@
   					data-ajaxtarget="messagecontent" data-ajaxblock="message-details" data-ajaxquerystr="id={{ message.message_id }}">{{ message.subject }}</a>
   				{% if not message.seen %}</strong>{% endif %}
   				</td>
-  				<td><a href="{{ env.getInternalUrl("messages", "action=delete-message&id=" ~ message.message_id) }}" title="{{ i18n.getMessage("messages_delete") }}"><i class="icon-trash"></i></a></td>
+  				<td><a href="{{ env.getInternalUrl("messages", "action=delete-message&id=" ~ message.message_id) }}" title="{{ Message("messages_delete") }}"><i class="icon-trash"></i></a></td>
   			</tr>
   		{% endfor %}
   		</tbody>
@@ -77,7 +77,7 @@
   	{{ pagination.paginator(paginator) }}
   	
   	{% else %}
-  	<p>{{ i18n.getMessage("messages_empty_inbox") }}</p>
+  	<p>{{ Message("messages_empty_inbox") }}</p>
   	{% endif %}
   
   </div>
@@ -90,13 +90,13 @@
 		aria-labelledby="messageModalLabel" aria-hidden="true">
 	  <div class="modal-header">
 	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-	    <h3 id="messageModalLabel">{{ i18n.getMessage("messages_details_title") }}</h3>
+	    <h3 id="messageModalLabel">{{ Message("messages_details_title") }}</h3>
 	  </div>
 	  <div class="modal-body">
 	    <div id="messagecontent"></div>
 	  </div>
 	  <div class="modal-footer">
-	    <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">{{ i18n.getMessage("button_close") }}</a>
+	    <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">{{ Message("button_close") }}</a>
 	  </div>
 	</div>
 {% endblock %}

@@ -11,12 +11,12 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-$mainTitle = $i18n->getMessage('season_complete_title');
+$mainTitle = Message('season_complete_title');
 if (isset($_REQUEST['id'])) $id = (int) $_REQUEST['id'];
 echo '<h1>' . $mainTitle .'</h1>';
-if (!$admin['r_admin'] && !$admin['r_demo'] && !$admin[$page['permissionrole']])throw new Exception($i18n->getMessage('error_access_denied'));
+if (!$admin['r_admin'] && !$admin['r_demo'] && !$admin[$page['permissionrole']])throw new Exception(Message('error_access_denied'));
 if (!$show) {?>
-  <p><?php echo $i18n->getMessage('season_complete_introduction'); ?></p><?php
+  <p><?php echo Message('season_complete_introduction'); ?></p><?php
   $columns = array();
   $columns['S.id'] = 'id';
   $columns['S.name'] = 'name';
@@ -26,14 +26,14 @@ if (!$show) {?>
   $whereCondition = 'S.beendet = \'0\' AND 0 = (SELECT COUNT(*) FROM '. $conf['db_prefix'] . '_spiel AS M WHERE M.berechnet = \'0\' AND M.saison_id = S.id) ORDER BY L.name ASC, S.name ASC';
   $result = $db->querySelect($columns, $fromTable, $whereCondition);
   if (!$result->num_rows) {
-	echo '<p><strong>' . $i18n->getMessage('season_complete_noseasons') . '</strong></p>';
+	echo '<p><strong>' . Message('season_complete_noseasons') . '</strong></p>';
   }
   else {?>
   <table class='table table-striped'>
   	<thead>
   		<tr>
-  			<th><?php echo $i18n->getMessage('entity_season_name'); ?></th>
-  			<th><?php echo $i18n->getMessage('entity_season_liga_id'); ?></th>
+  			<th><?php echo Message('entity_season_name'); ?></th>
+  			<th><?php echo Message('entity_season_liga_id'); ?></th>
   		</tr>
   	</thead>
   	<tbody><?php
@@ -68,12 +68,12 @@ elseif ($show == 'select') {
 	foreach ($formFields as $fieldId => $fieldInfo)echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], 'season_complete_label_');?>
 	</fieldset>
 	<div class='form-actions'>
-		<input type='submit' class='btn btn-primary' accesskey='s' title='Alt + s' value='<?php echo $i18n->getMessage('season_complete_submit'); ?>'>
-		<input type='reset' class='btn' value='<?php echo $i18n->getMessage('button_reset'); ?>'>
+		<input type='submit' class='btn btn-primary' accesskey='s' title='Alt + s' value='<?php echo Message('season_complete_submit'); ?>'>
+		<input type='reset' class='btn' value='<?php echo Message('button_reset'); ?>'>
 	</div>
   </form><?php }
 elseif ($show == 'complete') {
-	if ($admin['r_demo']) $err[] = $i18n->getMessage('validationerror_no_changes_as_demo');
+	if ($admin['r_demo']) $err[] = Message('validationerror_no_changes_as_demo');
 	if (isset($err))include('validationerror.inc.php');
 	else {
 		$columns = '*';
@@ -186,5 +186,5 @@ elseif ($show == 'complete') {
 		$teamcolumns['sa_punkte'] = 0;
 		$db->queryUpdate($teamcolumns, $conf['db_prefix'] .'_verein', 'liga_id = %d', $season['liga_id']);
 		$db->queryUpdate($seasoncolumns, $conf['db_prefix'] .'_saison', 'id = %d', $season['id']);
-		echo createSuccessMessage($i18n->getMessage('alert_save_success'), '');
-		echo '<p>&raquo; <a href=\'?site='. $site .'\'>'. $i18n->getMessage('back_label') . '</a></p>';}}
+		echo createSuccessMessage(Message('alert_save_success'), '');
+		echo '<p>&raquo; <a href=\'?site='. $site .'\'>'. Message('back_label') . '</a></p>';}}

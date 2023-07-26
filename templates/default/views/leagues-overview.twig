@@ -1,14 +1,14 @@
 {% extends "base.twig" %}
 
 {% block page_title %}
-{{ i18n.getMessage("leagues_title") }}
+{{ Message("leagues_title") }}
 {% endblock %}
 
 {% block page_content %}
 
 <form class="form-inline" method="post">
 
-	<label class="control-label" for="country">{{ i18n.getMessage("entity_league_land") }}</label> 
+	<label class="control-label" for="country">{{ Message("entity_league_land") }}</label> 
 	<select id="country" name="country">
 		<option></option>
 	{% for country in countries %}
@@ -17,7 +17,7 @@
 	</select>
 
 	<button type="submit" class="btn btn-primary ajaxSubmit" 
-		data-ajaxtarget="leagues-selection" data-ajaxblock="leagues-selection">{{ i18n.getMessage('button_display') }}</button>
+		data-ajaxtarget="leagues-selection" data-ajaxblock="leagues-selection">{{ Message('button_display') }}</button>
 
 	<input type="hidden" name="page" value="leagues" />
 </form>

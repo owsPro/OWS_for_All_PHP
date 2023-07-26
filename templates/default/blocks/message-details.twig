@@ -6,8 +6,8 @@
 	<a href="#composeMessage" class="btn btn-small ajaxLink"
 		 data-toggle="modal"
 		  data-dismiss="modal" aria-hidden="true"
-		  data-ajaxtarget="sendmsgbody" data-ajaxblock="compose-message-body" data-ajaxquerystr="subject={{ replySubject }}&amp;nick={{ replyRecipient }}"><i class="icon-hand-right"></i> {{ i18n.getMessage("messages_reply_button") }}</a>
-	<a href="{{ env.getInternalUrl("messages", "action=delete-message&id=" ~ message.message_id) }}" class="btn btn-small"><i class="icon-trash"></i> {{ i18n.getMessage("button_delete") }}</a>
+		  data-ajaxtarget="sendmsgbody" data-ajaxblock="compose-message-body" data-ajaxquerystr="subject={{ replySubject }}&amp;nick={{ replyRecipient }}"><i class="icon-hand-right"></i> {{ Message("messages_reply_button") }}</a>
+	<a href="{{ env.getInternalUrl("messages", "action=delete-message&id=" ~ message.message_id) }}" class="btn btn-small"><i class="icon-trash"></i> {{ Message("button_delete") }}</a>
 </div>
 
 <table style="margin-top: 10px">
@@ -16,19 +16,19 @@
 		<col />
 	</colgroup>
 	<tr>
-		<td><strong>{{ i18n.getMessage("messages_sender") }}</strong></td>
+		<td><strong>{{ Message("messages_sender") }}</strong></td>
 		<td><a href="{{ env.getInternalUrl("user", "id=" ~ message.sender_id) }}">{{ message.sender_name }}</a></td>
 	</tr>
 	<tr>
-		<td><strong>{{ i18n.getMessage("messages_recipient") }}</strong></td>
+		<td><strong>{{ Message("messages_recipient") }}</strong></td>
 		<td><a href="{{ env.getInternalUrl("user", "id=" ~ message.recipient_id) }}">{{ message.recipient_name }}</a></td>
 	</tr>
 	<tr>
-		<td><strong>{{ i18n.getMessage("messages_date") }}</strong></td>
+		<td><strong>{{ Message("messages_date") }}</strong></td>
 		<td>{{ env.getFormattedDatetime(message.date) }}</td>
 	</tr>
 	<tr>
-		<td><strong>{{ i18n.getMessage("messages_subject") }}</strong></td>
+		<td><strong>{{ Message("messages_subject") }}</strong></td>
 		<td>{{ message.subject }}</td>
 	</tr>
 </table>

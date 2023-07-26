@@ -12,10 +12,10 @@
 
 *****************************************************************************/
 include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');
-include(CONFIGCACHE_FILE_ADMIN);
+include($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');
 $i18n=I18n::getInstance(Config('supported_languages'));
 if(isset($_GET['lang']))$i18n->setCurrentLanguage($_GET['lang']);
-include(sprintf(CONFIGCACHE_ADMINMESSAGES,$i18n->getCurrentLanguage()));
+include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_%s.inc.php',$i18n->getCurrentLanguage()));
 include(sprintf($_SERVER['DOCUMENT_ROOT'].'/languages/messages_%s.php',$i18n->getCurrentLanguage()));
 $errors=array();
 $inputUser=(isset($_POST['inputUser']))?$_POST['inputUser']:FALSE;

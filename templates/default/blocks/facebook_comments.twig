@@ -1,4 +1,4 @@
-{% if env.getConfig("facebook_enable_comments") %}
+{% if Config("facebook_enable_comments") %}
 	{% set url = env.getInternalUrl(null, "id=" ~ env.getRequestParameter("id"), TRUE) %}
 
 	<hr>

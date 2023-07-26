@@ -1,4 +1,4 @@
-{% set adcode = env.getConfig('frontend_ads_code_sidebar') %}
+{% set adcode = Config('frontend_ads_code_sidebar') %}
 {% if adcode|length %}
 	{{ adcode|raw }}
 {% endif %}

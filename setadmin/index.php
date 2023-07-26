@@ -11,7 +11,8 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-include($_SERVER['DOCUMENT_ROOT'].'/classes/WebSoccer.class.php');define('BASE_FOLDER',__DIR__ .'/..');define('PHP_MIN_VERSION','5.3.0');define('CONFIGFILE',BASE_FOLDER.'/generated/config.inc.php');ini_set('session.cookie_httponly',1);
+include($_SERVER['DOCUMENT_ROOT'].'/classes/WebSoccer.class.php');
+ini_set('session.cookie_httponly',1);
 ini_set('session.use_only_cookies',1);
 ini_set('session.cookie_secure',1);session_start();
 $supportedLanguages=["de"=>"deutsch","en"=>"english","es"=>"español","pt"=>"português","dk"=>"dansk","ee"=>"eesti","fi"=>"suomalainen","fr"=>"français","id"=>"indonesia","it"=>"italiano","lv"=>"latvieši","lt"=>"lietuviškas","nl"=>"nederlands","pl"=>"polska",

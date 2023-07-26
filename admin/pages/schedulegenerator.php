@@ -20,12 +20,12 @@
 
 ******************************************************/
 
-$mainTitle = $i18n->getMessage("schedulegenerator_navlabel");
+$mainTitle = Message("schedulegenerator_navlabel");
 
 echo "<h1>$mainTitle</h1>";
 
 if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin[$page["permissionrole"]]) {
-	throw new Exception($i18n->getMessage("error_access_denied"));
+	throw new Exception(Message("error_access_denied"));
 }
 
 // generation might take more time than usual
@@ -42,7 +42,7 @@ if (!$show) {
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
 
 	<fieldset>
-    <legend><?php echo $i18n->getMessage("schedulegenerator_label"); ?></legend>
+    <legend><?php echo Message("schedulegenerator_label"); ?></legend>
 
 	<?php
 	$formFields = array();
@@ -63,8 +63,8 @@ if (!$show) {
 	?>
 	</fieldset>
 	<div class="form-actions">
-		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("generator_button"); ?>">
-		<input type="reset" class="btn" value="<?php echo $i18n->getMessage("button_reset"); ?>">
+		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("generator_button"); ?>">
+		<input type="reset" class="btn" value="<?php echo Message("button_reset"); ?>">
 	</div>
   </form>
 
@@ -75,10 +75,10 @@ if (!$show) {
 //********** validate, generate **********
 elseif ($show == "generate") {
 
-  if (!isset($_POST['league']) || $_POST['league'] <= 0) $err[] = $i18n->getMessage("generator_validationerror_noleague");
-  if (!isset($_POST['rounds']) || $_POST['rounds'] <= 0 || $_POST['rounds'] > 10) $err[] = $i18n->getMessage("schedulegenerator_err_invalidrounds");
-  if (!isset($_POST['timebreak']) || $_POST['timebreak'] <= 0 || $_POST['timebreak'] > 50) $err[] = $i18n->getMessage("schedulegenerator_err_invalidtimebreak");
-  if ($admin['r_demo']) $err[] = $i18n->getMessage("validationerror_no_changes_as_demo");
+  if (!isset($_POST['league']) || $_POST['league'] <= 0) $err[] = Message("generator_validationerror_noleague");
+  if (!isset($_POST['rounds']) || $_POST['rounds'] <= 0 || $_POST['rounds'] > 10) $err[] = Message("schedulegenerator_err_invalidrounds");
+  if (!isset($_POST['timebreak']) || $_POST['timebreak'] <= 0 || $_POST['timebreak'] > 50) $err[] = Message("schedulegenerator_err_invalidtimebreak");
+  if ($admin['r_demo']) $err[] = Message("validationerror_no_changes_as_demo");
 
   //##### Output error messages #####
   if (isset($err)) {
@@ -92,7 +92,7 @@ elseif ($show == "generate") {
 	// get teams
   	$result = $db->querySelect("id",Config("db_prefix") . "_verein", "liga_id = %d", $_POST['league']);
 	if (!$result->num_rows) {
-		throw new Exception($i18n->getMessage("schedulegenerator_err__noteams"));
+		throw new Exception(Message("schedulegenerator_err__noteams"));
 	}
 	$teams = array();
 	while ($team = $result->fetch_array()) {
@@ -162,9 +162,9 @@ elseif ($show == "generate") {
 		}
 	}
 
-	echo createSuccessMessage($i18n->getMessage("generator_success"), "");
+	echo createSuccessMessage(Message("generator_success"), "");
 
-      echo "<p>&raquo; <a href=\"?site=". $site ."\">". $i18n->getMessage("back_label") . "</a></p>\n";
+      echo "<p>&raquo; <a href=\"?site=". $site ."\">". Message("back_label") . "</a></p>\n";
 
   }
 

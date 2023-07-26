@@ -23,280 +23,89 @@
 
  This version can still be used with the database prefix!
 =====================================================================================*/
-@include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');
-function Config($name){global$conf;if(!isset($conf[$name]))throw new Exception('Missing configuration: '.$name);return$conf[$name];}
-function Message($messageKey,$paramaters=NULL){global$msg;if(!hasMessage($messageKey)){return'???'.$messageKey.'???';}$message=stripslashes($msg[$messageKey]);if($paramaters!=NULL){$message=sprintf($message,$paramaters);}return$message;}
-function hasMessage($messageKey){global$msg;return isset($msg[$messageKey]);}
-use htmlspecialchars as escape;
-define('ALLOWED_PROFPIC_EXTENSIONS'				,'jpg,jpeg,png');
-define('ALLOWED_EXTENSIONS'						,'jpg,jpeg,gif,png');
-define('CACHE_FOLDER'							,$_SERVER['DOCUMENT_ROOT'].'/cache/templates');
-define('CLUBPICTURE_UPLOAD_DIR'					,$_SERVER['DOCUMENT_ROOT'].'/uploads/club');
-define('CONFIGCACHE_FILE_FRONTEND'				,$_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigfront.inc.php');
-define('CONFIGCACHE_FILE_ADMIN'					,$_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');
-define('CONFIGCACHE_MESSAGES'					,$_SERVER['DOCUMENT_ROOT'].'/cache/messages_%s.inc.php');
-define('CONFIGCACHE_ADMINMESSAGES'				,$_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_%s.inc.php');
-define('CONFIGCACHE_ENTITYMESSAGES'				,$_SERVER['DOCUMENT_ROOT'].'/cache/entitymessages_%s.inc.php');
-define('CONFIGCACHE_SETTINGS'					,$_SERVER['DOCUMENT_ROOT'].'/cache/settingsconfig.inc.php');
-define('CONFIGCACHE_EVENTS'						,$_SERVER['DOCUMENT_ROOT'].'/cache/eventsconfig.inc.php');
-define('COOKIE_PREFIX'							,'owsPro');
-define('DEBUG'									,TRUE);
-define('DEFAULT_PAGE_ID'						,'home');
-define('DEFAULT_PLAYER_AGE'						,20);
-define('DEFAULT_YOUTH_OFFENSIVE'				,60);
-define('DOUBLE_SUBMIT_CHECK_SECONDS'			,3);
-define('DOUBLE_SUBMIT_CHECK_SESSIONKEY_TIME'	,'laction_time');
-define('DOUBLE_SUBMIT_CHECK_SESSIONKEY_ACTIONID','laction_id');
-define('DUMMY_TEAM_ID'							,-1);
-define('ENTERUSERNAME_PAGE_ID'					,'enter-username');
-define('ENVIRONMENT_GLOBAL_NAME'				,'env');
-define('FILE_CITYNAMES'							,$_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/cities.txt');
-define('FILE_PREFIXNAMES'						,$_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/clubprefix.txt');
-define('FILE_SUFFIXNAMES'						,$_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/clubsuffix.txt');
-define('FILE_FIRSTNAMES'						,$_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/firstnames.txt');
-define('FILE_LASTNAMES'							,$_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/lastnames.txt');
-define('FOLDER_MODULE'							,$_SERVER['DOCUMENT_ROOT'].'/module');
-define('GLOBAL_CONFIG_FILE'						,$_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');
-define('I18N_GLOBAL_NAME'						,'i18n');
-define('IMPRINT_FILE'							,$_SERVER['DOCUMENT_ROOT'].'/generated/imprint.php');
-define('INACTIVITY_PER_DAY_LOGIN'				,0.45);
-define('INACTIVITY_PER_DAY_TRANSFERS'			,0.1);
-define('INACTIVITY_PER_DAY_TACTICS'				,0.2);
-define('INACTIVITY_PER_CONTRACTEXTENSION'		,5);
-define('JOBS_CONFIG_FILE'						,$_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');
-define('LANG_SESSION_PARAM'						,'lang');
-define('LOG_TYPE_DELETE'						,'delete');
-define('LOG_TYPE_EDIT'							,'edit');
-define('LOGIN_PAGE_ID'							,'login');
-define('MARK_IMPROVE_GOAL_SCORER'				,1);
-define('MARK_IMPROVE_GOAL_PASSPLAYER'			,0.75);
-define('MARK_DOWNGRADE_GOAL_GOALY'				,0.5);
-define('MARK_DOWNGRADE_SHOOTFAILURE'			,0.5);
-define('MARK_IMPROVE_SHOOTFAILURE_GOALY'		,0.5);
-define('MARK_IMPROVE_TACKLE_WINNER'				,0.25);
-define('MARK_DOWNGRADE_TACKLE_LOOSER'			,0.5);
-define('MARK_DOWNGRADE_BALLPASS_FAILURE'		,0.25);
-define('MARK_IMPROVE_BALLPASS_SUCCESS'			,0.1);
-define('MAX_ITEMS'								,20);
-define('MAX_STRENGTH'							,100);
-define('MESSAGE_TYPE_INFO'						,'info');
-define('MESSAGE_TYPE_WARNING'					,'warning');
-define('MESSAGE_TYPE_SUCCESS'					,'success');
-define('MESSAGE_TYPE_ERROR'						,'error');
-define('MIN_NUMBER_OF_PLAYERS'					,9);
-define('MINIMUM_SATISFACTION_FOR_EXTENSION'		,30);
-define('MODULE_CONFIG_FILENAME'					,'module.xml');
-define('MSG_KEY_ERROR_PAGENOTFOUND'				,'error_page_not_found');
-define('NAMES_DIRECTORY'						,$_SERVER['DOCUMENT_ROOT'].'/module/admin/config/names');
-define('NEWS_ENTRIES_PER_PAGE'					,5);
-define('NEWS_TEASER_MAXLENGTH'					,256);
-define('NOTIFICATION_TYPE'						,'transferoffer');
-define('NOTIFICATION_TARGETPAGE'				,'transferoffers');
-define('NUMBER_OF_PLAYERS'						,20);
-define('NUMBER_OF_TOP_NEWS'						,5);
-define('OVERVIEW_SITE_SUFFIX'					,'_overview');
-define('PAGE_NAV_LABEL_SUFFIX'					,'_navlabel');
-define('PARAM_ACTION'							,'action');
-define('PARAM_BLOCK'							,'block');
-define('PARAM_PAGE'								,'page');
-define('PARAM_PAGENUMBER'						,'pageno');
-define('PARAM_SORTCOLUMN'						,'sortcolumn');
-define('PARAM_SORTDIRECTION'					,'sortdir');
-define('PARAM_RESETSORT'						,'resetsort');
-define('UPLOAD_FOLDER'							,$_SERVER['DOCUMENT_ROOT'].'/uploads/');
-define('PROFPIC_UPLOADFOLDER'					,UPLOAD_FOLDER.'users');
-define('PLAYER_POSITION_GOALY'					,'Torwart');
-define('PLAYER_POSITION_DEFENCE'				,'Abwehr');
-define('PLAYER_POSITION_MIDFIELD'				,'Mittelfeld');
-define('PLAYER_POSITION_STRIKER'				,'Sturm');
-define('POINTS_WIN'								,3);
-define('POINTS_DRAW'							,1);
-define('POINTS_LOSS'							,0);
-define('REMEMBERME_COOKIE_LIFETIME_DAYS'		,30);
-define('ROLE_GUEST'								,'guest');
-define('ROLE_USER'								,'user');
-define('ROLE_ADMIN'								,'admin');
-define('SATISFACTION_DECREASE'					,10);
-define('SATISFACTION_INCREASE'					,10);
-define('SESSION_PARAM_USERID'					,'frontuserid');
-define('SKIN_GLOBAL_NAME'						,'skin');
-define('SLEEP_SECONDS_ON_FAILURE'				,5);
-define('SUB_CONDITION_TIE'						,'Tie');
-define('SUB_CONDITION_LEADING'					,'Leading');
-define('SUB_CONDITION_DEFICIT'					,'Deficit');
-define('TEMPLATE_MODUL_FOLDER'					,$_SERVER['DOCUMENT_ROOT'].'/module');
-define('TEMPLATE_SUBDIR_DEFAULT'				,'default');
-define('TEMPLATES_FOLDER'						,$_SERVER['DOCUMENT_ROOT'].'/templates');
-define('USER_STATUS_ENABLED'					,1);
-define('USER_STATUS_UNCONFIRMED'				,2);
-define('VIEWHANDLER_GLOBAL_NAME'				,'viewHandler');
-define('YOUTH_MATCH_TYPE'						,'Youth');
-define('YOUTH_STRENGTH_STAMINA'					,100);
-define('YOUTH_STRENGTH_FRESHNESS'				,100);
-define('YOUTH_STRENGTH_SATISFACTION'			,100);
-function owsProVersion(){return'owsPro 8.2.8.23.07.13';}
-if(!function_exists('mb_strlen')){function mb_strlen($str=''){preg_match_all("/./u",$str,$char);return sizeof($char[0]);}}
-if(!function_exists('mb_substr')){function mb_substr($maxstr,$length,$str=""){if(!is_numeric($maxstr))$strsize=0;if(!is_numeric($length)&&$length!=NULL)$length=0;preg_match_all("/./u",$str,$char);if($length==NULL)$length=sizeof($char[0]);
-	else{if($length<0)$length=sizeof($char[0])+$length;else$length=$maxstr+$length;}for($i=$maxstr;$i<$length;++$i)$result.=$char[0][$i];return$result;}}
-if(!function_exists('mb_strtolower')){function mb_strtolower($string){return strtolower($string);}}
-if(version_compare('5.5.0',phpversion(),'>=')){try{throw new Exception();}catch(Exception $e){echo' Minimum requirements: PHP 5.5';}exit;}
-if(!file_exists($_SERVER['DOCUMENT_ROOT'].'/cache')){mkdir($_SERVER['DOCUMENT_ROOT'].'/cache',0777,true);}
+	@include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');
+			function Config($name){global$conf;if(!isset($conf[$name]))throw new Exception('Missing configuration: '.$name);return$conf[$name];}
+			function Message($messageKey,$paramaters=NULL){global$msg;if(!hasMessage($messageKey)){return'???'.$messageKey.'???';}$message=stripslashes($msg[$messageKey]);if($paramaters!=NULL){$message=sprintf($message,$paramaters);}return$message;}
+			function hasMessage($messageKey){global$msg;return isset($msg[$messageKey]);}
+			function owsProVersion(){return'owsPro 8.2.8.23.07.13';}
+			if(!function_exists('mb_strlen')){function mb_strlen($str=''){preg_match_all("/./u",$str,$char);return sizeof($char[0]);}}
+			if(!function_exists('mb_substr')){function mb_substr($maxstr,$length,$str=""){if(!is_numeric($maxstr))$strsize=0;if(!is_numeric($length)&&$length!=NULL)$length=0;preg_match_all("/./u",$str,$char);if($length==NULL)$length=sizeof($char[0]);
+			else{if($length<0)$length=sizeof($char[0])+$length;else$length=$maxstr+$length;}for($i=$maxstr;$i<$length;++$i)$result.=$char[0][$i];return$result;}}
+			if(!function_exists('mb_strtolower')){function mb_strtolower($string){return strtolower($string);}}
+			if(version_compare('5.5.0',phpversion(),'>=')){try{throw new Exception();}catch(Exception $e){echo' Minimum requirements: PHP 5.5';}exit;}
+			if(!file_exists($_SERVER['DOCUMENT_ROOT'].'/cache')){mkdir($_SERVER['DOCUMENT_ROOT'].'/cache',0777,true);}
 class LoginCheck{
-	function __construct($portable_hashes){$db=DbConnection::getInstance();$this->_db=$db;$this->itoa64='./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';$this->portable_hashes=$portable_hashes;$this->random_state=microtime();
-		if(function_exists('getmypid'))$this->random_state.=getmypid();}
-	function encode64($input,$count){$output='';$i=0;do{$value=ord($input[++$i]);$output.=$this->itoa64[$value&0x3f];if($i<$count)$value|=ord($input[$i])<<8;$output.=$this->itoa64[($value>>6)&0x3f];if(++$i>=$count)break;if($i<$count)$value|=ord($input[$i])<<16;
-		$output.=$this->itoa64[($value>>12)&0x3f];if(++$i>=$count)break;$output.=$this->itoa64[($value>>18)&0x3f];}while($i<$count);return$output;}
-	function crypt_private($password,$setting){$output='*0';if(substr($setting,0,2)===$output)$output='*1';$id=substr($setting,0,3);if($id!=='$P$'&&$id!=='$H$')return$output;$count_log2=strpos($this->itoa64,$setting[3]);if($count_log2<7||$count_log2>30)return$output;
-		$count=1<<$count_log2;$salt=substr($setting,4,8);if(strlen($salt)!==8)return$output;$hash=hash('sha256',$salt.$password,TRUE);do{$hash=hash('sha256',$hash.$password,TRUE);}while(--$count);$output=substr($setting,0,12);$output.=$this->encode64($hash,16);
-		return$output;}
-	function CheckPassword($password,$stored_hash){$hash=$this->crypt_private($password,$stored_hash);if($hash[0]==='*')$hash=crypt($password,$stored_hash);return$hash===$stored_hash;}}
-function BrowserLanguage($allowed_languages,$default_language,$lang_variable=null,$strict_mode=true){
-	if($lang_variable===null)$lang_variable=$_SERVER['HTTP_ACCEPT_LANGUAGE'];
-	if(empty($lang_variable))return$default_language;
-	$accepted_languages=preg_split('/,\s*/',$lang_variable);
-	$current_lang=$default_language;
-	$current_q=0;
-	foreach($accepted_languages as $accepted_language){
-		$res=preg_match ('/^([a-z]{1,8}(?:-[a-z]{1,8})*)(?:;\s*q=(0(?:\.[0-9]{1,3})?|1(?:\.0{1,3})?))?$/i',$accepted_language,$matches);
-		if(!$res)continue;
-		$lang_code=explode ('-',$matches[1]);
-		if(isset($matches[2]))    $lang_quality=(float)$matches[2];
-		else $lang_quality=1.0;
-		while(count($lang_code)){
-			if(in_array (strtolower (join ('-',$lang_code)),$allowed_languages)){
-				if($lang_quality>$current_q){
-					$current_lang=strtolower (join ('-',$lang_code));
-					$current_q=$lang_quality;
-					break;}}
-			if($strict_mode)break;
-			array_pop($lang_code);}}
-	return$current_lang;}
+	  		function __construct($portable_hashes){$db=DbConnection::getInstance();$this->_db=$db;$this->itoa64='./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';$this->portable_hashes=$portable_hashes;$this->random_state=microtime();
+							if(function_exists('getmypid'))$this->random_state.=getmypid();}
+			function encode64($input,$count){$output='';$i=0;do{$value=ord($input[++$i]);$output.=$this->itoa64[$value&0x3f];if($i<$count)$value|=ord($input[$i])<<8;$output.=$this->itoa64[($value>>6)&0x3f];if(++$i>=$count)break;if($i<$count)$value|=ord($input[$i])<<16;
+							$output.=$this->itoa64[($value>>12)&0x3f];if(++$i>=$count)break;$output.=$this->itoa64[($value>>18)&0x3f];}while($i<$count);return$output;}
+			function crypt_private($password,$setting){$output='*0';if(substr($setting,0,2)===$output)$output='*1';$id=substr($setting,0,3);if($id!=='$P$'&&$id!=='$H$')return$output;$count_log2=strpos($this->itoa64,$setting[3]);if($count_log2<7||$count_log2>30)
+							return$output;$count=1<<$count_log2;$salt=substr($setting,4,8);if(strlen($salt)!==8)return$output;$hash=hash('sha256',$salt.$password,TRUE);do{$hash=hash('sha256',$hash.$password,TRUE);}while(--$count);$output=substr($setting,0,12);
+							$output.=$this->encode64($hash,16);return$output;}
+			function CheckPassword($password,$stored_hash){$hash=$this->crypt_private($password,$stored_hash);if($hash[0]==='*')$hash=crypt($password,$stored_hash);return$hash===$stored_hash;}}
+			function BrowserLanguage($allowed_languages,$default_language,$lang_variable=null,$strict_mode=true){if($lang_variable===null)$lang_variable=$_SERVER['HTTP_ACCEPT_LANGUAGE'];if(empty($lang_variable))return$default_language;$accepted_languages=
+							preg_split('/,\s*/',$lang_variable);$current_lang=$default_language;$current_q=0;foreach($accepted_languages as$accepted_language){$res=preg_match('/^([a-z]{1,8}(?:-[a-z]{1,8})*)(?:;\s*q=(0(?:\.[0-9]{1,3})?|1(?:\.0{1,3})?))?$/i',
+							$accepted_language,$matches);if(!$res)continue;$lang_code=explode('-',$matches[1]);if(isset($matches[2]))$lang_quality=(float)$matches[2];else$lang_quality=1.0;while(count($lang_code)){if(in_array(strtolower(join('-',$lang_code))
+							,$allowed_languages)){if($lang_quality>$current_q){$current_lang=strtolower(join('-',$lang_code));$current_q=$lang_quality;break;}}if($strict_mode)break;array_pop($lang_code);}}return$current_lang;}
 class JoomlaUserLoginMethod extends LoginCheck{
-	function authenticateWithEmail($email,$password){ return$this->_authenticate('LOWER(email)=\'%s\'', strtolower($email),$password);}
-	function authenticateWithUsername($nick,$password){ return$this->_authenticate('username=\'%s\'',$nick,$password);}
-	function _authenticate( $queryWhereCondition,$loginStr,$password){
-		$result=$this->_db->querySelect('username, email, password',Config('joomlalogin_tableprefix').'users','activation=0 AND '.$queryWhereCondition,$loginStr);
-		$wpUser=$result->fetch_array();
-		if(!$wpUser)return FALSE;
-		self::CheckPassword($password,$wpUser['password']);
-		$userEmail=strtolower($wpUser['email']);
-		$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
-		if($userId>0)return$userId;
-		return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['users'],$userEmail);}}
-//+ owsPro - Adaptation to the new Wordpress login method as with Joomla
+			function authenticateWithEmail($email,$password){return$this->_authenticate('LOWER(email)=\'%s\'',strtolower($email),$password);}
+			function authenticateWithUsername($nick,$password){return$this->_authenticate('username=\'%s\'',$nick,$password);}
+			function _authenticate($queryWhereCondition,$loginStr,$password){$result=$this->_db->querySelect('username,email,password',Config('joomlalogin_tableprefix').'users','activation=0 AND '.$queryWhereCondition,$loginStr);$wpUser=$result->fetch_array();
+							if(!$wpUser)return FALSE;self::CheckPassword($password,$wpUser['password']);$userEmail=strtolower($wpUser['email']);$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);if($userId>0)return$userId;
+							return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['users'],$userEmail);}}
 class WordpressUserLoginMethod extends LoginCheck{
-	function authenticateWithEmail($email,$password){ return$this->_authenticate('LOWER(user_email)=\'%s\'', strtolower($email),$password);}
-	function authenticateWithUsername($nick,$password){ return$this->_authenticate('user_login=\'%s\'',$nick,$password);}
-	function _authenticate($queryWhereCondition,$loginStr,$password){
-		$result=$this->_db->querySelect('user_login,user_email, user_pass',Config('wordpresslogin_tableprefix').'users','user_status=0 AND '.$queryWhereCondition,$loginStr);
-		$wpUser=$result->fetch_array();
-		if(!$wpUser)return FALSE;
-		self::CheckPassword($password,$wpUser['user_pass']);
-		$userEmail=strtolower($wpUser['user_email']);
-		$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
-		if($userId>0)return$userId;
-		return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['user_login'],$userEmail);}}
-class WebSoccer{
-	private static$_instance;
-	private $_skin,$_pageId,$_templateEngine,$_frontMessages,$_user,$_contextParameters;
-	static function getInstance(){if(self::$_instance==NULL)self::$_instance=new WebSoccer();return self::$_instance;}
-    function getUser(){if($this->_user==null)$this->_user=new User();return$this->_user;}
-	function getConfig($name){return Config($name);}
-	function getAction($id){global$action;if(!isset($action[$id]))throw new Exception('Action not found: '.$id);return$action[$id];}
-	function getSkin(){if($this->_skin==NULL){$skinName=Config('skin');if(class_exists($skinName))$this->_skin=new$skinName($this);else throw new Exception('Configured skin \''.$skinName.'\' does not exist. Check the system settings.');}return$this->_skin;}
-	function getPageId(){return$this->_pageId;}
-	function setPageId($pageId){$this->_pageId=$pageId;}
-	function getTemplateEngine($i18n,ViewHandler$viewHandler=null){if($this->_templateEngine==NULL)$this->_templateEngine=new TemplateEngine($this,$i18n,$viewHandler);return$this->_templateEngine;}
-	function getRequestParameter($name){if(isset($_REQUEST[$name])){$value=trim($_REQUEST[$name]);if(strlen($value))return$value;}return NULL;}
-	function getInternalUrl($pageId=null,$queryString='',$fullUrl=FALSE){if($pageId==null)$pageId=$this->getPageId();if(strlen((string)$queryString))$queryString='&'.$queryString;if($fullUrl){$url=Config('homepage').Config('context_root');
-				if($pageId!='home'||strlen((string)$queryString))$url.='/?page='.$pageId.$queryString;}else$url=Config('context_root').'/?page='.$pageId.$queryString;return$url;}
-	function getInternalActionUrl($actionId,$queryString='',$pageId=null,$fullUrl=FALSE){if($pageId==null)$pageId=$this->getRequestParameter('page');if(strlen($queryString))$queryString='&'.$queryString;$url=Config('context_root').'/?page='.$pageId.$queryString.'&action='.$actionId;
-				if($fullUrl)$url=Config('homepage').$url;return$url;}
-	function getFormattedDate($timestamp=null){if($timestamp==null)$timestamp=$this->getNowAsTimestamp();return date(Config('date_format'),$timestamp);}
-	function getFormattedDatetime($timestamp,$i18n=null){if($timestamp==null)$timestamp=$this->getNowAsTimestamp();if($i18n!=null){$dateWord=StringUtil::convertTimestampToWord($timestamp,$this->getNowAsTimestamp(),$i18n);
-				if(strlen($dateWord))return$dateWord.', '.date(Config('time_format'),$timestamp);}return date(Config('datetime_format'),$timestamp);}
-	function getNowAsTimestamp(){return time()+Config('time_offset');}
-	function resetConfigCache(){$i18n=I18n::getInstance(Config('supported_languages'));$cacheBuilder=new ConfigCacheFileWriter($i18n->getSupportedLanguages());$cacheBuilder->buildConfigCache();}
-	function addFrontMessage(FrontMessage $message){$this->_frontMessages[]=$message;}
-	function getFrontMessages(){if($this->_frontMessages==null)$this->_frontMessages=[];return$this->_frontMessages;}
-	function getContextParameters(){if($this->_contextParameters==null)$this->_contextParameters=[];return$this->_contextParameters;}
-	function addContextParameter($name,$value){if($this->_contextParameters==null)$this->_contextParameters=[];$this->_contextParameters[$name]=$value;}}
-class AccessDeniedException extends Exception {function __construct($message,$code=0){parent::__construct($message,$code);}}
-class ActionHandler {
-	static function handleAction($website,$db,$i18n,$actionId){
-		if($actionId==NULL)return;
-		if(isset($_SESSION[DOUBLE_SUBMIT_CHECK_SESSIONKEY_ACTIONID])&& $_SESSION[DOUBLE_SUBMIT_CHECK_SESSIONKEY_ACTIONID]==$actionId && isset($_SESSION[DOUBLE_SUBMIT_CHECK_SESSIONKEY_TIME])
-			&&($_SESSION[DOUBLE_SUBMIT_CHECK_SESSIONKEY_TIME] + DOUBLE_SUBMIT_CHECK_SECONDS)>$website->getNowAsTimestamp()){
-			throw new Exception(Message('error_double_submit'));}
-		$actionConfig=json_decode($website->getAction($actionId), true);
-		$actionXml=ModuleConfigHelper::findModuleConfigAsXmlObject($actionConfig['module']);
-		$user=$website->getUser();
-		if(strpos($actionConfig['role'],'admin')!==false){
-			if(!$user->isAdmin())throw new AccessDeniedException(Message('error_access_denied'));}
-		else{
-			$requiredRoles=explode(',',$actionConfig['role']);
-			if(!in_array($user->getRole(),$requiredRoles))throw new AccessDeniedException(Message('error_access_denied'));}
-		$params=$actionXml->xpath('//action[@id="'.$actionId.'"]/param');
-		$validatedParams=[];
-		if($params)$validatedParams=self::_validateParameters($params,$website,$i18n);
-		$controllerName=$actionConfig['controller'];
-		if(isset($actionConfig['premiumBalanceMin'])&& $actionConfig['premiumBalanceMin'])return self::_handlePremiumAction($website,$db,$i18n,$actionId,$actionConfig['premiumBalanceMin'],$validatedParams,$controllerName);
-		$actionReturn=self::_executeAction($website,$db,$i18n,$actionId,$controllerName,$validatedParams);
-		if(isset($actionConfig['log'])&& $actionConfig['log'] && $website->getUser()->id)ActionLogDataService::createOrUpdateActionLog($website,$db,$website->getUser()->id,$actionId);
-		return$actionReturn;}
-	static function _validateParameters($params,$website,$i18n){
-		$errorMessages=[];
-		$validatedParams=[];
-		foreach($params as $param){
-			$paramId=(string)$param->attributes()->id;
-			$type=(string)$param->attributes()->type;
-			$required=($param->attributes()->required=='true');
-			$min=(int)$param->attributes()->min;
-			$max=(int)$param->attributes()->max;
-			$validatorName=(string)$param->attributes()->validator;
-			$paramValue=$website->getRequestParameter($paramId);
-			if($type=='boolean')$paramValue=($paramValue)? '1' : '0';
-			if($required && $paramValue==null)$errorMessages[$paramId]=Message('validation_error_required');
-			elseif($paramValue!=null){
-				if($type=='text' && $min>0 && strlen($paramValue)< $min)$errorMessages[$paramId]=sprintf(Message('validation_error_min_length'),$min);
-				elseif($type=='text' && $max>0 && strlen($paramValue)>$max)$errorMessages[$paramId]=sprintf(Message('validation_error_max_length'),$max);
-				elseif($type=='number' &&!is_numeric($paramValue))$errorMessages[$paramId]=Message('validation_error_not_a_number');
-				elseif($type=='number' && $paramValue<$min)$errorMessages[$paramId]=Message('validation_error_min_number',$min);
-				elseif($type=='number' && $max>0 && $paramValue>$max)$errorMessages[$paramId]=Message('validation_error_max_number',$max);
-				elseif($type=='url' &&!filter_var($paramValue, FILTER_VALIDATE_URL))$errorMessages[$paramId]=Message('validation_error_not_a_url');
-				elseif($type=='date'){
-					$format=Config('date_format');
-					if(!DateTime::createFromFormat($format,$paramValue))$errorMessages[$paramId]=Message('validation_error_invaliddate',$format);}
-				if(strlen($validatorName)){
-					if(!class_exists($validatorName))throw new Exception('Validator not found: '.$validatorName);
-					$validator=new $validatorName($i18n,$website,$paramValue);
-					if(!$validator->isValid())$errorMessages[$paramId]=$validator->getMessage();}}
-			if(!isset($errorMessages[$paramId]))$validatedParams[$paramId]=$paramValue;}
-		if(count($errorMessages))throw new ValidationException($errorMessages);
-		return$validatedParams;}
-	static function _executeAction($website,$db,$i18n,$actionId,$controllerName,$validatedParams){
-		if(!class_exists($controllerName))throw new Exception('Controller not found: '.$controllerName);
-		$_SESSION[DOUBLE_SUBMIT_CHECK_SESSIONKEY_ACTIONID]=$actionId;
-		$_SESSION[DOUBLE_SUBMIT_CHECK_SESSIONKEY_TIME]=$website->getNowAsTimestamp();
-		$controller=new $controllerName($i18n,$website,$db);
-		return$controller->executeAction($validatedParams);}
-	static function _handlePremiumAction($website,$db,$i18n,$actionId,$creditsRequired,$validatedParams,$controllerName){
-		if($creditsRequired>$website->getUser()->premiumBalance){
-			$targetPage=Config('premium_infopage');
-			if(filter_var($targetPage, FILTER_VALIDATE_URL)){
-				header('location: '.$targetPage);
-				exit;}
-			else{
-				$website->addContextParameter('premium_balance_required',$creditsRequired);
-				return$targetPage;}}
-		if($website->getRequestParameter('premiumconfirmed')){
-			PremiumDataService::debitAmount($website,$db,$website->getUser()->id,$creditsRequired,$actionId);
-			return self::_executeAction($website,$db,$i18n,$actionId,$controllerName,$validatedParams);}
-		$website->addContextParameter('premium_balance_required',$creditsRequired);
-		$website->addContextParameter('actionparameters',$validatedParams);
-		$website->addContextParameter('actionid',$actionId);
-		$website->addContextParameter('srcpage',$website->getPageId());
-		return 'premium-confirm-action';}}
+			function authenticateWithEmail($email,$password){ return$this->_authenticate('LOWER(user_email)=\'%s\'',strtolower($email),$password);}
+			function authenticateWithUsername($nick,$password){ return$this->_authenticate('user_login=\'%s\'',$nick,$password);}
+			function _authenticate($queryWhereCondition,$loginStr,$password){$result=$this->_db->querySelect('user_login,user_email,user_pass',Config('wordpresslogin_tableprefix').'users','user_status=0 AND '.$queryWhereCondition,$loginStr);
+							$wpUser=$result->fetch_array();if(!$wpUser)return FALSE;self::CheckPassword($password,$wpUser['user_pass']);$userEmail=strtolower($wpUser['user_email']);$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
+							if($userId>0)return$userId;return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['user_login'],$userEmail);}}
+class WebSoccer{private static$_instance;private $_skin,$_pageId,$_templateEngine,$_frontMessages,$_user,$_contextParameters;
+			static function getInstance(){if(self::$_instance==NULL)self::$_instance=new WebSoccer();return self::$_instance;}
+    		function getUser(){if($this->_user==null)$this->_user=new User();return$this->_user;}
+			function getConfig($name){return Config($name);}
+			function getAction($id){global$action;if(!isset($action[$id]))throw new Exception('Action not found: '.$id);return$action[$id];}
+			function getSkin(){if($this->_skin==NULL){$skinName=Config('skin');if(class_exists($skinName))$this->_skin=new$skinName($this);else throw new Exception('Configured skin \''.$skinName.'\' does not exist. Check the system settings.');}return$this->_skin;}
+			function getPageId(){return$this->_pageId;}
+			function setPageId($pageId){$this->_pageId=$pageId;}
+			function getTemplateEngine($i18n,ViewHandler$viewHandler=null){if($this->_templateEngine==NULL)$this->_templateEngine=new TemplateEngine($this,$i18n,$viewHandler);return$this->_templateEngine;}
+			function getRequestParameter($name){if(isset($_REQUEST[$name])){$value=trim($_REQUEST[$name]);if(strlen($value))return$value;}return NULL;}
+			function getInternalUrl($pageId=null,$queryString='',$fullUrl=FALSE){if($pageId==null)$pageId=$this->getPageId();if(strlen((string)$queryString))$queryString='&'.$queryString;if($fullUrl){$url=Config('homepage').Config('context_root');
+							if($pageId!='home'||strlen((string)$queryString))$url.='/?page='.$pageId.$queryString;}else$url=Config('context_root').'/?page='.$pageId.$queryString;return$url;}
+			function getInternalActionUrl($actionId,$queryString='',$pageId=null,$fullUrl=FALSE){if($pageId==null)$pageId=$this->getRequestParameter('page');if(strlen($queryString))$queryString='&'.$queryString;$url=Config('context_root').'/?page='.$pageId.$queryString
+							.'&action='.$actionId;if($fullUrl)$url=Config('homepage').$url;return$url;}
+			function getFormattedDate($timestamp=null){if($timestamp==null)$timestamp=$this->getNowAsTimestamp();return date(Config('date_format'),$timestamp);}
+			function getFormattedDatetime($timestamp,$i18n=null){if($timestamp==null)$timestamp=$this->getNowAsTimestamp();if($i18n!=null){$dateWord=StringUtil::convertTimestampToWord($timestamp,$this->getNowAsTimestamp(),$i18n);if(strlen($dateWord))
+							return$dateWord.', '.date(Config('time_format'),$timestamp);}return date(Config('datetime_format'),$timestamp);}
+			function getNowAsTimestamp(){return time()+Config('time_offset');}
+			function resetConfigCache(){$i18n=I18n::getInstance(Config('supported_languages'));$cacheBuilder=new ConfigCacheFileWriter($i18n->getSupportedLanguages());$cacheBuilder->buildConfigCache();}
+			function addFrontMessage(FrontMessage $message){$this->_frontMessages[]=$message;}
+			function getFrontMessages(){if($this->_frontMessages==null)$this->_frontMessages=[];return$this->_frontMessages;}
+			function getContextParameters(){if($this->_contextParameters==null)$this->_contextParameters=[];return$this->_contextParameters;}
+			function addContextParameter($name,$value){if($this->_contextParameters==null)$this->_contextParameters=[];$this->_contextParameters[$name]=$value;}}
+class AccessDeniedException extends Exception{function __construct($message,$code=0){parent::__construct($message,$code);}}
+class ActionHandler{
+	 static function handleAction($website,$db,$i18n,$actionId){if($actionId==NULL)return;if(isset($_SESSION['laction_id'])&&$_SESSION['laction_id']==$actionId&&isset($_SESSION['laction_time'])&&($_SESSION['laction_time']+config('DOUBLE_SUBMIT_CHECK_SECONDS'))>
+							$website->getNowAsTimestamp()){throw new Exception(Message('error_double_submit'));}$actionConfig=json_decode($website->getAction($actionId),true);$actionXml=ModuleConfigHelper::findModuleConfigAsXmlObject($actionConfig['module']);
+							$user=$website->getUser();if(strpos($actionConfig['role'],'admin')!==false){if(!$user->isAdmin())throw new AccessDeniedException(Message('error_access_denied'));}else{$requiredRoles=explode(',',$actionConfig['role']);
+							if(!in_array($user->getRole(),$requiredRoles))throw new AccessDeniedException(Message('error_access_denied'));}$params=$actionXml->xpath('//action[@id="'.$actionId.'"]/param');$validatedParams=[];
+							if($params)$validatedParams=self::_validateParameters($params,$website,$i18n);$controllerName=$actionConfig['controller'];if(isset($actionConfig['premiumBalanceMin'])&& $actionConfig['premiumBalanceMin'])return
+							self::_handlePremiumAction($website,$db,$i18n,$actionId,$actionConfig['premiumBalanceMin'],$validatedParams,$controllerName);$actionReturn=self::_executeAction($website,$db,$i18n,$actionId,$controllerName,$validatedParams);
+							if(isset($actionConfig['log'])&& $actionConfig['log'] && $website->getUser()->id)ActionLogDataService::createOrUpdateActionLog($website,$db,$website->getUser()->id,$actionId);return$actionReturn;}
+	 static function _validateParameters($params,$website,$i18n){$errorMessages=[];$validatedParams=[];foreach($params as$param){$paramId=(string)$param->attributes()->id;$type=(string)$param->attributes()->type;$required=($param->attributes()->required=='true');
+							$min=(int)$param->attributes()->min;$max=(int)$param->attributes()->max;$validatorName=(string)$param->attributes()->validator;$paramValue=$website->getRequestParameter($paramId);if($type=='boolean')$paramValue=($paramValue)?'1':'0';
+							if($required&&$paramValue==null)$errorMessages[$paramId]=Message('validation_error_required');elseif($paramValue!=null){if($type=='text'&&$min>0&&strlen($paramValue)<$min)$errorMessages[$paramId]=
+							sprintf(Message('validation_error_min_length'),$min);elseif($type=='text'&&$max>0&&strlen($paramValue)>$max)$errorMessages[$paramId]=sprintf(Message('validation_error_max_length'),$max);elseif($type=='number'&&!is_numeric($paramValue))
+							$errorMessages[$paramId]=Message('validation_error_not_a_number');elseif($type=='number'&&$paramValue<$min)$errorMessages[$paramId]=Message('validation_error_min_number',$min);elseif($type=='number'&&$max>0&&$paramValue>$max)
+							$errorMessages[$paramId]=Message('validation_error_max_number',$max);elseif($type=='url'&&!filter_var($paramValue,FILTER_VALIDATE_URL))$errorMessages[$paramId]=Message('validation_error_not_a_url');elseif($type=='date'){
+							$format=Config('date_format');if(!DateTime::createFromFormat($format,$paramValue))$errorMessages[$paramId]=Message('validation_error_invaliddate',$format);}if(strlen($validatorName)){if(!class_exists($validatorName))
+							throw new Exception('Validator not found: '.$validatorName);$validator=new $validatorName($i18n,$website,$paramValue);if(!$validator->isValid())$errorMessages[$paramId]=$validator->getMessage();}}if(!isset($errorMessages[$paramId]))
+							$validatedParams[$paramId]=$paramValue;}if(count($errorMessages))throw new ValidationException($errorMessages);return$validatedParams;}
+	 static function _executeAction($website,$db,$i18n,$actionId,$controllerName,$validatedParams){if(!class_exists($controllerName))throw new Exception('Controller not found: '.$controllerName);$_SESSION['laction_id']=$actionId;$_SESSION['laction_time']=
+	 						$website->getNowAsTimestamp();$controller=new $controllerName($i18n,$website,$db);return$controller->executeAction($validatedParams);}
+	 static function _handlePremiumAction($website,$db,$i18n,$actionId,$creditsRequired,$validatedParams,$controllerName){if($creditsRequired>$website->getUser()->premiumBalance){$targetPage=Config('premium_infopage');if(filter_var($targetPage,FILTER_VALIDATE_URL)){
+							header('location: '.$targetPage);exit;}else{$website->addContextParameter('premium_balance_required',$creditsRequired);return$targetPage;}}if($website->getRequestParameter('premiumconfirmed')){PremiumDataService::debitAmount($website,$db,
+							$website->getUser()->id,$creditsRequired,$actionId);return self::_executeAction($website,$db,$i18n,$actionId,$controllerName,$validatedParams);}$website->addContextParameter('premium_balance_required',$creditsRequired);
+							$website->addContextParameter('actionparameters',$validatedParams);$website->addContextParameter('actionid',$actionId);$website->addContextParameter('srcpage',$website->getPageId());return'premium-confirm-action';}}
 class BreadcrumbBuilder {
 	static function getBreadcrumbItems($website,$i18n,$pages,$currentPageId){
 		if(!isset($pages[$currentPageId]))return;
@@ -327,7 +136,7 @@ class ConfigCacheFileWriter{
 		$this->_messagesFileWriters=[];
 		$this->_adminMessagesFileWriters=[];
 		$this->_entityMessagesFileWriters=[];
-		foreach($supportedLanguages as $language){
+		foreach($supportedLanguages as$language){
 			$this->_messagesFileWriters[$language]=new FileWriter(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/messages_%s.inc.php',$language));
 			$this->_adminMessagesFileWriters[$language]=new FileWriter(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_%s.inc.php',$language));
 			$this->_entityMessagesFileWriters[$language]=new FileWriter(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/entitymessages_%s.inc.php',$language));}}
@@ -336,7 +145,7 @@ class ConfigCacheFileWriter{
 		$this->_writeFileStart($this->_adminCacheFileWriter);
 		$this->_writeFileStart($this->_settingsCacheFileWriter);
 		$this->_writeFileStart($this->_eventsCacheFileWriter);
-		foreach($this->_supportedLanguages as $language){
+		foreach($this->_supportedLanguages as$language){
 			$this->_writeMsgFileStart($this->_messagesFileWriters[$language]);
 			$this->_writeMsgFileStart($this->_adminMessagesFileWriters[$language]);
 			$this->_writeMsgFileStart($this->_entityMessagesFileWriters[$language]);}
@@ -345,7 +154,7 @@ class ConfigCacheFileWriter{
 		$this->_writeFileEnd($this->_adminCacheFileWriter);
 		$this->_writeFileEnd($this->_settingsCacheFileWriter);
 		$this->_writeFileEnd($this->_eventsCacheFileWriter);
-		foreach($this->_supportedLanguages as $language){
+		foreach($this->_supportedLanguages as$language){
 			$this->_writeMsgFileEnd($this->_messagesFileWriters[$language]);
 			$this->_writeMsgFileEnd($this->_adminMessagesFileWriters[$language]);
 			$this->_writeMsgFileEnd($this->_entityMessagesFileWriters[$language]);}
@@ -366,10 +175,10 @@ class ConfigCacheFileWriter{
 		$this->_writeFileEnd($fileWriter);}
 	function _buildModulesConfig(){
 		$modules=scandir($_SERVER['DOCUMENT_ROOT'].'/modules');
-		foreach($modules as $module){
+		foreach($modules as$module){
 			if(is_dir($_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module)){
 				$files=scandir($_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module);
-				foreach($files as $file){
+				foreach($files as$file){
 					$pathToFile=$_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module.'/'.$file;
 					if($file=='module.xml')$this->_processModule($pathToFile,$module);
 					elseif(StringUtil::startsWith($file,'messages_'))$this->_processMessages($pathToFile,$this->_messagesFileWriters);
@@ -378,8 +187,6 @@ class ConfigCacheFileWriter{
 	function _processModule($file,$module){
 		$doc=new DOMDocument();
 		$loaded=@$doc->load($file,LIBXML_DTDLOAD|LIBXML_DTDVALID);
-		//- owsPro - Fatal error: Uncaught TypeError: Unsupported operand types: string + string
-		//- if(!$loaded)throw new Exception('Could not load XML config file: ' + $file);
 		if(!$loaded)throw new Exception('Could not load XML config file: '.$file);
 		$isValid=$doc->validate();
 		$this->_processItem($doc,'page',$this->_frontCacheFileWriter,$module);
@@ -390,7 +197,7 @@ class ConfigCacheFileWriter{
 		$this->_processItem($doc,'eventlistener',$this->_eventsCacheFileWriter,$module);}
 	function _processItem($doc,$itemName,$fileWriter,$module,$keyAttribute='id'){
 		$items=$doc->getElementsByTagName($itemName);
-		foreach($items as $item){
+		foreach($items as$item){
 			$line=$this->_buildConfigLine($itemName,$keyAttribute,$item,$module);
 			$fileWriter->writeLine($line);}}
 	function _buildConfigLine($itemname,$keyAttribute,$xml,$module){
@@ -401,14 +208,14 @@ class ConfigCacheFileWriter{
 		$itemAttrs=[];
 		if($xml->hasAttributes()){
 			$attrs=$xml->attributes;
-			foreach($attrs as $attr)$itemAttrs[$attr->name]=$attr->value;}
+			foreach($attrs as$attr)$itemAttrs[$attr->name]=$attr->value;}
 		$parent=$xml->parentNode;
 		if($parent->nodeName==$itemname)$itemAttrs['parentItem']=$parent->getAttribute($keyAttribute);
 		if($xml->hasChildNodes()){
 			$children=$xml->childNodes;
 			$childrenIds='';
 			$first=TRUE;
-			foreach($children as $child){
+			foreach($children as$child){
 				if($child->nodeName==$itemname){
 					if(!$first)$childrenIds.=',';
 					$childrenIds .= $child->getAttribute($keyAttribute);
@@ -416,7 +223,7 @@ class ConfigCacheFileWriter{
 				elseif($child->nodeName=='script'||$child->nodeName=='css'){
 					$childattrs=$child->attributes;
 					$resourceRef=[];
-					foreach($childattrs as $attr)$resourceRef[$attr->name]=$attr->value;
+					foreach($childattrs as$attr)$resourceRef[$attr->name]=$attr->value;
 					$itemAttrs[$child->nodeName.'s'][]=$resourceRef;}}
 			if(!$first)$itemAttrs['childrenIds']=$childrenIds;}
 		$itemAttrs['module']=$module;
@@ -436,19 +243,19 @@ class ConfigCacheFileWriter{
 		if(isset($fileWriters[$lang])){
 			$messages=$doc->getElementsByTagName('message');
 			$fileWriter=$fileWriters[$lang];
-			foreach($messages as $message){
+			foreach($messages as$message){
 				$line='\''.$message->getAttribute('id').'\'=>\''. addslashes($this->_getInnerHtml($message)).'\',';
 				$fileWriter->writeLine($line);}}}
 	function _getInnerHtml($node){
 		$innerHTML= '';
 		$children=$node->childNodes;
-		foreach($children as $child)$innerHTML .= $child->ownerDocument->saveXML($child);
+		foreach($children as$child)$innerHTML .= $child->ownerDocument->saveXML($child);
 		return$innerHTML;}
 	function __destruct(){
 		if($this->_frontCacheFileWriter){}
 		if($this->_adminCacheFileWriter){}
 		if($this->_settingsCacheFileWriter){}
-		foreach($this->_supportedLanguages as $language){
+		foreach($this->_supportedLanguages as$language){
 			if($this->_messagesFileWriters[$language]){}
 			if($this->_adminMessagesFileWriters[$language]){}
 			if($this->_entityMessagesFileWriters[$language]){}}}}
@@ -459,13 +266,13 @@ class ConfigFileWriter {
         if(self::$_instance==NULL)self::$_instance=new ConfigFileWriter($settings);
         return self::$_instance;}
     function saveSettings($newSettings){
-    	foreach($newSettings as $settingId=>$settingValue)$this->_settings[$settingId]=$settingValue;
+    	foreach($newSettings as$settingId=>$settingValue)$this->_settings[$settingId]=$settingValue;
     	$this->_writeToFile();}
     function _writeToFile(){
     	$content="<?php". PHP_EOL;
-    	foreach($this->_settings as $id=>$value)$content.="\$conf[\"".$id."\"]=\"". addslashes($value)."\";". PHP_EOL;
+    	foreach($this->_settings as$id=>$value)$content.="\$conf[\"".$id."\"]=\"". addslashes($value)."\";". PHP_EOL;
     	$content.="?>";
-    	$fw=new FileWriter(GLOBAL_CONFIG_FILE);
+    	$fw=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');
     	$fw->writeLine($content);
     	$fw->close();}
     function __construct($settings){ $this->_settings=$settings;}}
@@ -481,13 +288,13 @@ class ConverterFactory {
 class CookieHelper {
 	static function createCookie($name,$value,$lifetimeInDays=null){
 		$expiry=($lifetimeInDays!=null)? time()+ 86400*$lifetimeInDays : 0;
-		setcookie(COOKIE_PREFIX .$name,$value,$expiry);}
+		setcookie('owsPro'.$name,$value,$expiry,null,null,true,true);}
 	static function getCookieValue($name){
-		if(!isset($_COOKIE[COOKIE_PREFIX .$name]))return null;
-		return$_COOKIE[COOKIE_PREFIX .$name];}
+		if(!isset($_COOKIE['owsPro'.$name]))return null;
+		return$_COOKIE['owsPro'.$name];}
 	static function destroyCookie($name){
-		if(!isset($_COOKIE[COOKIE_PREFIX .$name]))return;
-		setcookie(COOKIE_PREFIX .$name, '', time()-86400);}}
+		if(!isset($_COOKIE['owsPro'.$name]))return;
+		setcookie('owsPro'.$name,'',time()-86400,null,null,true,true);}}
 class DataUpdateSimulatorObserver {
 	private $_teamsWithSoonEndingContracts;
 	function __construct($websoccer,$db){
@@ -498,10 +305,10 @@ class DataUpdateSimulatorObserver {
 		if((Config('sim_income_trough_friendly')|| $match->type !=='Freundschaft')&&!$match->isAtForeignStadium)SimulationAudienceCalculator::computeAndSaveAudience($this->_websoccer,$this->_db,$match);
 		$clubTable=Config('db_prefix').'_verein';
 		$updateColumns=[];
-		$result=$this->_db->querySelect('user_id',$clubTable, 'id=%d AND user_id>0',$match->homeTeam->id);
+		$result=$this->_db->querySelect('user_id',$clubTable,'id=%d AND user_id>0',$match->homeTeam->id);
 		$homeUser=$result->fetch_array();
 		if($homeUser)$updateColumns['home_user_id']=$homeUser['user_id'];
-		$result=$this->_db->querySelect('user_id',$clubTable, 'id=%d AND user_id>0',$match->guestTeam->id);
+		$result=$this->_db->querySelect('user_id',$clubTable,'id=%d AND user_id>0',$match->guestTeam->id);
 		$guestUser=$result->fetch_array();
 		if($guestUser)$updateColumns['gast_user_id']=$guestUser['user_id'];
 		if(count($updateColumns))$this->_db->queryUpdate($updateColumns,Config('db_prefix').'_spiel', 'id=%d',$match->id);}
@@ -514,8 +321,8 @@ class DataUpdateSimulatorObserver {
 			$isTie=$match->homeTeam->getGoals()==$match->guestTeam->getGoals();
 			$this->updatePlayers($match,$match->homeTeam,$match->homeTeam->getGoals()>$match->guestTeam->getGoals(),$isTie);
 			$this->updatePlayers($match,$match->guestTeam,$match->homeTeam->getGoals()< $match->guestTeam->getGoals(),$isTie);
-			if(!$match->homeTeam->isNationalTeam)$this->creditSponsorPayments($match->homeTeam, TRUE,$match->homeTeam->getGoals()>$match->guestTeam->getGoals());
-			if(!$match->guestTeam->isNationalTeam)$this->creditSponsorPayments($match->guestTeam, FALSE,$match->homeTeam->getGoals()< $match->guestTeam->getGoals());
+			if(!$match->homeTeam->isNationalTeam)$this->creditSponsorPayments($match->homeTeam,TRUE,$match->homeTeam->getGoals()>$match->guestTeam->getGoals());
+			if(!$match->guestTeam->isNationalTeam)$this->creditSponsorPayments($match->guestTeam,FALSE,$match->homeTeam->getGoals()< $match->guestTeam->getGoals());
 			if($match->type=='Ligaspiel')$this->updateTeams($match);
 			elseif(strlen($match->cupRoundGroup)){
 				$this->updateTeamsOfCupGroupMatch($match);
@@ -524,10 +331,10 @@ class DataUpdateSimulatorObserver {
 		$this->_db->queryDelete(Config('db_prefix').'_aufstellung', 'match_id=%d',$match->id);}
 	function updatePlayersOfFriendlymatch(SimulationTeam $team){
 		if(!count($team->positionsAndPlayers))return;
-		foreach($team->positionsAndPlayers as $position=>$players){
-			foreach($players as $player)$this->updatePlayerOfFriendlyMatch($player);}
+		foreach($team->positionsAndPlayers as$position=>$players){
+			foreach($players as$player)$this->updatePlayerOfFriendlyMatch($player);}
 		if(is_array($team->removedPlayers)&& count($team->removedPlayers)){
-			foreach($team->removedPlayers as $player)$this->updatePlayerOfFriendlyMatch($player);}}
+			foreach($team->removedPlayers as$player)$this->updatePlayerOfFriendlyMatch($player);}}
 	function updatePlayerOfFriendlyMatch(SimulationPlayer $player){
 		$columns=[];
 		if(Config('sim_tiredness_through_friendly')){
@@ -538,13 +345,13 @@ class DataUpdateSimulatorObserver {
 		if($player->injured>0 &&Config('sim_injured_after_friendly'))$columns['verletzt']=$player->injured;
 		if(count($columns)){
 			$fromTable=Config('db_prefix').'_spieler';
-			$this->_db->queryUpdate($columns,$fromTable, 'id=%d',$player->id);}}
-	function updatePlayers(SimulationMatch $match, SimulationTeam $team,$isTeamWinner,$isTie){
+			$this->_db->queryUpdate($columns,$fromTable,'id=%d',$player->id);}}
+	function updatePlayers(SimulationMatch $match,SimulationTeam $team,$isTeamWinner,$isTie){
 		$playersOnPitch=[];
-		foreach($team->positionsAndPlayers as $position=>$players){
-			foreach($players as $player)$playersOnPitch[$player->id]=$player;}
+		foreach($team->positionsAndPlayers as$position=>$players){
+			foreach($players as$player)$playersOnPitch[$player->id]=$player;}
 		if(is_array($team->removedPlayers)&& count($team->removedPlayers)){
-			foreach($team->removedPlayers as $player)$playersOnPitch[$player->id]=$player;}
+			foreach($team->removedPlayers as$player)$playersOnPitch[$player->id]=$player;}
 		$totalSalary=0;
 		$pcolumns='id,vorname,nachname,kunstname,verein_id,vertrag_spiele,vertrag_gehalt,vertrag_torpraemie,w_zufriedenheit,w_frische,verletzt,gesperrt,gesperrt_cups,gesperrt_nationalteam,lending_fee,lending_matches,lending_owner_id';
 		$fromTable=Config('db_prefix').'_spieler';
@@ -561,8 +368,8 @@ class DataUpdateSimulatorObserver {
 				if($player->getGoals())$totalSalary += $player->getGoals()* $playerinfo['vertrag_torpraemie'];}
 			else $this->updatePlayerWhoDidNotPlay($match,$team->isNationalTeam,$playerinfo);}
 		if(!$team->isNationalTeam)$this->deductSalary($team,$totalSalary);
-		foreach($playersOnPitch as $player)$this->updatePlayer($match,$player,$isTeamWinner,$isTie);}
-	function updatePlayer(SimulationMatch $match, SimulationPlayer $player,$isTeamWinner,$isTie){
+		foreach($playersOnPitch as$player)$this->updatePlayer($match,$player,$isTeamWinner,$isTie);}
+	function updatePlayer(SimulationMatch $match,SimulationPlayer $player,$isTeamWinner,$isTie){
 		$fromTable=Config('db_prefix').'_spieler';
 		$whereCondition='id=%d';
 		$parameters=$player->id;
@@ -633,7 +440,7 @@ class DataUpdateSimulatorObserver {
 		if(!$isNationalTeam && $playerinfo['lending_matches']>0)$this->handleBorrowedPlayer($columns,$playerinfo);
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);}
 	function deductSalary(SimulationTeam $team,$salary){
-		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$team->id,$salary, 'match_salarypayment_subject', 'match_salarypayment_sender');}
+		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$team->id,$salary,'match_salarypayment_subject','match_salarypayment_sender');}
 	function updateTeams(SimulationMatch $match){
 		$fromTable=Config('db_prefix').'_verein';
 		$whereCondition='id=%d';
@@ -657,42 +464,42 @@ class DataUpdateSimulatorObserver {
 		if($match->homeTeam->getGoals()>$match->guestTeam->getGoals()){
 			$homeColumns['sa_siege']=$home['sa_siege'] + 1;
 			$homeColumns['st_siege']=$home['st_siege'] + 1;
-			$homeColumns['sa_punkte']=$home['sa_punkte'] + POINTS_WIN;
-			$homeColumns['st_punkte']=$home['st_punkte'] + POINTS_WIN;
+			$homeColumns['sa_punkte']=$home['sa_punkte'] + config('POINTS_WIN');
+			$homeColumns['st_punkte']=$home['st_punkte'] + config('POINTS_WIN');
 			$guestColumns['sa_niederlagen']=$guest['sa_niederlagen'] + 1;
 			$guestColumns['st_niederlagen']=$guest['st_niederlagen'] + 1;
-			$guestColumns['sa_punkte']=$guest['sa_punkte'] + POINTS_LOSS;
-			$guestColumns['st_punkte']=$guest['st_punkte'] + POINTS_LOSS;}
+			$guestColumns['sa_punkte']=$guest['sa_punkte'] + config('POINTS_LOSS');
+			$guestColumns['st_punkte']=$guest['st_punkte'] + config('POINTS_LOSS');}
 		elseif($match->homeTeam->getGoals()==$match->guestTeam->getGoals()){
 			$homeColumns['sa_unentschieden']=$home['sa_unentschieden'] + 1;
 			$homeColumns['st_unentschieden']=$home['st_unentschieden'] + 1;
-			$homeColumns['sa_punkte']=$home['sa_punkte'] + POINTS_DRAW;
-			$homeColumns['st_punkte']=$home['st_punkte'] + POINTS_DRAW;
+			$homeColumns['sa_punkte']=$home['sa_punkte'] + config('POINTS_DRAW');
+			$homeColumns['st_punkte']=$home['st_punkte'] + config('POINTS_DRAW');
 			$guestColumns['sa_unentschieden']=$guest['sa_unentschieden'] + 1;
 			$guestColumns['st_unentschieden']=$guest['st_unentschieden'] + 1;
-			$guestColumns['sa_punkte']=$guest['sa_punkte'] + POINTS_DRAW;
-			$guestColumns['st_punkte']=$guest['st_punkte'] + POINTS_DRAW;}
+			$guestColumns['sa_punkte']=$guest['sa_punkte'] + config('POINTS_DRAW');
+			$guestColumns['st_punkte']=$guest['st_punkte'] + config('POINTS_DRAW');}
 		else{
 			$homeColumns['sa_niederlagen']=$home['sa_niederlagen'] + 1;
 			$homeColumns['st_niederlagen']=$home['st_niederlagen'] + 1;
-			$homeColumns['sa_punkte']=$home['sa_punkte'] + POINTS_LOSS;
-			$homeColumns['st_punkte']=$home['st_punkte'] + POINTS_LOSS;
+			$homeColumns['sa_punkte']=$home['sa_punkte'] + config('POINTS_LOSS');
+			$homeColumns['st_punkte']=$home['st_punkte'] + config('POINTS_LOSS');
 			$guestColumns['sa_siege']=$guest['sa_siege'] + 1;
 			$guestColumns['st_siege']=$guest['st_siege'] + 1;
-			$guestColumns['sa_punkte']=$guest['sa_punkte'] + POINTS_WIN;
-			$guestColumns['st_punkte']=$guest['st_punkte'] + POINTS_WIN;}
+			$guestColumns['sa_punkte']=$guest['sa_punkte'] + config('POINTS_WIN');
+			$guestColumns['st_punkte']=$guest['st_punkte'] + config('POINTS_WIN');}
 		$this->_db->queryUpdate($homeColumns,$fromTable,$whereCondition,$match->homeTeam->id);
 		$this->_db->queryUpdate($guestColumns,$fromTable,$whereCondition,$match->guestTeam->id);}
 	function updateTeamsOfCupGroupMatch(SimulationMatch $match){
 		$fromTable=Config('db_prefix').'_cup_round_group AS G INNER JOIN '.Config('db_prefix').'_cup_round AS R ON R.id=G.cup_round_id INNER JOIN ' .Config('db_prefix').
 			'_cup AS C ON C.id=R.cup_id';
 		$whereCondition='C.name=\'%s\' AND R.name=\'%s\' AND G.name=\'%s\' AND G.team_id=%d';
-		$tcolumns=array('G.tab_points'=> 'tab_points', 'G.tab_goals'=> 'tab_goals', 'G.tab_goalsreceived'=> 'tab_goalsreceived', 'G.tab_wins'=> 'tab_wins', 'G.tab_draws'=> 'tab_draws', 'G.tab_losses'=> 'tab_losses');
+		$tcolumns=array('G.tab_points'=> 'tab_points','G.tab_goals'=> 'tab_goals','G.tab_goalsreceived'=> 'tab_goalsreceived','G.tab_wins'=> 'tab_wins','G.tab_draws'=> 'tab_draws','G.tab_losses'=> 'tab_losses');
 		$homeParameters=array($match->cupName,$match->cupRoundName,$match->cupRoundGroup,$match->homeTeam->id);
-		$result=$this->_db->querySelect($tcolumns,$fromTable,$whereCondition,$homeParameters, 1);
+		$result=$this->_db->querySelect($tcolumns,$fromTable,$whereCondition,$homeParameters,1);
 		$home=$result->fetch_array();
 		$guestParameters=array($match->cupName,$match->cupRoundName,$match->cupRoundGroup,$match->guestTeam->id);
-		$result=$this->_db->querySelect($tcolumns,$fromTable,$whereCondition,$guestParameters, 1);
+		$result=$this->_db->querySelect($tcolumns,$fromTable,$whereCondition,$guestParameters,1);
 		$guest=$result->fetch_array();
 		$homeColumns['tab_goals']=$home['tab_goals'] + $match->homeTeam->getGoals();
 		$homeColumns['tab_goalsreceived']=$home['tab_goalsreceived'] + $match->guestTeam->getGoals();
@@ -700,23 +507,23 @@ class DataUpdateSimulatorObserver {
 		$guestColumns['tab_goalsreceived']=$guest['tab_goalsreceived'] + $match->homeTeam->getGoals();
 		if($match->homeTeam->getGoals()>$match->guestTeam->getGoals()){
 			$homeColumns['tab_wins']=$home['tab_wins'] + 1;
-			$homeColumns['tab_points']=$home['tab_points'] + POINTS_WIN;
+			$homeColumns['tab_points']=$home['tab_points'] + config('POINTS_WIN');
 			$guestColumns['tab_losses']=$guest['tab_losses'] + 1;
-			$guestColumns['tab_points']=$guest['tab_points'] + POINTS_LOSS;}
+			$guestColumns['tab_points']=$guest['tab_points'] + config('POINTS_LOSS');}
 		elseif($match->homeTeam->getGoals()==$match->guestTeam->getGoals()){
 			$homeColumns['tab_draws']=$home['tab_draws'] + 1;
-			$homeColumns['tab_points']=$home['tab_points'] + POINTS_DRAW;
+			$homeColumns['tab_points']=$home['tab_points'] + config('POINTS_DRAW');
 			$guestColumns['tab_draws']=$guest['tab_draws'] + 1;
-			$guestColumns['tab_points']=$guest['tab_points'] + POINTS_DRAW;}
+			$guestColumns['tab_points']=$guest['tab_points'] + config('POINTS_DRAW');}
 		else{
 			$homeColumns['tab_losses']=$home['tab_losses'] + 1;
-			$homeColumns['tab_points']=$home['tab_points'] + POINTS_LOSS;
+			$homeColumns['tab_points']=$home['tab_points'] + config('POINTS_LOSS');
 			$guestColumns['tab_wins']=$guest['tab_wins'] + 1;
-			$guestColumns['tab_points']=$guest['tab_points'] + POINTS_WIN;}
+			$guestColumns['tab_points']=$guest['tab_points'] + config('POINTS_WIN');}
 		$this->_db->queryUpdate($homeColumns,$fromTable,$whereCondition,$homeParameters);
 		$this->_db->queryUpdate($guestColumns,$fromTable,$whereCondition,$guestParameters);}
 	function creditSponsorPayments(SimulationTeam $team,$isHomeTeam,$teamIsWinner){
-		$columns='S.name AS sponsor_name, b_spiel,b_heimzuschlag,b_sieg,T.sponsor_spiele AS sponsor_matches';
+		$columns='S.name AS sponsor_name,b_spiel,b_heimzuschlag,b_sieg,T.sponsor_spiele AS sponsor_matches';
 		$fromTable=Config('db_prefix').'_verein AS T INNER JOIN '.Config('db_prefix').'_sponsor AS S ON S.id=T.sponsor_id';
 		$whereCondition='T.id=%d AND T.sponsor_spiele>0';
 		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$team->id);
@@ -725,7 +532,7 @@ class DataUpdateSimulatorObserver {
 			$amount=$sponsor['b_spiel'];
 			if($isHomeTeam)$amount += $sponsor['b_heimzuschlag'];
 			if($teamIsWinner)$amount += $sponsor['b_sieg'];
-			BankAccountDataService::creditAmount($this->_websoccer,$this->_db,$team->id,$amount, 'match_sponsorpayment_subject',$sponsor['sponsor_name']);
+			BankAccountDataService::creditAmount($this->_websoccer,$this->_db,$team->id,$amount,'match_sponsorpayment_subject',$sponsor['sponsor_name']);
 			$updatecolums['sponsor_spiele']=max(0,$sponsor['sponsor_matches'] - 1);
 			if($updatecolums['sponsor_spiele']==0)$updatecolums['sponsor_id']='';
 			$whereCondition='id=%d';
@@ -735,7 +542,7 @@ class DataUpdateSimulatorObserver {
 		$highscoreWin=Config('highscore_win');
 		$highscoreLoss=Config('highscore_loss');
 		$highscoreDraw=Config('highscore_draw');
-		$columns='U.id AS u_id, U.highscore AS highscore, U.fanbeliebtheit AS popularity';
+		$columns='U.id AS u_id,U.highscore AS highscore,U.fanbeliebtheit AS popularity';
 		$fromTable=Config('db_prefix').'_verein AS T INNER JOIN '.Config('db_prefix').'_user AS U ON U.id=T.user_id';
 		$whereCondition='T.id=%d';
 		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$match->homeTeam->id);
@@ -751,7 +558,7 @@ class DataUpdateSimulatorObserver {
 				$homeColumns['highscore']=max(0,$homeUser['highscore'] + $highscoreWin);
 				$popFactor=1.1;
 				if($homeGuestStrengthDiff >= 20)$popFactor=1.05;
-				$homeColumns['fanbeliebtheit']=min(100, round($homeUser['popularity']*$popFactor));
+				$homeColumns['fanbeliebtheit']=min(100,round($homeUser['popularity']*$popFactor));
 				$goalsDiff=$match->homeTeam->getGoals()- $match->guestTeam->getGoals();
 				BadgesDataService::awardBadgeIfApplicable($this->_websoccer,$this->_db,$homeUser['u_id'],'win_with_x_goals_difference',$goalsDiff);}
 			elseif($match->homeTeam->getGoals()==$match->guestTeam->getGoals()){
@@ -759,13 +566,13 @@ class DataUpdateSimulatorObserver {
 				$popFactor=1.0;
 				if($homeGuestStrengthDiff >= 20)$popFactor=0.95;
 				elseif($homeGuestStrengthDiff <= -20)$popFactor=1.05;
-				$homeColumns['fanbeliebtheit']=min(100, round($homeUser['popularity']*$popFactor));}
+				$homeColumns['fanbeliebtheit']=min(100,round($homeUser['popularity']*$popFactor));}
 			else{
 				$homeColumns['highscore']=max(0,$homeUser['highscore'] + $highscoreLoss);
 				$popFactor=0.95;
 				if($homeGuestStrengthDiff >= 20)$popFactor=0.90;
 				elseif($homeGuestStrengthDiff <= -20)$popFactor=1.00;
-				$homeColumns['fanbeliebtheit']=max(1, round($homeUser['popularity']*$popFactor));}
+				$homeColumns['fanbeliebtheit']=max(1,round($homeUser['popularity']*$popFactor));}
 			if(!$match->homeTeam->isManagedByInterimManager)$this->_db->queryUpdate($homeColumns,$updateTable,$updateCondition,$homeUser['u_id']);
 			if(isset($this->_teamsWithSoonEndingContracts[$match->homeTeam->id]))$this->notifyAboutSoonEndingContracts($homeUser['u_id'],$match->homeTeam->id);}
 		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$match->guestTeam->id);
@@ -775,7 +582,7 @@ class DataUpdateSimulatorObserver {
 				$popFactor=1.1;
 				if($homeGuestStrengthDiff <= -20)$popFactor=1.05;
 				$guestColumns['highscore']=max(0,$guestUser['highscore'] + $highscoreWin);
-				$guestColumns['fanbeliebtheit']=min(100, round($guestUser['popularity']*$popFactor));
+				$guestColumns['fanbeliebtheit']=min(100,round($guestUser['popularity']*$popFactor));
 				$goalsDiff=$match->guestTeam->getGoals()- $match->homeTeam->getGoals();
 				BadgesDataService::awardBadgeIfApplicable($this->_websoccer,$this->_db,$guestUser['u_id'],'win_with_x_goals_difference',$goalsDiff);}
 			elseif($match->guestTeam->getGoals()==$match->homeTeam->getGoals()){
@@ -783,13 +590,13 @@ class DataUpdateSimulatorObserver {
 				if($homeGuestStrengthDiff <= -20)$popFactor=0.95;
 				elseif($homeGuestStrengthDiff >= 20)$popFactor=1.05;
 				$guestColumns['highscore']=max(0,$guestUser['highscore'] + $highscoreDraw);
-				$guestColumns['fanbeliebtheit']=min(100, round($guestUser['popularity']*$popFactor));}
+				$guestColumns['fanbeliebtheit']=min(100,round($guestUser['popularity']*$popFactor));}
 			else{
 				$guestColumns['highscore']=max(0,$guestUser['highscore'] + $highscoreLoss);
 				$popFactor=0.95;
 				if($homeGuestStrengthDiff <= -20)$popFactor=0.90;
 				elseif($homeGuestStrengthDiff >= 20)$popFactor=1.00;
-				$guestColumns['fanbeliebtheit']=max(1, round($guestUser['popularity']*$popFactor));}
+				$guestColumns['fanbeliebtheit']=max(1,round($guestUser['popularity']*$popFactor));}
 			if(!$match->guestTeam->isManagedByInterimManager)$this->_db->queryUpdate($guestColumns,$updateTable,$updateCondition,$guestUser['u_id']);
 			if(isset($this->_teamsWithSoonEndingContracts[$match->guestTeam->id]))$this->notifyAboutSoonEndingContracts($guestUser['u_id'],$match->guestTeam->id);}}
 	function handleBorrowedPlayer(&$columns,$playerinfo){
@@ -803,13 +610,13 @@ class DataUpdateSimulatorObserver {
 			$messageKey='lending_notification_return';
 			$messageType='lending_return';
 			$playerName=($playerinfo['kunstname'])? $playerinfo['kunstname'] : $playerinfo['vorname'].' '.$playerinfo['nachname'];
-			$messageData=array('player'=>$playerName, 'borrower'=>$borrower['team_name'],'lender'=>$lender['team_name']);
-			if($borrower['user_id'])NotificationsDataService::createNotification($this->_websoccer,$this->_db,$borrower['user_id'],$messageKey,$messageData,$messageType, 'player', 'id='.$playerinfo['id']);
-			if($lender['user_id'])NotificationsDataService::createNotification($this->_websoccer,$this->_db,$lender['user_id'],$messageKey,$messageData,$messageType, 'player', 'id='.$playerinfo['id']);}}
+			$messageData=array('player'=>$playerName,'borrower'=>$borrower['team_name'],'lender'=>$lender['team_name']);
+			if($borrower['user_id'])NotificationsDataService::createNotification($this->_websoccer,$this->_db,$borrower['user_id'],$messageKey,$messageData,$messageType,'player','id='.$playerinfo['id']);
+			if($lender['user_id'])NotificationsDataService::createNotification($this->_websoccer,$this->_db,$lender['user_id'],$messageKey,$messageData,$messageType,'player','id='.$playerinfo['id']);}}
 	function notifyAboutSoonEndingContracts($userId,$teamId){
-		NotificationsDataService::createNotification($this->_websoccer,$this->_db,$userId, 'notification_soon_ending_playercontracts', '', 'soon_ending_playercontracts', 'myteam', null,$teamId);
+		NotificationsDataService::createNotification($this->_websoccer,$this->_db,$userId,'notification_soon_ending_playercontracts','','soon_ending_playercontracts','myteam',null,$teamId);
 		unset($this->_teamsWithSoonEndingContracts[$teamId]);}
-	function onSubstitution(SimulationMatch $match, SimulationSubstitution $substitution){} }
+	function onSubstitution(SimulationMatch $match,SimulationSubstitution $substitution){} }
 class DbConnection {
 	public $connection;
 	private static $_instance;
@@ -858,7 +665,7 @@ class DbConnection {
 		$queryStr='SELECT ';
 		if(is_array($columns)){
 			$firstColumn=TRUE;
-			foreach($columns as $dbName=>$aliasName){
+			foreach($columns as$dbName=>$aliasName){
 				if(!$firstColumn)$queryStr=$queryStr.', ';
 				else $firstColumn=FALSE;
 				if(is_numeric($dbName))$dbName=$aliasName;
@@ -872,7 +679,7 @@ class DbConnection {
 	function buildColumnsValueList($columns){
 		$queryStr='';
 		$firstColumn=TRUE;
-		foreach($columns as $dbName=>$value){
+		foreach($columns as$dbName=>$value){
 			if(!$firstColumn)$queryStr=$queryStr.', ';
 			else $firstColumn=FALSE;
 			if(strlen($value))$columnValue='\''.$this->connection->real_escape_string($value).'\'';
@@ -885,7 +692,7 @@ class DbConnection {
 	function prepareParameters($parameters){
 		if(!is_array($parameters))$parameters=array($parameters);
 		$arrayLength=count($parameters);
-		for($i=0; $i<$arrayLength; $i++)$parameters[$i]=$this->connection->real_escape_string(trim($parameters[$i]));
+		for($i=0; $i<$arrayLength;++$i)$parameters[$i]=$this->connection->real_escape_string(trim($parameters[$i]));
 		return$parameters;}
 	function executeQuery($queryStr){
 		$queryResult=$this->connection->query($queryStr);
@@ -895,23 +702,15 @@ class DbSessionManager{
 	function __construct($db,$websoccer){
 		$this->_db=$db;
 		$this->_websoccer=$websoccer;}
-	//- owsPro -Deprecated: Return type of class function should either be compatibl
-	#[ReturnTypeWillChange]
 	function open($save_path,$session_name){ return TRUE;}
-	//- owsPro - Deprecated: Return type of class function should either be compatibl
-	#[ReturnTypeWillChange]
 	function close(){ return TRUE;}
-	//- owsPro - Deprecated: Return type of class function should either be compatibl
-	#[ReturnTypeWillChange]
 	function destroy($sessionId){
 		$fromTable=Config('db_prefix').'_session';
 		$whereCondition='session_id=\'%s\'';
 		$this->_db->queryDelete($fromTable,$whereCondition,$sessionId);
 		return TRUE;}
-	//- owsPro - Deprecated: Return type of class function should either be compatibl
-	#[ReturnTypeWillChange]
 	function read($sessionId){
-		$columns='expires, session_data';
+		$columns='expires,session_data';
 		$fromTable=Config('db_prefix').'_session';
 		$whereCondition='session_id=\'%s\'';
 		$data='';
@@ -934,8 +733,6 @@ class DbSessionManager{
 			else{
 				return true;}}
 		return FALSE;}
-	//- owsPro - Deprecated: Return type of class function should either be compatibl
-	#[ReturnTypeWillChange]
 	function write($sessionId,$data){
 		$lifetime=(int)Config('session_lifetime');
 		$expiry=$this->_websoccer->getNowAsTimestamp()+ $lifetime;
@@ -948,10 +745,7 @@ class DbSessionManager{
 		elseif(!empty($data)){
 			$columns['session_id']=$sessionId;
 			$this->_db->queryInsert($columns,$fromTable);}
-		//+ owsPro - return with FALSE ist nessesary at PHP 8
 		return FALSE;}
-	//- owsPro - Deprecated: Return type of class function should either be compatibl
-	#[ReturnTypeWillChange]
 	function gc($maxlifetime){
 		$this->_deleteExpiredSessions();
 		return true;}
@@ -960,66 +754,66 @@ class DbSessionManager{
 		$whereCondition='expires<%d';
 		$this->_db->queryDelete($fromTable,$whereCondition,$this->_websoccer->getNowAsTimestamp());}}
 class DefaultSimulationObserver {
-	function onGoal(SimulationMatch $match, SimulationPlayer $scorer, SimulationPlayer $goaly){
+	function onGoal(SimulationMatch $match,SimulationPlayer $scorer,SimulationPlayer $goaly){
 		$assistPlayer=($match->getPreviousPlayerWithBall()!==NULL && $match->getPreviousPlayerWithBall()->team->id==$scorer->team->id)? $match->getPreviousPlayerWithBall(): '';
-		$scorer->improveMark(MARK_IMPROVE_GOAL_SCORER);
-		$goaly->downgradeMark(MARK_DOWNGRADE_GOAL_GOALY);
+		$scorer->improveMark(config('MARK_IMPROVE_GOAL_SCORER'));
+		$goaly->downgradeMark(config('MARK_DOWNGRADE_GOAL_GOALY'));
 		if(strlen($assistPlayer)){
-			$assistPlayer->improveMark(MARK_IMPROVE_GOAL_PASSPLAYER);
+			$assistPlayer->improveMark(config('MARK_IMPROVE_GOAL_PASSPLAYER'));
 			$assistPlayer->setAssists($assistPlayer->getAssists()+ 1);}
 		$scorer->team->setGoals($scorer->team->getGoals()+ 1);
 		$scorer->setGoals($scorer->getGoals()+ 1);
 		$scorer->setShoots($scorer->getShoots()+ 1);}
-	function onShootFailure(SimulationMatch $match, SimulationPlayer $scorer, SimulationPlayer $goaly){
-		if($scorer->getGoals()< 3)$scorer->downgradeMark(MARK_DOWNGRADE_SHOOTFAILURE);
-		$goaly->improveMark(MARK_IMPROVE_SHOOTFAILURE_GOALY);
+	function onShootFailure(SimulationMatch $match,SimulationPlayer $scorer,SimulationPlayer $goaly){
+		if($scorer->getGoals()< 3)$scorer->downgradeMark(config('MARK_DOWNGRADE_SHOOTFAILURE'));
+		$goaly->improveMark(config('MARK_IMPROVE_SHOOTFAILURE_GOALY'));
 		if($goaly->team->getGoals()>3)$goaly->setMark(max(2.0,$goaly->getMark()));
 		$scorer->setShoots($scorer->getShoots()+ 1);}
-	function onAfterTackle(SimulationMatch $match, SimulationPlayer $winner, SimulationPlayer $looser){
-		if($looser->getGoals()>0 && $looser->getGoals()< 3 && $looser->getAssists()>0 && $looser->getAssists()< 3)$looser->downgradeMark(MARK_DOWNGRADE_TACKLE_LOOSER*0.5);
-		elseif($looser->getGoals()< 3 && $looser->getAssists()< 3)$looser->downgradeMark(MARK_DOWNGRADE_TACKLE_LOOSER);
-		$winner->improveMark(MARK_IMPROVE_TACKLE_WINNER);
+	function onAfterTackle(SimulationMatch $match,SimulationPlayer $winner,SimulationPlayer $looser){
+		if($looser->getGoals()>0 && $looser->getGoals()< 3 && $looser->getAssists()>0 && $looser->getAssists()< 3)$looser->downgradeMark(config('MARK_DOWNGRADE_TACKLE_LOOSER')*0.5);
+		elseif($looser->getGoals()< 3 && $looser->getAssists()< 3)$looser->downgradeMark(config('MARK_DOWNGRADE_TACKLE_LOOSER'));
+		$winner->improveMark(config('MARK_IMPROVE_TACKLE_WINNER'));
 		$winner->setWonTackles($winner->getWonTackles()+ 1);
 		$looser->setLostTackles($winner->getLostTackles()+ 1);}
-	function onBallPassSuccess(SimulationMatch $match, SimulationPlayer $player){
-		$player->improveMark(MARK_IMPROVE_BALLPASS_SUCCESS);
+	function onBallPassSuccess(SimulationMatch $match,SimulationPlayer $player){
+		$player->improveMark(config('MARK_IMPROVE_BALLPASS_SUCCESS'));
 		$player->setPassesSuccessed($player->getPassesSuccessed()+ 1);}
-	function onBallPassFailure(SimulationMatch $match, SimulationPlayer $player){
-		if($player->getGoals()< 2 && $player->getAssists()< 2 &&($player->getGoals()==0||$player->getAssists()==0))$player->downgradeMark(MARK_DOWNGRADE_BALLPASS_FAILURE);
+	function onBallPassFailure(SimulationMatch $match,SimulationPlayer $player){
+		if($player->getGoals()< 2 && $player->getAssists()< 2 &&($player->getGoals()==0||$player->getAssists()==0))$player->downgradeMark(config('MARK_DOWNGRADE_BALLPASS_FAILURE'));
 		$player->setPassesFailed($player->getPassesFailed()+ 1);}
-	function onInjury(SimulationMatch $match, SimulationPlayer $player,$numberOfMatches){
+	function onInjury(SimulationMatch $match,SimulationPlayer $player,$numberOfMatches){
 		$player->injured=$numberOfMatches;
 		$substituted=SimulationHelper::createUnplannedSubstitutionForPlayer($match->minute + 1,$player);
 		if(!$substituted)$player->team->removePlayer($player);}
-	function onYellowCard(SimulationMatch $match, SimulationPlayer $player){
+	function onYellowCard(SimulationMatch $match,SimulationPlayer $player){
 		$player->yellowCards=$player->yellowCards + 1;
 		if($player->yellowCards==2){
-			$player->downgradeMark(MARK_DOWNGRADE_TACKLE_LOOSER);
+			$player->downgradeMark(config('MARK_DOWNGRADE_TACKLE_LOOSER'));
 			$player->team->removePlayer($player);}}
-	function onRedCard(SimulationMatch $match, SimulationPlayer $player,$matchesBlocked){
+	function onRedCard(SimulationMatch $match,SimulationPlayer $player,$matchesBlocked){
 		$player->redCard=1;
 		$player->blocked=$matchesBlocked;
 		$player->team->removePlayer($player);}
-	function onPenaltyShoot(SimulationMatch $match, SimulationPlayer $player, SimulationPlayer $goaly,$successful){
+	function onPenaltyShoot(SimulationMatch $match,SimulationPlayer $player,SimulationPlayer $goaly,$successful){
 		if($successful){
-			$player->improveMark(MARK_IMPROVE_GOAL_SCORER);
+			$player->improveMark(config('MARK_IMPROVE_GOAL_SCORER'));
 			$player->team->setGoals($player->team->getGoals()+ 1);}
 		else{
-			$player->downgradeMark(MARK_DOWNGRADE_SHOOTFAILURE);
-			$goaly->improveMark(MARK_IMPROVE_SHOOTFAILURE_GOALY);}}
-	function onCorner(SimulationMatch $match, SimulationPlayer $concededByPlayer, SimulationPlayer $targetPlayer){
+			$player->downgradeMark(config('MARK_DOWNGRADE_SHOOTFAILURE'));
+			$goaly->improveMark(config('MARK_IMPROVE_SHOOTFAILURE_GOALY'));}}
+	function onCorner(SimulationMatch $match,SimulationPlayer $concededByPlayer,SimulationPlayer $targetPlayer){
 		$match->setPlayerWithBall($concededByPlayer);
-		$concededByPlayer->improveMark(MARK_IMPROVE_BALLPASS_SUCCESS);
+		$concededByPlayer->improveMark(config('MARK_IMPROVE_BALLPASS_SUCCESS'));
 		$concededByPlayer->setPassesSuccessed($concededByPlayer->getPassesSuccessed()+ 1);}
-	function onFreeKick(SimulationMatch $match, SimulationPlayer $player, SimulationPlayer $goaly,$successful){
+	function onFreeKick(SimulationMatch $match,SimulationPlayer $player,SimulationPlayer $goaly,$successful){
 		$player->setShoots($player->getShoots()+ 1);
 		if($successful){
-			$player->improveMark(MARK_IMPROVE_GOAL_SCORER);
+			$player->improveMark(config('MARK_IMPROVE_GOAL_SCORER'));
 			$player->team->setGoals($player->team->getGoals()+ 1);
 			$player->setGoals($player->getGoals()+ 1);}
 		else{
-			$player->downgradeMark(MARK_DOWNGRADE_SHOOTFAILURE);
-			$goaly->improveMark(MARK_IMPROVE_SHOOTFAILURE_GOALY);}}}
+			$player->downgradeMark(config('MARK_DOWNGRADE_SHOOTFAILURE'));
+			$goaly->improveMark(config('MARK_IMPROVE_SHOOTFAILURE_GOALY'));}}}
 class DefaultSimulationStrategy {
 	private $_websoccer;
 	private $_passTargetProbPerPosition;
@@ -1039,10 +833,10 @@ class DefaultSimulationStrategy {
 		$pHomeTeam[TRUE]=50;
 		$pHomeTeam[FALSE]=50;
 		$team=SimulationHelper::selectItemFromProbabilities($pHomeTeam)? $match->homeTeam : $match->guestTeam;
-		$match->setPlayerWithBall(SimulationHelper::selectPlayer($team, PLAYER_POSITION_DEFENCE, null));}
+		$match->setPlayerWithBall(SimulationHelper::selectPlayer($team,config('PLAYER_POSITION_DEFENCE'),null));}
 	function nextAction(SimulationMatch $match){
 		$player=$match->getPlayerWithBall();
-		if($player->position==PLAYER_POSITION_GOALY)return 'passBall';
+		if($player->position==config('PLAYER_POSITION_GOALY'))return 'passBall';
 		$opponentTeam=SimulationHelper::getOpponentTeam($player,$match);
 		$opponentPosition=$this->_opponentPositions[$player->position];
 		$noOfOwnPlayersInPosition=count($player->team->positionsAndPlayers[$player->position]);
@@ -1051,15 +845,15 @@ class DefaultSimulationStrategy {
 		$pTackle=10;
 		if($noOfOpponentPlayersInPosition==$noOfOwnPlayersInPosition)$pTackle += 10;
 		elseif($noOfOpponentPlayersInPosition>$noOfOwnPlayersInPosition)$pTackle += 10 + 20*($noOfOpponentPlayersInPosition - $noOfOwnPlayersInPosition);
-		$pAction['tackle']=min($pTackle, 40);
+		$pAction['tackle']=min($pTackle,40);
 		$pShoot=$this->_shootProbPerPosition[$player->position];
 		$tacticInfluence=($this->_getOffensiveStrength($player->team,$match)- $this->_getDefensiveStrength($opponentTeam,$match))/ 10;
 		if($player->team->counterattacks)$pShoot=round($pShoot*0.5);
 		$resultInfluence=($player->team->getGoals()- $opponentTeam->getGoals())* (0 - 5);
 		if($player->team->getGoals()< $opponentTeam->getGoals()&& $player->team->morale)$resultInfluence += floor($player->team->morale / 100*5);
-		if($player->position==PLAYER_POSITION_STRIKER||$player->position==PLAYER_POSITION_MIDFIELD)$minShootProb=5;
+		if($player->position==config('PLAYER_POSITION_STRIKER')||$player->position==config('PLAYER_POSITION_MIDFIELD'))$minShootProb=5;
 		else $minShootProb=1;
-		$pAction['shoot']=round(max($minShootProb, min($pShoot + $tacticInfluence + $resultInfluence, 50))*Config('sim_shootprobability')/ 100);
+		$pAction['shoot']=round(max($minShootProb,min($pShoot + $tacticInfluence + $resultInfluence,50))*Config('sim_shootprobability')/ 100);
 		$pAction['passBall']=100 - $pAction['tackle'] - $pAction['shoot'] ;
 		return SimulationHelper::selectItemFromProbabilities($pAction);}
 	function passBall(SimulationMatch $match){
@@ -1070,38 +864,38 @@ class DefaultSimulationStrategy {
 		if(SimulationHelper::selectItemFromProbabilities($pFailed)==TRUE){
 			$opponentTeam=SimulationHelper::getOpponentTeam($player,$match);
 			$targetPosition=$this->_opponentPositions[$player->position];
-			$match->setPlayerWithBall(SimulationHelper::selectPlayer($opponentTeam,$targetPosition, null));
-			foreach($this->_observers as $observer)$observer->onBallPassFailure($match,$player);
+			$match->setPlayerWithBall(SimulationHelper::selectPlayer($opponentTeam,$targetPosition,null));
+			foreach($this->_observers as$observer)$observer->onBallPassFailure($match,$player);
 			return FALSE;}
-		$pTarget[PLAYER_POSITION_GOALY]=$this->_passTargetProbPerPosition[$player->position][PLAYER_POSITION_GOALY];
-		$pTarget[PLAYER_POSITION_DEFENCE]=$this->_passTargetProbPerPosition[$player->position][PLAYER_POSITION_DEFENCE];
-		$pTarget[PLAYER_POSITION_STRIKER]=$this->_passTargetProbPerPosition[$player->position][PLAYER_POSITION_STRIKER];
-		if($player->position!=PLAYER_POSITION_GOALY)$pTarget[PLAYER_POSITION_STRIKER] += 10;
+		$pTarget[config('PLAYER_POSITION_GOALY')]=$this->_passTargetProbPerPosition[$player->position][config('PLAYER_POSITION_GOALY')];
+		$pTarget[config('PLAYER_POSITION_DEFENCE')]=$this->_passTargetProbPerPosition[$player->position][config('PLAYER_POSITION_DEFENCE')];
+		$pTarget[config('PLAYER_POSITION_STRIKER')]=$this->_passTargetProbPerPosition[$player->position][config('PLAYER_POSITION_STRIKER')];
+		if($player->position!=config('PLAYER_POSITION_GOALY'))$pTarget[config('PLAYER_POSITION_STRIKER')] += 10;
 		$offensiveInfluence=round(10 - $player->team->offensive*0.2);
-		$pTarget[PLAYER_POSITION_DEFENCE]=$pTarget[PLAYER_POSITION_DEFENCE] + $offensiveInfluence;
-		$pTarget[PLAYER_POSITION_MIDFIELD]=100 - $pTarget[PLAYER_POSITION_STRIKER] - $pTarget[PLAYER_POSITION_DEFENCE] - $pTarget[PLAYER_POSITION_GOALY];
+		$pTarget[config('PLAYER_POSITION_DEFENCE')]=$pTarget[config('PLAYER_POSITION_DEFENCE')]+$offensiveInfluence;
+		$pTarget[config('PLAYER_POSITION_MIDFIELD')]=100 - $pTarget[config('PLAYER_POSITION_STRIKER')] - $pTarget[config('PLAYER_POSITION_DEFENCE')]-$pTarget[config('PLAYER_POSITION_GOALY')];
 		$targetPosition=SimulationHelper::selectItemFromProbabilities($pTarget);
 		$match->setPlayerWithBall(SimulationHelper::selectPlayer($player->team,$targetPosition,$player));
-		foreach($this->_observers as $observer)$observer->onBallPassSuccess($match,$player);
+		foreach($this->_observers as$observer)$observer->onBallPassSuccess($match,$player);
 		return TRUE;}
 	function tackle(SimulationMatch $match){
 		$player=$match->getPlayerWithBall();
 		$opponentTeam=SimulationHelper::getOpponentTeam($player,$match);
 		$targetPosition=$this->_opponentPositions[$player->position];
-		$opponent=SimulationHelper::selectPlayer($opponentTeam,$targetPosition, null);
-		$pWin[TRUE]=max(1, min(50 + $player->getTotalStrength($this->_websoccer,$match)- $opponent->getTotalStrength($this->_websoccer,$match), 99));
+		$opponent=SimulationHelper::selectPlayer($opponentTeam,$targetPosition,null);
+		$pWin[TRUE]=max(1,min(50 + $player->getTotalStrength($this->_websoccer,$match)- $opponent->getTotalStrength($this->_websoccer,$match),99));
 		$pWin[FALSE]=100 - $pWin[TRUE];
 		$result=SimulationHelper::selectItemFromProbabilities($pWin);
-		foreach($this->_observers as $observer)$observer->onAfterTackle($match,($result)? $player : $opponent,($result)? $opponent : $player);
+		foreach($this->_observers as$observer)$observer->onAfterTackle($match,($result)? $player : $opponent,($result)? $opponent : $player);
 		if($result==TRUE){
-			$pTackle['yellow']=round(max(1, min(20, round((100 - $opponent->strengthTech)/ 2)))*Config('sim_cardsprobability')/ 100);
+			$pTackle['yellow']=round(max(1,min(20,round((100 - $opponent->strengthTech)/ 2)))*Config('sim_cardsprobability')/ 100);
 			if($opponent->yellowCards>0)$pTackle['yellow']=round($pTackle['yellow'] / 2);
 			$pTackle['red']=1;
 			if($pTackle['yellow'] >15)$pTackle['red']=3;
 			$pTackle['fair']=100 - $pTackle['yellow'] - $pTackle['red'];
 			$tackled=SimulationHelper::selectItemFromProbabilities($pTackle);
 			if($tackled=='yellow'||$tackled=='red'){
-				$pInjured[TRUE]=min(99, round(((100 - $player->strengthFreshness)/ 3)*Config('sim_injuredprobability')/ 100));
+				$pInjured[TRUE]=min(99,round(((100 - $player->strengthFreshness)/ 3)*Config('sim_injuredprobability')/ 100));
 				$pInjured[FALSE]=100 - $pInjured[TRUE];
 				$injured=SimulationHelper::selectItemFromProbabilities($pInjured);
 				$blockedMatches=0;
@@ -1121,7 +915,7 @@ class DefaultSimulationStrategy {
 					$pInjuredMatches[$maxMatchesInjured]=1;
 					$blockedMatches=SimulationHelper::selectItemFromProbabilities($pInjuredMatches);
 					$blockedMatches=min($maxMatchesInjured,$blockedMatches);}
-				foreach($this->_observers as $observer){
+				foreach($this->_observers as$observer){
 					if($tackled=='yellow')$observer->onYellowCard($match,$opponent);
 					else{
 						$maxMatchesBlocked=(int)Config('sim_maxmatches_blocked');
@@ -1130,58 +924,58 @@ class DefaultSimulationStrategy {
 						$observer->onRedCard($match,$opponent,$blockedMatchesRedCard);}
 					if($injured){
 						$observer->onInjury($match,$player,$blockedMatches);
-						$match->setPlayerWithBall(SimulationHelper::selectPlayer($player->team, PLAYER_POSITION_MIDFIELD));}}
-				if($player->position==PLAYER_POSITION_STRIKER){
+						$match->setPlayerWithBall(SimulationHelper::selectPlayer($player->team,config('PLAYER_POSITION_MIDFIELD')));}}
+				if($player->position==config('PLAYER_POSITION_STRIKER')){
 					$pPenalty[TRUE]=10;
 					$pPenalty[FALSE]=90;
 					if(SimulationHelper::selectItemFromProbabilities($pPenalty))$this->foulPenalty($match,$player->team);}
 				else{
 					if($player->team->freeKickPlayer!=NULL)$freeKickScorer=$player->team->freeKickPlayer;
-					else $freeKickScorer=SimulationHelper::selectPlayer($player->team, PLAYER_POSITION_MIDFIELD);
-					$goaly=SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($freeKickScorer,$match), PLAYER_POSITION_GOALY, null);
+					else $freeKickScorer=SimulationHelper::selectPlayer($player->team,config('PLAYER_POSITION_MIDFIELD'));
+					$goaly=SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($freeKickScorer,$match),config('PLAYER_POSITION_GOALY'),null);
 					$goalyInfluence=(int)Config('sim_goaly_influence');
 					$shootReduction=round($goaly->getTotalStrength($this->_websoccer,$match)* $goalyInfluence/100);
 					$shootStrength=$freeKickScorer->getTotalStrength($this->_websoccer,$match);
-					$pGoal[TRUE]=max(1, min($shootStrength - $shootReduction, 60));
+					$pGoal[TRUE]=max(1,min($shootStrength - $shootReduction,60));
 					$pGoal[FALSE]=100 - $pGoal[TRUE];
 					$freeKickResult=SimulationHelper::selectItemFromProbabilities($pGoal);
-					foreach($this->_observers as $observer)$observer->onFreeKick($match,$freeKickScorer,$goaly,$freeKickResult);
+					foreach($this->_observers as$observer)$observer->onFreeKick($match,$freeKickScorer,$goaly,$freeKickResult);
 					if($freeKickResult)$this->_kickoff($match,$freeKickScorer);
 					else $match->setPlayerWithBall($goaly);}}}
 		else{
 			$match->setPlayerWithBall($opponent);
-			if($player->position==PLAYER_POSITION_STRIKER && $opponent->team->counterattacks){
+			if($player->position==config('PLAYER_POSITION_STRIKER')&& $opponent->team->counterattacks){
 				$counterAttempt[TRUE]=$player->team->offensive;
 				$counterAttempt[FALSE]=100 - $counterAttempt[TRUE];
 				if(SimulationHelper::selectItemFromProbabilities($counterAttempt)){
-					if($opponent->position==PLAYER_POSITION_DEFENCE)$match->setPlayerWithBall(SimulationHelper::selectPlayer($opponent->team, PLAYER_POSITION_STRIKER));
+					if($opponent->position==config('PLAYER_POSITION_DEFENCE'))$match->setPlayerWithBall(SimulationHelper::selectPlayer($opponent->team,config('PLAYER_POSITION_STRIKER')));
 					$this->shoot($match);}}}
 		return$result;}
 	function shoot(SimulationMatch $match){
 		$player=$match->getPlayerWithBall();
-		$goaly=SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($player,$match), PLAYER_POSITION_GOALY, null);
+		$goaly=SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($player,$match),config('PLAYER_POSITION_GOALY'),null);
 		$goalyInfluence=(int)Config('sim_goaly_influence');
 		$shootReduction=round($goaly->getTotalStrength($this->_websoccer,$match)* $goalyInfluence/100);
 		$shootStrength=round($player->getTotalStrength($this->_websoccer,$match)* $this->_shootStrengthPerPosition[$player->position] / 100);
-		if($player->position!=PLAYER_POSITION_STRIKER||isset($player->team->positionsAndPlayers[PLAYER_POSITION_STRIKER])&& count($player->team->positionsAndPlayers[PLAYER_POSITION_STRIKER])>1)$shootStrength=$shootStrength +
+		if($player->position!=config('PLAYER_POSITION_STRIKER')||isset($player->team->positionsAndPlayers[config('PLAYER_POSITION_STRIKER')])&& count($player->team->positionsAndPlayers[config('PLAYER_POSITION_STRIKER')])>1)$shootStrength=$shootStrength +
 			$player->getShoots()* 2 - $player->getGoals();
 		if($player->getGoals()>1)$shootStrength=round($shootStrength / $player->getGoals());
-		$pGoal[TRUE]=max(1, min($shootStrength - $shootReduction, 60));
+		$pGoal[TRUE]=max(1,min($shootStrength - $shootReduction,60));
 		$pGoal[FALSE]=100 - $pGoal[TRUE];
 		$result=SimulationHelper::selectItemFromProbabilities($pGoal);
 		if($result==FALSE){
-			foreach($this->_observers as $observer)$observer->onShootFailure($match,$player,$goaly);
+			foreach($this->_observers as$observer)$observer->onShootFailure($match,$player,$goaly);
 			$match->setPlayerWithBall($goaly);
 			$pCorner[TRUE]=round($player->strength / 2);
 			$pCorner[FALSE]=100 - $pCorner[TRUE];
 			if(SimulationHelper::selectItemFromProbabilities($pCorner)){
 				if($player->team->freeKickPlayer)$passingPlayer=$player->team->freeKickPlayer;
-				else $passingPlayer=SimulationHelper::selectPlayer($player->team, PLAYER_POSITION_MIDFIELD);
-				$targetPlayer=SimulationHelper::selectPlayer($player->team, PLAYER_POSITION_MIDFIELD,$passingPlayer);
-				foreach($this->_observers as $observer)$observer->onCorner($match,$passingPlayer,$targetPlayer);
+				else $passingPlayer=SimulationHelper::selectPlayer($player->team,config('PLAYER_POSITION_MIDFIELD'));
+				$targetPlayer=SimulationHelper::selectPlayer($player->team,config('PLAYER_POSITION_MIDFIELD'),$passingPlayer);
+				foreach($this->_observers as$observer)$observer->onCorner($match,$passingPlayer,$targetPlayer);
 				$match->setPlayerWithBall($targetPlayer);}}
 		else{
-			foreach($this->_observers as $observer)$observer->onGoal($match,$player,$goaly);
+			foreach($this->_observers as$observer)$observer->onGoal($match,$player,$goaly);
 			$this->_kickoff($match,$player);}
 		return$result;}
 	function penaltyShooting(SimulationMatch $match){
@@ -1201,51 +995,51 @@ class DefaultSimulationStrategy {
 			$playerIndexGuest++;
 			if($playerIndexHome >= count($playersHome))$playerIndexHome=0;
 			if($playerIndexGuest >= count($playersGuest))$playerIndexGuest=0;}}
-	function foulPenalty(SimulationMatch $match, SimulationTeam $team){
+	function foulPenalty(SimulationMatch $match,SimulationTeam $team){
 		$players=SimulationHelper::getPlayersForPenaltyShooting($team);
 		$player=$players[0];
 		$match->setPlayerWithBall($player);
 		if($this->_shootPenalty($match,$player))$player->setGoals($player->getGoals()+ 1);
 		else{
-			$goaly=SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($player,$match), PLAYER_POSITION_GOALY, null);
+			$goaly=SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($player,$match),config('PLAYER_POSITION_GOALY'),null);
 			$match->setPlayerWithBall($goaly);}}
 	function _setPassTargetProbabilities(){
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_GOALY][PLAYER_POSITION_GOALY]=0;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_GOALY][PLAYER_POSITION_DEFENCE]=69;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_GOALY][PLAYER_POSITION_MIDFIELD]=30;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_GOALY][PLAYER_POSITION_STRIKER]=1;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_DEFENCE][PLAYER_POSITION_GOALY]=10;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_DEFENCE][PLAYER_POSITION_DEFENCE]=20;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_DEFENCE][PLAYER_POSITION_MIDFIELD]=65;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_DEFENCE][PLAYER_POSITION_STRIKER]=5;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_MIDFIELD][PLAYER_POSITION_GOALY]=1;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_MIDFIELD][PLAYER_POSITION_DEFENCE]=24;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_MIDFIELD][PLAYER_POSITION_MIDFIELD]=55;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_MIDFIELD][PLAYER_POSITION_STRIKER]=20;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_STRIKER][PLAYER_POSITION_GOALY]=0;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_STRIKER][PLAYER_POSITION_DEFENCE]=10;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_STRIKER][PLAYER_POSITION_MIDFIELD]=60;
-		$this->_passTargetProbPerPosition[PLAYER_POSITION_STRIKER][PLAYER_POSITION_STRIKER]=30;}
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_GOALY')][config('PLAYER_POSITION_GOALY')]=0;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_GOALY')][config('PLAYER_POSITION_DEFENCE')]=69;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_GOALY')][config('PLAYER_POSITION_MIDFIELD')]=30;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_GOALY')][config('PLAYER_POSITION_STRIKER')]=1;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_DEFENCE')][config('PLAYER_POSITION_GOALY')]=10;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_DEFENCE')][config('PLAYER_POSITION_DEFENCE')]=20;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_DEFENCE')][config('PLAYER_POSITION_MIDFIELD')]=65;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_DEFENCE')][config('PLAYER_POSITION_STRIKER')]=5;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_MIDFIELD')][config('PLAYER_POSITION_GOALY')]=1;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_MIDFIELD')][config('PLAYER_POSITION_DEFENCE')]=24;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_MIDFIELD')][config('PLAYER_POSITION_MIDFIELD')]=55;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_MIDFIELD')][config('PLAYER_POSITION_STRIKER')]=20;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_STRIKER')][config('PLAYER_POSITION_GOALY')]=0;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_STRIKER')][config('PLAYER_POSITION_DEFENCE')]=10;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_STRIKER')][config('PLAYER_POSITION_MIDFIELD')]=60;
+		$this->_passTargetProbPerPosition[config('PLAYER_POSITION_STRIKER')][config('PLAYER_POSITION_STRIKER')]=30;}
 	function _setOpponentPositions(){
-		$this->_opponentPositions[PLAYER_POSITION_GOALY]=PLAYER_POSITION_STRIKER;
-		$this->_opponentPositions[PLAYER_POSITION_DEFENCE]=PLAYER_POSITION_STRIKER;
-		$this->_opponentPositions[PLAYER_POSITION_MIDFIELD]=PLAYER_POSITION_MIDFIELD;
-		$this->_opponentPositions[PLAYER_POSITION_STRIKER]=PLAYER_POSITION_DEFENCE;}
+		$this->_opponentPositions[config('PLAYER_POSITION_GOALY')]=config('PLAYER_POSITION_STRIKER');
+		$this->_opponentPositions[config('PLAYER_POSITION_DEFENCE')]=config('PLAYER_POSITION_STRIKER');
+		$this->_opponentPositions[config('PLAYER_POSITION_MIDFIELD')]=config('PLAYER_POSITION_MIDFIELD');
+		$this->_opponentPositions[config('PLAYER_POSITION_STRIKER')]=config('PLAYER_POSITION_DEFENCE');}
 	function _setShootProbPerPosition(){
-		$this->_shootProbPerPosition[PLAYER_POSITION_GOALY]=0;
-		$this->_shootProbPerPosition[PLAYER_POSITION_DEFENCE]=5;
-		$this->_shootProbPerPosition[PLAYER_POSITION_MIDFIELD]=20;
-		$this->_shootProbPerPosition[PLAYER_POSITION_STRIKER]=35;}
+		$this->_shootProbPerPosition[config('PLAYER_POSITION_GOALY')]=0;
+		$this->_shootProbPerPosition[config('PLAYER_POSITION_DEFENCE')]=5;
+		$this->_shootProbPerPosition[config('PLAYER_POSITION_MIDFIELD')]=20;
+		$this->_shootProbPerPosition[config('PLAYER_POSITION_STRIKER')]=35;}
 	function _setShootStrengthPerPosition(){
-		$this->_shootStrengthPerPosition[PLAYER_POSITION_GOALY]=10;
-		$this->_shootStrengthPerPosition[PLAYER_POSITION_DEFENCE]=Config('sim_shootstrength_defense');
-		$this->_shootStrengthPerPosition[PLAYER_POSITION_MIDFIELD]=Config('sim_shootstrength_midfield');
-		$this->_shootStrengthPerPosition[PLAYER_POSITION_STRIKER]=Config('sim_shootstrength_striker');}
+		$this->_shootStrengthPerPosition[config('PLAYER_POSITION_GOALY')]=10;
+		$this->_shootStrengthPerPosition[config('PLAYER_POSITION_DEFENCE')]=Config('sim_shootstrength_defense');
+		$this->_shootStrengthPerPosition[config('PLAYER_POSITION_MIDFIELD')]=Config('sim_shootstrength_midfield');
+		$this->_shootStrengthPerPosition[config('PLAYER_POSITION_STRIKER')]=Config('sim_shootstrength_striker');}
 	function _getOffensiveStrength($team,$match){
 		$strength=0;
-		if(isset($team->positionsAndPlayers[PLAYER_POSITION_MIDFIELD])){
+		if(isset($team->positionsAndPlayers[config('PLAYER_POSITION_MIDFIELD')])){
 			$omPlayers=0;
-			foreach($team->positionsAndPlayers[PLAYER_POSITION_MIDFIELD] as $player){
+			foreach($team->positionsAndPlayers[config('PLAYER_POSITION_MIDFIELD')] as$player){
 				$mfStrength=$player->getTotalStrength($this->_websoccer,$match);
 				if($player->mainPosition=='OM'){
 					$omPlayers++;
@@ -1254,8 +1048,8 @@ class DefaultSimulationStrategy {
 				elseif($player->mainPosition=='DM')$mfStrength=$mfStrength*0.7;
 				$strength += $mfStrength;}}
 		$noOfStrikers=0;
-		if(isset($team->positionsAndPlayers[PLAYER_POSITION_STRIKER])){
-			foreach($team->positionsAndPlayers[PLAYER_POSITION_STRIKER] as $player){
+		if(isset($team->positionsAndPlayers[config('PLAYER_POSITION_STRIKER')])){
+			foreach($team->positionsAndPlayers[config('PLAYER_POSITION_STRIKER')] as$player){
 				$noOfStrikers++;
 				if($noOfStrikers<3)$strength += $player->getTotalStrength($this->_websoccer,$match)* 1.5;
 				else $strength += $player->getTotalStrength($this->_websoccer,$match)* 0.5;}}
@@ -1264,14 +1058,14 @@ class DefaultSimulationStrategy {
 		return$strength;}
 	function _getDefensiveStrength(SimulationTeam $team,$match){
 		$strength=0;
-		foreach($team->positionsAndPlayers[PLAYER_POSITION_MIDFIELD] as $player){
+		foreach($team->positionsAndPlayers[config('PLAYER_POSITION_MIDFIELD')] as$player){
 			$mfStrength=$player->getTotalStrength($this->_websoccer,$match);
 			if($player->mainPosition=='OM')$mfStrength=$mfStrength*0.7;
 			elseif($player->mainPosition=='DM')$mfStrength=$mfStrength*1.3;
 			if($team->counterattacks)$mfStrength=$mfStrength*1.1;
 			$strength += $mfStrength;}
 		$noOfDefence=0;
-		foreach($team->positionsAndPlayers[PLAYER_POSITION_DEFENCE] as $player){
+		foreach($team->positionsAndPlayers[config('PLAYER_POSITION_DEFENCE')] as$player){
 			$noOfDefence++;
 			$strength += $player->getTotalStrength($this->_websoccer,$match);}
 		if($noOfDefence<3)$strength=$strength*0.5;
@@ -1279,19 +1073,19 @@ class DefaultSimulationStrategy {
 		$offensiveFactor=(130 - $team->offensive*0.5)/ 100;
 		$strength=$strength*$offensiveFactor;
 		return$strength;}
-	function _shootPenalty(SimulationMatch $match, SimulationPlayer $player){
-		$goaly=SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($player,$match), PLAYER_POSITION_GOALY, null);
+	function _shootPenalty(SimulationMatch $match,SimulationPlayer $player){
+		$goaly=SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($player,$match),config('PLAYER_POSITION_GOALY'),null);
 		$goalyInfluence=(int)Config('sim_goaly_influence');
 		$shootReduction=round($goaly->getTotalStrength($this->_websoccer,$match)* $goalyInfluence/100);
-		$pGoal[TRUE]=max(30, min($player->strength - $shootReduction, 80));
+		$pGoal[TRUE]=max(30,min($player->strength - $shootReduction,80));
 		$pGoal[FALSE]=100 - $pGoal[TRUE];
 		$result=SimulationHelper::selectItemFromProbabilities($pGoal);
-		foreach($this->_observers as $observer)$observer->onPenaltyShoot($match,$player,$goaly,$result);
+		foreach($this->_observers as$observer)$observer->onPenaltyShoot($match,$player,$goaly,$result);
 		return$result;}
-	function _kickoff(SimulationMatch $match, SimulationPlayer $scorer){ $match->setPlayerWithBall( SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($scorer,$match), PLAYER_POSITION_DEFENCE, null));}}
+	function _kickoff(SimulationMatch $match,SimulationPlayer $scorer){ $match->setPlayerWithBall( SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($scorer,$match),config('PLAYER_POSITION_DEFENCE'),null));}}
 class EmailHelper {
 	static function sendSystemEmailFromTemplate($websoccer,$i18n,$recipient,$subject,$templateName,$parameters){
-		$emailTemplateEngine=new TemplateEngine($websoccer,$i18n, null);
+		$emailTemplateEngine=new TemplateEngine($websoccer,$i18n,null);
 		$template=$emailTemplateEngine->loadTemplate('emails/'.$templateName);
 		$content=$template->render($parameters);
 		self::sendSystemEmail($websoccer,$recipient,$subject,$content);}
@@ -1302,7 +1096,7 @@ class EmailHelper {
 		$headers[]='Content-type: text/plain; charset=\'UTF-8\'';
 		$headers[]='From: '.$fromName.' <'.$fromEmail.'>';
 		$encodedsubject='=?UTF-8?B?'.base64_encode($subject).'?=';
-		if(@mail($recipient,$encodedsubject,$content, implode("\r\n",$headers))==FALSE)throw new Exception('e-mail not sent.');}}
+		if(@mail($recipient,$encodedsubject,$content,implode("\r\n",$headers))==FALSE)throw new Exception('e-mail not sent.');}}
 require_once($_SERVER['DOCUMENT_ROOT'].'/classes/facebooksdk/facebook.php');
 class FacebookSdk {
 	private static $_instance;
@@ -1314,9 +1108,9 @@ class FacebookSdk {
 		return self::$_instance;}
 	function __construct($websoccer){
 		$this->_websoccer=$websoccer;
-		$this->_facebook=new Facebook(array('appId'=>Config('facebook_appid'), 'secret'=>Config('facebook_appsecret')));}
-	function getLoginUrl(){ return$this->_facebook->getLoginUrl(array('scope'=> 'email', 'redirect_uri'=>$this->_websoccer->getInternalActionUrl('facebook-login', null, 'home', TRUE)));}
-	function getLogoutUrl(){ return$this->_facebook->getLogoutUrl(array('next'=>$this->_websoccer->getInternalActionUrl('facebook-logout', null, 'home', TRUE)));}
+		$this->_facebook=new Facebook(array('appId'=>Config('facebook_appid'),'secret'=>Config('facebook_appsecret')));}
+	function getLoginUrl(){ return$this->_facebook->getLoginUrl(array('scope'=> 'email','redirect_uri'=>$this->_websoccer->getInternalActionUrl('facebook-login',null,'home',TRUE)));}
+	function getLogoutUrl(){ return$this->_facebook->getLogoutUrl(array('next'=>$this->_websoccer->getInternalActionUrl('facebook-logout',null,'home',TRUE)));}
 	function getUserEmail(){
 		if($this->_userEmail==NULL){
 			$userId=$this->_facebook->getUser();
@@ -1335,8 +1129,8 @@ class FacebookSdk {
 class FileUploadHelper {
 	static function uploadImageFile($i18n,$requestParameter,$targetFilename,$targetDirectory){
 		$filename=$_FILES[$requestParameter]['name'];
-		$ext=strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-		$allowedExtensions=explode(',', ALLOWED_EXTENSIONS);
+		$ext=strtolower(pathinfo($filename,PATHINFO_EXTENSION));
+		$allowedExtensions=explode(',', 'jpg,jpeg,gif,png');
 		if(!in_array($ext,$allowedExtensions))throw new Exception(Message('validationerror_imageupload_noimagefile'));
 		$imagesize=getimagesize($_FILES[$requestParameter]['tmp_name']);
 		if($imagesize===FALSE)throw new Exception(Message('validationerror_imageupload_noimagefile'));
@@ -1350,7 +1144,7 @@ class FileUploadHelper {
 		if($errorcode==UPLOAD_ERR_OK){
 			$tmp_name=$_FILES[$requestParameter]['tmp_name'];
 			$name=$targetFilename;
-			$uploaded=@move_uploaded_file($tmp_name, UPLOAD_FOLDER .$targetDirectory.'/'.$name);
+			$uploaded=@move_uploaded_file($tmp_name,$_SERVER['DOCUMENT_ROOT'].'/uploads/' .$targetDirectory.'/'.$name);
 			if(!$uploaded)throw new Exception(Message('error_file_upload_failed'));}
 		else throw new Exception(Message('error_file_upload_failed'));}}
 class FileWriter {
@@ -1372,7 +1166,7 @@ class FormBuilder {
 			elseif(is_numeric($fieldValue))$fieldValue=date($dateFormat,$fieldValue);
 			$type='text';}
 		else if($type=='date' && strlen($fieldValue)){
-			if(StringUtil::startsWith($fieldValue, '0000'))$fieldValue='';
+			if(StringUtil::startsWith($fieldValue,'0000'))$fieldValue='';
 			else{
 				$dateObj=DateTime::createFromFormat('Y-m-d',$fieldValue);
 				if($dateObj !==FALSE){
@@ -1388,7 +1182,7 @@ class FormBuilder {
 			echo '<input type=\'checkbox\' value=\'1\' name=\''.$fieldId.'\'';
 			if($fieldValue=='1')echo ' checked';
 			echo '>';
-			echo Message(escapeOutput($labelKeyPrefix.$fieldId));
+			echo Message($labelKeyPrefix.$fieldId);
 			echo '</label>';
 			echo escapeOutput($helpText);}
 		else{
@@ -1424,7 +1218,7 @@ class FormBuilder {
 					$selection=explode(',',$fieldInfo['selection']);
 					$selectValue=$fieldValue;
 					echo '<option></option>';
-					foreach($selection as $selectItem){
+					foreach($selection as$selectItem){
 						$selectItem=trim($selectItem);
 						echo '<option value=\''.escapeOutput($selectItem).'\'';
 						if($selectItem==$selectValue)echo ' selected';
@@ -1468,10 +1262,10 @@ class FormBuilder {
 		if($fieldInfo['type']!='boolean' && $fieldInfo['required'] && $isEmpty)throw new Exception(sprintf(Message('validationerror_required'),Message($labelKeyPrefix .$fieldId)));
 		if(!$isEmpty){
 			if($fieldInfo['type']=='text' && $textLength>255)throw new Exception(sprintf(Message('validationerror_text_too_long'),Message($labelKeyPrefix .$fieldId)));
-			if($fieldInfo['type']=='email' &&!filter_var($fieldValue, FILTER_VALIDATE_EMAIL))throw new Exception(Message('validationerror_email'));
-			if($fieldInfo['type']=='url' &&!filter_var($fieldValue, FILTER_VALIDATE_URL))throw new Exception(sprintf(Message('validationerror_url'),Message($labelKeyPrefix .$fieldId)));
+			if($fieldInfo['type']=='email' &&!filter_var($fieldValue,FILTER_VALIDATE_EMAIL))throw new Exception(Message('validationerror_email'));
+			if($fieldInfo['type']=='url' &&!filter_var($fieldValue,FILTER_VALIDATE_URL))throw new Exception(sprintf(Message('validationerror_url'),Message($labelKeyPrefix .$fieldId)));
 			if($fieldInfo['type']=='number' &&!is_numeric($fieldValue))throw new Exception(sprintf(Message('validationerror_number'),Message($labelKeyPrefix .$fieldId)));
-			if($fieldInfo['type']=='percent' && filter_var($fieldValue, FILTER_VALIDATE_INT)===FALSE)throw new Exception(sprintf(Message('validationerror_percent'),Message($labelKeyPrefix .$fieldId)));
+			if($fieldInfo['type']=='percent' && filter_var($fieldValue,FILTER_VALIDATE_INT)===FALSE)throw new Exception(sprintf(Message('validationerror_percent'),Message($labelKeyPrefix .$fieldId)));
 			if($fieldInfo['type']=='date'){
 				$website=WebSoccer::getInstance();
 				$format=Config('date_format');
@@ -1484,18 +1278,18 @@ class FormBuilder {
 		$website=WebSoccer::getInstance();
 		$db=DbConnection::getInstance();
 		$fromTable=Config('db_prefix').'_'.$fieldInfo['jointable'];
-		$result=$db->querySelect('COUNT(*)AS hits',$fromTable, '1=1', '');
+		$result=$db->querySelect('COUNT(*)AS hits',$fromTable,'1=1','');
 		$items=$result->fetch_array();
 		if($items['hits'] <= 20){
 			echo '<select id=\''.$fieldId.'\' name=\''.$fieldId.'\'>';
 			echo escapeOutput('<option value=\'\'>'.Message('manage_select_placeholder').'</option>');
 			$whereCondition='1=1 ORDER BY '.$fieldInfo['labelcolumns'].' ASC';
-			$result=$db->querySelect('id, '.$fieldInfo['labelcolumns'],$fromTable,$whereCondition, '', 2000);
+			$result=$db->querySelect('id,'.$fieldInfo['labelcolumns'],$fromTable,$whereCondition,'',2000);
 			while($row=$result->fetch_array()){
 				$labels=explode(',',$fieldInfo['labelcolumns']);
 				$label='';
 				$first=TRUE;
-				foreach($labels as $labelColumn){
+				foreach($labels as$labelColumn){
 					if(!$first)$label .= ' - ';
 					$first=FALSE;
 					$label .= $row[trim($labelColumn)];}
@@ -1508,7 +1302,7 @@ class FormBuilder {
 		echo ' <a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''. escapeOutput(Message('manage_add')).'\'><i class=\'icon-plus-sign\'></i></a>';}}
 class FrontMessage {
 	function __construct($type,$title,$message){
-		if($type !==MESSAGE_TYPE_INFO && $type !==MESSAGE_TYPE_SUCCESS && $type !==MESSAGE_TYPE_ERROR && $type !==MESSAGE_TYPE_WARNING)throw new Exception('unknown FrontMessage type: '.$type);
+		if($type !=='info' && $type !=='success' && $type !=='error' && $type !=='warning')throw new Exception('unknown FrontMessage type: '.$type);
 		$this->type=$type;
 		$this->title=$title;
 		$this->message=$message;}}
@@ -1527,9 +1321,9 @@ class GoogleplusSdk {
 		$client->setApplicationName(Config('googleplus_appname'));
 		$client->setClientId(Config('googleplus_clientid'));
 		$client->setClientSecret(Config('googleplus_clientsecret'));
-		$client->setRedirectUri($this->_websoccer->getInternalActionUrl('googleplus-login', null, 'home', TRUE));
+		$client->setRedirectUri($this->_websoccer->getInternalActionUrl('googleplus-login',null,'home',TRUE));
 		$client->setDeveloperKey(Config('googleplus_developerkey'));
-		$client->setScopes(array('https://www.googleapis.com/auth/plus.login', 'https://www.googleapis.com/auth/userinfo.email'));
+		$client->setScopes(array('https://www.googleapis.com/auth/plus.login','https://www.googleapis.com/auth/userinfo.email'));
 		$this->_oauth2Service=new Google_Oauth2Service($client);
 		$this->_client=$client;}
 	function getLoginUrl(){ return$this->_client->createAuthUrl();}
@@ -1551,11 +1345,11 @@ class I18n {
 	static function getInstance($supportedLanguages){
 		if(self::$_instance==NULL)self::$_instance=new I18n($supportedLanguages);
 		return self::$_instance;}
-	function __construct($supportedLanguages){ $this->_supportedLanguages=array_map('trim', explode(',',$supportedLanguages));}
+	function __construct($supportedLanguages){ $this->_supportedLanguages=array_map('trim',explode(',',$supportedLanguages));}
 	function getCurrentLanguage(){
 		if($this->_currentLanguage==null){
-			if(isset($_SESSION[LANG_SESSION_PARAM]))$lang=$_SESSION[LANG_SESSION_PARAM];
-			elseif(isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))$lang=strtolower(substr($_SERVER['HTTP_ACCEPT_LANGUAGE'],0, 2));
+			if(isset($_SESSION['lang']))$lang=$_SESSION['lang'];
+			elseif(isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))$lang=strtolower(substr($_SERVER['HTTP_ACCEPT_LANGUAGE'],0,2));
 			else $lang=$this->_supportedLanguages[0];
 			if(!in_array($lang,$this->_supportedLanguages))$lang=$this->_supportedLanguages[0];
 			$this->_currentLanguage=$lang;}
@@ -1564,7 +1358,7 @@ class I18n {
 		if($language==$this->_currentLanguage)return;
 		$lang=strtolower($language);
 		if(!in_array($lang,$this->_supportedLanguages))$lang=$this->getCurrentLanguage();
-		$_SESSION[LANG_SESSION_PARAM]=$lang;
+		$_SESSION['lang']=$lang;
 		$this->_currentLanguage=$lang;}
 	function getMessage($messageKey,$paramaters=null){
 		global $msg;
@@ -1575,60 +1369,34 @@ class I18n {
 	function hasMessage($messageKey){
 		global $msg;
 		return isset($msg[$messageKey]);}
-	function getNavigationLabel($pageId){ return$this->getMessage($pageId . PAGE_NAV_LABEL_SUFFIX);}
+	function getNavigationLabel($pageId){ return$this->getMessage($pageId . '_navlabel');}
 	function getSupportedLanguages(){ return$this->_supportedLanguages;}}
-class MatchReportSimulationObserver {
-	private $_availableTexts;
-	function __construct($websoccer,$db){
-		$this->_availableTexts=[];
-		$this->_websoccer=$websoccer;
-		$this->_db=$db;
-		$fromTable=Config('db_prefix').'_spiel_text';
-		$columns='id, aktion AS actiontype';
-		$result=$db->querySelect($columns,$fromTable, '1=1');
-		while($text=$result->fetch_array())$this->_availableTexts[$text['actiontype']][]=$text['id'];}
-	function onGoal(SimulationMatch $match, SimulationPlayer $scorer, SimulationPlayer $goaly){
-		$assistPlayerName=($match->getPreviousPlayerWithBall()!==NULL && $match->getPreviousPlayerWithBall()->team->id==$scorer->team->id)? $match->getPreviousPlayerWithBall()->name : '';
-		if(strlen($assistPlayerName))$this->_createMessage($match, 'Tor_mit_vorlage',array($scorer->name,$assistPlayerName),($scorer->team->id==$match->homeTeam->id));
-		else $this->_createMessage($match, 'Tor',array($scorer->name,$goaly->name),($scorer->team->id==$match->homeTeam->id));}
-	function onShootFailure(SimulationMatch $match, SimulationPlayer $scorer, SimulationPlayer $goaly){
-		if(SimulationHelper::getMagicNumber(0, 1))$this->_createMessage($match, 'Torschuss_daneben',array($scorer->name,$goaly->name),($scorer->team->id==$match->homeTeam->id));
-		else $this->_createMessage($match, 'Torschuss_auf_Tor',array($scorer->name,$goaly->name),($scorer->team->id==$match->homeTeam->id));}
-	function onAfterTackle(SimulationMatch $match, SimulationPlayer $winner, SimulationPlayer $looser){
-		if(SimulationHelper::getMagicNumber(0, 1))$this->_createMessage($match, 'Zweikampf_gewonnen',array($winner->name,$looser->name),($winner->team->id==$match->homeTeam->id));
-		else $this->_createMessage($match, 'Zweikampf_verloren',array($looser->name,$winner->name),($looser->team->id==$match->homeTeam->id));}
-	function onBallPassSuccess(SimulationMatch $match, SimulationPlayer $player){}
-	function onBallPassFailure(SimulationMatch $match, SimulationPlayer $player){
-		if($player->position!=PLAYER_POSITION_GOALY){
-			$targetPlayer=SimulationHelper::selectPlayer($player->team,$player->position,$player);
-			$this->_createMessage($match, 'Pass_daneben',array($player->name,$targetPlayer->name),($player->team->id==$match->homeTeam->id));}}
-	function onInjury(SimulationMatch $match, SimulationPlayer $player,$numberOfMatches){ $this->_createMessage($match, 'Verletzung',array($player->name),($player->team->id==$match->homeTeam->id));}
-	function onYellowCard(SimulationMatch $match, SimulationPlayer $player){
-		if($player->yellowCards>1)$this->_createMessage($match, 'Karte_gelb_rot',array($player->name),($player->team->id==$match->homeTeam->id));
-		else $this->_createMessage($match, 'Karte_gelb',array($player->name),($player->team->id==$match->homeTeam->id));}
-	function onRedCard(SimulationMatch $match, SimulationPlayer $player,$matchesBlocked){ $this->_createMessage($match, 'Karte_rot',array($player->name),($player->team->id==$match->homeTeam->id));}
-	function onPenaltyShoot(SimulationMatch $match, SimulationPlayer $player, SimulationPlayer $goaly,$successful){
-		if($successful)$this->_createMessage($match, 'Elfmeter_erfolg',array($player->name,$goaly->name),($player->team->id==$match->homeTeam->id));
-		else $this->_createMessage($match, 'Elfmeter_verschossen',array($player->name,$goaly->name),($player->team->id==$match->homeTeam->id));}
-	function onCorner(SimulationMatch $match, SimulationPlayer $concededByPlayer, SimulationPlayer $targetPlayer){ $this->_createMessage($match, 'Ecke',array($concededByPlayer->name,$targetPlayer->name),($concededByPlayer->team->id==$match->homeTeam->id));}
-	function onFreeKick(SimulationMatch $match, SimulationPlayer $player, SimulationPlayer $goaly,$successful){
-		if($successful)$this->_createMessage($match, 'Freistoss_treffer',array($player->name,$goaly->name),($player->team->id==$match->homeTeam->id));
-		else $this->_createMessage($match, 'Freistoss_daneben',array($player->name,$goaly->name),($player->team->id==$match->homeTeam->id));}
-	function _createMessage($match,$messageType,$playerNames=null,$isHomeActive=TRUE){
-		if(!isset($this->_availableTexts[$messageType]))return;
-		$texts=count($this->_availableTexts[$messageType]);
-		$index=SimulationHelper::getMagicNumber(0,$texts - 1);
-		$messageId=$this->_availableTexts[$messageType][$index];
-		$players='';
-		if($playerNames!=null)$players=implode(';',$playerNames);
-		$fromTable=Config('db_prefix').'_matchreport';
-		$columns['match_id']=$match->id;
-		$columns['minute']=$match->minute;
-		$columns['message_id']=$messageId;
-		$columns['playernames']=$players;
-		$columns['goals']=$match->homeTeam->getGoals().':'.$match->guestTeam->getGoals();
-		$columns['active_home']=$isHomeActive;
-		$this->_db->queryInsert($columns,$fromTable);}}
+class MatchReportSimulationObserver{private $_availableTexts;
+	function __construct($websoccer,$db){$this->_availableTexts=[];$this->_websoccer=$websoccer;$this->_db=$db;$fromTable=Config('db_prefix').'_spiel_text';$columns='id,aktion AS actiontype';$result=$db->querySelect($columns,$fromTable,'1=1');
+			while($text=$result->fetch_array())$this->_availableTexts[$text['actiontype']][]=$text['id'];}
+	function onGoal(SimulationMatch$match,SimulationPlayer$scorer,SimulationPlayer$goaly){
+			$assistPlayerName=($match->getPreviousPlayerWithBall()!==NULL& $match->getPreviousPlayerWithBall()->team->id==$scorer->team->id)? $match->getPreviousPlayerWithBall()->name : '';if(strlen($assistPlayerName))$this->_createMessage($match,'Tor_mit_vorlage',
+			array($scorer->name,$assistPlayerName),($scorer->team->id==$match->homeTeam->id));else $this->_createMessage($match,'Tor',array($scorer->name,$goaly->name),($scorer->team->id==$match->homeTeam->id));}
+	function onShootFailure(SimulationMatch$match,SimulationPlayer$scorer,SimulationPlayer$goaly){if(SimulationHelper::getMagicNumber(0,1))$this->_createMessage($match,'Torschuss_daneben',array($scorer->name,$goaly->name),($scorer->team->id==$match->homeTeam->id));
+			else$this->_createMessage($match,'Torschuss_auf_Tor',array($scorer->name,$goaly->name),($scorer->team->id==$match->homeTeam->id));}
+	function onAfterTackle(SimulationMatch$match,SimulationPlayer$winner,SimulationPlayer$looser){if(SimulationHelper::getMagicNumber(0,1))$this->_createMessage($match,'Zweikampf_gewonnen',array($winner->name,$looser->name),($winner->team->id==$match->homeTeam->id));
+			else$this->_createMessage($match,'Zweikampf_verloren',array($looser->name,$winner->name),($looser->team->id==$match->homeTeam->id));}
+	function onBallPassSuccess(SimulationMatch$match,SimulationPlayer$player){}
+	function onBallPassFailure(SimulationMatch$match,SimulationPlayer$player){
+			if($player->position!=config('PLAYER_POSITION_GOALY')){$targetPlayer=SimulationHelper::selectPlayer($player->team,$player->position,$player);$this->_createMessage($match,'Pass_daneben',array($player->name,$targetPlayer->name),($player->team->id==
+			$match->homeTeam->id));}}
+	function onInjury(SimulationMatch$match,SimulationPlayer$player,$numberOfMatches){$this->_createMessage($match,'Verletzung',array($player->name),($player->team->id==$match->homeTeam->id));}
+	function onYellowCard(SimulationMatch$match,SimulationPlayer$player){if($player->yellowCards>1)$this->_createMessage($match,'Karte_gelb_rot',array($player->name),($player->team->id==$match->homeTeam->id));else$this->_createMessage($match,'Karte_gelb',
+			array($player->name),($player->team->id==$match->homeTeam->id));}
+	function onRedCard(SimulationMatch$match,SimulationPlayer$player,$matchesBlocked){$this->_createMessage($match,'Karte_rot',array($player->name),($player->team->id==$match->homeTeam->id));}
+	function onPenaltyShoot(SimulationMatch$match,SimulationPlayer$player,SimulationPlayer$goaly,$successful){if($successful)$this->_createMessage($match,'Elfmeter_erfolg',array($player->name,$goaly->name),($player->team->id==$match->homeTeam->id));
+			else$this->_createMessage($match,'Elfmeter_verschossen',array($player->name,$goaly->name),($player->team->id==$match->homeTeam->id));}
+	function onCorner(SimulationMatch$match,SimulationPlayer$concededByPlayer,SimulationPlayer$targetPlayer){$this->_createMessage($match,'Ecke',array($concededByPlayer->name,$targetPlayer->name),($concededByPlayer->team->id==$match->homeTeam->id));}
+	function onFreeKick(SimulationMatch$match,SimulationPlayer$player,SimulationPlayer$goaly,$successful){if($successful)$this->_createMessage($match,'Freistoss_treffer',array($player->name,$goaly->name),($player->team->id==$match->homeTeam->id));
+			else$this->_createMessage($match,'Freistoss_daneben',array($player->name,$goaly->name),($player->team->id==$match->homeTeam->id));}
+	function _createMessage($match,$messageType,$playerNames=null,$isHomeActive=TRUE){if(!isset($this->_availableTexts[$messageType]))return;$texts=count($this->_availableTexts[$messageType]);$index=SimulationHelper::getMagicNumber(0,$texts-1);
+			$messageId=$this->_availableTexts[$messageType][$index];$players='';if($playerNames!=null)$players=implode(';',$playerNames);$fromTable=Config('db_prefix').'_matchreport';$columns['match_id']=$match->id;$columns['minute']=$match->minute;
+			$columns['message_id']=$messageId;$columns['playernames']=$players;$columns['goals']=$match->homeTeam->getGoals().':'.$match->guestTeam->getGoals();$columns['active_home']=$isHomeActive;$this->_db->queryInsert($columns,$fromTable);}}
 class MatchReportSimulatorObserver {
 	private $_availableTexts;
 	function __construct($websoccer,$db){
@@ -1662,11 +1430,11 @@ class MatchSimulationExecutor {
 		$simulator=new Simulator($db,$websoccer);
 		$strategy=$simulator->getSimulationStrategy();
 		$simulationObservers=explode(',',Config('sim_simulation_observers'));
-		foreach($simulationObservers as $observerClassName){
+		foreach($simulationObservers as$observerClassName){
 			$observerClass=trim($observerClassName);
 			if(strlen($observerClass))$strategy->attachObserver(new $observerClass($websoccer,$db));}
 		$simulatorObservers=explode(',',Config('sim_simulator_observers'));
-		foreach($simulatorObservers as $observerClassName){
+		foreach($simulatorObservers as$observerClassName){
 			$observerClass=trim($observerClassName);
 			if(strlen($observerClass))$simulator->attachObserver(new $observerClass($websoccer,$db));}
 		$fromTable=Config('db_prefix').'_spiel AS M INNER JOIN ' .Config('db_prefix').'_verein AS HOME_T ON HOME_T.id=M.home_verein INNER JOIN ' .Config('db_prefix').
@@ -1907,8 +1675,8 @@ class MatchSimulationExecutor {
 						$sub=new SimulationSubstitution($minute,$playerIn,$playerOut,$condition,$position);
 						$team->substitutions[]=$sub;}}}}}
 	function findPlayerOnField(SimulationTeam $team,$playerId){
-		foreach($team->positionsAndPlayers as $position=>$players){
-			foreach($players as $player){
+		foreach($team->positionsAndPlayers as$position=>$players){
+			foreach($players as$player){
 				if($player->id==$playerId)return$player;}}
 		return false;}
 	static function teamHasNoManager($websoccer,$db,$teamId){
@@ -1928,17 +1696,17 @@ class MatchSimulationExecutor {
 		$captain->team->morale=$morale;}}
 class ModuleConfigHelper {
 	static function findDependentEntities($dbtable){
-		$modules=scandir(FOLDER_MODULES);
+		$modules=scandir($_SERVER['DOCUMENT_ROOT'].'/modules');
 		$entities=[];
-		foreach($modules as $module){
-			if(is_dir(FOLDER_MODULES.'/'.$module)){
-				$files=scandir(FOLDER_MODULES.'/'.$module);
-				foreach($files as $file){
-					$pathToFile=FOLDER_MODULES.'/'.$module.'/'.$file;
-					if($file==MODULE_CONFIG_FILENAME)self::_findDependentEntity($entities,$pathToFile,$dbtable);}}}
+		foreach($modules as$module){
+			if(is_dir($_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module)){
+				$files=scandir($_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module);
+				foreach($files as$file){
+					$pathToFile=$_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module.'/'.$file;
+					if($file=='module.xml')self::_findDependentEntity($entities,$pathToFile,$dbtable);}}}
 		return$entities;}
 	static function findModuleConfigAsXmlObject($moduleName){
-		$pathToFile=FOLDER_MODULES.'/'.$moduleName.'/'. MODULE_CONFIG_FILENAME;
+		$pathToFile=$_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$moduleName.'/'. 'module.xml';
 		if(!file_exists($pathToFile))throw new Exception('Config file for module \''.$moduleName.'\' not found.');
 		return simplexml_load_file($pathToFile);}
 	static function removeAliasFromDbTableName($tableName){
@@ -1948,16 +1716,16 @@ class ModuleConfigHelper {
 		$xml=simplexml_load_file($pathToFile);
 		$foundFields=$xml->xpath('//field[@jointable=\''.$dbtable.'\']');
 		if($foundFields){
-			foreach($foundFields as $field){
+			foreach($foundFields as$field){
 				$entity=$field->xpath('../..');
 				$entities[]=array('dbtable'=> self::removeAliasFromDbTableName((string)$entity[0]->attributes()->dbtable), 'columnid'=> (string)$field->attributes()->id, 'cascade'=> (string)$field->attributes()->cascade);}}}}
 class NavigationBuilder {
 	static function getNavigationItems($website,$i18n,$pages,$currentPageId){
 		$items=[];
 		$addedItemsCache=[];
-		foreach($pages as $pageId=>$pageJson)self::_createItem($items,$addedItemsCache,$pageId,$pageJson,$website,$i18n,$currentPageId,$pages);
+		foreach($pages as$pageId=>$pageJson)self::_createItem($items,$addedItemsCache,$pageId,$pageJson,$website,$i18n,$currentPageId,$pages);
 		usort($items,array('NavigationBuilder', 'sortByWeight'));
-		foreach($items as $item){
+		foreach($items as$item){
 			if($item->children!=null)usort($item->children,array('NavigationBuilder', 'sortByWeight'));}
 		return$items;}
 	static function _createItem(&$items, &$addedItemsCache,$pageId,$pageJson,$website,$i18n,$currentPageId, &$pages){
@@ -1996,16 +1764,16 @@ class NavigationItem {
 class PageIdRouter {
 	static function getTargetPageId($websoccer,$i18n,$requestedPageId){
 		$pageId=$requestedPageId;
-		if($pageId==NULL)$pageId=DEFAULT_PAGE_ID;
+		if($pageId==NULL)$pageId=config('DEFAULT_PAGE_ID');
 		$user=$websoccer->getUser();
-		if(Config('password_protected')&& $user->getRole()==ROLE_GUEST){
-			$freePageIds=array(LOGIN_PAGE_ID, 'register', 'register-success', 'activate-user', 'forgot-password', 'imprint', 'logout', 'termsandconditions');
-			if(!Config('password_protected_startpage'))$freePageIds[]=DEFAULT_PAGE_ID;
+		if(Config('password_protected')&& $user->getRole()=='guest'){
+			$freePageIds=array('login', 'register', 'register-success', 'activate-user', 'forgot-password', 'imprint', 'logout', 'termsandconditions');
+			if(!Config('password_protected_startpage'))$freePageIds[]=config('DEFAULT_PAGE_ID');
 			if(!in_array($pageId,$freePageIds)){
-				$websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message('requireslogin_box_title'),Message('requireslogin_box_message')));
-				$pageId=LOGIN_PAGE_ID;}}
+				$websoccer->addFrontMessage(new FrontMessage('warning',Message('requireslogin_box_title'),Message('requireslogin_box_message')));
+				$pageId='login';}}
 		if($pageId=='team' && $websoccer->getRequestParameter('id')==null)$pageId='leagues';
-		if($user->getRole()==ROLE_USER &&!strlen($user->username))$pageId=ENTERUSERNAME_PAGE_ID;
+		if($user->getRole()=='user' &&!strlen($user->username))$pageId='enter-username';
 		return$pageId;}}
 class Paginator {
 	public $pages;
@@ -2018,7 +1786,7 @@ class Paginator {
 	function addParameter($name,$value){ $this->_parameters[$name]=$value;}
 	function __construct($hits,$eps,$websoccer){
 		$this->eps=$eps;
-		$this->pageNo=max(1, (int)$websoccer->getRequestParameter(PARAM_PAGENUMBER));
+		$this->pageNo=max(1, (int)$websoccer->getRequestParameter('pageno'));
 		if($hits % $eps)$this->pages=floor($hits / $eps)+ 1;
 		else $this->pages=$hits / $eps;}
 	function getFirstIndex(){ return($this->pageNo - 1)* $this->eps;}}
@@ -2026,14 +1794,14 @@ class PluginMediator {
 	private static $_eventlistenerConfigs;
 	static function dispatchEvent(AbstractEvent $event){
 		if(self::$_eventlistenerConfigs==null){
-			include(CONFIGCACHE_EVENTS);
+			include($_SERVER['DOCUMENT_ROOT'].'/cache/eventsconfig.inc.php');
 			if(isset($eventlistener))self::$_eventlistenerConfigs=$eventlistener;
 			else self::$_eventlistenerConfigs=[];}
 		if(!count(self::$_eventlistenerConfigs))return;
 		$eventName=get_class($event);
 		if(!isset(self::$_eventlistenerConfigs[$eventName]))return;
 		$eventListeners=self::$_eventlistenerConfigs[$eventName];
-		foreach($eventListeners as $listenerConfigStr){
+		foreach($eventListeners as$listenerConfigStr){
 			$listenerConfig=json_decode($listenerConfigStr, TRUE);
 			if(method_exists($listenerConfig['class'],$listenerConfig['method']))call_user_func($listenerConfig['class'].'::'.$listenerConfig['method'],$event);
 			else throw new Exception('Configured event listener must have function: '.$listenerConfig['class'].'::'.$listenerConfig['method']);}}}
@@ -2042,11 +1810,11 @@ class ScheduleGenerator {
 		shuffle($teamIds);
 		$noOfTeams=count($teamIds);
 		if($noOfTeams % 2 !==0){
-			$teamIds[]=DUMMY_TEAM_ID;
+			$teamIds[]=-1;
 			$noOfTeams++;}
 		$noOfMatchDays=$noOfTeams - 1;
 		$sortedMatchdays=[];
-		foreach($teamIds as $teamId)$sortedMatchdays[1][]=$teamId;
+		foreach($teamIds as$teamId)$sortedMatchdays[1][]=$teamId;
 		for($matchdayNo=2; $matchdayNo <= $noOfMatchDays; $matchdayNo++){
 			$rowCenterWithoutFixedEnd=$noOfTeams / 2 - 1;
 			for($teamIndex=0; $teamIndex<$rowCenterWithoutFixedEnd; $teamIndex++){
@@ -2063,7 +1831,7 @@ class ScheduleGenerator {
 			for($teamNo=1; $teamNo <= $matchesNo; $teamNo++){
 				$homeTeam=$sortedMatchdays[$matchDayNo][$teamNo - 1];
 				$guestTeam=$sortedMatchdays[$matchDayNo][count($teamIds)- $teamNo];
-				if($homeTeam==DUMMY_TEAM_ID||$guestTeam==DUMMY_TEAM_ID)continue;
+				if($homeTeam==-1||$guestTeam==-1)continue;
 				if($teamNo===1 && $matchDayNo % 2==0){
 					$swapTemp=$homeTeam;
 					$homeTeam=$guestTeam;
@@ -2102,7 +1870,7 @@ class SessionBasedUserAuthentication {
 	function verifyAndUpdateCurrentUser(User $currentUser){
 		$db=DbConnection::getInstance();
 		$fromTable=Config('db_prefix').'_user';
-		if(!isset($_SESSION[SESSION_PARAM_USERID])|| !$_SESSION[SESSION_PARAM_USERID]){
+		if(!isset($_SESSION['frontuserid'])|| !$_SESSION['frontuserid']){
 			$rememberMe=CookieHelper::getCookieValue('user');
 			if($rememberMe!=null){
 				$columns='id, passwort_salt, nick, email, lang';
@@ -2122,7 +1890,7 @@ class SessionBasedUserAuthentication {
 						$db->queryUpdate($columns,$fromTable,$whereCondition,$parameter);}}
 				else CookieHelper::destroyCookie('user');}
 			else return;}
-		$userid=(isset($_SESSION[SESSION_PARAM_USERID]))? $_SESSION[SESSION_PARAM_USERID] : 0;
+		$userid=(isset($_SESSION['frontuserid']))? $_SESSION['frontuserid'] : 0;
 		if(!$userid)return;
 		$columns='id, nick, email, lang, premium_balance, picture';
 		$whereCondition='status=1 AND id=%d';
@@ -2132,7 +1900,7 @@ class SessionBasedUserAuthentication {
 			$this->_login($userdata,$db,$fromTable,$currentUser);}
 		else $this->logoutUser($currentUser);}
 	function logoutUser(User $currentUser){
-		if($currentUser->getRole()==ROLE_USER){
+		if($currentUser->getRole()=='user'){
 			$currentUser->id=null;
 			$currentUser->username=null;
 			$currentUser->email=null;
@@ -2140,7 +1908,7 @@ class SessionBasedUserAuthentication {
 			session_destroy();
 			CookieHelper::destroyCookie('user');}}
 	function _login($userdata,$db,$fromTable,$currentUser){
-		$_SESSION[SESSION_PARAM_USERID]=$userdata['id'];
+		$_SESSION['frontuserid']=$userdata['id'];
 		$currentUser->id=$userdata['id'];
 		$currentUser->username=$userdata['nick'];
 		$currentUser->email=$userdata['email'];
@@ -2249,7 +2017,7 @@ class SimulationAudienceCalculator {
 		$columns=array('maintenance_pitch'=>$homeInfo['maintenance_pitch'] - 1, 'maintenance_videowall'=>$homeInfo['maintenance_videowall'] - 1, 'maintenance_seatsquality'=>$homeInfo['maintenance_seatsquality'] - 1,
 			'maintenance_vipquality'=>$homeInfo['maintenance_vipquality'] - 1);
 		$types=array('pitch', 'videowall', 'seatsquality', 'vipquality');
-		foreach($types as $type){
+		foreach($types as$type){
 			if($columns['maintenance_'.$type] <= 0){
 				$columns['maintenance_'.$type]=Config('stadium_maintenanceinterval_'.$type);
 				$columns['level_'.$type]=max(0,$homeInfo['level_'.$type] - 1);}}
@@ -2258,8 +2026,8 @@ class SimulationAudienceCalculator {
 		$strengthChange=(5 - $homeInfo['level_pitch'])*Config('stadium_pitch_effect');
 		if($strengthChange && $match->type!='Freundschaft'){
 			$playersAndPositions=$match->homeTeam->positionsAndPlayers;
-			foreach($playersAndPositions as $positions=>$players){
-				foreach($players as $player)$player->strengthTech=max(1,$player->strengthTech - $strengthChange);}}}}
+			foreach($playersAndPositions as$positions=>$players){
+				foreach($players as$player)$player->strengthTech=max(1,$player->strengthTech - $strengthChange);}}}}
 class SimulationCupMatchHelper {
 	static function checkIfExtensionIsRequired($websoccer,$db, SimulationMatch $match){
 		if(strlen($match->cupRoundGroup))return FALSE;
@@ -2354,7 +2122,7 @@ class SimulationCupMatchHelper {
 			$nextConfigs[$nextConfig['groupname']][''.$nextConfig['rank']]=$nextConfig['target_cup_round_id'];
 			$roundId=$nextConfig['round_id'];}
 		$nextRoundTeams=[];
-		foreach($nextConfigs as $groupName=>$rankings){
+		foreach($nextConfigs as$groupName=>$rankings){
 			$teamsInGroup=CupsDataService::getTeamsOfCupGroupInRankingOrder($websoccer,$db,$roundId,$groupName);
 			for($teamRank=1; $teamRank <= count($teamsInGroup); $teamRank++){
 				$configIndex=''.$teamRank;
@@ -2364,7 +2132,7 @@ class SimulationCupMatchHelper {
 					$nextRoundTeams[$targetRound][]=$team['id'];}}}
 		$matchTable=Config('db_prefix').'_spiel';
 		$type='Pokalspiel';
-		foreach($nextRoundTeams as $nextRoundId=>$teamIds){
+		foreach($nextRoundTeams as$nextRoundId=>$teamIds){
 			$result=$db->querySelect('name,firstround_date,secondround_date',Config('db_prefix').'_cup_round', 'id=%d',$nextRoundId);
 			$roundInfo=$result->fetch_array();
 			if(!$roundInfo)continue;
@@ -2416,7 +2184,7 @@ class SimulationFormationHelper {
 		else{
 			$columnsStr='';
 			$firstColumn=TRUE;
-			foreach($columns as $dbName=>$aliasName){
+			foreach($columns as$dbName=>$aliasName){
 				if(!$firstColumn)$columnsStr=$columnsStr.', ';
 				else $firstColumn=FALSE;
 				$columnsStr=$columnsStr .$dbName.' AS '.$aliasName;}
@@ -2435,9 +2203,9 @@ class SimulationFormationHelper {
 		$zmPlayers=0;
 		while($playerinfo=$result->fetch_array()){
 			$position=$playerinfo['position'];
-			if($position==PLAYER_POSITION_GOALY && isset($team->positionsAndPlayers[PLAYER_POSITION_GOALY])&& count($team->positionsAndPlayers[PLAYER_POSITION_GOALY])==1||$position==PLAYER_POSITION_DEFENCE &&
-				isset($team->positionsAndPlayers[PLAYER_POSITION_DEFENCE])&& count($team->positionsAndPlayers[PLAYER_POSITION_DEFENCE])>= 4||$position==PLAYER_POSITION_MIDFIELD && isset($team->positionsAndPlayers[PLAYER_POSITION_MIDFIELD])
-				&& count($team->positionsAndPlayers[PLAYER_POSITION_MIDFIELD])>= 4||$position==PLAYER_POSITION_STRIKER && isset($team->positionsAndPlayers[PLAYER_POSITION_STRIKER])&& count($team->positionsAndPlayers[PLAYER_POSITION_STRIKER])>= 2){
+			if($position==config('PLAYER_POSITION_GOALY') && isset($team->positionsAndPlayers[config('PLAYER_POSITION_GOALY')])&& count($team->positionsAndPlayers[config('PLAYER_POSITION_GOALY')])==1||$position==config('PLAYER_POSITION_DEFENCE')&&
+				isset($team->positionsAndPlayers[config('PLAYER_POSITION_DEFENCE')])&& count($team->positionsAndPlayers[config('PLAYER_POSITION_DEFENCE')])>= 4||$position==config('PLAYER_POSITION_MIDFIELD')&&isset($team->positionsAndPlayers[config('PLAYER_POSITION_MIDFIELD')])
+				&& count($team->positionsAndPlayers[config('PLAYER_POSITION_MIDFIELD')])>= 4||$position==config('PLAYER_POSITION_STRIKER')&& isset($team->positionsAndPlayers[config('PLAYER_POSITION_STRIKER')])&& count($team->positionsAndPlayers[config('PLAYER_POSITION_STRIKER')])>= 2){
 				continue;}
 			$mainPosition=$playerinfo['mainPosition'];
 			if($mainPosition=='LV'){
@@ -2488,7 +2256,7 @@ class SimulationHelper {
 	static function selectItemFromProbabilities($probabilities){
 		$magicNo=self::getMagicNumber();
 		$oldBoundary=0;
-		foreach($probabilities as $key=>$probability){
+		foreach($probabilities as$key=>$probability){
 			$newBounday=$oldBoundary + $probability;
 			if($magicNo>$oldBoundary && $magicNo <= $newBounday)return$key;
 			$oldBoundary=$newBounday;}
@@ -2501,15 +2269,15 @@ class SimulationHelper {
 		if(isset($team->positionsAndPlayers[$position])){
 			if($excludePlayer==null||$excludePlayer->position!=$position)$players=$team->positionsAndPlayers[$position];
 			else{
-				foreach($team->positionsAndPlayers[$position] as $player){
+				foreach($team->positionsAndPlayers[$position] as$player){
 					if($player->id !==$excludePlayer->id)$players[]=$player;}}}
 		$noOfPlayers=count($players);
 		if($noOfPlayers<1){
-			if($position==PLAYER_POSITION_STRIKER)return self::selectPlayer($team, PLAYER_POSITION_MIDFIELD,$excludePlayer);
-			elseif($position==PLAYER_POSITION_MIDFIELD)return self::selectPlayer($team, PLAYER_POSITION_DEFENCE,$excludePlayer);
-			elseif($position==PLAYER_POSITION_DEFENCE)return self::selectPlayer($team, PLAYER_POSITION_GOALY,$excludePlayer);
-			foreach($team->positionsAndPlayers as $pposition=>$pplayers){
-				foreach($pplayers as $player){
+			if($position==config('PLAYER_POSITION_STRIKER'))return self::selectPlayer($team, config('PLAYER_POSITION_MIDFIELD'),$excludePlayer);
+			elseif($position==config('PLAYER_POSITION_MIDFIELD'))return self::selectPlayer($team,config('PLAYER_POSITION_DEFENCE'),$excludePlayer);
+			elseif($position==config('PLAYER_POSITION_DEFENCE'))return self::selectPlayer($team, config('PLAYER_POSITION_GOALY'),$excludePlayer);
+			foreach($team->positionsAndPlayers as$pposition=>$pplayers){
+				foreach($pplayers as$player){
 					if($player->id !==$excludePlayer->id)return$player;}}}
 		$player=$players[SimulationHelper::getMagicNumber(0,$noOfPlayers - 1)];
 		return$player;}
@@ -2517,14 +2285,12 @@ class SimulationHelper {
 	static function getOpponentTeamOfTeam($team,$match){ return($match->homeTeam->id==$team->id)? $match->guestTeam : $match->homeTeam;}
 	static function checkAndExecuteSubstitutions(SimulationMatch $match, SimulationTeam $team, $observers) {
 		$substitutions = $team->substitutions;
-		//- owsPro - Fatal error: Uncaught TypeError: count(): Argument #1($value) must be of type Countable|array, null given
-		//- if (!count($substitutions)) {
 		if (!count((array)$substitutions)) return;
-		foreach($substitutions as $substitution) {
+		foreach($substitutions as$substitution) {
 			if($substitution->minute ==$match->minute && !isset($team->removedPlayers[$substitution->playerOut->id]) && isset($team->playersOnBench[$substitution->playerIn->id])) {
-				if($substitution->condition ==SUB_CONDITION_TIE && $match->homeTeam->getGoals() != $match->guestTeam->getGoals()
-						|| $substitution->condition ==SUB_CONDITION_LEADING && $team->getGoals() <= self::getOpponentTeamOfTeam($team, $match)->getGoals()
-						|| $substitution->condition ==SUB_CONDITION_DEFICIT && $team->getGoals() >= self::getOpponentTeamOfTeam($team, $match)->getGoals()) {
+				if($substitution->condition =='Tie' && $match->homeTeam->getGoals() != $match->guestTeam->getGoals()
+						|| $substitution->condition =='Leading' && $team->getGoals() <= self::getOpponentTeamOfTeam($team, $match)->getGoals()
+						|| $substitution->condition =='Deficit' && $team->getGoals() >= self::getOpponentTeamOfTeam($team, $match)->getGoals()) {
 					$substitution->minute = 999;
 					continue;}
 				$team->removePlayer($substitution->playerOut);
@@ -2543,29 +2309,29 @@ class SimulationHelper {
 				$substitution->playerIn->mainPosition = $mainPosition;
 				$team->positionsAndPlayers[$substitution->playerIn->position][] = $substitution->playerIn;
 				unset($team->playersOnBench[$substitution->playerIn->id]);
-				foreach($observers as $observer) $observer->onSubstitution($match, $substitution);}}}
+				foreach($observers as$observer) $observer->onSubstitution($match, $substitution);}}}
 	static function createUnplannedSubstitutionForPlayer($minute, SimulationPlayer $playerOut){
 		$team=$playerOut->team;
 		if(count($team->playersOnBench)< 1)return FALSE;
 		$position=$playerOut->position;
 		$player=self::selectPlayerFromBench($team->playersOnBench,$position);
-		if($player==NULL && $position==PLAYER_POSITION_STRIKER){
-			$player=self::selectPlayerFromBench($team->playersOnBench, PLAYER_POSITION_MIDFIELD);
-			if($player==NULL)$player=self::selectPlayerFromBench($team->playersOnBench, PLAYER_POSITION_DEFENCE);}
-		else if($player==NULL && $position==PLAYER_POSITION_MIDFIELD){
-			$player=self::selectPlayerFromBench($team->playersOnBench, PLAYER_POSITION_DEFENCE);
-			if($player==NULL)$player=self::selectPlayerFromBench($team->playersOnBench, PLAYER_POSITION_STRIKER);}
-		else if($player==NULL && $position==PLAYER_POSITION_DEFENCE){
-			$player=self::selectPlayerFromBench($team->playersOnBench, PLAYER_POSITION_MIDFIELD);
-			if($player==NULL)$player=self::selectPlayerFromBench($team->playersOnBench, PLAYER_POSITION_STRIKER);}
+		if($player==NULL && $position==config('PLAYER_POSITION_STRIKER')){
+			$player=self::selectPlayerFromBench($team->playersOnBench, config('PLAYER_POSITION_MIDFIELD'));
+			if($player==NULL)$player=self::selectPlayerFromBench($team->playersOnBench,config('PLAYER_POSITION_DEFENCE'));}
+		else if($player==NULL && $position==config('PLAYER_POSITION_MIDFIELD')){
+			$player=self::selectPlayerFromBench($team->playersOnBench,config('PLAYER_POSITION_DEFENCE'));
+			if($player==NULL)$player=self::selectPlayerFromBench($team->playersOnBench,config('PLAYER_POSITION_STRIKER'));}
+		else if($player==NULL && $position==config('PLAYER_POSITION_DEFENCE')){
+			$player=self::selectPlayerFromBench($team->playersOnBench,config('PLAYER_POSITION_MIDFIELD'));
+			if($player==NULL)$player=self::selectPlayerFromBench($team->playersOnBench, config('PLAYER_POSITION_STRIKER'));}
 		if($player==NULL)return FALSE;
 		$newsub=new SimulationSubstitution($minute,$player,$playerOut);
 		return self::addUnplannedSubstitution($minute,$newsub);}
 	static function getPlayersForPenaltyShooting(SimulationTeam $team){
 		$players=[];
 		$goalkeeper=null;
-		foreach($team->positionsAndPlayers as $position=>$playersAtPosition){
-			if($position==PLAYER_POSITION_GOALY && count($playersAtPosition)){
+		foreach($team->positionsAndPlayers as$position=>$playersAtPosition){
+			if($position==config('PLAYER_POSITION_GOALY') && count($playersAtPosition)){
 				$goalkeeper=$playersAtPosition[0];
 				continue;}
 			$players=array_merge($players,$playersAtPosition);}
@@ -2573,7 +2339,7 @@ class SimulationHelper {
 		if($goalkeeper!=null)$players[]=$goalkeeper;
 		return$players;}
 	static function selectPlayerFromBench(&$players,$position){
-		foreach($players as $player){
+		foreach($players as$player){
 			if($player->position==$position)return$player;}
 		return NULL;}
 	static function addUnplannedSubstitution($minute, SimulationSubstitution $substitution){
@@ -2583,13 +2349,13 @@ class SimulationHelper {
 			$team->substitutions[]=$substitution;
 			return TRUE;}
 		$index=0;
-		foreach($team->substitutions as $existingSub){
+		foreach($team->substitutions as$existingSub){
 			if($existingSub->minute>$minute && $existingSub->playerIn->id==$substitution->playerIn->id){
 				$team->substitutions[$index]=$substitution;
 				return TRUE;}
 			$index++;}
 		$index=0;
-		foreach($team->substitutions as $existingSub){
+		foreach($team->substitutions as$existingSub){
 			if($existingSub->minute>$minute){
 				$team->substitutions[$index]=$substitution;
 				return TRUE;}
@@ -2737,15 +2503,15 @@ class SimulationPlayer {
     	if($this->minutesPlayed<$minutesPlayed){
     		$this->minutesPlayed=$minutesPlayed;
     		if($recomputeFreshness && $minutesPlayed % 20==0){
-     			if($minutesPlayed==20 && $this->position==PLAYER_POSITION_GOALY){
+     			if($minutesPlayed==20 && $this->position==config('PLAYER_POSITION_GOALY')){
     				$this->strengthFreshness=max(1,$this->strengthFreshness - 1);
     				$this->needsStrengthRecomputation=TRUE;}
-    			elseif($this->position!=PLAYER_POSITION_GOALY)$this->looseFreshness();}}}
+    			elseif($this->position!=config('PLAYER_POSITION_GOALY'))$this->looseFreshness();}}}
     function cleanReferences(){ unset($this->team);}
     function looseFreshness(){
     	$freshness=$this->strengthFreshness - 1;
-    	if($this->age>32 && $this->position!=PLAYER_POSITION_GOALY)$freshness -= 1;
-    	if($this->team->offensive >= 80 &&($this->position==PLAYER_POSITION_MIDFIELD||$this->position==PLAYER_POSITION_STRIKER))$freshness -= 1;
+    	if($this->age>32 && $this->position!=config('PLAYER_POSITION_GOALY'))$freshness -= 1;
+    	if($this->team->offensive >= 80 &&($this->position==config('PLAYER_POSITION_MIDFIELD')||$this->position==config('PLAYER_POSITION_STRIKER')))$freshness -= 1;
     	if($this->strengthStamina<40)$freshness -= 1;
     	$freshness=max(1,$freshness);
     	$this->strengthFreshness=$freshness;
@@ -2836,7 +2602,7 @@ class SimulationStateHelper {
 		$columns['gast_freekickplayer']=($match->guestTeam->freeKickPlayer!=NULL)? $match->guestTeam->freeKickPlayer->id : '';
 		if(is_array($match->homeTeam->substitutions)){
 			$subIndex=1;
-			foreach($match->homeTeam->substitutions as $substitution){
+			foreach($match->homeTeam->substitutions as$substitution){
 				$columns['home_w'.$subIndex.'_raus']=$substitution->playerOut->id;
 				$columns['home_w'.$subIndex.'_rein']=$substitution->playerIn->id;
 				$columns['home_w'.$subIndex.'_minute']=$substitution->minute;
@@ -2845,7 +2611,7 @@ class SimulationStateHelper {
 				$subIndex++;}}
 		if(is_array($match->guestTeam->substitutions)){
 			$subIndex=1;
-			foreach($match->guestTeam->substitutions as $substitution){
+			foreach($match->guestTeam->substitutions as$substitution){
 				$columns['gast_w'.$subIndex.'_raus']=$substitution->playerOut->id;
 				$columns['gast_w'.$subIndex.'_rein']=$substitution->playerIn->id;
 				$columns['gast_w'.$subIndex.'_minute']=$substitution->minute;
@@ -2860,12 +2626,12 @@ class SimulationStateHelper {
 		$db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);}
 	static function updateTeamState($websoccer,$db, SimulationMatch $match, SimulationTeam $team){
 		if(is_array($team->positionsAndPlayers)){
-			foreach($team->positionsAndPlayers as $positions=>$players){
-				foreach($players as $player)self::updatePlayerState($websoccer,$db,$match->id,$player, '1');}}
+			foreach($team->positionsAndPlayers as$positions=>$players){
+				foreach($players as$player)self::updatePlayerState($websoccer,$db,$match->id,$player, '1');}}
 		if(is_array($team->playersOnBench)){
-			foreach($team->playersOnBench as $player)self::updatePlayerState($websoccer,$db,$match->id,$player, 'Ersatzbank');}
+			foreach($team->playersOnBench as$player)self::updatePlayerState($websoccer,$db,$match->id,$player, 'Ersatzbank');}
 		if(is_array($team->removedPlayers)){
-			foreach($team->removedPlayers as $player)self::updatePlayerState($websoccer,$db,$match->id,$player, 'Ausgewechselt');}}
+			foreach($team->removedPlayers as$player)self::updatePlayerState($websoccer,$db,$match->id,$player, 'Ausgewechselt');}}
 	static function updatePlayerState($websoccer,$db,$matchId,$player,$fieldArea){
 		$fromTable=Config('db_prefix').'_spiel_berechnung';
 		$whereCondition='spieler_id=%d AND spiel_id=%d';
@@ -2963,7 +2729,7 @@ class SimulationSubstitution {
     	$this->playerIn=$playerIn;
     	$this->playerOut=$playerOut;
     	$this->position=$position;
-    	if($condition!=null && in_array($condition,array(SUB_CONDITION_TIE, SUB_CONDITION_LEADING, SUB_CONDITION_DEFICIT)))$this->condition=$condition;
+    	if($condition!=null && in_array($condition,array('Tie', 'Leading', 'Deficit')))$this->condition=$condition;
     	else $this->condition=null;}
     function __toString(){ return '{minute: '.$this->minute.', in: '.$this->playerIn.', out: '.$this->playerOut.'}';}}
 class SimulationTeam {
@@ -2986,10 +2752,10 @@ class SimulationTeam {
     function __construct($id,$offensive=null){
     	$this->id=$id;
     	$this->offensive=$offensive;
-    	$this->positionsAndPlayers[PLAYER_POSITION_GOALY]=[];
-    	$this->positionsAndPlayers[PLAYER_POSITION_DEFENCE]=[];
-    	$this->positionsAndPlayers[PLAYER_POSITION_MIDFIELD]=[];
-    	$this->positionsAndPlayers[PLAYER_POSITION_STRIKER]=[];
+    	$this->positionsAndPlayers[config('PLAYER_POSITION_GOALY')]=[];
+    	$this->positionsAndPlayers[config('PLAYER_POSITION_DEFENCE')]=[];
+    	$this->positionsAndPlayers[config('PLAYER_POSITION_MIDFIELD')]=[];
+    	$this->positionsAndPlayers[config('PLAYER_POSITION_STRIKER')]=[];
     	$this->goals=0;
     	$this->morale=0;
     	$this->noFormationSet=FALSE;
@@ -2999,20 +2765,20 @@ class SimulationTeam {
     function setGoals($goals){ if($this->goals !==$goals)$this->goals=$goals;}
     function removePlayer($playerToRemove){
     	$newPositionsAndAplayers=[];
-    	$newPositionsAndAplayers[PLAYER_POSITION_GOALY]=[];
-    	$newPositionsAndAplayers[PLAYER_POSITION_DEFENCE]=[];
-    	$newPositionsAndAplayers[PLAYER_POSITION_MIDFIELD]=[];
-    	$newPositionsAndAplayers[PLAYER_POSITION_STRIKER]=[];
-    	foreach($this->positionsAndPlayers as $position=>$players){
-    		foreach($players as $player){
+    	$newPositionsAndAplayers[config('PLAYER_POSITION_GOALY')]=[];
+    	$newPositionsAndAplayers[config('PLAYER_POSITION_DEFENCE')]=[];
+    	$newPositionsAndAplayers[config('PLAYER_POSITION_MIDFIELD')]=[];
+    	$newPositionsAndAplayers[config('PLAYER_POSITION_STRIKER')]=[];
+    	foreach($this->positionsAndPlayers as$position=>$players){
+    		foreach($players as$player){
     			if($player->id !==$playerToRemove->id)$newPositionsAndAplayers[$player->position][]=$player;}}
     	$this->positionsAndPlayers=$newPositionsAndAplayers;
     	$this->removedPlayers[$playerToRemove->id]=$playerToRemove;
     	if($this->freeKickPlayer!=NULL && $this->freeKickPlayer->id==$playerToRemove->id)$this->freeKickPlayer=NULL;}
     function computeTotalStrength($websoccer, SimulationMatch $match){
     	$sum=0;
-    	foreach($this->positionsAndPlayers as $position=>$players){
-    		foreach($players as $player)$sum += $player->getTotalStrength($websoccer,$match);}
+    	foreach($this->positionsAndPlayers as$position=>$players){
+    		foreach($players as$player)$sum += $player->getTotalStrength($websoccer,$match);}
     	return$sum;}
     function cleanReferences(){
     	unset($this->substitutions);
@@ -3035,7 +2801,7 @@ class Simulator {
     function simulateMatch(SimulationMatch $match,$minutes){
     	if($match->minute==null)$match->minute=0;
     	if($match->minute==0){
-	    	foreach($this->_observers as $observer)$observer->onBeforeMatchStarts($match);}
+	    	foreach($this->_observers as$observer)$observer->onBeforeMatchStarts($match);}
     	if($match->isCompleted){
     		$this->completeMatch($match);
     		return;}
@@ -3070,17 +2836,17 @@ class Simulator {
     			break;}}}
     function completeMatch($match){
     	$match->isCompleted=TRUE;
-    	foreach($this->_observers as $observer)$observer->onMatchCompleted($match);
+    	foreach($this->_observers as$observer)$observer->onMatchCompleted($match);
     	$event=new MatchCompletedEvent($this->_websoccer,$this->_db, I18n::getInstance(Config('supported_languages')),$match);
     	PluginMediator::dispatchEvent($event);}
     function _increaseMinutesPlayed(SimulationTeam $team){
-    	foreach($team->positionsAndPlayers as $position=>$players){
-    		foreach($players as $player)$player->setMinutesPlayed($player->getMinutesPlayed()+ 1,Config('sim_decrease_freshness'));}}
+    	foreach($team->positionsAndPlayers as$position=>$players){
+    		foreach($players as$player)$player->setMinutesPlayed($player->getMinutesPlayed()+ 1,Config('sim_decrease_freshness'));}}
     function _hasPlayers(SimulationTeam $team){
     	if(!is_array($team->positionsAndPlayers)|| count($team->positionsAndPlayers)==0)return FALSE;
     	$noOfPlayers=0;
-    	foreach($team->positionsAndPlayers as $position=>$players){
-    		foreach($players as $player)$noOfPlayers++;}
+    	foreach($team->positionsAndPlayers as$position=>$players){
+    		foreach($players as$player)$noOfPlayers++;}
     	return($noOfPlayers>5);}}
 class StringUtil {
 	static function startsWith($message,$needle){ return !strncmp($message,$needle, strlen($needle));}
@@ -3094,7 +2860,6 @@ class StringUtil {
 		elseif($timestamp >= strtotime('today',$nowAsTimestamp))return Message('date_today');
 		elseif($timestamp >= strtotime('yesterday',$nowAsTimestamp))return Message('date_yesterday');
 		return '';}}
-//+ owsPro: New funtion - delDir($dir);
 function delDir($dir){
 	if(is_dir($dir)){
 		$files=scandir($dir);
@@ -3111,16 +2876,16 @@ class TemplateEngine{
 	function __construct(WebSoccer$env,I18n$i18n,ViewHandler$viewHandler=null){
 		$this->_skin=$env->getSkin();
 		$this->_initTwig();
-		$this->_environment->addGlobal(I18N_GLOBAL_NAME,$i18n);
-		$this->_environment->addGlobal(ENVIRONMENT_GLOBAL_NAME,$env);
-		$this->_environment->addGlobal(SKIN_GLOBAL_NAME,$this->_skin);
-		$this->_environment->addGlobal(VIEWHANDLER_GLOBAL_NAME,$viewHandler);}
+		$this->_environment->addGlobal('i18n',$i18n);
+		$this->_environment->addGlobal('env',$env);
+		$this->_environment->addGlobal('skin',$this->_skin);
+		$this->_environment->addGlobal('viewHandler',$viewHandler);}
 	function loadTemplate($templateName){return$this->_environment->load($this->_skin->getTemplate($templateName));}
 	function clearCache(){delDir($_SERVER['DOCUMENT_ROOT'].'/cache/templates');}
 	function getEnvironment(){return$this->_environment;}
 	function _addSettingsSupport(){$function=new Twig_SimpleFunction(CONFIG_FUNCTION_NAME,function($key){global $i18n;return Message($key);});$this->_environment->addFunction($function);}
 	function _initTwig(){
-		$twigConfig=array('cache'=> CACHE_FOLDER,);
+		$twigConfig=array('cache'=> $_SERVER['DOCUMENT_ROOT'].'/cache/templates',);
 		if(version_compare(PHP_VERSION,'7.1.0')>=0){
 			TwigAutoloader::register();
 			$loader=new Twig\Loader\FilesystemLoader($_SERVER['DOCUMENT_ROOT'].'/templates/default');
@@ -3136,11 +2901,11 @@ class UrlUtil {
 	static function buildCurrentUrlWithParameters($parameters){
 		$url=htmlentities($_SERVER['PHP_SELF']).'?';
 		$first=TRUE;
-		foreach($parameters as $parameterName=>$parameterValue){
+		foreach($parameters as$parameterName=>$parameterValue){
 			if(!$first)$url .= '&';
 			$url .= $parameterName.'='.$parameterValue;
 			$first=FALSE;}
-		foreach($_GET as $parameterName=>$parameterValue){
+		foreach($_GET as$parameterName=>$parameterValue){
 			if(!isset($parameters[$parameterName]))$url .= '&'.$parameterName.'='.$parameterValue;}
 		return escapeOutput($url);}}
 class User {
@@ -3156,8 +2921,8 @@ class User {
 		$this->premiumBalance=0;
 		$this->_isAdmin=NULL;}
 	function getRole(){
-		if($this->id==null)return ROLE_GUEST;
-		else return ROLE_USER;}
+		if($this->id==null)return 'guest';
+		else return 'user';}
 	function getClubId($websoccer=null,$db=null){
 		if($this->id!=null && $this->_clubId==null){
 			if(isset($_SESSION['clubid']))$this->_clubId=$_SESSION['clubid'];
@@ -3205,7 +2970,7 @@ class ViewHandler {
 		$this->_validationMessages=$validationMessages;}
 	function handlePage($pageId,$parameters){
 		if($pageId==NULL)return;
-		if(!isset($this->_pages[$pageId]))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($this->_pages[$pageId]))throw new Exception(Message('error_page_not_found'));
 		$pageConfig=json_decode($this->_pages[$pageId],TRUE);
 		$requiredRoles=explode(',',$pageConfig['role']);
 		if(!in_array($this->_website->getUser()->getRole(),$requiredRoles))throw new AccessDeniedException(Message('error_access_denied'));
@@ -3224,21 +2989,19 @@ class ViewHandler {
 			$class=$pageConfig['model'];
 			if(!class_exists($class))throw new Exception('The model class \''.$class.'\' does not exist.');
 			$model=new $class($this->_db,$this->_i18n,$this->_website);
-			//- Fatal error: Uncaught Error: Call to a member function on null
-			//- if(!$model->renderView())return '';
 			$parameters=array_merge($parameters,$model->getTemplateParameters());}
 		$parameters['validationMsg']=$this->_validationMessages;
 		$parameters['frontMessages']=$this->_website->getFrontMessages();
 		$parameters['blocks']=$this->_getBlocksForPage($pageId);
 		$scriptReferences=[];
 		if(isset($pageConfig['scripts'])){
-			foreach($pageConfig['scripts'] as $reference){
-				if((DEBUG && (!isset($reference['productiononly'])|| !$reference['productiononly']))|| (!DEBUG && (!isset($reference['debugonly'])|| !$reference['debugonly'])))$scriptReferences[]=$reference['file'];}}
+			foreach($pageConfig['scripts'] as$reference){
+				if(((!isset($reference['productiononly'])|| !$reference['productiononly']))|| ((!isset($reference['debugonly'])|| !$reference['debugonly'])))$scriptReferences[]=$reference['file'];}}
 		$parameters['scriptReferences']=$scriptReferences;
 		$cssReferences=[];
 		if(isset($pageConfig['csss'])){
-			foreach($pageConfig['csss'] as $reference){
-				if((DEBUG && (!isset($reference['productiononly'])|| !$reference['productiononly']))|| (!DEBUG && (!isset($reference['debugonly'])|| !$reference['debugonly'])))$cssReferences[]=$reference['file'];}}
+			foreach($pageConfig['csss'] as$reference){
+				if(((!isset($reference['productiononly'])|| !$reference['productiononly']))|| ((!isset($reference['debugonly'])|| !$reference['debugonly'])))$cssReferences[]=$reference['file'];}}
 		$parameters['cssReferences']=$cssReferences;
 		return$template->render($parameters);}
 	function renderBlock($blockId,$viewConfig=null,$parameters=null){
@@ -3266,14 +3029,14 @@ class ViewHandler {
 	function _getBlocksForPage($pageId){
 		$blocks=[];
 		$userRole=$this->_website->getUser()->getRole();
-		foreach($this->_blocks as $blockId=>$blockData){
+		foreach($this->_blocks as$blockId=>$blockData){
 			$blockConfig=json_decode($blockData, TRUE);
 			$includepages=explode(',',$blockConfig['includepages']);
 			$excludepages=(isset($blockConfig['excludepages']))? explode(',',$blockConfig['excludepages']): array();
 			$roles=explode(',',$blockConfig['role']);
 			$minPremiumBalanceRequired=(isset($blockConfig['premiumBalanceMin']))? $blockConfig['premiumBalanceMin'] : 0;
 			if(in_array($userRole,$roles)&&($includepages[0]=='all' &&!in_array($pageId,$excludepages)|| in_array($pageId,$includepages))&& $minPremiumBalanceRequired <= $this->_website->getUser()->premiumBalance)$blocks[$blockConfig['area']][]=$blockConfig;}
-		foreach($blocks as $uiblock=>$blockdata){
+		foreach($blocks as$uiblock=>$blockdata){
 			if($uiblock!='custom')usort($blocks[$uiblock],array('ViewHandler', 'sortByWeight'));}
 		return$blocks;}
 	static function sortByWeight(&$a, &$b){
@@ -3296,10 +3059,10 @@ class YouthMatchDataUpdateSimulatorObserver {
 		$salary=YouthPlayersDataService::computeSalarySumOfYouthPlayersOfTeam($this->_websoccer,$this->_db,$team->id);
 		if($salary)BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$team->id,$salary, 'youthteam_salarypayment_subject', 'match_salarypayment_sender');
 		if(is_array($team->positionsAndPlayers)){
-			foreach($team->positionsAndPlayers as $position=>$players){
-				foreach($players as $player)$this->_updatePlayer($match,$player, TRUE);}}
+			foreach($team->positionsAndPlayers as$position=>$players){
+				foreach($players as$player)$this->_updatePlayer($match,$player, TRUE);}}
 		if(is_array($team->removedPlayers)){
-			foreach($team->removedPlayers as $player)$this->_updatePlayer($match,$player, FALSE);}}
+			foreach($team->removedPlayers as$player)$this->_updatePlayer($match,$player, FALSE);}}
 	function _updatePlayer(SimulationMatch $match, SimulationPlayer $player,$isOnPitch){
 		$columns=array('name'=>$player->name, 'position_main'=>$player->mainPosition, 'grade'=>$player->getMark(), 'minutes_played'=>$player->getMinutesPlayed(), 'card_yellow'=>$player->yellowCards, 'card_red'=>$player->redCard,
 			'goals'=>$player->getGoals(), 'strength'=>$player->strength, 'ballcontacts'=>$player->getBallContacts(), 'wontackles'=>$player->getWonTackles(), 'shoots'=>$player->getShoots(), 'passes_successed'=>$player->getPassesSuccessed(),
@@ -3373,10 +3136,10 @@ class YouthMatchSimulationExecutor {
 				$match->cleanReferences();
 				unset($match);}}}
 	static function _createMatch($websoccer,$db,$matchinfo){
-		$homeTeam=new SimulationTeam($matchinfo['home_team_id'],DEFAULT_YOUTH_OFFENSIVE);
-		$guestTeam=new SimulationTeam($matchinfo['guest_team_id'],DEFAULT_YOUTH_OFFENSIVE);
+		$homeTeam=new SimulationTeam($matchinfo['home_team_id'],config('DEFAULT_YOUTH_OFFENSIVE'));
+		$guestTeam=new SimulationTeam($matchinfo['guest_team_id'],config('DEFAULT_YOUTH_OFFENSIVE'));
 		$match=new SimulationMatch($matchinfo['id'],$homeTeam,$guestTeam, 0);
-		$match->type=YOUTH_MATCH_TYPE;
+		$match->type='Youth';
 		$match->penaltyShootingEnabled=FALSE;
 		self::_addPlayers($websoccer,$db,$match,$homeTeam);
 		self::_addSubstitutions($websoccer,$db,$match,$homeTeam,$matchinfo, 'home');
@@ -3397,7 +3160,7 @@ class YouthMatchSimulationExecutor {
 			$technique=$strength;
 			$position=$playerinfo['player_position'];
 			$mainPosition=$playerinfo['match_position_main'];
-			$player=new SimulationPlayer($playerinfo['id'],$team,$position,$mainPosition,$playerinfo['grade'],DEFAULT_PLAYER_AGE,$strength,$technique, YOUTH_STRENGTH_STAMINA, YOUTH_STRENGTH_FRESHNESS, YOUTH_STRENGTH_SATISFACTION);
+			$player=new SimulationPlayer($playerinfo['id'],$team,$position,$mainPosition,$playerinfo['grade'],config('DEFAULT_PLAYER_AGE'),$strength,$technique,config('YOUTH_STRENGTH_STAMINA'),config('YOUTH_STRENGTH_FRESHNESS'),config('YOUTH_STRENGTH_SATISFACTION'));
 			$player->name=$name;
 			if($playerinfo['state']=='Ersatzbank')$team->playersOnBench[$playerinfo['id']]=$player;
 			else{
@@ -3408,7 +3171,7 @@ class YouthMatchSimulationExecutor {
 				if($player->position!=$playerinfo['player_position'])$player->strength=round($strength*(1 -Config('sim_strength_reduction_wrongposition')/ 100));
 				$team->positionsAndPlayers[$player->position][]=$player;
 				$addedFieldPlayers++;}}
-		if($addedFieldPlayers<MIN_NUMBER_OF_PLAYERS){
+		if($addedFieldPlayers<config('MIN_NUMBER_OF_PLAYERS')){
 			$team->noFormationSet=TRUE;
 			self::_createRandomFormation($websoccer,$db,$match,$team);}}
 	static function _createRandomFormation($websoccer,$db, SimulationMatch $match, SimulationTeam $team){
@@ -3417,10 +3180,10 @@ class YouthMatchSimulationExecutor {
 		$positionMapping=SimulationHelper::getPositionsMapping();
 		$players=YouthPlayersDataService::getYouthPlayersOfTeam($websoccer,$db,$team->id);
 		$positionIndex=0;
-		foreach($players as $playerinfo){
+		foreach($players as$playerinfo){
 			$mainPosition=$formationPositions[$positionIndex];
 			$position=$positionMapping[$mainPosition];
-			$player=new SimulationPlayer($playerinfo['id'],$team,$position,$mainPosition, 3.0, DEFAULT_PLAYER_AGE,$playerinfo['strength'],$playerinfo['strength'],YOUTH_STRENGTH_STAMINA, YOUTH_STRENGTH_FRESHNESS, YOUTH_STRENGTH_SATISFACTION);
+			$player=new SimulationPlayer($playerinfo['id'],$team,$position,$mainPosition,3.0,config('DEFAULT_PLAYER_AGE'),$playerinfo['strength'],$playerinfo['strength'],config('YOUTH_STRENGTH_STAMINA'),config('YOUTH_STRENGTH_FRESHNESS'),config('YOUTH_STRENGTH_SATISFACTION'));
 			$player->name=$playerinfo['firstname'].' '.$playerinfo['lastname'];
 			if($player->position!=$playerinfo['position'])$player->strength=round($playerinfo['strength']*(1 -Config('sim_strength_reduction_wrongposition')/ 100));
 			try {$columns=array('match_id'=>$match->id, 'team_id'=>$team->id, 'player_id'=>$player->id, 'playernumber'=>$positionIndex + 1, 'position'=>$player->position, 'position_main'=>$player->mainPosition, 'name'=>$player->name);
@@ -3444,8 +3207,8 @@ class YouthMatchSimulationExecutor {
 						$sub=new SimulationSubstitution($minute,$playerIn,$playerOut,$condition,$position);
 						$team->substitutions[]=$sub;}}}}}
 	function findPlayerOnField(SimulationTeam $team,$playerId){
-		foreach($team->positionsAndPlayers as $position=>$players){
-			foreach($players as $player){
+		foreach($team->positionsAndPlayers as$position=>$players){
+			foreach($players as$player){
 				if($player->id==$playerId)return$player;}}
 		return false;}}
 class Controller {
@@ -3465,7 +3228,7 @@ class AcceptStadiumConstructionWorkController extends Controller {
 		if($constructionResult=="notcompleted"){
 			$newDeadline=$this->_websoccer->getNowAsTimestamp()+Config("stadium_construction_delay")* 24*3600;
 			$this->_db->queryUpdate(array("deadline"=>$newDeadline),Config("db_prefix")."_stadium_construction","id=%d",$construction["id"]);
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("stadium_acceptconstruction_notcompleted_title"),Message("stadium_acceptconstruction_notcompleted_details")));}
+			$this->_websoccer->addFrontMessage(new FrontMessage('warning',Message("stadium_acceptconstruction_notcompleted_title"),Message("stadium_acceptconstruction_notcompleted_details")));}
 		else{
 			$stadium=StadiumsDataService::getStadiumByTeamId($this->_websoccer,$this->_db,$clubId);
 			$columns=[];
@@ -3476,7 +3239,7 @@ class AcceptStadiumConstructionWorkController extends Controller {
 			$columns["p_vip"]=$stadium["places_vip"] + $construction["p_vip"];
 			$this->_db->queryUpdate($columns,Config("db_prefix")."_stadion","id=%d",$stadium["stadium_id"]);
 			$this->_db->queryDelete(Config("db_prefix")."_stadium_construction","id=%d",$construction["id"]);
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("stadium_acceptconstruction_completed_title"),Message("stadium_acceptconstruction_completed_details")));}
+			$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("stadium_acceptconstruction_completed_title"),Message("stadium_acceptconstruction_completed_details")));}
 		return null;}}
 class AcceptYouthMatchRequestController extends Controller {
 	function executeAction($parameters){
@@ -3500,7 +3263,7 @@ class AcceptYouthMatchRequestController extends Controller {
 		$this->_db->queryDelete($fromTable,"id=%d",$parameters["id"]);
 		NotificationsDataService::createNotification($this->_websoccer,$this->_db,$homeTeam["user_id"],"youthteam_matchrequest_accept_notification",array("team"=>$guestTeam["team_name"],"date"=>$this->_websoccer->getFormattedDatetime($request["matchdate"])),
 			"youthmatch_accept","youth-matches",null,$request["team_id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_matchrequest_accept_success"),Message("youthteam_matchrequest_accept_success_details")));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("youthteam_matchrequest_accept_success"),Message("youthteam_matchrequest_accept_success_details")));
 		return "youth-matches";}}
 class AddNationalPlayerController extends Controller {
 	function executeAction($parameters){
@@ -3512,7 +3275,7 @@ class AddNationalPlayerController extends Controller {
 		$fromTable=Config("db_prefix")."_spieler";
 		$result=$this->_db->querySelect("nation",$fromTable,"id=%d",$parameters["id"]);
 		$player=$result->fetch_array();
-		if(!$player)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!$player)throw new Exception(Message('error_page_not_found'));
 		if($player["nation"]!=$team["name"])throw new Exception("Player is from different nation.");
 		$fromTable=Config("db_prefix")."_nationalplayer";
 		$result=$this->_db->querySelect("COUNT(*)AS hits",$fromTable,"player_id=%d",$parameters["id"]);
@@ -3522,7 +3285,7 @@ class AddNationalPlayerController extends Controller {
 		$existingplayers=$result->fetch_array();
 		if($existingplayers["hits"] >= 30)throw new Exception(Message("nationalteams_addplayer_err_toomanyplayer",30));
 		$this->_db->queryInsert(array("team_id"=>$teamId,"player_id"=>$parameters["id"]),$fromTable);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("nationalteams_addplayer_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("nationalteams_addplayer_success"),""));
 		return "nationalteam";}}
 class BookCampController extends Controller {
 	function executeAction($parameters){
@@ -3555,7 +3318,7 @@ class BookCampController extends Controller {
 		$columns["datum_start"]=$startDateTimestamp;
 		$columns["datum_ende"]=$endDateTimestamp;
 		$this->_db->queryInsert($columns,Config("db_prefix")."_trainingslager_belegung");
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("trainingcamp_booking_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("trainingcamp_booking_success"),""));
 		return "trainingcamp";}}
 class BorrowPlayerController extends Controller {
 	function executeAction($parameters){
@@ -3581,7 +3344,7 @@ class BorrowPlayerController extends Controller {
 		$playerName=(strlen($player["player_pseudonym"]))? $player["player_pseudonym"] : $player["player_firstname"]." ".$player["player_lastname"];
 		if($player["team_user_id"]){ NotificationsDataService::createNotification($this->_websoccer,$this->_db,$player["team_user_id"],"lending_notification_lent",array("player"=>$playerName,"matches"=>$parameters["matches"],"newteam"=>$team["team_name"]),
 			"lending_lent","player","id=".$player["player_id"]);}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("lending_hire_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("lending_hire_success"),""));
 		return "myteam";}
 	function updatePlayer($playerId,$ownerId,$clubId,$matches){
 		$columns=array("lending_matches"=>$matches,"lending_owner_id"=>$ownerId,"verein_id"=>$clubId);
@@ -3608,7 +3371,7 @@ class BuyYouthPlayerController extends Controller {
 		$this->_db->queryUpdate(array("team_id"=>$clubId,"transfer_fee"=> 0),Config("db_prefix")."_youthplayer","id=%d",$parameters["id"]);
 		NotificationsDataService::createNotification($this->_websoccer,$this->_db,$prevTeam["user_id"],"youthteam_transfer_notification",array("player"=>$player["firstname"]." ".$player["lastname"],"newteam"=>$team["team_name"]),"youth_transfer","team",
 			"id=".$clubId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_buy_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("youthteam_buy_success"),""));
 		return "youth-team";}}
 class CancelCampController extends Controller {
 	function executeAction($parameters){
@@ -3618,12 +3381,12 @@ class CancelCampController extends Controller {
 		$existingBookings=TrainingcampsDataService::getCampBookingsByTeam($this->_websoccer,$this->_db,$teamId);
 		if(!count($existingBookings))throw new Exception(Message("trainingcamp_cancel_illegalid"));
 		$deleted=FALSE;
-		foreach($existingBookings as $booking){
+		foreach($existingBookings as$booking){
 			if($booking["id"]==$parameters["bookingid"]){
 				$this->_db->queryDelete(Config("db_prefix")."_trainingslager_belegung","id=%d",$booking["id"]);
 				$deleted=TRUE;}}
 		if(!$deleted)throw new Exception(Message("trainingcamp_cancel_illegalid"));
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("trainingcamp_cancel_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("trainingcamp_cancel_success"),""));
 		return "trainingcamp";}}
 class CancelYouthMatchRequestController extends Controller {
 	function executeAction($parameters){
@@ -3636,7 +3399,7 @@ class CancelYouthMatchRequestController extends Controller {
 		if(!$request)throw new Exception(Message("youthteam_matchrequest_cancel_err_notfound"));
 		if($clubId!=$request["team_id"])throw new Exception("nice try");
 		$this->_db->queryDelete($fromTable,"id=%d",$parameters["id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_matchrequest_cancel_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("youthteam_matchrequest_cancel_success"),""));
 		return "youth-matchrequests";}}
 class ChooseAdditionalTeamController extends Controller {
 	function executeAction($parameters){
@@ -3661,7 +3424,7 @@ class ChooseAdditionalTeamController extends Controller {
 		if(isset($teamsOfUser[$club['liga_id']]))throw new Exception(Message('freeclubs_msg_error_no_club_from_same_league'));
 		$this->_db->queryUpdate(array('user_id'=>$user->id),$fromTable,"id=%d",$teamId);
 		$user->setClubId($teamId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message('freeclubs_msg_success'), ''));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message('freeclubs_msg_success'), ''));
 		return 'office';}}
 class ChooseSponsorController extends Controller {
 	function executeAction($parameters){
@@ -3674,7 +3437,7 @@ class ChooseSponsorController extends Controller {
 		if($teamMatchday <Config("sponsor_earliest_matchday"))throw new Exception(Message("sponsor_choose_tooearly",Config("sponsor_earliest_matchday")));
 		$sponsors=SponsorsDataService::getSponsorOffers($this->_websoccer,$this->_db,$teamId);
 		$found=FALSE;
-		foreach($sponsors as $availableSponsor){
+		foreach($sponsors as$availableSponsor){
 			if($availableSponsor["sponsor_id"]==$parameters["id"]){
 				$found=TRUE;
 				break;}}
@@ -3684,7 +3447,7 @@ class ChooseSponsorController extends Controller {
 		$fromTable=Config("db_prefix")."_verein";
 		$whereCondition="id=%d";
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$teamId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("sponsor_choose_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("sponsor_choose_success"),""));
 		return null;}}
 class ChooseTeamController extends Controller {
 	function executeAction($parameters){
@@ -3701,7 +3464,7 @@ class ChooseTeamController extends Controller {
 		$columns["user_id"]=$user->id;
 		$columns["interimmanager"]="0";
 		if(count($columns))$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$teamId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("freeclubs_msg_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("freeclubs_msg_success"),""));
 		return "office";}}
 class ChooseTrainerController extends Controller {
 	function executeAction($parameters){
@@ -3721,7 +3484,7 @@ class ChooseTrainerController extends Controller {
 		$columns["trainer_id"]=$trainer["id"];
 		$fromTable=Config("db_prefix")."_training_unit";
 		for($unitNo=1; $unitNo <= $numberOfUnits; $unitNo++)$this->_db->queryInsert($columns,$fromTable);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("saved_message_title"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("saved_message_title"),""));
 		return "training";}}
 class CreateYouthMatchRequestController extends Controller {
 	function executeAction($parameters){
@@ -3733,7 +3496,7 @@ class CreateYouthMatchRequestController extends Controller {
 		$validTimes=explode(",",$Config("youth_matchrequest_allowedtimes"));
 		$timeIsValid=FALSE;
 		$matchTime=date("H:i",$parameters["matchdate"]);
-		foreach($validTimes as $validTime){
+		foreach($validTimes as$validTime){
 			if($matchTime==trim($validTime)){
 				$timeIsValid=TRUE;
 				break;}}
@@ -3751,7 +3514,7 @@ class CreateYouthMatchRequestController extends Controller {
 		if(YouthMatchesDataService::countMatchesOfTeamOnSameDay($this->_websoccer,$this->_db,$clubId,$parameters["matchdate"])>= $maxMatchesPerDay)throw new Exception(Message("youthteam_matchrequest_err_maxperday_violated",$maxMatchesPerDay));
 		$columns=array( "team_id"=>$clubId,"matchdate"=>$parameters["matchdate"],"reward"=>$parameters["reward"]);
 		$this->_db->queryInsert($columns,$fromTable);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_matchrequest_create_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("youthteam_matchrequest_create_success"),""));
 		return "youth-matchrequests";}}
 class DeleteMessageController extends Controller {
 	function executeAction($parameters){
@@ -3761,7 +3524,7 @@ class DeleteMessageController extends Controller {
 		$fromTable=Config("db_prefix")."_briefe";
 		$whereCondition="id=%d";
 		$this->_db->queryDelete($fromTable,$whereCondition,$id);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("messages_delete_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("messages_delete_success"),""));
 		return null;}}
 class DeleteProfilePictureController extends Controller {
 	function executeAction($parameters){
@@ -3771,10 +3534,10 @@ class DeleteProfilePictureController extends Controller {
 		$whereCondition="id=%d";
 		$result=$this->_db->querySelect("picture",$fromTable,$whereCondition,$userId);
 		$userinfo=$result->fetch_array();
-		if(strlen($userinfo["picture"])&& file_exists(PROFPIC_UPLOADFOLDER."/".$userinfo["picture"]))unlink(PROFPIC_UPLOADFOLDER."/".$userinfo["picture"]);
+		if(strlen($userinfo["picture"])&& file_exists($_SERVER['DOCUMENT_ROOT'].'/uploads/'.'users'."/".$userinfo["picture"]))unlink($_SERVER['DOCUMENT_ROOT'].'/uploads/'.'users'."/".$userinfo["picture"]);
 		$this->_db->queryUpdate(array("picture"=>""),$fromTable,$whereCondition,$userId);
 		$this->_websoccer->getUser()->setProfilePicture($this->_websoccer, null);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("delete-profile-picture_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("delete-profile-picture_success"),""));
 		return "user";}}
 class DeleteShoutBoxMessageController extends Controller {
 	function executeAction($parameters){
@@ -3796,10 +3559,10 @@ class DirectTransferAcceptController extends Controller {
 		if($teamSize <Config("transfermarket_min_teamsize"))throw new Exception(Message("sell_player_teamsize_too_small",$teamSize));
 		if(Config("transferoffers_adminapproval_required")){
 			$this->_db->queryUpdate(array("admin_approval_pending"=>"1"),Config("db_prefix")."_transfer_offer","id=%d",$parameters["id"]);
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transferoffer_accepted_title"),Message("transferoffer_accepted_message_approvalpending")));}
+			$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("transferoffer_accepted_title"),Message("transferoffer_accepted_message_approvalpending")));}
 		else{
 			DirectTransfersDataService::executeTransferFromOffer($this->_websoccer,$this->_db,$parameters["id"]);
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transferoffer_accepted_title"),Message("transferoffer_accepted_message")));}
+			$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("transferoffer_accepted_title"),Message("transferoffer_accepted_message")));}
 		return null;}
 	function checkExchangePlayer($playerId,$userId,$teamBudget){
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
@@ -3816,7 +3579,7 @@ class DirectTransferCancelController extends Controller {
 		$offer=$result->fetch_array();
 		if(!$offer)throw new Exception(Message("transferoffers_offer_cancellation_notfound"));
 		$this->_db->queryDelete(Config("db_prefix")."_transfer_offer","id=%d",$offer["id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transferoffers_offer_cancellation_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("transferoffers_offer_cancellation_success"),""));
 		return null;}}
 class DirectTransferOfferController extends Controller {
 	function executeAction($parameters){
@@ -3845,7 +3608,7 @@ class DirectTransferOfferController extends Controller {
 		TeamsDataService::validateWhetherTeamHasEnoughBudgetForSalaryBid($this->_websoccer,$this->_db,$this->_i18n,$clubId,$player["player_contract_salary"]);
 		DirectTransfersDataService::createTransferOffer($this->_websoccer,$this->_db,$player["player_id"],$this->_websoccer->getUser()->id,$clubId,$player["team_user_id"],$player["team_id"],$parameters["amount"],$parameters["comment"],
 			$parameters["exchangeplayer1"],$parameters["exchangeplayer2"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transferoffer_submitted_title"),Message("transferoffer_submitted_message")));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("transferoffer_submitted_title"),Message("transferoffer_submitted_message")));
 		return null;}
 	function checkIfThereAreAlreadyOpenOffersFromUser($teamId){
 		if(Config("transferoffers_adminapproval_required"))return;
@@ -3889,7 +3652,7 @@ class DirectTransferRejectController extends Controller {
 		else $playerName=$player["player_firstname"]." ".$player["player_lastname"];
 		NotificationsDataService::createNotification($this->_websoccer,$this->_db,$offer["sender_user_id"],"transferoffer_notification_rejected",array("playername"=>$playerName,"receivername"=>$this->_websoccer->getUser()->username),"transferoffer",
 			"transferoffers#sent");
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transferoffers_offer_reject_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("transferoffers_offer_reject_success"),""));
 		return null;}}
 class DisableAccountController extends Controller {
 	function executeAction($parameters){
@@ -3897,12 +3660,12 @@ class DisableAccountController extends Controller {
 		if($clubId)$this->_db->queryUpdate(array("user_id"=> '',"captain_id"=> ''),Config("db_prefix")."_verein","user_id=%d",$this->_websoccer->getUser()->id);
 		$this->_db->queryUpdate(array("status"=>"0"),Config("db_prefix")."_user","id=%d",$this->_websoccer->getUser()->id);
 		$authenticatorClasses=explode(",",Config("authentication_mechanism"));
-		foreach($authenticatorClasses as $authenticatorClass){
+		foreach($authenticatorClasses as$authenticatorClass){
 			$authenticatorClass=trim($authenticatorClass);
 			if(!class_exists($authenticatorClass))throw new Exception("Class not found: ".$authenticatorClass);
 			$authenticator=new $authenticatorClass($this->_websoccer);
 			$authenticator->logoutUser($this->_websoccer->getUser());}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("cancellation_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("cancellation_success"),""));
 		return "home";}}
 class ExchangePremiumController extends Controller {
 	function executeAction($parameters){
@@ -3917,7 +3680,7 @@ class ExchangePremiumController extends Controller {
 		if($parameters["validateonly"])return "premium-exchange-confirm";
 		BankAccountDataService::creditAmount($this->_websoccer,$this->_db,$clubId,$amount*$exchangeRate,"premium-exchange_team_subject",$user->username);
 		PremiumDataService::debitAmount($this->_websoccer,$this->_db,$user->id,$amount,"exchange-premium");
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("premium-exchange_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("premium-exchange_success"),""));
 		return "premiumaccount";}}
 class ExecuteTrainingController extends Controller {
 	function executeAction($parameters){
@@ -3932,7 +3695,7 @@ class ExecuteTrainingController extends Controller {
 		$now=$this->_websoccer->getNowAsTimestamp();
 		if($now<$earliestValidExecution)throw new Exception(Message("training_execute_err_too_early",$this->_websoccer->getFormattedDatetime($earliestValidExecution)));
 		$campBookings=TrainingcampsDataService::getCampBookingsByTeam($this->_websoccer,$this->_db,$teamId);
-		foreach($campBookings as $booking){
+		foreach($campBookings as$booking){
 			if($booking["date_start"] <= $now && $booking["date_end"] >= $now)throw new Exception(Message("training_execute_err_team_in_training_camp"));}
 		$liveMatch=MatchesDataService::getLiveMatchByTeam($this->_websoccer,$this->_db,$teamId);
 		if(isset($liveMatch["match_id"]))throw new Exception(Message("training_execute_err_match_simulating"));
@@ -3946,7 +3709,7 @@ class ExecuteTrainingController extends Controller {
 		$fromTable=Config("db_prefix")."_training_unit";
 		$whereCondition="id=%d";
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$unit["id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("training_execute_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("training_execute_success"),""));
 		return null;}
 	function trainPlayers($teamId,$trainer,$unit){
 		$players=PlayersDataService::getPlayersOfTeamById($this->_websoccer,$this->_db,$teamId);
@@ -3954,7 +3717,7 @@ class ExecuteTrainingController extends Controller {
 		$fromTable=Config("db_prefix")."_spieler";
 		$whereCondition="id=%d";
 		$trainingEffects=[];
-		foreach($players as $player){
+		foreach($players as$player){
 			$effectFreshness=0;
 			$effectStamina=0;
 			$effectTechnique=0;
@@ -4006,7 +3769,7 @@ class ExtendContractController extends Controller {
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception("nice try");
 		$satisfaction=$player["player_strength_satisfaction"];
-		if($satisfaction<MINIMUM_SATISFACTION_FOR_EXTENSION)throw new Exception(Message("extend-contract_player_is_unhappy"));
+		if($satisfaction<config('MINIMUM_SATISFACTION_FOR_EXTENSION'))throw new Exception(Message("extend-contract_player_is_unhappy"));
 		if($player["player_transfermarket"])throw new Exception(Message("sell_player_already_on_list"));
 		if($parameters["salary"]<$player["player_contract_salary"])throw new Exception(Message("extend-contract_lower_than_current_salary"));
 		$averageSalary=$this->getAverageSalary($player["player_strength"]);
@@ -4025,7 +3788,7 @@ class ExtendContractController extends Controller {
 		if($parameters["goal_bonus"]<$minGoalBonus)throw new Exception(Message("extend-contract_goalbonus_too_low"));
 		$this->updatePlayer($player["player_id"],$player["player_strength_satisfaction"],$parameters["salary"],$parameters["goal_bonus"],$parameters["matches"]);
 		UserInactivityDataService::resetContractExtensionField($this->_websoccer,$this->_db,$user->id);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("extend-contract_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("extend-contract_success"),""));
 		return null;}
 	function getAverageSalary($playerStrength){
 		$columns="AVG(vertrag_gehalt)AS average_salary";
@@ -4037,15 +3800,15 @@ class ExtendContractController extends Controller {
 		if(isset($avg["average_salary"]))return$avg["average_salary"];
 		return$playerStrength;}
 	function decreaseSatisfaction($playerId,$oldValue){
-		if($oldValue <= SATISFACTION_DECREASE)return;
-		$newValue=$oldValue - SATISFACTION_DECREASE;
+		if($oldValue <= config('SATISFACTION_DECREASE'))return;
+		$newValue=$oldValue -config('SATISFACTION_DECREASE');
 		$columns["w_zufriedenheit"]=$newValue;
 		$fromTable=Config("db_prefix")."_spieler";
 		$whereCondition="id=%d";
 		$parameters=$playerId;
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);}
 	function updatePlayer($playerId,$oldSatisfaction,$newSalary,$newGoalBonus,$newMatches){
-		$satisfaction=min(100,$oldSatisfaction + SATISFACTION_INCREASE);
+		$satisfaction=min(100,$oldSatisfaction + config('SATISFACTION_INCREASE'));
 		$columns["w_zufriedenheit"]=$satisfaction;
 		$columns["vertrag_gehalt"]=$newSalary;
 		$columns["vertrag_torpraemie"]=$newGoalBonus;
@@ -4083,7 +3846,7 @@ class ExtendStadiumController extends Controller {
 		$this->_db->queryInsert(array("team_id"=>$teamId,"builder_id"=>$builderId,"started"=>$this->_websoccer->getNowAsTimestamp(),"deadline"=>$offer["deadline"],"p_steh"=>($parameters["side_standing"])? $parameters["side_standing"] : 0,
 			"p_sitz"=>($parameters["side_seats"])? $parameters["side_seats"] : 0,"p_haupt_steh"=>($parameters["grand_standing"])? $parameters["grand_standing"] : 0,"p_haupt_sitz"=>($parameters["grand_seats"])? $parameters["grand_seats"] : 0,
 			"p_vip"=>($parameters["vip"])? $parameters["vip"] : 0),Config("db_prefix")."_stadium_construction");
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("stadium_extend_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("stadium_extend_success"),""));
 		ActionLogDataService::createOrUpdateActionLog($this->_websoccer,$this->_db,$user->id,"extend-stadium");
 		$seats=$parameters["side_standing"] + $parameters["side_seats"] + $parameters["grand_standing"] + $parameters["grand_seats"] + $parameters["vip"];
 		BadgesDataService::awardBadgeIfApplicable($this->_websoccer,$this->_db,$user->id, 'stadium_construction_by_x',$seats);
@@ -4092,20 +3855,20 @@ class FacebookLoginController extends Controller {
 	function executeAction($parameters){
 		$userEmail=FacebookSdk::getInstance($this->_websoccer)->getUserEmail();
 		if(!strlen($userEmail)){
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("facebooklogin_failure"),""));
+			$this->_websoccer->addFrontMessage(new FrontMessage('warning',Message("facebooklogin_failure"),""));
 			return "home";}
 		$userEmail=strtolower($userEmail);
 		$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
 		if($userId<1)$userId=UsersDataService::createLocalUser($this->_websoccer,$this->_db, null,$userEmail);
 		SecurityUtil::loginFrontUserUsingApplicationSession($this->_websoccer,$userId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("facebooklogin_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("facebooklogin_success"),""));
 		return (strlen($this->_websoccer->getUser()->username))? "office" : "enter-username";}}
 class FacebookLogoutController extends Controller {
 	function executeAction($parameters){
 		if(strlen(FacebookSdk::getInstance($this->_websoccer)->getUserEmail())){
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_ERROR,Message("facebooklogout_failure"),""));
+			$this->_websoccer->addFrontMessage(new FrontMessage('error',Message("facebooklogout_failure"),""));
 			return null;}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("facebooklogout_success"),Message("facebooklogout_success_details")));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("facebooklogout_success"),Message("facebooklogout_success_details")));
 		return "home";}}
 class FirePlayerController extends Controller {
 	function executeAction($parameters){
@@ -4122,7 +3885,7 @@ class FirePlayerController extends Controller {
 			if($team["team_budget"] <= $compensation)throw new Exception(Message("fireplayer_tooexpensive"));
 			BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$clubId,$compensation,"fireplayer_compensation_subject",$player["player_firstname"]." ".$player["player_lastname"]);}
 		$this->updatePlayer($player["player_id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("fireplayer_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("fireplayer_success"),""));
 		return null;}
 	function updatePlayer($playerId){
 		$columns["verein_id"]="";
@@ -4147,7 +3910,7 @@ class FireYouthPlayerController extends Controller {
 		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception(Message("youthteam_err_notownplayer"));
 		$this->_db->queryDelete(Config("db_prefix")."_youthplayer","id=%d",$parameters["id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_fire_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("youthteam_fire_success"),""));
 		return "youth-team";}}
 class FormLoginController extends Controller {
 	function executeAction($parameters){
@@ -4157,7 +3920,7 @@ class FormLoginController extends Controller {
 		if(Config("login_type")=="email")$userId=$loginMethod->authenticateWithEmail($parameters["loginstr"],$parameters["loginpassword"]);
 		else $userId=$loginMethod->authenticateWithUsername($parameters["loginstr"],$parameters["loginpassword"]);
 		if(!$userId){
-			sleep(SLEEP_SECONDS_ON_FAILURE);
+			sleep(config('SLEEP_SECONDS_ON_FAILURE'));
 			throw new Exception(Message("formlogin_invalid_data"));}
 		SecurityUtil::loginFrontUserUsingApplicationSession($this->_websoccer,$userId);
 		if(isset($parameters["rememberme"])&& $parameters["rememberme"]==1){
@@ -4171,19 +3934,19 @@ class FormLoginController extends Controller {
 			$sessionToken=SecurityUtil::generateSessionToken($userId,$salt);
 			$columns=array("tokenid"=>$sessionToken,"passwort_salt"=>$salt);
 			$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameter);
-			CookieHelper::createCookie("user",$sessionToken, REMEMBERME_COOKIE_LIFETIME_DAYS);}
+			CookieHelper::createCookie("user",$sessionToken,config('REMEMBERME_COOKIE_LIFETIME_DAYS'));}
 		return (strlen($this->_websoccer->getUser()->username))? "office" : "enter-username";}}
 class GoogleplusLoginController extends Controller {
 	function executeAction($parameters){
 		$userEmail=GoogleplusSdk::getInstance($this->_websoccer)->authenticateUser();
 		if(!$userEmail){
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("googlepluslogin_failure"),""));
+			$this->_websoccer->addFrontMessage(new FrontMessage('warning',Message("googlepluslogin_failure"),""));
 			return "home";}
 		$userEmail=strtolower($userEmail);
 		$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
 		if($userId<1)$userId=UsersDataService::createLocalUser($this->_websoccer,$this->_db, null,$userEmail);
 		SecurityUtil::loginFrontUserUsingApplicationSession($this->_websoccer,$userId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("googlepluslogin_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("googlepluslogin_success"),""));
 		return (strlen($this->_websoccer->getUser()->username))? "office" : "enter-username";}}
 class LanguageSwitcherController extends Controller {
 	function executeAction($parameters){
@@ -4197,8 +3960,8 @@ class LanguageSwitcherController extends Controller {
 			$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$user->id);}
 		global $msg;
 		$msg=[];
-		include(sprintf(CONFIGCACHE_MESSAGES,$lang));
-		include(sprintf(CONFIGCACHE_ENTITYMESSAGES,$lang));
+		include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/messages_%s.inc.php',$lang));
+		include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/entitymessages_%s.inc.php',$lang));
 		include(sprintf($_SERVER['DOCUMENT_ROOT'].'/languages/messages_%s.php',$lang));
 		return null;}}
 class LendPlayerController extends Controller {
@@ -4216,7 +3979,7 @@ class LendPlayerController extends Controller {
 		$minBidBoundary=round($player["player_marketvalue"] / 2);
 		if($player["player_contract_matches"] <=Config("lending_matches_min"))throw new Exception(Message("lending_err_contract_too_short"));
 		$this->updatePlayer($player["player_id"],$parameters["fee"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("lend_player_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("lend_player_success"),""));
 		return "myteam";}
 	function updatePlayer($playerId,$fee){
 		$columns=array("lending_fee"=>$fee);
@@ -4227,12 +3990,12 @@ class LendPlayerController extends Controller {
 class LogoutController extends Controller {
 	function executeAction($parameters){
 		$authenticatorClasses=explode(",",Config("authentication_mechanism"));
-		foreach($authenticatorClasses as $authenticatorClass){
+		foreach($authenticatorClasses as$authenticatorClass){
 			$authenticatorClass=trim($authenticatorClass);
 			if(!class_exists($authenticatorClass))throw new Exception("Class not found: ".$authenticatorClass);
 			$authenticator=new $authenticatorClass($this->_websoccer);
 			$authenticator->logoutUser($this->_websoccer->getUser());}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("logout_message_title"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("logout_message_title"),""));
 		return "home";}}
 class MarkAsUnsellableController extends Controller {
 	function executeAction($parameters){
@@ -4245,7 +4008,7 @@ class MarkAsUnsellableController extends Controller {
 		$whereCondition="id=%d";
 		$parameters=$parameters["id"];
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("myteam_unsellable_player_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("myteam_unsellable_player_success"),""));
 		return null;}}
 class MicropaymentRedirectController extends Controller {
 	function executeAction($parameters){
@@ -4260,13 +4023,13 @@ class MicropaymentRedirectController extends Controller {
 		if(Config("micropayment_creditcard_enabled"))$validModules[]='creditcard';
 		$module=FALSE;
 		if(isset($_POST['module'])){
-			foreach($_POST['module'] as $moduleId=>$value)$module=$moduleId;}
+			foreach($_POST['module'] as$moduleId=>$value)$module=$moduleId;}
 		if(!$module||!in_array($moduleId,$validModules))throw new Exception('Illegal payment module.');
 		$amount=$parameters['amount'];
 		$priceOptions=explode(',',Config('premium_price_options'));
 		$validAmount=FALSE;
 		if(count($priceOptions)){
-			foreach($priceOptions as $priceOption){
+			foreach($priceOptions as$priceOption){
 				$optionParts=explode(':',$priceOption);
 				$realMoney=trim($optionParts[0]);
 				if($amount==$realMoney)$validAmount=TRUE;}}
@@ -4298,7 +4061,7 @@ class MoveYouthPlayerToProfessionalController extends Controller {
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
 		if($team["team_budget"] <= TeamsDataService::getTotalPlayersSalariesOfTeam($this->_websoccer,$this->_db,$clubId))throw new Exception(Message("youthteam_makeprofessional_err_budgettooless"));
 		$this->createPlayer($player,$parameters["mainposition"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_makeprofessional_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("youthteam_makeprofessional_success"),""));
 		return "myteam";}
 	function createPlayer($player,$mainPosition){
 		$time=strtotime("-".$player["age"]." years",$this->_websoccer->getNowAsTimestamp());
@@ -4338,12 +4101,12 @@ class OrderBuildingController extends Controller {
 			$userinfo=$result->fetch_array();
 			$popularity=min(100, max(1,$building['effect_fanpopularity'] + $userinfo['fanbeliebtheit']));
 			$this->_db->queryUpdate(array('fanbeliebtheit'=>$popularity),$dbPrefix.'_user', 'id=%d',$user->id);}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("stadiumenvironment_build_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("stadiumenvironment_build_success"),""));
 		return null;}}
 class PaypalPaymentNotificationController extends Controller {
 	function executeAction($parameters){
 		$req='cmd=_notify-validate';
-		foreach($_POST as $key=>$value){
+		foreach($_POST as$key=>$value){
 			$value=urlencode(stripslashes($value));
 			$req.="&$key=$value";}
 		$header="POST /cgi-bin/webscr HTTP/1.0\r\n";
@@ -4376,7 +4139,7 @@ class PaypalPaymentNotificationController extends Controller {
 		return null;}}
 class PremiumActionDummyController extends Controller {
 	function executeAction($parameters){
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,"Premium action completed","testparam1: ".$parameters["testparam1"]." - testparam2: ".$parameters["testparam2"]));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',"Premium action completed","testparam1: ".$parameters["testparam1"]." - testparam2: ".$parameters["testparam2"]));
 		return null;}}
 class RegisterFormController extends Controller {
 	function executeAction($parameters){
@@ -4402,7 +4165,7 @@ class RegisterFormController extends Controller {
 		$rows=$result->fetch_array();
 		if($rows["hits"])throw new Exception(Message("registration_user_exists"));
 		$this->_createUser($parameters,$fromTable);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("register-success_message_title"),Message("register-success_message_content")));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("register-success_message_title"),Message("register-success_message_content")));
 		return "register-success";}
 	function _createUser($parameters,$fromTable){
 		$dbcolumns=[];
@@ -4444,10 +4207,10 @@ class RemoveNationalPlayerController extends Controller{
 		$fromTable=Config("db_prefix")."_spieler";
 		$result=$this->_db->querySelect("nation",$fromTable,"id=%d",$parameters["id"]);
 		$player=$result->fetch_array();
-		if(!$player)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!$player)throw new Exception(Message('error_page_not_found'));
 		if($player["nation"]!=$team["name"])throw new Exception("Player is from different nation.");
 		$this->_db->queryDelete(Config("db_prefix")."_nationalplayer","player_id=%d AND team_id=%d",array($parameters["id"],$teamId));
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("nationalteams_removeplayer_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("nationalteams_removeplayer_success"),""));
 		return "nationalteam";}}
 class RemovePlayerFromTransfermarketController extends Controller {
 	function executeAction($parameters){
@@ -4459,7 +4222,7 @@ class RemovePlayerFromTransfermarketController extends Controller {
 		$highestBid=TransfermarketDataService::getHighestBidForPlayer($this->_websoccer,$this->_db,$parameters["id"],$player["transfer_start"],$player["transfer_end"]);
 		if($highestBid)throw new Exception(Message("transfermarket_remove_err_bidexists"));
 		$this->_db->queryUpdate(array('transfermarkt'=> '0', 'transfer_start'=> 0, 'transfer_ende'=> 0),Config('db_prefix').'_spieler', 'id=%d',$parameters['id']);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("transfermarket_remove_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("transfermarket_remove_success"),""));
 		return "myteam";}}
 class RemoveYouthPlayerFromMarketController extends Controller {
 	function executeAction($parameters){
@@ -4469,7 +4232,7 @@ class RemoveYouthPlayerFromMarketController extends Controller {
 		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception(Message("youthteam_err_notownplayer"));
 		$this->updatePlayer($parameters["id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_removefrommarket_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("youthteam_removefrommarket_success"),""));
 		return "youth-team";}
 	function updatePlayer($playerId){
 		$columns=array("transfer_fee"=> 0);
@@ -4486,7 +4249,7 @@ class RenameClubController extends Controller {
 		$short=strtoupper($parameters['kurz']);
 		$this->_db->queryUpdate(array('name'=>$parameters['name'],'kurz'=>$short),Config('db_prefix').'_verein', 'id=%d',$clubId);
 		$this->_db->queryUpdate(array('S.name'=>$parameters['stadium']),Config('db_prefix').'_verein AS C INNER JOIN '.Config('db_prefix').'_stadion AS S ON S.id=C.stadion_id', 'C.id=%d',$clubId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("rename-club_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("rename-club_success"),""));
 		return 'league';}}
 class ReportAbsenceController extends Controller {
 	function executeAction($parameters){
@@ -4495,13 +4258,13 @@ class ReportAbsenceController extends Controller {
 		if($deputyId<1)throw new Exception(Message("absence_err_invaliddeputy"));
 		if($userId==$deputyId)throw new Exception(Message("absence_err_deputyisself"));
 		AbsencesDataService::makeUserAbsent($this->_websoccer,$this->_db,$userId,$deputyId,$parameters['days']);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("absence_report_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("absence_report_success"),""));
 		return null;}}
 class ReturnFromAbsenceController extends Controller {
 	function executeAction($parameters){
 		$userId=$this->_websoccer->getUser()->id;
 		AbsencesDataService::confirmComeback($this->_websoccer,$this->_db,$userId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("absence_return_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("absence_return_success"),""));
 		return "office";}}
 class SaveFormationController extends Controller {
 	function executeAction($parameters){
@@ -4512,7 +4275,7 @@ class SaveFormationController extends Controller {
 		$nextMatches=MatchesDataService::getNextMatches($this->_websoccer,$this->_db,$teamId,Config('formation_max_next_matches'));
 		if(!count($nextMatches))throw new Exception(Message('formation_err_nonextmatch'));
 		$matchId=$parameters['id'];
-		foreach($nextMatches as $nextMatch){
+		foreach($nextMatches as$nextMatch){
 			if($nextMatch['match_id']==$matchId){
 				$matchinfo=$nextMatch;
 				break;}}
@@ -4543,7 +4306,7 @@ class SaveFormationController extends Controller {
 				$this->validateSubstitution($playerIn,$playerOut,$playerMinute,$players);
 				$validSubstitutions[]=$subNo;}}
 		$this->saveFormation($teamId,$matchinfo['match_id'],$parameters,$validSubstitutions);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message('saved_message_title'), ''));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message('saved_message_title'), ''));
 		return null;}
 	function validatePlayer($playerId,$players,$bench=FALSE){
 		if($playerId==null||$playerId==0)return;
@@ -4592,7 +4355,7 @@ class SaveFormationController extends Controller {
 			$result=$this->_db->querySelect('COUNT(*)AS templates',$fromTable, 'verein_id=%d AND templatename IS NOT NULL',$teamId);
 			$existingTemplates=$result->fetch_array();
 			if($existingTemplates && $existingTemplates['templates'] >=Config('formation_max_templates')){
-				$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,
+				$this->_websoccer->addFrontMessage(new FrontMessage('warning',
 					Message('formation_template_saving_failed_because_boundary_title',Config('formation_max_templates')),
 					Message('formation_template_saving_failed_because_boundary_details')));}
 			else{
@@ -4641,7 +4404,7 @@ class SaveMatchChangesController extends Controller {
 				if($slot && $newOut && $newIn && $newMinute){
 					if($saveSub && $newMinute<$nextPossibleMinute){
 						$newMinute=$nextPossibleMinute;
-						$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING, '',Message('match_details_changes_too_late_altered',$subNo)));}
+						$this->_websoccer->addFrontMessage(new FrontMessage('warning', '',Message('match_details_changes_too_late_altered',$subNo)));}
 					$columns[$teamPrefixDb.'_w'.$slot.'_raus']=$newOut;
 					$columns[$teamPrefixDb.'_w'.$slot.'_rein']=$newIn;
 					$columns[$teamPrefixDb.'_w'.$slot.'_minute']=$newMinute;
@@ -4668,7 +4431,7 @@ class SaveMatchChangesController extends Controller {
 			$whereCondition='id=%d';
 			$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$matchId);}
 		$this->_updatePlayerPosition($parameters,$matchId,$teamId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message('saved_message_title'), ''));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message('saved_message_title'), ''));
 		return "match";}
 	function _updatePlayerPosition($parameters,$matchId,$teamId){
 		$players=MatchesDataService::getMatchPlayerRecordsByField($this->_websoccer,$this->_db,$matchId,$teamId);
@@ -4681,7 +4444,7 @@ class SaveMatchChangesController extends Controller {
 		$updateTable=Config('db_prefix').'_spiel_berechnung';
 		$whereCondition='id=%d';
 		$setupMainMapping=array('T'=> 'Torwart', 'LV'=> 'Abwehr', 'RV'=> 'Abwehr', 'IV'=> 'Abwehr', 'DM'=> 'Mittelfeld', 'LM'=> 'Mittelfeld', 'ZM'=> 'Mittelfeld', 'RM'=> 'Mittelfeld', 'OM'=> 'Mittelfeld', 'LS'=> 'Sturm', 'MS'=> 'Sturm', 'RS'=> 'Sturm');
-		foreach($playersOnField as $player){
+		foreach($playersOnField as$player){
 			if(isset($submittedPositions[$player['id']])){
 				$newPos=$submittedPositions[$player['id']];
 				$oldPos=$player['match_position_main'];
@@ -4721,7 +4484,7 @@ class SaveProfileController extends Controller {
 			Message("activation_changedemail_subject"),
 			"changed_email_activation",
 			$tplparameters);
-			$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("profile_changedemail_message_title"),Message("profile_changedemail_message_content")));}
+			$this->_websoccer->addFrontMessage(new FrontMessage('warning',Message("profile_changedemail_message_title"),Message("profile_changedemail_message_content")));}
 		$columns["name"]=$parameters["realname"];
 		$columns["wohnort"]=$parameters["place"];
 		$columns["land"]=$parameters["country"];
@@ -4737,7 +4500,7 @@ class SaveProfileController extends Controller {
 			$fromTable=Config("db_prefix")."_user";
 			$whereCondition="id=%d";
 			$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$user->id);}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("saved_message_title"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("saved_message_title"),""));
 		return "profile";}}
 class SaveTicketsController extends Controller {
 	function executeAction($parameters){
@@ -4753,7 +4516,7 @@ class SaveTicketsController extends Controller {
 		$whereCondition="id=%d";
 		$parameters=$clubId;
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("saved_message_title"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("saved_message_title"),""));
 		return null;}}
 class SaveUsernameController extends Controller {
 	function executeAction($parameters){
@@ -4775,7 +4538,7 @@ class SaveYouthFormationController extends Controller{
 		$matchinfo=YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer,$this->_db,$this->_i18n,$parameters["matchid"]);
 		if($matchinfo["home_team_id"]==$teamId)$teamPrefix="home";
 		elseif($matchinfo["guest_team_id"]==$teamId)$teamPrefix="guest";
-		else throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		else throw new Exception(Message('error_page_not_found'));
 		if($matchinfo["matchdate"]<$this->_websoccer->getNowAsTimestamp()|| $matchinfo["simulated"])throw new Exception(Message("youthformation_err_matchexpired"));
 		$this->validatePlayer($parameters["player1"]);
 		$this->validatePlayer($parameters["player2"]);
@@ -4802,7 +4565,7 @@ class SaveYouthFormationController extends Controller{
 				$this->validateSubstitution($playerIn,$playerOut,$playerMinute);
 				$validSubstitutions[]=$subNo;}}
 		$this->saveFormation($teamId,$parameters,$validSubstitutions,$matchinfo,$teamPrefix);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("saved_message_title"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("saved_message_title"),""));
 		return null;}
 	function validatePlayer($playerId){
 		$this->_addedPlayers=[];
@@ -4898,7 +4661,7 @@ class ScoutYouthPlayerController extends Controller {
 		$nextPossibleExecutionTimestamp=$lastExecutionTimestamp +Config("youth_scouting_break_hours")* 3600;
 		$now=$this->_websoccer->getNowAsTimestamp();
 		if($now<$nextPossibleExecutionTimestamp)throw new Exception(Message("youthteam_scouting_err_breakviolation",$this->_websoccer->getFormattedDatetime($nextPossibleExecutionTimestamp)));
-		$namesFolder=NAMES_DIRECTORY."/".$parameters["country"];
+		$namesFolder=$_SERVER['DOCUMENT_ROOT'].'/module/admin/config/names'."/".$parameters["country"];
 		if(!file_exists($namesFolder."/firstnames.txt")|| !file_exists($namesFolder."/lastnames.txt"))throw new Exception(Message("youthteam_scouting_err_invalidcountry"));
 		$scout=YouthPlayersDataService::getScoutById($this->_websoccer,$this->_db,$this->_i18n,$parameters["scoutid"]);
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
@@ -4908,12 +4671,12 @@ class ScoutYouthPlayerController extends Controller {
 		$succesProbability=(int)Config("youth_scouting_success_probability");
 		if(Config("youth_scouting_success_probability")< 100)$found=SimulationHelper::selectItemFromProbabilities(array(TRUE=>$succesProbability, FALSE=> 100 - $succesProbability));
 		if($found)$this->createYouthPlayer($clubId,$scout,$parameters["country"]);
-		else $this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("youthteam_scouting_failure"),""));
+		else $this->_websoccer->addFrontMessage(new FrontMessage('warning',Message("youthteam_scouting_failure"),""));
 		$this->_db->queryUpdate(array("scouting_last_execution"=>$now),Config("db_prefix")."_verein","id=%d",$clubId);
 		return($found)? "youth-team" : "youth-scouting";}
 	function createYouthPlayer($clubId,$scout,$country){
-		$firstName=$this->getItemFromFile(NAMES_DIRECTORY."/".$country."/firstnames.txt");
-		$lastName=$this->getItemFromFile(NAMES_DIRECTORY."/".$country."/lastnames.txt");
+		$firstName=$this->getItemFromFile($_SERVER['DOCUMENT_ROOT'].'/module/admin/config/names'."/".$country."/firstnames.txt");
+		$lastName=$this->getItemFromFile($_SERVER['DOCUMENT_ROOT'].'/module/admin/config/names'."/".$country."/lastnames.txt");
 		$minStrength=(int)Config("youth_scouting_min_strength");
 		$maxStrength=(int)Config("youth_scouting_max_strength");
 		$scoutFactor=$scout["expertise"] / 100;
@@ -4933,7 +4696,7 @@ class ScoutYouthPlayerController extends Controller {
 		$this->_db->queryInsert(array("team_id"=>$clubId,"firstname"=>$firstName,"lastname"=>$lastName,"age"=>$age,"position"=>$position,"nation"=>$country,"strength"=>$strength),Config("db_prefix")."_youthplayer");
 		$event=new YouthPlayerScoutedEvent($this->_websoccer,$this->_db,$this->_i18n,$clubId,$scout["id"],$this->_db->getLastInsertedId());
 		PluginMediator::dispatchEvent($event);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_scouting_success"),Message("youthteam_scouting_success_details",$firstName." ".$lastName)));}
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("youthteam_scouting_success"),Message("youthteam_scouting_success_details",$firstName." ".$lastName)));}
 	function getItemFromFile($fileName){
 		$items=file($fileName, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 		$itemsCount=count($items);
@@ -4947,14 +4710,14 @@ class SelectCaptainController extends Controller {
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception("nice try");
 		$this->_db->queryUpdate(array("captain_id"=>$parameters["id"]),Config("db_prefix")."_verein","id=%d",$clubId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("myteam_player_select_as_captain_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("myteam_player_select_as_captain_success"),""));
 		if($team["captain_id"] && $team["captain_id"]!=$parameters["id"]){
 			$oldPlayer=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$team["captain_id"]);
 			if($oldPlayer["team_id"]==$clubId){
 				$newSatisfaction=round($oldPlayer["player_strength_satisfaction"]*0.6);
 				$this->_db->queryUpdate(array("w_zufriedenheit"=>$newSatisfaction),Config("db_prefix")."_spieler","id=%d",$oldPlayer["player_id"]);
 				$playername=(strlen($oldPlayer["player_pseudonym"]))? $oldPlayer["player_pseudonym"] : $oldPlayer["player_firstname"]." ".$oldPlayer["player_lastname"];
-				$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("myteam_player_select_as_captain_warning_old_captain",$playername),""));}}
+				$this->_websoccer->addFrontMessage(new FrontMessage('warning',Message("myteam_player_select_as_captain_warning_old_captain",$playername),""));}}
 		return null;}}
 class SelectTeamController extends Controller {
 	function executeAction($parameters){
@@ -4982,7 +4745,7 @@ class SellPlayerController extends Controller{
 		$minBidBoundary=round($player["player_marketvalue"] / 2);
 		if($parameters["min_bid"]<$minBidBoundary)throw new Exception(Message("sell_player_min_bid_too_low"));
 		$this->updatePlayer($player["player_id"],$parameters["min_bid"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("sell_player_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("sell_player_success"),""));
 		return "transfermarket";}
 	function updatePlayer($playerId,$minBid){
 		$now=$this->_websoccer->getNowAsTimestamp();
@@ -5003,7 +4766,7 @@ class SellYouthPlayerController extends Controller {
 		if($clubId!=$player["team_id"])throw new Exception(Message("youthteam_err_notownplayer"));
 		if($player["transfer_fee"])throw new Exception(Message("youthteam_sell_err_alreadyonmarket"));
 		$this->updatePlayer($parameters["id"],$parameters["transfer_fee"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("youthteam_sell_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("youthteam_sell_success"),""));
 		return "youth-team";}
 	function updatePlayer($playerId,$transferFee){
 		$columns=array("transfer_fee"=>$transferFee);
@@ -5031,7 +4794,7 @@ class SendMessageController extends Controller {
 		$this->_db->queryInsert($columns,$fromTable);
 		$columns["typ"]="ausgang";
 		$this->_db->queryInsert($columns,$fromTable);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("messages_send_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("messages_send_success"),""));
 		$_REQUEST["subject"]="";
 		$_REQUEST["msgcontent"]="";
 		$_REQUEST["nick"]="";
@@ -5064,7 +4827,7 @@ class SendPasswordController extends Controller {
 		$parameter=$userdata["id"];
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameter);
 		$this->_sendEmail($email,$password);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("forgot-password_message_title"),Message("forgot-password_message_content")));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("forgot-password_message_title"),Message("forgot-password_message_content")));
 		return "login";}
 	function _sendEmail($email,$password){
 		$tplparameters["newpassword"]=$password;
@@ -5116,7 +4879,7 @@ class SofortComRedirectController extends Controller {
 		$priceOptions=explode(',',Config('premium_price_options'));
 		$validAmount=FALSE;
 		if(count($priceOptions)){
-			foreach($priceOptions as $priceOption){
+			foreach($priceOptions as$priceOption){
 				$optionParts=explode(':',$priceOption);
 				$realMoney=trim($optionParts[0]);
 				if($amount==$realMoney)$validAmount=TRUE;}}
@@ -5179,7 +4942,7 @@ class TransferBidController extends Controller {
 		if(isset($highestBid['user_id'])&& $highestBid['user_id']){
 			$playerName=(strlen($player['player_pseudonym']))? $player['player_pseudonym'] : $player['player_firstname'].' '.$player['player_lastname'];
 			NotificationsDataService::createNotification($this->_websoccer,$this->_db,$highestBid['user_id'],'transfer_bid_notification_outbidden',array('player'=>$playerName), 'transfermarket', 'transfer-bid', 'id='.$playerId);}
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message('transfer_bid_success'), ''));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message('transfer_bid_success'), ''));
 		return null;}
 	function saveBid($playerId,$userId,$clubId,$parameters){
 		$columns['spieler_id']=$playerId;
@@ -5206,7 +4969,7 @@ class UnmarkLendableController extends Controller {
 		$whereCondition="id=%d";
 		$parameters=$parameters["id"];
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("lending_lendable_unmark_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("lending_lendable_unmark_success"),""));
 		return null;}}
 class UnmarkUnsellableController extends Controller {
 	function executeAction($parameters){
@@ -5219,7 +4982,7 @@ class UnmarkUnsellableController extends Controller {
 		$whereCondition="id=%d";
 		$parameters=$parameters["id"];
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("myteam_remove_unsellable_player_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("myteam_remove_unsellable_player_success"),""));
 		return null;}}
 class UpgradeStadiumController extends Controller {
 	function executeAction($parameters){
@@ -5238,7 +5001,7 @@ class UpgradeStadiumController extends Controller {
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$teamId,$costs,"stadium_upgrade_transaction_subject",$stadium["name"]);
 		$maintenanceDue=(int)Config("stadium_maintenanceinterval_".$type);
 		$this->_db->queryUpdate(array("level_".$type=>$existingLevel + 1,"maintenance_".$type=>$maintenanceDue),Config("db_prefix")."_stadion","id=%d",$stadium["stadium_id"]);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("stadium_upgrade_success"),Message("stadium_upgrade_success_details")));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("stadium_upgrade_success"),Message("stadium_upgrade_success_details")));
 		return "stadium";}}
 class UploadClubPictureController extends Controller {
 	function executeAction($parameters){
@@ -5261,17 +5024,17 @@ class UploadClubPictureController extends Controller {
 		if($errorcode==UPLOAD_ERR_OK){
 			$tmp_name=$_FILES["picture"]["tmp_name"];
 			$name=hash('sha256',$clubId . time()).".".$ext;
-			$uploaded=@move_uploaded_file($tmp_name, CLUBPICTURE_UPLOAD_DIR."/".$name);
+			$uploaded=@move_uploaded_file($tmp_name, $_SERVER['DOCUMENT_ROOT'].'/uploads/club'."/".$name);
 			if(!$uploaded)throw new Exception(Message("change-profile-picture_err_failed"));}
 		else throw new Exception(Message("change-profile-picture_err_failed"));
-		if($imagesize[0]!=120||$imagesize[1]!=120)$this->resizeImage(CLUBPICTURE_UPLOAD_DIR."/".$name, 120,$imagesize[0],$imagesize[1],$ext=="png");
+		if($imagesize[0]!=120||$imagesize[1]!=120)$this->resizeImage($_SERVER['DOCUMENT_ROOT'].'/uploads/club'."/".$name, 120,$imagesize[0],$imagesize[1],$ext=="png");
 		$fromTable=Config("db_prefix")."_verein";
 		$whereCondition="id=%d";
 		$result=$this->_db->querySelect("bild",$fromTable,$whereCondition,$clubId);
 		$clubinfo=$result->fetch_array();
-		if(strlen($clubinfo["bild"])&& file_exists(CLUBPICTURE_UPLOAD_DIR."/".$clubinfo["bild"]))unlink(CLUBPICTURE_UPLOAD_DIR."/".$clubinfo["bild"]);
+		if(strlen($clubinfo["bild"])&& file_exists($_SERVER['DOCUMENT_ROOT'].'/uploads/club'."/".$clubinfo["bild"]))unlink($_SERVER['DOCUMENT_ROOT'].'/uploads/club'."/".$clubinfo["bild"]);
 		$this->_db->queryUpdate(array("bild"=>$name),$fromTable,$whereCondition,$clubId);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("upload-clublogo_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("upload-clublogo_success"),""));
 		return null;}
 	function resizeImage($file,$width,$oldWidth,$oldHeight,$isPng){
 		if(!$isPng)$src=imagecreatefromjpeg($file);
@@ -5300,18 +5063,18 @@ class UploadProfilePictureController extends Controller {
 		if($errorcode==UPLOAD_ERR_OK){
 			$tmp_name=$_FILES["picture"]["tmp_name"];
 			$name=hash('sha256',$userId . time()).".".$ext;
-			$uploaded=@move_uploaded_file($tmp_name, PROFPIC_UPLOADFOLDER."/".$name);
+			$uploaded=@move_uploaded_file($tmp_name, $_SERVER['DOCUMENT_ROOT'].'/uploads/'.'users'."/".$name);
 			if(!$uploaded)throw new Exception(Message("change-profile-picture_err_failed"));}
 		else throw new Exception(Message("change-profile-picture_err_failed"));
-		if($imagesize[0]!=120||$imagesize[1]!=120)$this->resizeImage(PROFPIC_UPLOADFOLDER."/".$name, 120,$imagesize[0],$imagesize[1],$ext=="png");
+		if($imagesize[0]!=120||$imagesize[1]!=120)$this->resizeImage($_SERVER['DOCUMENT_ROOT'].'/uploads/'.'users'."/".$name, 120,$imagesize[0],$imagesize[1],$ext=="png");
 		$fromTable=Config("db_prefix")."_user";
 		$whereCondition="id=%d";
 		$result=$this->_db->querySelect("picture",$fromTable,$whereCondition,$userId);
 		$userinfo=$result->fetch_array();
-		if(strlen($userinfo["picture"])&& file_exists(PROFPIC_UPLOADFOLDER."/".$userinfo["picture"]))unlink(PROFPIC_UPLOADFOLDER."/".$userinfo["picture"]);
+		if(strlen($userinfo["picture"])&& file_exists($_SERVER['DOCUMENT_ROOT'].'/uploads/'.'users'."/".$userinfo["picture"]))unlink($_SERVER['DOCUMENT_ROOT'].'/uploads/'.'users'."/".$userinfo["picture"]);
 		$this->_db->queryUpdate(array("picture"=>$name),$fromTable,$whereCondition,$userId);
 		$this->_websoccer->getUser()->setProfilePicture($this->_websoccer,$name);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("change-profile-picture_success"),""));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("change-profile-picture_success"),""));
 		return "user";}
 	function resizeImage($file,$width,$oldWidth,$oldHeight,$isPng){
 		if(!$isPng)$src=imagecreatefromjpeg($file);
@@ -5337,7 +5100,7 @@ class UserActivationController extends Controller {
 		$whereCondition="id=%d";
 		$parameter=$userdata["id"];
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameter);
-		$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_SUCCESS,Message("activate-user_message_title"),Message("activate-user_message_content")));
+		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("activate-user_message_title"),Message("activate-user_message_content")));
 		return null;}}
 class Converter {
 	function __construct($i18n,$websoccer){
@@ -5453,12 +5216,12 @@ class MoneyTransactionConverter extends Converter {
 		return$amount;}}
 class PaymentSenderMessageConverter extends Converter {
 	function toHtml($row){
-		include(sprintf(CONFIGCACHE_MESSAGES,$this->_i18n->getCurrentLanguage()));
+		include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/messages_%s.inc.php',$this->_i18n->getCurrentLanguage()));
 		if(isset($msg[$row['entity_transaction_absender']]))return$msg[$row['entity_transaction_absender']];
 		return$row['entity_transaction_absender'];}}
 class PaymentSubjectMessageConverter extends Converter {
 	function toHtml($row){
-		include(sprintf(CONFIGCACHE_MESSAGES,$this->_i18n->getCurrentLanguage()));
+		include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/messages_%s.inc.php',$this->_i18n->getCurrentLanguage()));
 		if(isset($msg[$row['entity_transaction_verwendung']]))return$msg[$row['entity_transaction_verwendung']];
 		return$row['entity_transaction_verwendung'];}}
 class PremiumTransactionConverter extends Converter {
@@ -5594,22 +5357,22 @@ abstract class AbstractJob {
 		exit;}
 	function _ping($time){ $this->replaceAttribute('last_ping',$time);}
 	function getXmlConfig(){
-		$xml=simplexml_load_file(JOBS_CONFIG_FILE);
+		$xml=simplexml_load_file($_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');
 		$xmlConfig=$xml->xpath('//job[@id=\''.$this->_id.'\']');
 		if(!$xmlConfig)throw new Exception('Job config not found.');
 		return$xmlConfig[0];}
 	function replaceAttribute($name,$value){
 		$fp=fopen($_SERVER['DOCUMENT_ROOT'].'/admin/config/lockfile.txt', 'r');
 		flock($fp, LOCK_EX);
-		$xml=simplexml_load_file(JOBS_CONFIG_FILE);
+		$xml=simplexml_load_file($_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');
 		if($xml===FALSE){
 			$errorMessages='';
 			$errors=libxml_get_errors();
-			foreach($errors as $error)$errorMessages=$errorMessages."\n".$error;
+			foreach($errors as$error)$errorMessages=$errorMessages."\n".$error;
 			throw new Exception('Job with ID \''.$this->_id.'\': Could not update attribute \''.$name.'\' with value \''.$value.'\'. Errors: '.$errorMessages);}
 		$xmlConfig=$xml->xpath('//job[@id=\''.$this->_id.'\']');
 		$xmlConfig[0][$name]=$value;
-		$successfulWritten=$xml->asXML(JOBS_CONFIG_FILE);
+		$successfulWritten=$xml->asXML($_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');
 		if(!$successfulWritten)throw new Exception('Job with ID \''.$this->_id.'\': Could not save updated attribute \''.$name.'\' with value \''.$value.'\'.');
 		flock($fp, LOCK_UN);}
 	abstract function execute();}
@@ -5620,7 +5383,7 @@ class AcceptStadiumConstructionWorkJob extends AbstractJob {
 	function checkStadiumConstructions(){
 		$constructions=StadiumsDataService::getDueConstructionOrders($this->_websoccer,$this->_db);
 		$newDeadline=$this->_websoccer->getNowAsTimestamp()+Config('stadium_construction_delay')* 24*3600;
-		foreach($constructions as $construction){
+		foreach($constructions as$construction){
 			$pStatus=[];
 			$pStatus['completed']=$construction['builder_reliability'];
 			$pStatus['notcompleted']=100 - $pStatus['completed'];
@@ -5718,7 +5481,7 @@ FROM (SELECT C.id AS team_id, M.saison_id AS season_id,
 class UserInactivityCheckJob extends AbstractJob {
 	function execute(){
 		$users=UsersDataService::getActiveUsersWithHighscore($this->_websoccer,$this->_db, 0, 1000);
-		foreach($users as $user)UserInactivityDataService::computeUserInactivity($this->_websoccer,$this->_db,$user['id']);}}
+		foreach($users as$user)UserInactivityDataService::computeUserInactivity($this->_websoccer,$this->_db,$user['id']);}}
 class Method { function __construct($websoccer,$db){ $this->_websoccer=$websoccer; $this->_db=$db;}}
 class DefaultUserLoginMethod extends Method{
 	function authenticateWithEmail($email,$password){ return$this->authenticate('UPPER(email)', strtoupper($email),$password);}
@@ -5822,11 +5585,7 @@ class DefaultBootstrapSkin {
 	function getJavaScriptSources(){
 		$dir=Config('context_root').'/js/';
 		$files[]='//code.jquery.com/jquery-1.11.1.min.js';
-		if(DEBUG){
-			$files[]=$dir.'bootstrap.min.js';
-			$files[]=$dir.'jquery.blockUI.js';
-			$files[]=$dir.'wsbase.js';}
-		else $files[]=$dir.'websoccer.min.js';
+		$files[]=$dir.'websoccer.min.js';
 		return$files;}
 	function getTemplate($templateName){ return$templateName.'.twig';}
 	function getImage($fileName){
@@ -5959,7 +5718,7 @@ class DirectTransferOfferModel extends Model {
 		return array("players"=>$players,"player"=>$this->_player);}
 		function renderView(){
 		$playerId=(int)$this->_websoccer->getRequestParameter("id");
-		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$this->_player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		if(!Config("transferoffers_enabled"))return FALSE;
 		return (!$this->_player["player_unsellable"] && $this->_player["team_user_id"]>0 && $this->_player["team_user_id"] !==$this->_websoccer->getUser()->id &&!$this->_player["player_transfermarket"] && $this->_player["lending_owner_id"]==0);}}
@@ -6029,7 +5788,7 @@ class FormationModel extends Model {
 		$matchId=$this->_websoccer->getRequestParameter('id');
 		if(!$matchId)$matchinfo=$nextMatches[0];
 		else{
-			foreach($nextMatches as $nextMatch){
+			foreach($nextMatches as$nextMatch){
 				if($nextMatch['match_id']==$matchId){
 					$matchinfo=$nextMatch;
 					break;}}}
@@ -6133,7 +5892,7 @@ class FormationModel extends Model {
 				elseif($setup['om']<2)$setup['om']=$setup['om'] + 1;
 				else $setup['striker']=$setup['striker'] + 1;}
 			$altered=TRUE;}
-		if($altered)$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message('formation_setup_altered_warn_title'),Message('formation_setup_altered_warn_details')));
+		if($altered)$this->_websoccer->addFrontMessage(new FrontMessage('warning',Message('formation_setup_altered_warn_title'),Message('formation_setup_altered_warn_details')));
 		return$setup;}
 	function renderView(){
 		$this->_nationalteam=($websoccer->getRequestParameter('nationalteam'))? TRUE : FALSE;
@@ -6176,7 +5935,7 @@ class HighscoreModel extends Model {
 class ImprintModel extends Model {
 	function getTemplateParameters(){
 		$filecontent="";
-		if(file_exists(IMPRINT_FILE))$filecontent=file_get_contents(IMPRINT_FILE);
+		if(file_exists($_SERVER['DOCUMENT_ROOT'].'/generated/imprint.php'))$filecontent=file_get_contents($_SERVER['DOCUMENT_ROOT'].'/generated/imprint.php');
 		return array("imprint_content"=>$filecontent);}}
 class LanguageSwitcherModel extends Model {
 	function renderView(){ return (count($this->_i18n->getSupportedLanguages())>1);}}
@@ -6209,7 +5968,7 @@ class LeagueDetailsModel extends Model{
 				$leagueId=$club["liga_id"];}}
 		if($leagueId>0){
 			$league=LeagueDataService::getLeagueById($this->_websoccer,$this->_db,$leagueId);
-			if(!isset($league["league_id"]))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));}
+			if(!isset($league["league_id"]))throw new Exception(Message('error_page_not_found'));}
 		return array("league"=>$league,"leagues"=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
 class LeagueSelectionModel extends Model {
 	function getTemplateParameters(){
@@ -6302,7 +6061,7 @@ class LiveMatchBlockModel extends Model {
 class MatchChangesModel extends FormationModel {
 	function getTemplateParameters(){
 		$matchId=(int)$this->_websoccer->getRequestParameter('id');
-		if($matchId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($matchId<1)throw new Exception(Message('error_page_not_found'));
 		$match=MatchesDataService::getMatchSubstitutionsById($this->_websoccer,$this->_db,$matchId);
 		if($match['match_simulated'])throw new Exception(Message('match_details_match_completed'));
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
@@ -6322,7 +6081,7 @@ class MatchChangesModel extends FormationModel {
 		if($this->_websoccer->getRequestParameter('counterattacks'))$formation['counterattacks']=$this->_websoccer->getRequestParameter('counterattacks');
 		else $formation['counterattacks']=$match['match_'.$teamPrefix.'_counterattacks'];
 		$playerNo=0;
-		foreach($playersOnField as $player){
+		foreach($playersOnField as$player){
 			$playerNo++;
 			$formation['player'.$playerNo]=$player['id'];
 			$formation['player'.$playerNo.'_pos']=$player['match_position_main'];}
@@ -6334,7 +6093,7 @@ class MatchChangesModel extends FormationModel {
 				$formation['player'.$playerNo]=$this->_websoccer->getRequestParameter('player'.$playerNo);
 				$formation['player'.$playerNo.'_pos']=$this->_websoccer->getRequestParameter('player'.$playerNo.'_pos');}}
 		$benchNo=0;
-		foreach($playersOnBench as $player){
+		foreach($playersOnBench as$player){
 			$benchNo++;
 			$formation['bench'.$benchNo]=$player['id'];}
 		for($benchNo=1; $benchNo <= 5; $benchNo++){
@@ -6371,9 +6130,9 @@ class MatchDayResultsModel extends Model {
 class MatchDetailsModel extends Model {
 	function getTemplateParameters(){
 		$matchId=(int)$this->_websoccer->getRequestParameter('id');
-		if($matchId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($matchId<1)throw new Exception(Message('error_page_not_found'));
 		$match=MatchesDataService::getMatchById($this->_websoccer,$this->_db,$matchId);
-		if(!isset($match['match_id']))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($match['match_id']))throw new Exception(Message('error_page_not_found'));
 		$allowTacticChanges=FALSE;
 		$reportmessages=[];
 		if($match['match_minutes']>0){
@@ -6384,7 +6143,7 @@ class MatchDetailsModel extends Model {
 				= $userNationalTeamId))$allowTacticChanges=TRUE;}
 		$homeStrikerMessages=[];
 		$guestStrikerMessages=[];
-		foreach($reportmessages as $reportMessage){
+		foreach($reportmessages as$reportMessage){
 			$type=$reportMessage['type'];
 			if($type=='Tor'||$type=='Tor_mit_vorlage'||$type=='Elfmeter_erfolg'||$type=='Freistoss_treffer'){
 				if($reportMessage['active_home'])array_unshift($homeStrikerMessages,$reportMessage);
@@ -6393,7 +6152,7 @@ class MatchDetailsModel extends Model {
 class MatchPlayersModel extends Model {
 	function getTemplateParameters(){
 		$matchId=(int)$this->_websoccer->getRequestParameter("id");
-		if($matchId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($matchId<1)throw new Exception(Message('error_page_not_found'));
 		$match=MatchesDataService::getMatchById($this->_websoccer,$this->_db,$matchId, FALSE, TRUE);
 		$home_players=MatchesDataService::getMatchReportPlayerRecords($this->_websoccer,$this->_db,$matchId,$match["match_home_id"]);
 		$guest_players=MatchesDataService::getMatchReportPlayerRecords($this->_websoccer,$this->_db,$matchId,$match["match_guest_id"]);
@@ -6439,7 +6198,7 @@ class MatchPreviewModel extends Model {
 class MatchStatisticsModel extends Model {
 	function getTemplateParameters(){
 		$matchId=(int)$this->_websoccer->getRequestParameter("id");
-		if($matchId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($matchId<1)throw new Exception(Message('error_page_not_found'));
 		$match=MatchesDataService::getMatchById($this->_websoccer,$this->_db,$matchId);
 		$columns["SUM(shoots)"]="shoots";
 		$columns["SUM(ballcontacts)"]="ballcontacts";
@@ -6583,7 +6342,7 @@ class NewsDetailsModel extends Model {
 		$parameters=(int)$this->_websoccer->getRequestParameter("id");
 		$result=$this->_db->querySelect("NewsTab.*, AdminTab.name AS author_name",$fromTable,$whereCondition,$parameters);
 		$item=$result->fetch_array();
-		if(!$item)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!$item)throw new Exception(Message('error_page_not_found'));
 		$message=$item["nachricht"];
 		if($item["c_br"])$message=nl2br($message);
 		if($item["c_links"])$message=$this->_strToLink($message);
@@ -6604,7 +6363,7 @@ class NewsListModel extends Model {
 		$parameters="1";
 		$result=$this->_db->querySelect("COUNT(*)AS hits",$fromTable,$whereCondition,$parameters);
 		$rows=$result->fetch_array();
-		$eps=NEWS_ENTRIES_PER_PAGE;
+		$eps=config('NEWS_ENTRIES_PER_PAGE');
 		$paginator=new Paginator($rows["hits"],$eps,$this->_websoccer);
 		$columns="id, titel, datum, nachricht";
 		$whereCondition.=" ORDER BY datum DESC";
@@ -6614,8 +6373,8 @@ class NewsListModel extends Model {
 		while($article=$result->fetch_array())$articles[]=array("id"=>$article["id"],"title"=>$article["titel"],"date"=>$this->_websoccer->getFormattedDate($article["datum"]),"teaser"=>$this->_shortenMessage($article["nachricht"]));
 		return array("articles"=>$articles,"paginator"=>$paginator);}
 	function _shortenMessage($message){
-		if(strlen($message)>NEWS_TEASER_MAXLENGTH){
-			$message=wordwrap($message, NEWS_TEASER_MAXLENGTH);
+		if(strlen($message)>config('NEWS_TEASER_MAXLENGTH')){
+			$message=wordwrap($message, config('NEWS_TEASER_MAXLENGTH'));
 			$message=substr($message, 0, strpos($message,"\n"))."...";}
 		return$message;}}
 class NextMatchModel extends Model {
@@ -6649,16 +6408,16 @@ class PaypalLinkModel extends Model {
 class PlayerDetailsModel extends Model {
 	function getTemplateParameters(){
 		$playerId=(int)$this->_websoccer->getRequestParameter("id");
-		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
-		if(!isset($player["player_id"]))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($player["player_id"]))throw new Exception(Message('error_page_not_found'));
 		return array("player"=>$player);}}
 class PlayerDetailsWithDependenciesModel extends Model {
 	function getTemplateParameters(){
 		$playerId=(int)$this->_websoccer->getRequestParameter("id");
-		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
-		if(!isset($player["player_id"]))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($player["player_id"]))throw new Exception(Message('error_page_not_found'));
 		$grades=$this->_getGrades($playerId);
 		$transfers=TransfermarketDataService::getCompletedTransfersOfPlayer($this->_websoccer,$this->_db,$playerId);
 		return array("player"=>$player,"grades"=>$grades,"completedtransfers"=>$transfers);}
@@ -6698,7 +6457,7 @@ class PlayersSearchModel extends Model {
 class PlayerStatisticsModel extends Model {
 	function getTemplateParameters(){
 		$playerId=(int)$this->_websoccer->getRequestParameter('id');
-		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$leagueStatistics=[];
 		$cupStatistics=[];
 		$columns=array('L.name'=> 'league_name', 'SEAS.name'=> 'season_name', 'M.pokalname'=> 'cup_name', 'COUNT(S.id)'=> 'matches', 'SUM(S.assists)'=> 'assists', 'AVG(S.note)'=> 'grade', 'SUM(S.tore)'=> 'goals', 'SUM(S.karte_gelb)'=> 'yellowcards',
@@ -6754,7 +6513,7 @@ class ProfileModel extends Model {
 		$userinfo=$result->fetch_array();
 		if(!strlen($userinfo["birthday"])|| substr($userinfo["birthday"],0, 4)=="0000")$userinfo["birthday"]="";
 		else $userinfo["birthday"]=DateTime::createFromFormat("Y-m-d",$userinfo["birthday"])->format(Config("date_format"));
-		foreach($columns as $dbColumn){
+		foreach($columns as$dbColumn){
 			if($this->_websoccer->getRequestParameter($dbColumn))$userinfo[$dbColumn]=$this->_websoccer->getRequestParameter($dbColumn);}
 		return array("user"=>$userinfo);}}
 class ProjectStatisticsModel extends Model {
@@ -6776,7 +6535,7 @@ class RssResultsOfUserModel extends Model {
 		$userId=(int)$this->_websoccer->getRequestParameter('id');
 		$matches=MatchesDataService::getLatestMatchesByUser($this->_websoccer,$this->_db,$userId);
 		$items=[];
-		foreach($matches as $match)$items[]=array('url'=>$this->_websoccer->getInternalUrl('match', 'id='.$match['id'],TRUE), 'title'=>$match['home_team'].' - '.$match['guest_team'].' ('.$match['home_goals'].':'.$match['guest_goals'].')',
+		foreach($matches as$match)$items[]=array('url'=>$this->_websoccer->getInternalUrl('match', 'id='.$match['id'],TRUE), 'title'=>$match['home_team'].' - '.$match['guest_team'].' ('.$match['home_goals'].':'.$match['guest_goals'].')',
 			'date'=> gmdate(DATE_RSS,$match['date']));
 		return array('items'=>$items);}}
 class SeasonsOfLeagueModel extends Model {
@@ -6885,9 +6644,9 @@ class StadiumModel extends Model {
 class TableHistoryModel extends Model {
 	function getTemplateParameters(){
 		$teamId=(int)$this->_websoccer->getRequestParameter('id');
-		if($teamId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($teamId<1)throw new Exception(Message('error_page_not_found'));
 		$team=TeamsDataService::getTeamById($this->_websoccer,$this->_db,$teamId);
-		if(!isset($team['team_id']))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($team['team_id']))throw new Exception(Message('error_page_not_found'));
 		$result=$this->_db->querySelect('id',Config('db_prefix').'_saison', 'liga_id=%d AND beendet=\'0\' ORDER BY name DESC',$team['team_league_id'],1);
 		$season=$result->fetch_array();
 		$history=[];
@@ -6902,9 +6661,9 @@ class TableHistoryModel extends Model {
 class TeamDetailsModel extends Model {
 	function getTemplateParameters(){
 		$teamId=(int)$this->_websoccer->getRequestParameter('id');
-		if($teamId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($teamId<1)throw new Exception(Message('error_page_not_found'));
 		$team=TeamsDataService::getTeamById($this->_websoccer,$this->_db,$teamId);
-		if(!isset($team['team_id']))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($team['team_id']))throw new Exception(Message('error_page_not_found'));
 		$stadium=StadiumsDataService::getStadiumByTeamId($this->_websoccer,$this->_db,$teamId);
 		if($team['is_nationalteam']){
 			$dbPrefix=Config('db_prefix');
@@ -7155,26 +6914,26 @@ class TopNewsListModel extends Model {
 		$fromTable=Config("db_prefix")."_news";
 		$columns="id, titel, datum";
 		$whereCondition="status=1 ORDER BY datum DESC";
-		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,array(), NUMBER_OF_TOP_NEWS);
+		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,array(),config('NUMBER_OF_TOP_NEWS'));
 		$articles=[];
 		while($article=$result->fetch_array())$articles[]=array("id"=>$article["id"],"title"=>$article["titel"],"date"=>$this->_websoccer->getFormattedDate($article["datum"]));
 		return array("topnews"=>$articles);}}
 class TopScorersModel extends Model {
 	function getTemplateParameters(){
-		return array('players'=> PlayersDataService::getTopScorers($this->_websoccer,$this->_db, NUMBER_OF_PLAYERS,$this->_websoccer->getRequestParameter('leagueid')), 'leagues'=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
+		return array('players'=> PlayersDataService::getTopScorers($this->_websoccer,$this->_db, config('NUMBER_OF_PLAYERS'),$this->_websoccer->getRequestParameter('leagueid')), 'leagues'=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
 class TopStrikersModel extends Model {
 	function getTemplateParameters(){
-		return array("players"=> PlayersDataService::getTopStrikers($this->_websoccer,$this->_db, NUMBER_OF_PLAYERS,$this->_websoccer->getRequestParameter("leagueid")),"leagues"=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
+		return array("players"=> PlayersDataService::getTopStrikers($this->_websoccer,$this->_db, config('NUMBER_OF_PLAYERS'),$this->_websoccer->getRequestParameter("leagueid")),"leagues"=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
 class TrainerDetailsModel extends Model {
 	function getTemplateParameters(){
 		$trainerId=$this->_websoccer->getRequestParameter("id");
 		$trainer=TrainingDataService::getTrainerById($this->_websoccer,$this->_db,$trainerId);
-		if(!isset($trainer["id"]))throw new Exception(MSG_KEY_ERROR_PAGENOTFOUND);
+		if(!isset($trainer["id"]))throw new Exception('error_page_not_found');
 		return array("trainer"=>$trainer);}}
 class TrainingCampsDetailsModel extends Model {
 	function getTemplateParameters(){
 		$camp=TrainingcampsDataService::getCampById($this->_websoccer,$this->_db,$this->_websoccer->getRequestParameter("id"));
-		if(!$camp)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!$camp)throw new Exception(Message('error_page_not_found'));
 		$defaultDate=$this->_websoccer->getNowAsTimestamp()+ 24*3600;
 		return array("camp"=>$camp,"defaultDate"=>$defaultDate);}}
 class TrainingCampsModel extends Model {
@@ -7218,7 +6977,7 @@ class TransferBidModel extends Model {
 		return array("player"=>$this->_player,"highestbid"=>$highestBid);}
 	function renderView(){
 		$playerId=(int)$this->_websoccer->getRequestParameter("id");
-		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$this->_player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		return($this->_player["transfer_end"]>$this->_websoccer->getNowAsTimestamp());}}
 class TransfermarketOverviewModel extends Model {
@@ -7277,7 +7036,7 @@ class UserDetailsModel extends Model {
 		$userId=(int)$this->_websoccer->getRequestParameter('id');
 		if($userId<1)$userId=$this->_websoccer->getUser()->id;
 		$user=UsersDataService::getUserById($this->_websoccer,$this->_db,$userId);
-		if(!isset($user['id']))throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!isset($user['id']))throw new Exception(Message('error_page_not_found'));
 		$fromTable=Config('db_prefix').'_verein';
 		$whereCondition='user_id=%d AND status=\'1\' AND nationalteam!=\'1\' ORDER BY name ASC';
 		$result=$this->_db->querySelect('id,name',$fromTable,$whereCondition,$userId);
@@ -7365,7 +7124,7 @@ class YouthMatchFormationModel extends Model {
 		$matchinfo=YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer,$this->_db,$this->_i18n,$this->_websoccer->getRequestParameter("matchid"));
 		if($matchinfo["home_team_id"]==$clubId)$teamPrefix="home";
 		elseif($matchinfo["guest_team_id"]==$clubId)$teamPrefix="guest";
-		else throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		else throw new Exception(Message('error_page_not_found'));
 		if($matchinfo["matchdate"] <= $this->_websoccer->getNowAsTimestamp()|| $matchinfo["simulated"])throw new Exception(Message("youthformation_err_matchexpired"));
 		$players=null;
 		if($clubId>0)$players=YouthPlayersDataService::getYouthPlayersOfTeamByPosition($this->_websoccer,$this->_db,$clubId,"DESC");
@@ -7420,7 +7179,7 @@ class YouthMatchFormationModel extends Model {
 				elseif($setup["om"]<2)$setup["om"]=$setup["om"] + 1;
 				else $setup["striker"]=$setup["striker"] + 1;}
 			$altered=TRUE;}
-		if($altered)$this->_websoccer->addFrontMessage(new FrontMessage(MESSAGE_TYPE_WARNING,Message("formation_setup_altered_warn_title"),Message("formation_setup_altered_warn_details")));
+		if($altered)$this->_websoccer->addFrontMessage(new FrontMessage('warning',Message("formation_setup_altered_warn_title"),Message("formation_setup_altered_warn_details")));
 		return$setup;}
 	function _getFormation($teamPrefix,$matchinfo){
 		$formation=[];
@@ -7498,13 +7257,13 @@ class YouthMatchRequestsCreateModel extends Model {
 		$maxDays=Config("youth_matchrequest_max_futuredays");
 		$times=explode(",",Config("youth_matchrequest_allowedtimes"));
 		$validTimes=[];
-		foreach($times as $time)$validTimes[]=explode(":",$time);
+		foreach($times as$time)$validTimes[]=explode(":",$time);
 		$dateOptions=[];
 		$dateObj=new DateTime();
 		$dateFormat=Config("datetime_format");
 		for($day=1; $day <= $maxDays; $day++){
 			$dateObj->add(new DateInterval('P1D'));
-			foreach($validTimes as $validTime){
+			foreach($validTimes as$validTime){
 				$hour=$validTime[0];
 				$minute=$validTime[1];
 				$dateObj->setTime($hour,$minute);
@@ -7523,7 +7282,7 @@ class YouthMatchRequestsModel extends Model {
 class YouthPlayerDetailsModel extends Model {
 	function getTemplateParameters(){
 		$playerId=(int)$this->_websoccer->getRequestParameter("id");
-		if($playerId<1)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$playerId);
 		return array("player"=>$player);}
 	function renderView(){ return Config("youth_enabled");}}
@@ -7690,10 +7449,10 @@ class DataGeneratorService {
 		$league=$result->fetch_array();
 		if(!$league)throw new Exception('illegal league ID');
 		$country=$league['land'];
-		$cities=self::_getLines(FILE_CITYNAMES,$country);
-		$prefixes=self::_getLines(FILE_PREFIXNAMES,$country);
+		$cities=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/cities.txt',$country);
+		$prefixes=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/clubprefix.txt',$country);
 		$suffixes=[];
-		try {$suffixes=self::_getLines(FILE_SUFFIXNAMES,$country);}
+		try {$suffixes=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/clubsuffix.txt',$country);}
 		catch(Exception $e){}
 		for($teamNo=1; $teamNo <= $numberOfTeams; $teamNo++){
 			$cityName=self::_getItemFromArray($cities);
@@ -7706,8 +7465,8 @@ class DataGeneratorService {
 			$league=$result->fetch_array();
 			if(!$league)throw new Exception('illegal team ID');
 			$country=$league['country'];}
-		$firstNames=self::_getLines(FILE_FIRSTNAMES,$country);
-		$lastNames=self::_getLines(FILE_LASTNAMES,$country);
+		$firstNames=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/firstnames.txt',$country);
+		$lastNames=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/lastnames.txt',$country);
 		$mainPositions['T']='Torwart';
 		$mainPositions['LV']='Abwehr';
 		$mainPositions['IV']='Abwehr';
@@ -7720,7 +7479,7 @@ class DataGeneratorService {
 		$mainPositions['LS']='Sturm';
 		$mainPositions['MS']='Sturm';
 		$mainPositions['RS']='Sturm';
-		foreach($positions as $mainPosition=>$numberOfPlayers){
+		foreach($positions as$mainPosition=>$numberOfPlayers){
 			for($playerNo=1; $playerNo <= $numberOfPlayers; $playerNo++){
 				$playerAge=$age + self::_getRandomDeviationValue($ageDeviation);
 				$time=strtotime('-'.$playerAge.' years',$websoccer->getNowAsTimestamp());
@@ -7807,7 +7566,7 @@ class DirectTransfersDataService {
 			"offer_message"=>$offerMessage,"offer_player1"=>$offerPlayerId1,"offer_player2"=>$offerPlayerId2);
 		$db->queryInsert($columns,Config("db_prefix")."_transfer_offer");
 		$sender=UsersDataService::getUserById($websoccer,$db,$senderUserId);
-		NotificationsDataService::createNotification($websoccer,$db,$receiverUserId,"transferoffer_notification_offerreceived",array("sendername"=>$sender["nick"]), NOTIFICATION_TYPE, NOTIFICATION_TARGETPAGE, null,$receiverClubId);}
+		NotificationsDataService::createNotification($websoccer,$db,$receiverUserId,"transferoffer_notification_offerreceived",array("sendername"=>$sender["nick"]),config('NOTIFICATION_TYPE'), config('NOTIFICATION_TARGETPAGE'), null,$receiverClubId);}
 	static function executeTransferFromOffer($websoccer,$db,$offerId){
 		$result=$db->querySelect("*",Config("db_prefix")."_transfer_offer","id=%d",$offerId);
 		$offer=$result->fetch_array();
@@ -7823,8 +7582,8 @@ class DirectTransfersDataService {
 		$player=PlayersDataService::getPlayerById($websoccer,$db,$offer["player_id"]);
 		if($player["player_pseudonym"])$playerName=$player["player_pseudonym"];
 		else $playerName=$player["player_firstname"]." ".$player["player_lastname"];
-		NotificationsDataService::createNotification($websoccer,$db,$currentTeam["user_id"],"transferoffer_notification_executed",array("playername"=>$playerName), NOTIFICATION_TYPE,"player","id=".$offer["player_id"],$currentTeam["team_id"]);
-		NotificationsDataService::createNotification($websoccer,$db,$offer["sender_user_id"],"transferoffer_notification_executed",array("playername"=>$playerName), NOTIFICATION_TYPE,"player","id=".$offer["player_id"],$targetTeam['team_id']);
+		NotificationsDataService::createNotification($websoccer,$db,$currentTeam["user_id"],"transferoffer_notification_executed",array("playername"=>$playerName),config('NOTIFICATION_TYPE'),"player","id=".$offer["player_id"],$currentTeam["team_id"]);
+		NotificationsDataService::createNotification($websoccer,$db,$offer["sender_user_id"],"transferoffer_notification_executed",array("playername"=>$playerName),config('NOTIFICATION_TYPE'),"player","id=".$offer["player_id"],$targetTeam['team_id']);
 		TransfermarketDataService::awardUserForTrades($websoccer,$db,$currentTeam["user_id"]);
 		TransfermarketDataService::awardUserForTrades($websoccer,$db,$offer["sender_user_id"]);}
 	static function _transferPlayer($websoccer,$db,$playerId,$targetClubId,$targetUserId,$currentUserId,$currentClubId,$amount,$exchangePlayer1=0,$exchangePlayer2=0){
@@ -7974,7 +7733,7 @@ class FormationDataService {
 				$added=TRUE;}
 			if(!$added && strlen($player['position_second']))$unusedPlayers[]=$player;}
 		foreach($openPositions as $position=>$requiredPlayers){
-			for($i=0; $i<$requiredPlayers; $i++){
+			for($i=0; $i<$requiredPlayers;++$i){
 				for($playerIndex=0; $playerIndex<count($unusedPlayers); $playerIndex++){
 					if($unusedPlayer[$playerIndex]['position_second']==$position){
 						$players[]=array('id'=>$unusedPlayer[$playerIndex]['id'],'position'=>$unusedPlayer[$playerIndex]['position_second']);
@@ -8314,15 +8073,9 @@ class MatchesDataService {
 		$reportmessages=[];
 		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
 		$match=null;
-		//- owsPro - Fatal error: Uncaught Error: Call to undefined function get_magic_quotes_gpc()
-		//- $removeSlashes=get_magic_quotes_gpc();
 		while($reportmessage=$result->fetch_array()){
 			$players=explode(';',$reportmessage['playerNames']);
 			$rmsg=$reportmessage['message'];
-			//- owsPro - we have to remove ist at PHP 8
-			//- if($removeSlashes){
-			//- 	$rmsg=stripslashes($rmsg);
-			//- }
 			$msgKey=strip_tags($rmsg);
 			if($i18n->hasMessage($msgKey))$rmsg=Message($msgKey);
 			for($playerIndex=1; $playerIndex <= count($players); $playerIndex++)$rmsg=str_replace('{sp'.$playerIndex.'}',$players[$playerIndex - 1],$rmsg);
@@ -8564,7 +8317,7 @@ class NotificationsDataService {
 			if(strlen($row['message_data'])){
 				$messageData=json_decode($row['message_data'],true);
 				if($messageData){
-					foreach($messageData as $placeholderName=>$placeholderValue)$message=str_replace('{'.$placeholderName.'}', htmlspecialchars($placeholderValue, ENT_COMPAT, 'UTF-8'),$message);}}
+					foreach($messageData as $placeholderName=>$placeholderValue)$message=str_replace('{'.$placeholderName.'}', escapeOutput($placeholderValue, ENT_COMPAT, 'UTF-8'),$message);}}
 			$notification['message']=$message;
 			$link='';
 			if($row['target_pageid']){
@@ -8729,8 +8482,6 @@ class PlayersDataService {
 			$player['player_marketvalue']=self::getMarketValue($websoccer,$player);
 			$player['player_nationality_filename']=self::getFlagFilename($player['player_nationality']);
 			$matchesInfo=explode(';',$player['matches_info']);
-			//- owsPro - Fatal error: Uncaught TypeError: round(): Argument #1($num)must be of type int|float, string given
-			//- $player['player_avg_grade']=round($matchesInfo[0],2);
 			$player['player_avg_grade']=round((int)$matchesInfo[0],2);
 			if(isset($matchesInfo[1]))$player['player_assists']=$matchesInfo[1];
 			else $player['player_assists']=0;}
@@ -8916,7 +8667,7 @@ class PremiumDataService {
 		$db->queryInsert(array('user_id'=>$userId, 'amount'=>$realAmount, 'created_date'=>$websoccer->getNowAsTimestamp()),Config('db_prefix').'_premiumpayment');
 		$priceOptions=explode(',',Config('premium_price_options'));
 		if(count($priceOptions)){
-			foreach($priceOptions as $priceOption){
+			foreach($priceOptions as$priceOption){
 				$optionParts=explode(':',$priceOption);
 				$realMoney=trim($optionParts[0]);
 				$realMoneyAmount=$realMoney*100;
@@ -8958,7 +8709,7 @@ class RandomEventsDataService {
 		$result=$db->querySelect('*',Config('db_prefix').'_randomevent', 'weight>0 AND id NOT IN (SELECT event_id FROM '.Config('db_prefix').'_randomevent_occurrence WHERE user_id=%d)ORDER BY RAND()',$userId, 100);
 		$events=[];
 		while($event=$result->fetch_array()){
-			for($i=1; $i <= $event['weight']; $i++)$events[]=$event;}
+			for($i=1; $i <= $event['weight'];++$i)$events[]=$event;}
 		if(!count($events))return;
 		$randomEvent=$events[array_rand($events)];
 		self::_executeEvent($websoccer,$db,$userId,$clubId,$randomEvent);
@@ -9363,7 +9114,7 @@ class TrainingcampsDataService {
 			$playerTable=Config('db_prefix').'_spieler';
 			$updateCondition='id=%d';
 			$duration=round(($bookingInfo['date_end'] - $bookingInfo['date_start'])/(24*3600));
-			foreach($players as $player){
+			foreach($players as$player){
 				if($player['matches_injured']>0)continue;
 				$columns=[];
 				$columns['w_staerke']=min(100, max(1,$bookingInfo['effect_strength']* $duration + $player['strength']));
@@ -9660,7 +9411,7 @@ class UserInactivityDataService {
 		$user=UsersDataService::getUserById($websoccer,$db,$userId);
 		if($inactivity['login_check']<$checkBoundary){
 			$inactiveDays=round(($now - $user['lastonline'])/(24*3600));
-			$updatecolumns['login']=min(100, round($inactiveDays*INACTIVITY_PER_DAY_LOGIN));
+			$updatecolumns['login']=min(100, round($inactiveDays*config('INACTIVITY_PER_DAY_LOGIN')));
 			$updatecolumns['login_check']=$now;
 			$formationTable=Config('db_prefix').'_aufstellung AS F';
 			$formationTable.=' INNER JOIN '.Config('db_prefix').'_verein AS T ON T.id=F.verein_id';
@@ -9668,13 +9419,13 @@ class UserInactivityDataService {
 			$formation=$result->fetch_array();
 			if($formation){
 				$inactiveDays=round(($now - $formation['date'])/(24*3600));
-				$updatecolumns['aufstellung']=min(100, round($inactiveDays*INACTIVITY_PER_DAY_TACTICS));}}
+				$updatecolumns['aufstellung']=min(100, round($inactiveDays*config('INACTIVITY_PER_DAY_TACTICS')));}}
 		if($inactivity['transfer_check']<$checkBoundary){
 			$bid=TransfermarketDataService::getLatestBidOfUser($websoccer,$db,$userId);
 			$transferBenchmark=$user['registration_date'];
 			if($bid)$transferBenchmark=$bid['date'];
 			$inactiveDays=round(($now - $transferBenchmark)/(24*3600));
-			$updatecolumns['transfer']=min(100, round($inactiveDays*INACTIVITY_PER_DAY_TRANSFERS));
+			$updatecolumns['transfer']=min(100, round($inactiveDays*config('INACTIVITY_PER_DAY_TRANSFERS')));
 			$updatecolumns['transfer_check']=$now;}
 		if(count($updatecolumns)){
 			$fromTable=Config('db_prefix').'_user_inactivity';
@@ -9686,7 +9437,7 @@ class UserInactivityDataService {
 		$db->queryUpdate($updatecolumns,$fromTable,'id=%d',$inactivity['id']);}
 	static function increaseContractExtensionField($websoccer,$db,$userId){
 		$inactivity=self::getUserInactivity($websoccer,$db,$userId);
-		$updatecolumns['vertragsauslauf']=min(100,$inactivity['contractextensions'] + INACTIVITY_PER_CONTRACTEXTENSION);
+		$updatecolumns['vertragsauslauf']=min(100,$inactivity['contractextensions']+config('INACTIVITY_PER_CONTRACTEXTENSION'));
 		$fromTable=Config('db_prefix').'_user_inactivity';
 		$db->queryUpdate($updatecolumns,$fromTable,'id=%d',$inactivity['id']);}}
 class UsersDataService {
@@ -9724,8 +9475,6 @@ class UsersDataService {
 		$columns['C.name']='team_name';
 		$columns['C.bild']='team_picture';
 		$limit=$startIndex .','.$entries_per_page;
-		//- owsPro - we have to change at PHP 8
-		//- $fromTable.=' LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.user_id=U.id';
 		$fromTable=Config('db_prefix').'_user AS U LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=U.id';
 		$whereCondition='U.status=1 AND highscore>0 GROUP BY id ORDER BY highscore DESC, datum_anmeldung ASC';
 		$result=$db->querySelect($columns,$fromTable,$whereCondition, null,$limit);
@@ -9816,8 +9565,6 @@ class UsersDataService {
 		$columns['C.name']='team_name';
 		$columns['C.bild']='team_picture';
 		$limit=$startIndex .','.$entries_per_page;
-		//- owsPro - we have to change at PHP 8
-		//- $fromTable.=' LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.user_id=U.id';
 		$fromTable=Config('db_prefix').'_user AS U LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=U.id';
 		$whereCondition='U.status=1 AND lastonline >= %d GROUP BY id ORDER BY lastonline DESC';
 		$result=$db->querySelect($columns,$fromTable,$whereCondition,$timeBoundary,$limit);
@@ -9837,7 +9584,7 @@ class YouthMatchesDataService {
 		$fromTable=Config('db_prefix').'_youthmatch AS M INNER JOIN '.Config('db_prefix'). '_verein AS HOME ON HOME.id=M.home_team_id INNER JOIN '.Config('db_prefix'). '_verein AS GUEST ON GUEST.id=M.guest_team_id';
 		$result=$db->querySelect($columns,$fromTable,'M.id=%d',$matchId);
 		$match=$result->fetch_array();
-		if(!$match)throw new Exception(Message(MSG_KEY_ERROR_PAGENOTFOUND));
+		if(!$match)throw new Exception(Message('error_page_not_found'));
 		return$match;}
 	static function countMatchesOfTeamOnSameDay($websoccer,$db,$teamId,$timestamp){
 		$fromTable=Config('db_prefix').'_youthmatch';
@@ -9901,7 +9648,7 @@ class YouthMatchesDataService {
 			if(strlen($item['message_data'])){
 				$messageData=json_decode($item['message_data'],true);
 				if($messageData){
-					foreach($messageData as $placeholderName=>$placeholderValue)$message=str_replace('{'.$placeholderName.'}',htmlspecialchars($placeholderValue, ENT_COMPAT,'UTF-8'),$message);}}
+					foreach($messageData as$placeholderName=>$placeholderValue)$message=str_replace('{'.$placeholderName.'}',escapeOutput($placeholderValue, ENT_COMPAT,'UTF-8'),$message);}}
 			$items[]=array('minute'=>$item['minute'],'active_home'=>$item['home_on_ball'],'message_key'=>$item['message_key'],'message'=>$message);}
 		return$items;}}
 class YouthPlayersDataService {
@@ -9950,8 +9697,6 @@ class YouthPlayersDataService {
 		$players=$result->fetch_array();
 		if($players)return$players['hits'];
 		return 0;}
-	//- owsPro - Deprecated: Optional parameter declared before required parameter is implicitly treated as a required parameter
-	//- static function getTransferableYouthPlayers($websoccer,$db,$positionFilter=NULL,$startIndex,$entries_per_page){
 	static function getTransferableYouthPlayers($websoccer,$db,$startIndex,$entries_per_page,$positionFilter=NULL){
 		$columns=array( 'P.id'=>'player_id','P.firstname'=>'firstname','P.lastname'=>'lastname','P.position'=>'position','P.nation'=>'nation','P.transfer_fee'=>'transfer_fee','P.age'=>'age','P.strength'=>'strength',
 			'P.st_matches'=>'st_matches','P.st_goals'=>'st_goals','P.st_assists'=>'st_assists','P.st_cards_yellow'=>'st_cards_yellow','P.st_cards_yellow_red'=>'st_cards_yellow_red','P.st_cards_red'=>'st_cards_red','P.team_id'=>'team_id',
@@ -10047,7 +9792,7 @@ function Diagnosis(){
 		function RequestTime(){$starttime=microtime(true);foreach(_getallheaders()as$name=>$value);$stoptime=microtime(true);$status=0;$status=($stoptime-$starttime)*1000000;$status=floor($status);return$status;}
 			if(function_exists('date_default_timezone_set'))date_default_timezone_set('UTC');$_SERVER['HTTPS']='on';$timer=new benchmarkTimer();
 		function simple(){$a=0;for($i=0;$i<900000;++$i)++$a;$thisisanotherlongname=0;for($thisisalongname=0;$thisisalongname<900000;++$thisisalongname)++$thisisanotherlongname;}
-	function simplecall(){for($i=0;$i<900000;$i++)strlen('hallo');}
+	function simplecall(){for($i=0;$i<900000;++$i)strlen('hallo');}
 	function hallo($a){}
 	function simpleucall(){for($i=0;$i<900000;++$i)hallo('hallo');}
 	function simpleudcall(){for($i=0;$i<900000;++$i)hallo2('hallo');}
@@ -10069,7 +9814,7 @@ function Diagnosis(){
 	function gen_random($n){global$LAST;return(($n*($LAST=($LAST*IA+IC)%IM))/IM);}
 	function heapsort_r($n,&$ra){$l=($n>>1)+1;$ir=$n;while(1){if($l>1)$rra=$ra[--$l];else{$rra=$ra[$ir];$ra[$ir]=$ra[1];if(--$ir==1){$ra[1]=$rra;return;}}$i=$l;$j=$l<<1;while($j<=$ir){if(($j<$ir)&&($ra[$j]<$ra[$j+1]))++$j;if($rra<$ra[$j]){$ra[$i]=$ra[$j];$j+=($i=$j);}
 		else$j=$ir+1;}$ra[$i]=$rra;}}
-	function heapsort($N){global$LAST;define('IM',139968);define('IA',3877);define('IC',29573);$LAST=42;for($i=1;$i<=$N;++$i)$ary[$i]=gen_random(1);heapsort_r($N,$ary);printf('%.10f\n',$ary[$N]);}
+	function heapsort($N){global$LAST;$LAST=42;for($i=1;$i<=$N;++$i)$ary[$i]=gen_random(1);heapsort_r($N,$ary);printf('%.10f\n',$ary[$N]);}
 	function mkmatrix($rows,$cols){$count=1;$mx=[];for($i=0;$i<$rows;++$i)for($j=0;$j<$cols;++$j)$mx[$i][$j]=++$count;return($mx);}
 	function mmult($rows,$cols,$m1,$m2){$m3=[];for($i=0;$i<$rows;++$i){for($j=0;$j<$cols;++$j){$x=0;for($k=0;$k<$cols;++$k)$x+=$m1[$i][$k]*$m2[$k][$j];$m3[$i][$j]=$x;}}return($m3);}
 	function matrix($n){$SIZE=30;$m1=mkmatrix($SIZE,$SIZE);$m2=mkmatrix($SIZE,$SIZE);while(--$n)$mm=mmult($SIZE,$SIZE,$m1,$m2);print'{$mm[0][0]} {$mm[2][3]} {$mm[3][2]} {$mm[4][4]}\n';}
@@ -10204,9 +9949,20 @@ function actionSaveConfig(){
 	."\$conf['micropayment_ebank2pay_enabled']=\"".''."\";".PHP_EOL."\$conf['micropayment_creditcard_enabled']=\"".''."\";".PHP_EOL."\$conf['paypal_enabled']=\"".''."\";".PHP_EOL."\$conf['paypal_receiver_email']=\"".''."\";".PHP_EOL
 	."\$conf['paypal_host']=\"".'www.paypal.com'."\";".PHP_EOL."\$conf['paypal_url']=\"".'ssl://www.paypal.com'."\";".PHP_EOL."\$conf['paypal_buttonhtml']=\"".''."\";".PHP_EOL."\$conf['sofortcom_enabled']=\"".''."\";".PHP_EOL
 	."\$conf['sofortcom_configkey']=\"".''."\";".PHP_EOL."\$conf['social_likebutton_twitter']=\"".''."\";".PHP_EOL."\$conf['social_likebutton_werkenntwen']=\"".''."\";".PHP_EOL."\$conf['social_likebutton_xing']=\"".''."\";".PHP_EOL
-	."\$conf['register_use_captcha']=\"".''."\";".PHP_EOL."\$conf['register_captcha_publickey']=\"".'-'."\";".PHP_EOL."\$conf['register_captcha_privatekey']=\"".'-'."\";".PHP_EOL."\$conf['PARAM_SORTCOLUMN']=\"".'sortcolumn'."\";".PHP_EOL
-	."\$conf['PARAM_SORTDIRECTION']=\"".'sortdir'."\";".PHP_EOL."\$conf['PARAM_RESETSORT']=\"".'resetsort'."\";".PHP_EOL;
-	$fp=fopen(CONFIGFILE,'w+');fwrite($fp,$filecontent);fclose($fp);if(file_exists(CONFIGFILE))return"printPreDbCreate";}
+	."\$conf['register_use_captcha']=\"".''."\";".PHP_EOL."\$conf['register_captcha_publickey']=\"".'-'."\";".PHP_EOL."\$conf['register_captcha_privatekey']=\"".'-'."\";".PHP_EOL."\$conf['sortcolumn']=\"".'sortcolumn'."\";".PHP_EOL
+	."\$conf['sortdir']=\"".'sortdir'."\";".PHP_EOL."\$conf['resetsort']=\"".'resetsort'."\";".PHP_EOL."\$conf['DEFAULT_PAGE_ID']=\"".'home'."\";".PHP_EOL."\$conf['DEFAULT_PLAYER_AGE']=\"".'20'."\";".PHP_EOL."\$conf['DEFAULT_YOUTH_OFFENSIVE']=\"".'60'."\";".PHP_EOL
+	."\$conf['DOUBLE_SUBMIT_CHECK_SECONDS']=\"".'3'."\";".PHP_EOL."\$conf['INACTIVITY_PER_DAY_LOGIN']=\"".'0.45'."\";".PHP_EOL."\$conf['INACTIVITY_PER_DAY_TRANSFERS']=\"".'0.1'."\";".PHP_EOL."\$conf['INACTIVITY_PER_DAY_TACTICS']=\"".'0.2'."\";".PHP_EOL
+	."\$conf['INACTIVITY_PER_CONTRACTEXTENSION']=\"".'5'."\";".PHP_EOL."\$conf['MARK_IMPROVE_GOAL_SCORER']=\"".'1'."\";".PHP_EOL."\$conf['MARK_IMPROVE_GOAL_PASSPLAYER']=\"".'0.75'."\";".PHP_EOL."\$conf['MARK_DOWNGRADE_GOAL_GOALY']=\"".'0.5'."\";".PHP_EOL
+	."\$conf['MARK_DOWNGRADE_SHOOTFAILURE']=\"".'0.5'."\";".PHP_EOL."\$conf['MARK_IMPROVE_SHOOTFAILURE_GOALY']=\"".'0.5'."\";".PHP_EOL."\$conf['MARK_IMPROVE_TACKLE_WINNER']=\"".'0.25'."\";".PHP_EOL."\$conf['MARK_DOWNGRADE_TACKLE_LOOSER']=\"".'0.5'."\";".PHP_EOL
+	."\$conf['MARK_DOWNGRADE_BALLPASS_FAILURE']=\"".'0.25'."\";".PHP_EOL."\$conf['MARK_IMPROVE_BALLPASS_SUCCESS']=\"".'0.1'."\";".PHP_EOL."\$conf['MAX_ITEMS']=\"".'20'."\";".PHP_EOL."\$conf['MAX_STRENGTH']=\"".'100'."\";".PHP_EOL
+	."\$conf['MIN_NUMBER_OF_PLAYERS']=\"".'9'."\";".PHP_EOL."\$conf['MINIMUM_SATISFACTION_FOR_EXTENSION']=\"".'30'."\";".PHP_EOL."\$conf['NEWS_ENTRIES_PER_PAGE']=\"".'5'."\";".PHP_EOL."\$conf['NEWS_TEASER_MAXLENGTH']=\"".'256'."\";".PHP_EOL
+	."\$conf['NOTIFICATION_TYPE']=\"".'transferoffer'."\";".PHP_EOL."\$conf['NOTIFICATION_TARGETPAGE']=\"".'transferoffers'."\";".PHP_EOL."\$conf['NUMBER_OF_PLAYERS']=\"".'20'."\";".PHP_EOL."\$conf['NUMBER_OF_TOP_NEWS']=\"".'5'."\";".PHP_EOL
+	."\$conf['PLAYER_POSITION_GOALY']=\"".'Torwart'."\";".PHP_EOL."\$conf['PLAYER_POSITION_DEFENCE']=\"".'Abwehr'."\";".PHP_EOL."\$conf['PLAYER_POSITION_MIDFIELD']=\"".'Mittelfeld'."\";".PHP_EOL."\$conf['PLAYER_POSITION_STRIKER']=\"".'Sturm'."\";".PHP_EOL
+	."\$conf['POINTS_WIN']=\"".'3'."\";".PHP_EOL."\$conf['POINTS_DRAW']=\"".'1'."\";".PHP_EOL."\$conf['POINTS_LOSS']=\"".'0'."\";".PHP_EOL."\$conf['REMEMBERME_COOKIE_LIFETIME_DAYS']=\"".'30'."\";".PHP_EOL."\$conf['SATISFACTION_DECREASE']=\"".'10'."\";".PHP_EOL
+	."\$conf['SATISFACTION_INCREASE']=\"".'10'."\";".PHP_EOL."\$conf['SLEEP_SECONDS_ON_FAILURE']=\"".'5'."\";".PHP_EOL."\$conf['USER_STATUS_ENABLED']=\"".'1'."\";".PHP_EOL."\$conf['USER_STATUS_UNCONFIRMED']=\"".'2'."\";".PHP_EOL
+	."\$conf['YOUTH_STRENGTH_FRESHNESS']=\"".'100'."\";".PHP_EOL."\$conf['YOUTH_STRENGTH_SATISFACTION']=\"".'100'."\";".PHP_EOL
+	."\$conf['WRITABLE_FOLDERS']=\"".'generated/,uploads/club/,uploads/cup/,uploads/player/,uploads/sponsor/,uploads/stadium/,uploads/stadiumbuilder/,uploads/stadiumbuilding/,uploads/users/,admin/config/jobs.xml,admin/config/termsandconditions.xml'."\";".PHP_EOL;
+	$fp=fopen($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php','w+');fwrite($fp,$filecontent);fclose($fp);if(file_exists($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php'))return"printPreDbCreate";}
 function printPreDbCreate($messages){?><h2><?php echo$messages['predb_title'];?></h2><form method='post'><label class='radio'><input type='radio'name='install'value='new'checked><?php echo$messages['predb_label_new'];?></label>
 	<button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button><input type='hidden'name='action'value='actionCreateDb'></form><p><i class='icon-warning-sign'></i><?php echo$messages['predb_label_warning'];?></p><?php }
 function actionCreateDb(){include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');$db=DbConnection::getInstance();$db->connect($conf['db_host'],$conf['db_user'],$conf['db_passwort'],$conf['db_name']);
@@ -10221,7 +9977,7 @@ function printCreateUserForm($messages){?><form method='post'class='form-horizon
 	<div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities((isset($_POST['email']))?$_POST['email']:'');?>'</div></div></fieldset>
 	<div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
 function actionSaveUser(){global$errors;global$messages;$requiredFields=['name','password','email'];
-	foreach($requiredFields as $requiredField){if(!isset($_POST[$requiredField])||!strlen($_POST[$requiredField]))$errors[]=$messages['requires_value'].': '.$messages['label_'.$requiredField];}if(count($errors))return'printCreateUserForm';
+	foreach($requiredFields as$requiredField){if(!isset($_POST[$requiredField])||!strlen($_POST[$requiredField]))$errors[]=$messages['requires_value'].': '.$messages['label_'.$requiredField];}if(count($errors))return'printCreateUserForm';
 	$salt=SecurityUtil::generatePasswordSalt();$password=SecurityUtil::hashPassword($_POST['password'],$salt);$columns=['name'=>$_POST['name'],'passwort'=>$password,'passwort_salt'=>$salt,'email'=>$_POST['email'],'r_admin'=>'1'];
 	include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');$db=DbConnection::getInstance();$db->connect($conf['db_host'],$conf['db_user'],$conf['db_passwort'],$conf['db_name']);
 	$db->queryInsert($columns,'admin');$db->queryInsert($columns,'_admin');$db->queryInsert($columns,'ws3_admin');return'printFinalPage';}
@@ -10256,7 +10012,7 @@ function flags($site){?><a href=<?php echo$site?>de><img src='/img/flags/de.png'
 	</a><br><br><?php }
 function classes_autoloader($class){$subforder='';if(substr($class,-9)==='Converter')$subforder='converters/';elseif(substr($class,-4)==='Skin')$subforder='skins/';elseif(substr($class,-5)==='Model')$subforder='models/';elseif(substr($class,-9)==='Validator')$subforder=
 	'validators/';elseif(substr($class,-10)==='Controller')$subforder='actions/';elseif(substr($class,-7)==='Service')$subforder='services/';elseif(substr($class,-3)==='Job')$subforder='jobs/';elseif(substr($class,-11)==='LoginMethod')$subforder='loginmethods/';
-	elseif(substr($class,-5)==='Event')$subforder='events/';elseif(substr($class,-6)==='Plugin')$subforder='plugins/';@include(BASEFOLDER.'/classes/'.$subforder.$class.'.class.php');}
+	elseif(substr($class,-5)==='Event')$subforder='events/';elseif(substr($class,-6)==='Plugin')$subforder='plugins/';@include($_SERVER['DOCUMENT_ROOT'].'/classes/'.$subforder.$class.'.class.php');}
 function sendEmail($email,$password,$website,$i18n){$tplparameters['newpassword']=$password;EmailHelper::sendSystemEmailFromTemplate($website,$i18n,$email,Message('sendpassword_admin_email_subject'),'sendpassword_admin',$tplparameters);}
 function escapeOutput($message){return htmlspecialchars((string)$message,ENT_COMPAT,'UTF-8');}
 function createWarningMessage($title,$message){return createMessage('warning',$title,$message);}
@@ -10265,5 +10021,5 @@ function createErrorMessage($title,$message){return createMessage('error',$title
 function createSuccessMessage($title,$message){return createMessage('success',$title,$message);}
 function createMessage($severity,$title,$message){$html='<div class=\'alert alert-'.$severity.'\'>'.'<button type=\'button\'class=\'close\'data-dismiss=\'alert\'>&times;</button>'.'<h4>'.$title.'</h4>'.$message.'</div>';return $html;}
 function logAdminAction(WebSoccer $websoccer,$type,$username,$entity,$entityValue){$userIp=getenv('REMOTE_ADDR');$message=$websoccer->getFormattedDatetime($websoccer->getNowAsTimestamp()).';'.$username.';'.$userIp.';'.$type.';'.$entity.';'.$entityValue;
-	$file=BASE_FOLDER.'/generated/entitylog.php';$fw=new FileWriter($file,FALSE);$fw->writeLine($message);$fw->close();}
+	$file=$_SERVER['DOCUMENT_ROOT'].'/generated/entitylog.php';$fw=new FileWriter($file,FALSE);$fw->writeLine($message);$fw->close();}
 function renderErrorPage($website,$i18n,$viewHandler,$message,$parameters){$parameters['title']=$message;$parameters['message']='';print_r($website->getTemplateEngine($i18n,$viewHandler)->loadTemplate('error')->render($parameters));}

@@ -96,7 +96,7 @@
   	data-slider-value="{{ value }}"
   	data-slider-orientation="horizontal"
   	data-slider-selection="before" />
-  	<span>{{ i18n.getMessage("unit_percent") }}</span>
+  	<span>{{ Message("unit_percent") }}</span>
 {% endmacro %}
 
 {% macro teamPlayerSelection(fieldId, label, selectedPlayer = null, positionsAndPlayers) %}
@@ -109,10 +109,10 @@
 		<select name="{{ fieldId }}" id="{{ fieldId }}">
 			<option></option>
 			{% for position,players in positionsAndPlayers %}
-				<optgroup label="{{ i18n.getMessage("player_position_" ~ position) }}">
+				<optgroup label="{{ Message("player_position_" ~ position) }}">
 				{% if player.transfermarket != "1" %}
 					{% for player in players %}
-						<option value="{{ player.id }}" {% if selectedPlayer == player.id  %} selected{% endif %}>{{ player.firstname }} {% if player.pseudonym|length > 0 %}&quot;{{ player.pseudonym }}&quot; {% endif %}{{ player.lastname }}{% if player.position_main|length > 0 %} ({{ i18n.getMessage("player_mainposition_" ~ player.position_main) }}){% endif %}</option>
+						<option value="{{ player.id }}" {% if selectedPlayer == player.id  %} selected{% endif %}>{{ player.firstname }} {% if player.pseudonym|length > 0 %}&quot;{{ player.pseudonym }}&quot; {% endif %}{{ player.lastname }}{% if player.position_main|length > 0 %} ({{ Message("player_mainposition_" ~ player.position_main) }}){% endif %}</option>
 					{% endfor %}
 				{% endif %}
 				</optgroup>

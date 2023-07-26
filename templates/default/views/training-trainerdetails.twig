@@ -18,20 +18,20 @@
 {% set bar_tech = statisticelements.progressbar(trainer.p_technique) %}
 {% set bar_stamina = statisticelements.progressbar(trainer.p_stamina) %}
 
-{{ profile.infofield(i18n.getMessage("entity_trainer_salary"), trainer.salary|number_format(0, ',', ' ') ~ " " ~ env.getConfig("game_currency")) }}
-{{ profile.infofield(i18n.getMessage("entity_trainer_p_technique"), bar_tech|raw, true) }}
-{{ profile.infofield(i18n.getMessage("entity_trainer_p_stamina"), bar_stamina|raw, true) }}
+{{ profile.infofield(Message("entity_trainer_salary"), trainer.salary|number_format(0, ',', ' ') ~ " " ~ Config("game_currency")) }}
+{{ profile.infofield(Message("entity_trainer_p_technique"), bar_tech|raw, true) }}
+{{ profile.infofield(Message("entity_trainer_p_stamina"), bar_stamina|raw, true) }}
 
 <form class="form-horizontal" method="post">
 	<fieldset>
-    	<legend>{{ i18n.getMessage('training_choose_trainer_title') }}</legend>
+    	<legend>{{ Message('training_choose_trainer_title') }}</legend>
     	
     	
-		{{ formelements.textfield('units', i18n.getMessage('training_choose_trainer_units'), env.getRequestParameter("units"), true, validationMsg, "number") }}
+		{{ formelements.textfield('units', Message('training_choose_trainer_units'), env.getRequestParameter("units"), true, validationMsg, "number") }}
 	</fieldset>
 	<div class="form-actions">
-		<button type="submit" class="btn btn-primary">{{ i18n.getMessage('button_save') }}</button>
-		<a href="{{ env.getInternalUrl("training") }}" class="btn">{{ i18n.getMessage('button_cancel') }}</a>
+		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
+		<a href="{{ env.getInternalUrl("training") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="id" value="{{ trainer.id }}"/>
 	<input type="hidden" name="page" value="trainer-details"/>

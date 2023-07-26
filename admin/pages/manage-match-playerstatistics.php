@@ -20,10 +20,10 @@
 
 ******************************************************/
 
-echo "<h1>".  $i18n->getMessage("match_manage_playerstatistics") . "</h1>";
+echo "<h1>".  Message("match_manage_playerstatistics") . "</h1>";
 
 if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin["r_spiele"]) {
-	throw new Exception($i18n->getMessage("error_access_denied"));
+	throw new Exception(Message("error_access_denied"));
 }
 
 echo "<p><a href=\"?site=manage&entity=match\" class=\"btn\">".Message("back_label") . "</a></p>";
@@ -37,17 +37,17 @@ $formFields = array("minuten_gespielt", "note", "tore", "assists", "karte_gelb",
 // ******** action: delete player from match
 if ($action == "delete") {
 	if ($admin["r_demo"]) {
-		throw new Exception($i18n->getMessage("validationerror_no_changes_as_demo"));
+		throw new Exception(Message("validationerror_no_changes_as_demo"));
 	}
 
 	$playerId = (int) $_REQUEST["player"];
 	$db->queryDelete(Config("db_prefix") . "_spiel_berechnung", "spiel_id = %d AND spieler_id = %d", array($matchId, $playerId));
-	echo createSuccessMessage($i18n->getMessage("manage_success_delete"), "");
+	echo createSuccessMessage(Message("manage_success_delete"), "");
 }
 // ******** action: update player statistics
 elseif ($action == "update") {
 	if ($admin["r_demo"]) {
-		throw new Exception($i18n->getMessage("validationerror_no_changes_as_demo"));
+		throw new Exception(Message("validationerror_no_changes_as_demo"));
 	}
 
 	$updateTable =Config("db_prefix") . "_spiel_berechnung";
@@ -90,12 +90,12 @@ elseif ($action == "update") {
 		}
 	}
 
-	echo createSuccessMessage($i18n->getMessage("alert_save_success"), "");
+	echo createSuccessMessage(Message("alert_save_success"), "");
 }
 // ******** action: create new player statistics record
 elseif ($action == "create") {
 	if ($admin["r_demo"]) {
-		throw new Exception($i18n->getMessage("validationerror_no_changes_as_demo"));
+		throw new Exception(Message("validationerror_no_changes_as_demo"));
 	}
 
 	$teamId = (int) $_POST["team_id"];
@@ -119,7 +119,7 @@ elseif ($action == "create") {
 // ******** action: generate player records out of current formation
 elseif ($action == "generate") {
 	if ($admin["r_demo"]) {
-		throw new Exception($i18n->getMessage("validationerror_no_changes_as_demo"));
+		throw new Exception(Message("validationerror_no_changes_as_demo"));
 	}
 
 	// init default simulation strategry in order to include dependend constants. Yeah, refactor this once having to much time...
@@ -154,7 +154,7 @@ elseif ($action == "generate") {
 	$formation = $result->fetch_array();
 	$result->free();
 	if (!$formation) {
-		throw new Exception($i18n->getMessage("match_manage_playerstatistics_noformationavailable"));
+		throw new Exception(Message("match_manage_playerstatistics_noformationavailable"));
 	}
 
 	$formation["match_id"] = $matchId;
@@ -196,10 +196,10 @@ echo "<input type=\"hidden\" name=\"action\" value=\"create\">";
 echo "<input type=\"hidden\" name=\"site\" value=\"$site\">";
 echo "<input type=\"hidden\" name=\"match\" value=\"escapeOutput($matchId)\">";
 
-echo "<fieldset><legend>". $i18n->getMessage("match_manage_createplayer_title") ."</legend>";
+echo "<fieldset><legend>". Message("match_manage_createplayer_title") ."</legend>";
 
 echo "<div class=\"control-group\">";
-echo "<label class=\"control-label\" for=\"team_id\">". $i18n->getMessage("entity_player_verein_id") . "</label>";
+echo "<label class=\"control-label\" for=\"team_id\">". Message("entity_player_verein_id") . "</label>";
 echo "<div class=\"controls\">";
 echo "<select name=\"team_id\" id=\"team_id\">";
 echo "<option value=\"". escapeOutput($match["match_home_id"]) . "\">". escapeOutput($match["match_home_name"]) . "</option>";
@@ -214,7 +214,7 @@ echo FormBuilder::createFormGroup($i18n, "playerid", array("type" => "foreign_ke
 		"labelcolumns" => "vorname,nachname,kunstname"), "", "match_manage_createplayer_label_");
 
 echo "<div class=\"control-group\">";
-echo "<label class=\"control-label\" for=\"position\">". $i18n->getMessage("entity_player_position_main") . "</label>";
+echo "<label class=\"control-label\" for=\"position\">". Message("entity_player_position_main") . "</label>";
 echo "<div class=\"controls\">";
 echo "<select name=\"position\" id=\"position\">";
 foreach ($positions as $position) {
@@ -227,7 +227,7 @@ echo "</div>";
 
 echo "</fieldset>";
 echo "<div class=\"form-actions\">";
-echo "<button type=\"submit\" class=\"btn btn-primary\">". $i18n->getMessage("button_save") . "</button>";
+echo "<button type=\"submit\" class=\"btn btn-primary\">". Message("button_save") . "</button>";
 echo "</div></form>";
 
 // ******** list players and enable editing
@@ -259,7 +259,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 
 	// no player records
 	if (!$playersCount) {
-		echo createInfoMessage("", $i18n->getMessage("match_manage_playerstatistics_noitems"));
+		echo createInfoMessage("", Message("match_manage_playerstatistics_noitems"));
 
 		// check if any formation is available
 		$fresult = $db->querySelect("COUNT(*) AS hits",Config("db_prefix") . "_aufstellung", "verein_id = %d", $match["match_". $teamPrefix . "_id"]);
@@ -268,7 +268,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 		if ($formationCount && $formationCount["hits"]) {
 			echo "<p><a href=\"?site=$site&match=escapeOutput($matchId&team)=$teamPrefix&action=generate\" class=\"btn\"><i class=\"icon-hand-right\"></i> ". Message("match_manage_playerstatistics_createfromfrmation") . "</a></p>";
 		} else {
-			echo "<p><i class=\"icon-warning-sign\"></i> ". $i18n->getMessage("match_manage_playerstatistics_noformationavailable") . "</p>";
+			echo "<p><i class=\"icon-warning-sign\"></i> ". Message("match_manage_playerstatistics_noformationavailable") . "</p>";
 		}
 
 		// list player records
@@ -277,11 +277,11 @@ foreach ($teamPrefixes as $teamPrefix) {
 		echo "<table class=\"table table-bordered table-striped table-hover\">";
 		echo "<thead>";
 		echo "<tr>";
-		echo "<th>". $i18n->getMessage("entity_player_position") . "</th>";
-		echo "<th>". $i18n->getMessage("entity_player") . "</th>";
+		echo "<th>". Message("entity_player_position") . "</th>";
+		echo "<th>". Message("entity_player") . "</th>";
 
 		foreach ($formFields as $formField) {
-			echo "<th>". $i18n->getMessage("match_manage_" . $formField) . "</th>";
+			echo "<th>". Message("match_manage_" . $formField) . "</th>";
 		}
 
 		echo "</tr>";
@@ -304,31 +304,31 @@ foreach ($teamPrefixes as $teamPrefix) {
 			foreach ($positions as $position) {
 				echo "<option value=\"". escapeOutput($position) . "\"";
 				if ($position == $player["position_main"]) echo " selected";
-				echo ">". $i18n->getMessage("option_" . escapeOutput($position)). "</option>";
+				echo ">". Message("option_" . escapeOutput($position)). "</option>";
 			}
 			echo "</select><br/>";
 			echo "<select name=\"" . escapeOutput($fieldPrefix) . "_feld\" class=\"input-medium\">";
 			echo "<option value=\"1\"";
 			if ($player["feld"] === "1") echo " selected";
-			echo ">". $i18n->getMessage("match_manage_position_field_1") . "</option>";
+			echo ">". Message("match_manage_position_field_1") . "</option>";
 
 			echo "<option value=\"Ersatzbank\"";
 			if ($player["feld"] === "Ersatzbank") echo " selected";
-			echo ">". $i18n->getMessage("match_manage_position_field_bench") . "</option>";
+			echo ">". Message("match_manage_position_field_bench") . "</option>";
 
 			echo "<option value=\"Ausgewechselt\"";
 			if ($player["feld"] === "Ausgewechselt") echo " selected";
-			echo ">". $i18n->getMessage("match_manage_position_field_substituted") . "</option>";
+			echo ">". Message("match_manage_position_field_substituted") . "</option>";
 			echo "</select></td>";
 
 			// name
 			echo "<td>". escapeOutput(escapeOutput($player["name"]));
-			echo " <a href=\"?site=$site&action=delete&match=$matchId&player=". $player["spieler_id"] . "\" title=\"". $i18n->getMessage("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a>";
+			echo " <a href=\"?site=$site&action=delete&match=$matchId&player=". $player["spieler_id"] . "\" title=\"". Message("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a>";
 			echo "</td>";
 
 			// statistics
 			foreach ($formFields as $formField) {
-				echo "<td><input type=\"text\" class=\"input-mini\" name=\"". escapeOutput($fieldPrefix) . "_". $formField . "\" title=\"". $i18n->getMessage("match_manage_" . $formField) . "\" value=\"". $player[$formField] . "\"/></td>";
+				echo "<td><input type=\"text\" class=\"input-mini\" name=\"". escapeOutput($fieldPrefix) . "_". $formField . "\" title=\"". Message("match_manage_" . $formField) . "\" value=\"". $player[$formField] . "\"/></td>";
 			}
 
 			echo "</tr>";
@@ -339,15 +339,15 @@ foreach ($teamPrefixes as $teamPrefix) {
 		echo "<input type=\"hidden\" name=\"". escapeOutput($teamPrefix) . "_players\" value=\"". implode(";", $playerIds) . "\"/>";
 
 		// substitutions
-		echo "<h4>". $i18n->getMessage("match_manage_substitutions") . "</h4>";
+		echo "<h4>". Message("match_manage_substitutions") . "</h4>";
 		?>
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th><?php echo $i18n->getMessage("match_manage_substitutions_out") ?></th>
-					<th><?php echo $i18n->getMessage("match_manage_substitutions_in") ?></th>
-					<th><?php echo $i18n->getMessage("match_manage_substitutions_condition") ?></th>
-					<th><?php echo $i18n->getMessage("match_manage_substitutions_minute") ?></th>
+					<th><?php echo Message("match_manage_substitutions_out") ?></th>
+					<th><?php echo Message("match_manage_substitutions_in") ?></th>
+					<th><?php echo Message("match_manage_substitutions_condition") ?></th>
+					<th><?php echo Message("match_manage_substitutions_minute") ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -378,15 +378,15 @@ foreach ($teamPrefixes as $teamPrefix) {
 
 					echo "<option value=\"Tie\"";
 					if ($match["match_". $teamPrefix . "_sub" . $subNo . "_condition"] == "Tie") echo " selected";
-					echo ">". $i18n->getMessage("match_manage_substitutions_condition_tie") . "</option>";
+					echo ">". Message("match_manage_substitutions_condition_tie") . "</option>";
 
 					echo "<option value=\"Leading\"";
 					if ($match["match_". $teamPrefix . "_sub" . $subNo . "_condition"] == "Leading") echo " selected";
-					echo ">". $i18n->getMessage("match_manage_substitutions_condition_leading") . "</option>";
+					echo ">". Message("match_manage_substitutions_condition_leading") . "</option>";
 
 					echo "<option value=\"Deficit\"";
 					if ($match["match_". $teamPrefix . "_sub" . $subNo . "_condition"] == "Deficit") echo " selected";
-					echo ">". $i18n->getMessage("match_manage_substitutions_condition_deficit") . "</option>";
+					echo ">". Message("match_manage_substitutions_condition_deficit") . "</option>";
 
 					echo "</td>";
 
@@ -404,8 +404,8 @@ foreach ($teamPrefixes as $teamPrefix) {
 }
 
 echo "<div class=\"form-actions\">";
-echo "<button type=\"submit\" class=\"btn btn-primary\">". $i18n->getMessage("button_save") . "</button>";
-echo " <button type=\"reset\" class=\"btn\">". $i18n->getMessage("button_reset") . "</button>";
+echo "<button type=\"submit\" class=\"btn btn-primary\">". Message("button_save") . "</button>";
+echo " <button type=\"reset\" class=\"btn\">". Message("button_reset") . "</button>";
 echo "</div></form>";
 
 ?>

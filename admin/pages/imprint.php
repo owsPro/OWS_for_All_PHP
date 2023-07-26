@@ -20,10 +20,10 @@
 
 ******************************************************/
 
-$mainTitle = $i18n->getMessage('imprint_navlabel');
+$mainTitle = Message('imprint_navlabel');
 
 if (!$admin['r_admin'] && !$admin['r_demo'] && !$admin[$page['permissionrole']]) {
-	throw new Exception($i18n->getMessage('error_access_denied'));
+	throw new Exception(Message('error_access_denied'));
 }
 
 if (!$show) {
@@ -32,7 +32,7 @@ if (!$show) {
 
   <h1><?php echo $mainTitle; ?></h1>
 
-  <p><?php echo escapeOutput($i18n->getMessage('imprint_introduction')); ?></p>
+  <p><?php echo escapeOutput(Message('imprint_introduction')); ?></p>
 
   <form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal'>
     <input type='hidden' name='show' value='save'>
@@ -43,8 +43,8 @@ if (!$show) {
 	$formFields = array();
 
 	$filecontent = '';
-	if (file_exists(IMPRINT_FILE)) {
-		$filecontent = file_get_contents(IMPRINT_FILE);
+	if (file_exists($_SERVER['DOCUMENT_ROOT'].'/generated/imprint.php')) {
+		$filecontent = file_get_contents($_SERVER['DOCUMENT_ROOT'].'/generated/imprint.php');
 	}
 
 	$formFields['content'] = array('type' => 'html', 'value' => $filecontent, 'required' => 'true');
@@ -54,8 +54,8 @@ if (!$show) {
 	?>
 	</fieldset>
 	<div class='form-actions'>
-		<input type='submit' class='btn btn-primary' accesskey='s' title='Alt + s' value='<?php echo $i18n->getMessage('button_save'); ?>'>
-		<input type='reset' class='btn' value='<?php echo $i18n->getMessage('button_reset'); ?>'>
+		<input type='submit' class='btn btn-primary' accesskey='s' title='Alt + s' value='<?php echo Message('button_save'); ?>'>
+		<input type='reset' class='btn' value='<?php echo Message('button_reset'); ?>'>
 	</div>
   </form>
 
@@ -66,8 +66,8 @@ if (!$show) {
 
 elseif ($show == 'save') {
 
-  if (!isset($_POST['content']) || !$_POST['content']) $err[] = $i18n->getMessage('imprint_validationerror_content');
-  if ($admin['r_demo']) $err[] = $i18n->getMessage('validationerror_no_changes_as_demo');
+  if (!isset($_POST['content']) || !$_POST['content']) $err[] = Message('imprint_validationerror_content');
+  if ($admin['r_demo']) $err[] = Message('validationerror_no_changes_as_demo');
 
   if (isset($err)) {
 
@@ -76,15 +76,15 @@ elseif ($show == 'save') {
   }
   else {
 
-    echo '<h1>'. $mainTitle .' &raquo; '. $i18n->getMessage('subpage_save_title') . '</h1>';
+    echo '<h1>'. $mainTitle .' &raquo; '. Message('subpage_save_title') . '</h1>';
 
-    $fw = new FileWriter(IMPRINT_FILE);
+    $fw = new FileWriter($_SERVER['DOCUMENT_ROOT'].'/generated/imprint.php');
     $fw->writeLine(stripslashes($_POST['content']));
     $fw->close();
 
-	echo createSuccessMessage($i18n->getMessage('alert_save_success'), '');
+	echo createSuccessMessage(Message('alert_save_success'), '');
 
-      echo '<p>&raquo; <a href=\'?site='. $site .'\'>'. $i18n->getMessage('back_label') . '</a></p>';
+      echo '<p>&raquo; <a href=\'?site='. $site .'\'>'. Message('back_label') . '</a></p>';
 
   }
 

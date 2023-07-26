@@ -20,7 +20,7 @@
 
 ******************************************************/
 
-$mainTitle = $i18n->getMessage("profile_title");
+$mainTitle = Message("profile_title");
 
 if (!$show) {
 
@@ -48,8 +48,8 @@ if (!$show) {
 	?>
 	</fieldset>
 	<div class="form-actions">
-		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("button_save"); ?>">
-		<input type="reset" class="btn" value="<?php echo $i18n->getMessage("button_reset"); ?>">
+		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("button_save"); ?>">
+		<input type="reset" class="btn" value="<?php echo Message("button_reset"); ?>">
 	</div>
   </form>
 
@@ -59,10 +59,10 @@ if (!$show) {
 
 elseif ($show == "save") {
 
-  if (!$_POST['email']) $err[] = $i18n->getMessage("profile_validationerror_email");
-  if ($_POST['newpassword'] && (strlen(trim($_POST['newpassword'])) < 5)) $err[] = $i18n->getMessage("profile_validationerror_password_too_short");
-  if ($_POST['newpassword'] != $_POST['repeatpassword']) $err[] = $i18n->getMessage("profile_validationerror_wrong_repeated_password");
-  if ($admin['r_demo']) $err[] = $i18n->getMessage("validationerror_no_changes_as_demo");
+  if (!$_POST['email']) $err[] = Message("profile_validationerror_email");
+  if ($_POST['newpassword'] && (strlen(trim($_POST['newpassword'])) < 5)) $err[] = Message("profile_validationerror_password_too_short");
+  if ($_POST['newpassword'] != $_POST['repeatpassword']) $err[] = Message("profile_validationerror_wrong_repeated_password");
+  if ($admin['r_demo']) $err[] = Message("validationerror_no_changes_as_demo");
 
   if (isset($err)) {
 
@@ -71,7 +71,7 @@ elseif ($show == "save") {
   }
   else {
 
-    echo "<h1>". $mainTitle ." &raquo; ". $i18n->getMessage("subpage_save_title") . "</h1>";
+    echo "<h1>". $mainTitle ." &raquo; ". Message("subpage_save_title") . "</h1>";
 
     $fromTable = $conf['db_prefix'] ."_admin";
     $whereCondition = "id = %d";
@@ -98,9 +98,9 @@ elseif ($show == "save") {
 
 	$db->queryUpdate($columns, $fromTable, $whereCondition, $parameter);
 
-	echo createSuccessMessage($i18n->getMessage("alert_save_success"), "");
+	echo createSuccessMessage(Message("alert_save_success"), "");
 
-      echo "<p>&raquo; <a href=\"?site=". $site ."\">". $i18n->getMessage("back_label") . "</a></p>\n";
+      echo "<p>&raquo; <a href=\"?site=". $site ."\">". Message("back_label") . "</a></p>\n";
 
   }
 
