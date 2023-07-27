@@ -7,10 +7,10 @@
 <dl class="dl-horizontal">
   <dt>{{ Message("entity_club") }}</dt>
   <dd><a href="{{ env.getInternalUrl("team", "id=" ~ highestbid.team_id) }}">{{ highestbid.team_name }}</a></dd>
-  
+
   <dt>{{ Message("entity_users") }}</dt>
   <dd><a href="{{ env.getInternalUrl("user", "id=" ~ highestbid.user_id) }}">{{ highestbid.user_name }}</a></dd>
-  
+
   <dt>{{ Message("transfer_bid_date") }}</dt>
   <dd>{{ env.getFormattedDatetime(highestbid.date) }}</dd>
 
@@ -23,10 +23,10 @@
   {% endif %}
   <dt>{{ Message("entity_player_vertrag_gehalt") }}</dt>
   <dd>{{ highestbid.contract_salary|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
-  
+
   <dt>{{ Message("entity_player_vertrag_torpraemie") }}</dt>
   <dd>{{ highestbid.contract_goalbonus|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
-  
+
   <dt>{{ Message("entity_player_vertrag_spiele") }}</dt>
   <dd>{{ highestbid.contract_matches  }} {{ Message("player_details_unit_matches") }}</dd>
 </dl>
@@ -40,30 +40,30 @@
 {% endif %}
 
 <p><a href="#highestbid" style="margin-top: 30px" class="btn ajaxLink" data-ajaxtarget="transfer-bid_block" data-ajaxblock="transfer-bid"
-	data-ajaxquerystr="id={{ env.getRequestParameter("id") }}"><i class="icon-refresh"></i> {{ Message("button_refresh") }}</a></p>
+	data-ajaxquerystr="id={{ Request("id") }}"><i class="icon-refresh"></i> {{ Message("button_refresh") }}</a></p>
 
 <h3>{{ Message("transfer_bid_yourbid") }}</h3>
 
 <form class="form-horizontal" method="post">
 
 	{% if player.team_id > 0 %}
-	{{ formelements.textfield('amount', Message('transfer_bid_amount'), env.getRequestParameter('amount'), true, validationMsg, 'number') }}
+	{{ formelements.textfield('amount', Message('transfer_bid_amount'), Request('amount'), true, validationMsg, 'number') }}
 	{% else %}
-	{{ formelements.textfield('handmoney', Message('transfer_bid_handmoney'), env.getRequestParameter('handmoney'), false, validationMsg, 'number') }}
+	{{ formelements.textfield('handmoney', Message('transfer_bid_handmoney'), Request('handmoney'), false, validationMsg, 'number') }}
 	{% endif %}
-	
-	{{ formelements.textfield('contract_salary', Message('entity_player_vertrag_gehalt'), env.getRequestParameter('contract_salary'), true, validationMsg, 'number') }}
-	
-	{{ formelements.textfield('contract_goal_bonus', Message('entity_player_vertrag_torpraemie'), env.getRequestParameter('contract_goal_bonus'), false, validationMsg, 'number') }}
-	
-	{{ formelements.textfield('contract_matches', Message('entity_player_vertrag_spiele'), env.getRequestParameter('contract_matches'), true, validationMsg, 'number') }}
-	
+
+	{{ formelements.textfield('contract_salary', Message('entity_player_vertrag_gehalt'), Request('contract_salary'), true, validationMsg, 'number') }}
+
+	{{ formelements.textfield('contract_goal_bonus', Message('entity_player_vertrag_torpraemie'), Request('contract_goal_bonus'), false, validationMsg, 'number') }}
+
+	{{ formelements.textfield('contract_matches', Message('entity_player_vertrag_spiele'), Request('contract_matches'), true, validationMsg, 'number') }}
+
 	<div class="form-actions">
-		<button type="submit" class="btn btn-primary ajaxSubmit" 
+		<button type="submit" class="btn btn-primary ajaxSubmit"
 		data-ajaxtarget="transfer-bid_block" data-ajaxblock="transfer-bid" data-messagetarget="bidmessages">{{ Message('transfermarket_bid') }}</button>
 		<a href="{{ env.getInternalUrl("transfermarket") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="transfer-bid"/>
-	<input type="hidden" name="id" value="{{ env.getRequestParameter('id') }}"/>
+	<input type="hidden" name="id" value="{{ Request('id') }}"/>
 	<input type="hidden" name="action" value="transfer-bid"/>
 </form>

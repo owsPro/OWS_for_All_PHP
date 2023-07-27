@@ -9,12 +9,12 @@
 
 {% if Config("upload_clublogo_max_size") > 0 %}
 	<p>{{ Message("upload-clublogo_intro", Config("upload_clublogo_max_size"))|raw }}</p>
-	
+
 	<form class="form-horizontal" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="MAX_FILE_SIZE" value="{{ Config("upload_clublogo_max_size") * 1024 }}" />
-		
-		{{ formelements.textfield('picture', Message('entity_club_bild'), env.getRequestParameter('picture'), true, validationMsg, 'file') }}
-		
+
+		{{ formelements.textfield('picture', Message('entity_club_bild'), Request('picture'), true, validationMsg, 'file') }}
+
 		<div class="form-actions">
 			<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
 			<a href="{{ env.getInternalUrl("team", "id=" ~ env.user.clubId) }}" class="btn">{{ Message('button_cancel') }}</a>

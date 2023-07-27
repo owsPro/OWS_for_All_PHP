@@ -10,15 +10,15 @@
 
 <form class="form-inline" method="post">
 
-	<label class="control-label" for="country">{{ Message("entity_league") }}</label> 
+	<label class="control-label" for="country">{{ Message("entity_league") }}</label>
 	<select id="leagueid" name="leagueid">
 		<option></option>
 	{% for leagueItem in leagues %}
-		<option value="{{ leagueItem.league_id }}"{% if env.getRequestParameter("leagueid") == leagueItem.league_id %} selected{% endif %}>{{ leagueItem.league_country }} - {{ leagueItem.league_name }}</option>
+		<option value="{{ leagueItem.league_id }}"{% if Request("leagueid") == leagueItem.league_id %} selected{% endif %}>{{ leagueItem.league_country }} - {{ leagueItem.league_name }}</option>
 	{% endfor %}
 	</select>
 
-	<button type="submit" class="btn btn-primary ajaxSubmit" 
+	<button type="submit" class="btn btn-primary ajaxSubmit"
 		data-ajaxtarget="pagecontent">{{ Message('button_display') }}</button>
 
 	<input type="hidden" name="page" value="topscorers" />
@@ -38,7 +38,7 @@
 			</tr>
 		</thead>
 		<tbody>
-		
+
 			{% for player in players %}
 			<tr>
 				<td><strong>{{ loop.index }}</strong></td>
@@ -55,7 +55,7 @@
 				<td>{{ player.score }}</td>
 			</tr>
 			{% endfor %}
-		
+
 		</tbody>
 	</table>
 

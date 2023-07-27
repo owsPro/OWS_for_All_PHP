@@ -3,36 +3,35 @@
 
 {% block table_header %}
 	<ul class="nav nav-pills">
-		<li{% if env.getRequestParameter("seasonid") == null %} class="active"{% endif %}>
+		<li{% if Request("seasonid") == null %} class="active"{% endif %}>
 			<a href="#currentTable" class="ajaxLink"
 			data-ajaxtarget="leaguetable_block" data-ajaxblock="leaguetable" data-ajaxquerystr="id={{ leagueId }}">{{ Message("leaguetable_block_title") }}</a>
 		</li>
 		{% for season in seasons %}
-		<li{% if env.getRequestParameter("seasonid") == season.id %} class="active"{% endif %}><a href="#season{{ loop.index }}" class="ajaxLink"
+		<li{% if Request("seasonid") == season.id %} class="active"{% endif %}><a href="#season{{ loop.index }}" class="ajaxLink"
 			data-ajaxtarget="leaguetable_block" data-ajaxblock="leaguetable" data-ajaxquerystr="id={{ leagueId }}&seasonid={{ season.id }}">{{ season.name }}</a></li>
 		{% endfor %}
 	</ul>
-	
+
 	<div class="btn-group" style="margin-bottom: 10px;">
 		<a class="btn dropdown-toggle" data-toggle="dropdown" href="#showAll">
 			{{ Message("leaguetable_button_type") }}
 			<span class="caret"></span>
 		</a>
 		<ul class="dropdown-menu">
-			<li{% if env.getRequestParameter("type") == null %} class="active"{% endif %}><a href="#wholeTable" class="ajaxLink"
-				data-ajaxtarget="leaguetable_block" data-ajaxblock="leaguetable" data-ajaxquerystr="id={{ leagueId }}&seasonid={{ env.getRequestParameter("seasonid") }}"><i class="icon-list-alt"></i> {{ Message("leaguetable_button_type_total") }}</a></li>
-			<li{% if env.getRequestParameter("type") == "home" %} class="active"{% endif %}><a href="#homeTable" class="ajaxLink"
-				data-ajaxtarget="leaguetable_block" data-ajaxblock="leaguetable" data-ajaxquerystr="id={{ leagueId }}&seasonid={{ env.getRequestParameter("seasonid") }}&type=home"><i class="icon-arrow-right"></i> {{ Message("leaguetable_button_type_home") }}</a></li>
-			<li{% if env.getRequestParameter("type") == "guest" %} class="active"{% endif %}><a href="#guestTable"class="ajaxLink"
-				data-ajaxtarget="leaguetable_block" data-ajaxblock="leaguetable" data-ajaxquerystr="id={{ leagueId }}&seasonid={{ env.getRequestParameter("seasonid") }}&type=guest"><i class="icon-arrow-left"></i> {{ Message("leaguetable_button_type_guest") }}</a></li>
+			<li{% if Request("type") == null %} class="active"{% endif %}><a href="#wholeTable" class="ajaxLink"
+				data-ajaxtarget="leaguetable_block" data-ajaxblock="leaguetable" data-ajaxquerystr="id={{ leagueId }}&seasonid={{ Request("seasonid") }}"><i class="icon-list-alt"></i> {{ Message("leaguetable_button_type_total") }}</a></li>
+			<li{% if Request("type") == "home" %} class="active"{% endif %}><a href="#homeTable" class="ajaxLink"
+				data-ajaxtarget="leaguetable_block" data-ajaxblock="leaguetable" data-ajaxquerystr="id={{ leagueId }}&seasonid={{ Request("seasonid") }}&type=home"><i class="icon-arrow-right"></i> {{ Message("leaguetable_button_type_home") }}</a></li>
+			<li{% if Request("type") == "guest" %} class="active"{% endif %}><a href="#guestTable"class="ajaxLink"
+				data-ajaxtarget="leaguetable_block" data-ajaxblock="leaguetable" data-ajaxquerystr="id={{ leagueId }}&seasonid={{ Request("seasonid") }}&type=guest"><i class="icon-arrow-left"></i> {{ Message("leaguetable_button_type_guest") }}</a></li>
 		</ul>
-	  
-		
+
+
 	</div>
-	<a class="btn" style="margin-bottom: 10px;" href="{{ env.getInternalUrl("results", "leagueid=" ~ leagueId ~ "&seasonid=" ~ env.getRequestParameter("seasonid")) }}"><i class="icon-list"></i> {{ Message("results_navlabel") }}</a>
-	
-	{% if env.getRequestParameter("seasonid") == null and env.getRequestParameter("type") != null %}
+	<a class="btn" style="margin-bottom: 10px;" href="{{ env.getInternalUrl("results", "leagueid=" ~ leagueId ~ "&seasonid=" ~ Request("seasonid")) }}"><i class="icon-list"></i> {{ Message("results_navlabel") }}</a>
+
+	{% if Request("seasonid") == null and Request("type") != null %}
 	<p><i class="icon-info-sign"></i> <em>{{ Message("leaguetable_timedelay_info") }}</em></p>
 	{% endif %}
 {% endblock %}
-

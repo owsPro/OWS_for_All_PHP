@@ -15,20 +15,20 @@
 		{% set lastScouting = env.getFormattedDatetime(lastExecutionTimestamp) %}
 	{% endif %}
 	{{ profile.infofield(Message("youthteam_scouting_lastexecution"), lastScouting) }}
-	
+
 	{% if not scoutingPossible %}
 		<hr>
-		{{ messagebox.box(Message("youthteam_scouting_nextpossibleexecution", 
+		{{ messagebox.box(Message("youthteam_scouting_nextpossibleexecution",
 			env.getFormattedDatetime(nextPossibleExecutionTimestamp)), "", "warning") }}
 	{% else %}
-	
-		{% if env.getRequestParameter("scoutid") == null %}
+
+		{% if Request("scoutid") == null %}
 			<h3>{{ Message("youthteam_scouting_schoosescout") }}</h3>
-			
+
 			{% if scouts|length == 0 %}
 				<p>{{ Message("youthteam_scouting_noscoutavailable") }}</p>
 			{% else %}
-			
+
 				<table class="table table-striped">
 					<thead>
 						<tr>
@@ -51,11 +51,11 @@
 					{% endfor %}
 					</tbody>
 				</table>
-			
+
 			{% endif %}
 		{% else %}
 			<h3>{{ Message("youthteam_scouting_schoosecountry") }}</h3>
-		
+
 			{% for country in countries %}
 				{% set nationImg = skin.getImage("flags/players/" ~ country ~ ".png") %}
 				{% if i18n.hasMessage("option_" ~ country) %}
@@ -63,13 +63,13 @@
 				{% else %}
 					{% set countryLabel = country %}
 				{% endif %}
-				<a href="{{ env.getInternalActionUrl("scout-youthplayer", "scoutid=" ~ env.getRequestParameter("scoutid") ~ "&country=" ~ country) }}" class="btn btn-large btn-block">{% if nationImg %}<img src="{{ nationImg }}" alt="{{ countryLabel }}" /> {% endif %}{{ countryLabel }}</a>
+				<a href="{{ env.getInternalActionUrl("scout-youthplayer", "scoutid=" ~ Request("scoutid") ~ "&country=" ~ country) }}" class="btn btn-large btn-block">{% if nationImg %}<img src="{{ nationImg }}" alt="{{ countryLabel }}" /> {% endif %}{{ countryLabel }}</a>
 			{% endfor %}
-			
+
 			<p style="margin-top: 10px"><a href="{{ env.getInternalUrl("youth-scouting") }}" class="btn">{{ Message("button_cancel") }}</a></p>
-		
+
 		{% endif %}
-	
+
 	{% endif %}
 
 {% endblock %}

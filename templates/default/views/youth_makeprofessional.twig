@@ -9,9 +9,9 @@
 
 	<fieldset>
 		<legend>{{ Message("youthplayer-makeprofessional_formlabel") }}</legend>
-		
+
 		<p>{{ Message("youthplayer-makeprofessional_form_intro")|raw }}</p>
-		
+
 		<div class="control-group{% if validationMsg['mainposition'] is defined %} error{% endif %}">
 			<label class="control-label" for="mainposition">
 				<strong>{{ Message("entity_player_position_main") }}</strong>
@@ -19,7 +19,7 @@
 			<div class="controls">
 		  		<select name="mainposition" id="mainposition">
 		  			<option></option>
-		  			
+
 		  			{% if player.position == "Torwart" %}
 		  				<option value="T" selected>{{ Message("option_T") }}</option>
 		  			{% elseif player.position == "Abwehr" %}
@@ -40,14 +40,14 @@
 		  		</select>
 			</div>
 		</div>
-		
+
 	</fieldset>
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_submit') }}</button>
 		<a href="{{ env.getInternalUrl("youth-team") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="youthplayer-makeprofessional"/>
-	<input type="hidden" name="id" value="{{ env.getRequestParameter('id') }}"/>
+	<input type="hidden" name="id" value="{{ Request('id') }}"/>
 	<input type="hidden" name="action" value="move-youthplayer-to-professional"/>
 </form>
 {% endblock %}

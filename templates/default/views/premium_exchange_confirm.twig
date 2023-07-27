@@ -9,18 +9,18 @@
 
 <div class="well">
 	<p>{{ Message("premium-exchange-confirm_question") }}</p>
-	<p><strong>{{ env.getRequestParameter("amount") }} {{ Config("premium_credit_unit") }} = {{ (env.getRequestParameter("amount") * Config("premium_exchangerate_gamecurrency"))|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</strong></p>
+	<p><strong>{{ Request("amount") }} {{ Config("premium_credit_unit") }} = {{ (Request("amount") * Config("premium_exchangerate_gamecurrency"))|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</strong></p>
 </div>
 
 <form class="form-horizontal" method="post">
 
 	<div class="form-actions">
 		<button type="submit" class="btn btn-success">{{ Message('button_confirm') }}</button>
-		<a href="{{ env.getInternalUrl("premium-exchange", "amount=" ~ env.getRequestParameter("amount")) }}" class="btn btn-danger">{{ Message('button_cancel') }}</a>
+		<a href="{{ env.getInternalUrl("premium-exchange", "amount=" ~ Request("amount")) }}" class="btn btn-danger">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="premium-exchange-confirm"/>
 	<input type="hidden" name="validateonly" value="0"/>
 	<input type="hidden" name="action" value="exchange-premium"/>
-	<input type="hidden" name="amount" value="{{ env.getRequestParameter("amount") }}"/>
+	<input type="hidden" name="amount" value="{{ Request("amount") }}"/>
 </form>
 {% endblock %}

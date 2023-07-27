@@ -11,13 +11,13 @@
 {% block page_content %}
 
 	<h3>{{ team_name }}</h3>
-	
+
 	<form class="form-horizontal" method="post">
-	
-		{{ formelements.textfield('fname', Message('entity_player_vorname'), env.getRequestParameter('fname'), false, validationMsg, 'text') }}
-		
-		{{ formelements.textfield('lname', Message('entity_player_nachname'), env.getRequestParameter('lname'), false, validationMsg, 'text') }}
-		
+
+		{{ formelements.textfield('fname', Message('entity_player_vorname'), Request('fname'), false, validationMsg, 'text') }}
+
+		{{ formelements.textfield('lname', Message('entity_player_nachname'), Request('lname'), false, validationMsg, 'text') }}
+
 		<div class="control-group">
 			<label class="control-label" for="position">
 				{{ Message("entity_player_position") }}
@@ -25,14 +25,14 @@
 			<div class="controls">
 		  		<select name="position" id="position">
 		  			<option></option>
-		  			<option value="Torwart"{% if env.getRequestParameter("position") == "Torwart" %} selected{% endif %}>{{ Message("option_Torwart") }}</option>
-		  			<option value="Abwehr"{% if env.getRequestParameter("position") == "Abwehr" %} selected{% endif %}>{{ Message("option_Abwehr") }}</option>
-		  			<option value="Mittelfeld"{% if env.getRequestParameter("position") == "Mittelfeld" %} selected{% endif %}>{{ Message("option_Mittelfeld") }}</option>
-		  			<option value="Sturm"{% if env.getRequestParameter("position") == "Sturm" %} selected{% endif %}>{{ Message("option_Sturm") }}</option>
+		  			<option value="Torwart"{% if Request("position") == "Torwart" %} selected{% endif %}>{{ Message("option_Torwart") }}</option>
+		  			<option value="Abwehr"{% if Request("position") == "Abwehr" %} selected{% endif %}>{{ Message("option_Abwehr") }}</option>
+		  			<option value="Mittelfeld"{% if Request("position") == "Mittelfeld" %} selected{% endif %}>{{ Message("option_Mittelfeld") }}</option>
+		  			<option value="Sturm"{% if Request("position") == "Sturm" %} selected{% endif %}>{{ Message("option_Sturm") }}</option>
 		  		</select>
 			</div>
 		</div>
-		
+
 		<div class="control-group">
 			<label class="control-label" for="position_main">
 				{{ Message("entity_player_position_main") }}
@@ -40,34 +40,34 @@
 			<div class="controls">
 		  		<select name="position_main" id="position_main">
 		  			<option></option>
-		  			<option value="T"{% if env.getRequestParameter("position_main") == "T" %} selected{% endif %}>{{ Message("option_Torwart") }}</option>
-		  			<option value="LV"{% if env.getRequestParameter("position_main") == "LV" %} selected{% endif %}>{{ Message("option_LV") }}</option>
-		  			<option value="IV"{% if env.getRequestParameter("position_main") == "IV" %} selected{% endif %}>{{ Message("option_IV") }}</option>
-		  			<option value="RV"{% if env.getRequestParameter("position_main") == "RV" %} selected{% endif %}>{{ Message("option_RV") }}</option>
-		  			<option value="LM"{% if env.getRequestParameter("position_main") == "LM" %} selected{% endif %}>{{ Message("option_LM") }}</option>
-		  			<option value="ZM"{% if env.getRequestParameter("position_main") == "ZM" %} selected{% endif %}>{{ Message("option_ZM") }}</option>
-		  			<option value="RM"{% if env.getRequestParameter("position_main") == "RM" %} selected{% endif %}>{{ Message("option_RM") }}</option>
-		  			<option value="DM"{% if env.getRequestParameter("position_main") == "DM" %} selected{% endif %}>{{ Message("option_DM") }}</option>
-		  			<option value="OM"{% if env.getRequestParameter("position_main") == "OM" %} selected{% endif %}>{{ Message("option_OM") }}</option>
-		  			<option value="LS"{% if env.getRequestParameter("position_main") == "LS" %} selected{% endif %}>{{ Message("option_LS") }}</option>
-		  			<option value="MS"{% if env.getRequestParameter("position_main") == "MS" %} selected{% endif %}>{{ Message("option_MS") }}</option>
-		  			<option value="RS"{% if env.getRequestParameter("position_main") == "RS" %} selected{% endif %}>{{ Message("option_RS") }}</option>
+		  			<option value="T"{% if Request("position_main") == "T" %} selected{% endif %}>{{ Message("option_Torwart") }}</option>
+		  			<option value="LV"{% if Request("position_main") == "LV" %} selected{% endif %}>{{ Message("option_LV") }}</option>
+		  			<option value="IV"{% if Request("position_main") == "IV" %} selected{% endif %}>{{ Message("option_IV") }}</option>
+		  			<option value="RV"{% if Request("position_main") == "RV" %} selected{% endif %}>{{ Message("option_RV") }}</option>
+		  			<option value="LM"{% if Request("position_main") == "LM" %} selected{% endif %}>{{ Message("option_LM") }}</option>
+		  			<option value="ZM"{% if Request("position_main") == "ZM" %} selected{% endif %}>{{ Message("option_ZM") }}</option>
+		  			<option value="RM"{% if Request("position_main") == "RM" %} selected{% endif %}>{{ Message("option_RM") }}</option>
+		  			<option value="DM"{% if Request("position_main") == "DM" %} selected{% endif %}>{{ Message("option_DM") }}</option>
+		  			<option value="OM"{% if Request("position_main") == "OM" %} selected{% endif %}>{{ Message("option_OM") }}</option>
+		  			<option value="LS"{% if Request("position_main") == "LS" %} selected{% endif %}>{{ Message("option_LS") }}</option>
+		  			<option value="MS"{% if Request("position_main") == "MS" %} selected{% endif %}>{{ Message("option_MS") }}</option>
+		  			<option value="RS"{% if Request("position_main") == "RS" %} selected{% endif %}>{{ Message("option_RS") }}</option>
 		  		</select>
 			</div>
 		</div>
-		
+
 		<div class="form-actions">
 			<button type="submit" class="btn btn-primary">{{ Message('playerssearch_submit') }}</button>
 		</div>
 		<input type="hidden" name="page" value="nominate-national-players"/>
 		<input type="hidden" name="search" value="true"/>
 	</form>
-	
-	{% if env.getRequestParameter("search") %}
+
+	{% if Request("search") %}
 		{% if players is defined and players|length > 0 %}
 
 			<h4>{{ Message("playerssearch_hits", playersCount) }}</h4>
-			
+
 			<table class="table table-striped">
 				<thead>
 					<tr>
@@ -81,7 +81,7 @@
 					</tr>
 				</thead>
 				<tbody>
-				
+
 					{% for player in players %}
 					<tr>
 						<td>
@@ -98,34 +98,34 @@
 						-
 						{% endif %}
 						</td>
-						
+
 						{% if Config("hide_strength_attributes") != "1" %}
 							<td>
 								<ul class="unstyled">
-									<li><span class="incell-strength-label"><abbr title="{{ Message("playertable_head_strength") }}">{{ Message("playertable_head_strength_abbr") }}</abbr>:</span> 
+									<li><span class="incell-strength-label"><abbr title="{{ Message("playertable_head_strength") }}">{{ Message("playertable_head_strength_abbr") }}</abbr>:</span>
 										<span {{ playerlists.strengthClass(player.strength) }}>{{ player.strength }}</span></li>
-									<li><span class="incell-strength-label"><abbr title="{{ Message("playertable_head_strength_technic") }}">{{ Message("playertable_head_strength_technic_abbr") }}</abbr>:</span> 
+									<li><span class="incell-strength-label"><abbr title="{{ Message("playertable_head_strength_technic") }}">{{ Message("playertable_head_strength_technic_abbr") }}</abbr>:</span>
 										<span {{ playerlists.strengthClass(player.strength_technique) }}>{{ player.strength_technique }}</span></li>
-									<li><span class="incell-strength-label"><abbr title="{{ Message("playertable_head_strength_freshness") }}">{{ Message("playertable_head_strength_freshness_abbr") }}</abbr>:</span> 
+									<li><span class="incell-strength-label"><abbr title="{{ Message("playertable_head_strength_freshness") }}">{{ Message("playertable_head_strength_freshness_abbr") }}</abbr>:</span>
 										<span {{ playerlists.strengthClass(player.strength_freshness) }}>{{ player.strength_freshness }}</span></li>
-									<li><span class="incell-strength-label"><abbr title="{{ Message("playertable_head_strength_stamina") }}">{{ Message("playertable_head_strength_stamina_abbr") }}</abbr>:</span> 
+									<li><span class="incell-strength-label"><abbr title="{{ Message("playertable_head_strength_stamina") }}">{{ Message("playertable_head_strength_stamina_abbr") }}</abbr>:</span>
 										<span {{ playerlists.strengthClass(player.strength_stamina) }}>{{ player.strength_stamina }}</span></li>
-									<li><span class="incell-strength-label"><abbr title="{{ Message("playertable_head_strength_satisfaction") }}">{{ Message("playertable_head_strength_satisfaction_abbr") }}</abbr>:</span> 
+									<li><span class="incell-strength-label"><abbr title="{{ Message("playertable_head_strength_satisfaction") }}">{{ Message("playertable_head_strength_satisfaction_abbr") }}</abbr>:</span>
 										<span {{ playerlists.strengthClass(player.strength_satisfaction) }}>{{ player.strength_satisfaction }}</span></li>
 								</ul>
 							</td>
 						{% endif %}
-						
+
 						<td><a class="btn btn-small" href="{{ env.getInternalActionUrl("add-national-player", "id=" ~ player.id) }}"><i class="icon-flag-alt"></i> {{ Message("nationalteams_addplayer") }}</a></td>
-						
+
 					</tr>
 					{% endfor %}
-				
+
 				</tbody>
 			</table>
-			
+
 			{{ pagination.paginator(paginator) }}
-			
+
 		{% else %}
 			{{ messagebox.box(Message("no_players_found"), "", "info") }}
 		{% endif %}

@@ -1,4 +1,4 @@
-{% if Config("rename_club_enabled") and env.user.clubId == env.getRequestParameter("id") %}
+{% if Config("rename_club_enabled") and env.user.clubId == Request("id") %}
 <p style="margin-bottom: 20px;"><a href="{{ env.getInternalUrl("rename-club") }}" class="btn btn-small">
 	<i class="icon-edit"></i> {{ Message("rename-club_navlabel") }}
 </a></p>

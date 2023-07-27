@@ -8,17 +8,16 @@
 			<span class="caret"></span>
 		</a>
 		<ul class="dropdown-menu">
-			<li{% if env.getRequestParameter("type") == null %} class="active"{% endif %}><a href="#wholeTable" class="ajaxLink"
+			<li{% if Request("type") == null %} class="active"{% endif %}><a href="#wholeTable" class="ajaxLink"
 				data-ajaxtarget="alltimetable-table_block" data-ajaxblock="alltimetable-table" data-ajaxquerystr="id={{ leagueId }}"><i class="icon-list-alt"></i> {{ Message("leaguetable_button_type_total") }}</a></li>
-			<li{% if env.getRequestParameter("type") == "home" %} class="active"{% endif %}><a href="#homeTable" class="ajaxLink"
+			<li{% if Request("type") == "home" %} class="active"{% endif %}><a href="#homeTable" class="ajaxLink"
 				data-ajaxtarget="alltimetable-table_block" data-ajaxblock="alltimetable-table" data-ajaxquerystr="id={{ leagueId }}&type=home"><i class="icon-arrow-right"></i> {{ Message("leaguetable_button_type_home") }}</a></li>
-			<li{% if env.getRequestParameter("type") == "guest" %} class="active"{% endif %}><a href="#guestTable"class="ajaxLink"
+			<li{% if Request("type") == "guest" %} class="active"{% endif %}><a href="#guestTable"class="ajaxLink"
 				data-ajaxtarget="alltimetable-table_block" data-ajaxblock="alltimetable-table" data-ajaxquerystr="id={{ leagueId }}&type=guest"><i class="icon-arrow-left"></i> {{ Message("leaguetable_button_type_guest") }}</a></li>
 		</ul>
-	  
-		
+
+
 	</div>
 
 	<p><i class="icon-info-sign"></i> <em>{{ Message("leaguetable_timedelay_info") }}</em></p>
 {% endblock %}
-

@@ -9,7 +9,7 @@
 					{% if player.position_second|length > 0 %}/ <abbr title="{{ Message("option_" ~ player.position_second) }}">{{ Message("player_mainposition_" ~ player.position_second) }}</abbr>{% endif %}
 				</td>
 				<td><a href="{{ env.getInternalUrl("player", "id=" ~ player.id) }}">{{ player.firstname }} {% if player.pseudonym|length > 0 %}"{{ player.pseudonym }}" {% endif %}{{ player.lastname }}</a>
-					{% if env.getRequestParameter("captain") == player.id %}
+					{% if Request("captain") == player.id %}
 						<i class="icon-group wstooltip" title="{{ Message("myteam_captain_tooltip") }}"></i>
 					{% endif %}
 					{% if player.unsellable %}
@@ -21,7 +21,7 @@
 						<i class="icon-share-alt" title="{{ Message("lending_player_marker_lendable") }}"></i>
 					{% endif %}
 				</td>
-				
+
 				{% if Config("hide_strength_attributes") != "1" %}
 				<td {{ playerlists.strengthClass(player.strength) }} title="{{ Message("playertable_head_strength") }}"><strong>{{ player.strength }}</strong></td>
 				<td {{ playerlists.strengthClass(player.strength_technic) }} title="{{ Message("playertable_head_strength_technic") }}">{{ player.strength_technic }}</td>
@@ -29,7 +29,7 @@
 				<td {{ playerlists.strengthClass(player.strength_stamina) }} title="{{ Message("playertable_head_strength_stamina") }}">{{ player.strength_stamina }}</td>
 				<td {{ playerlists.strengthClass(player.strength_satisfaction) }} title="{{ Message("playertable_head_strength_satisfaction") }}">{{ player.strength_satisfaction }}</td>
 				{% endif %}
-				
+
 				<td>{{ player.age }}</td>
 				<td>
 				{% if player.matches_injured > 0 %}
@@ -69,25 +69,25 @@
 					<td title="{{ Message("option_" ~ player.position) }}">{{ Message("option_" ~ player.position)|slice(0, 2)|upper }}</td>
 					{% endif %}
 					<td><a href="{{ env.getInternalUrl("player", "id=" ~ player.id) }}">{% if player.pseudonym|length > 0 %}{{ player.pseudonym }}{% else %}{{ player.firstName }} {{ player.lastName }}{% endif %}</a>
-					
+
 					{% if player.yellowCards > 0 %}
 					<img src="{{ skin.getImage("icons/card_yellow.png") }}" style="width: 16px; height: 16px" alt="{{ Message("player_yellowcard") }}" title="{{ Message("player_yellowcard") }}" />
-					
+
 						{% if player.yellowCards > 1 %}
 						<img src="{{ skin.getImage("icons/card_red.png") }}" style="width: 16px; height: 16px" alt="{{ Message("player_yellowredcard") }}" title="{{ Message("player_yellowredcard") }}" />
 						{% endif %}
 					{% endif %}
-					
+
 					{% if player.redCard > 0 %}
 						<img src="{{ skin.getImage("icons/card_red.png") }}" width="16" height="16" alt="{{ Message("player_redcard") }}" title="{{ Message("player_redcard") }}" />
 					{% endif %}
-					
+
 					{% if player.goals > 0 %}
 					{% for i in 1..player.goals %}
 					<img src="{{ skin.getImage("icons/goal_scorer.png") }}" style="width: 16px; height: 15px" alt="{{ Message("player_goalscorer") }}" title="{{ Message("player_goalscorer") }}" />
 					{% endfor %}
 					{% endif %}
-					
+
 					{% if player.assists %}
 					<span title="{{ Message("player_assists") }}">
 						{% for i in 1..player.assists %}
@@ -95,17 +95,17 @@
 						{% endfor %}
 					</span>
 					{% endif %}
-					
+
 					{% if player.injured > 0 %}
 						<i class="icon-medkit" title="{{ Message("player_injured") }}"></i>
 					{% endif %}
-					
+
 					{% if player.playstatus == 'Ausgewechselt' %}
 					<span class="minutesPlayed" title="{{ Message("player_substitute_out") }}"><i class="icon-arrow-down"></i>{{ player.minutesPlayed + 1 }}'</span>
 					{% elseif player.minutesPlayed < match.match_minutes %}
 					<span class="minutesPlayed" title="{{ Message("player_substitute_in") }}"><i class="icon-arrow-up"></i>{{ match.match_minutes - player.minutesPlayed + 1 }}'</span>
 					{% endif %}
-					
+
 					{% if player.is_best_player_of_day is defined and player.is_best_player_of_day %}
 						<a href="{{ env.getInternalUrl("teamoftheday", "leagueid=" ~ match.match_league_id ~ "&seasonid=" ~ match.match_season_id ~ "&matchday=" ~ match.match_matchday) }}" title="{{ Message("teamoftheday_matchreport_tooltip") }}"><i class="icon-heart-empty darkIcon"></i></a>
 					{% endif %}
@@ -113,13 +113,13 @@
 						<dl>
 							<dt>{{ Message("match_details_statistic_shoots") }}</dt>
 							<dd>{{ player.shoots }}</dd>
-							
+
 							<dt>{{ Message("match_details_statistic_ballcontacts_player") }}</dt>
 							<dd>{{ player.ballcontacts }}</dd>
-							
+
 							<dt>{{ Message("match_details_statistic_successfulpasses") }}</dt>
 							<dd>{{  player.passes_successed }}/{{ (player.passes_successed + player.passes_failed) }}</dd>
-							
+
 							<dt>{{ Message("match_details_statistic_tackles_player") }}</dt>
 							<dd>{{ player.wontackles }}{% if player.losttackles|length %}/{{ (player.losttackles + player.wontackles) }}{% endif %}</dd>
 						</dl>
@@ -130,7 +130,7 @@
 			{% endfor %}
 			</tbody>
 		</table>
-		
+
 		<p><strong>&#216; {{ Message("match_details_players_grade") }}:</strong> {{ (gradeSum/players|length)|number_format(2) }}</p>
 		<p><strong>&#216; {{ Message("match_details_players_age") }}:</strong> {{ (ageSum/players|length)|number_format(2) }}</p>
 		{% if Config("hide_strength_attributes") != "1" %}

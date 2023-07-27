@@ -16,10 +16,10 @@
 
   <dt>{{ Message("entity_player_vertrag_gehalt") }}</dt>
   <dd>{{ player.player_contract_salary|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
-  
+
   <dt>{{ Message("entity_player_vertrag_torpraemie") }}</dt>
   <dd>{{ player.player_contract_goalbonus|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
-  
+
   <dt>{{ Message("entity_player_vertrag_spiele") }}</dt>
   <dd>{{ player.player_contract_matches  }} {{ Message("player_details_unit_matches") }}</dd>
 </dl>
@@ -28,14 +28,14 @@
 
 <form class="form-horizontal" method="post">
 
-	{{ formelements.textfield('min_bid', Message('transfermarket_min_bid'), env.getRequestParameter('min_bid'), true, validationMsg, 'number') }}
-	
+	{{ formelements.textfield('min_bid', Message('transfermarket_min_bid'), Request('min_bid'), true, validationMsg, 'number') }}
+
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_submit') }}</button>
 		<a href="{{ env.getInternalUrl("myteam") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="sell-player"/>
-	<input type="hidden" name="id" value="{{ env.getRequestParameter('id') }}"/>
+	<input type="hidden" name="id" value="{{ Request('id') }}"/>
 	<input type="hidden" name="action" value="sell-player"/>
 </form>
 {% endblock %}

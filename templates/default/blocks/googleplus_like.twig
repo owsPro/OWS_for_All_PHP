@@ -1,5 +1,5 @@
 {% if Config("googleplus_enable_likebutton") %}
-{% set url = env.getInternalUrl(null, "id=" ~ env.getRequestParameter("id"), TRUE) %}
+{% set url = env.getInternalUrl(null, "id=" ~ Request("id"), TRUE) %}
 <div data-href="{{ url }}" class="g-plusone" data-size="medium"></div>
 
 <script type="text/javascript">

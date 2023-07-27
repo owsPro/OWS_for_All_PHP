@@ -6,8 +6,8 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-		{% if env.getRequestParameter("id") != null %}
-			{% set url = env.getInternalUrl(null, "id=" ~ env.getRequestParameter("id"), TRUE) %}
+		{% if Request("id")!=null %}
+			{% set url = env.getInternalUrl(null, "id=" ~ Request("id"), TRUE) %}
 		{% else %}
 			{% set url = env.getInternalUrl(null, null, TRUE) %}
 		{% endif %}

@@ -18,10 +18,10 @@
 
   <dt>{{ Message("entity_player_vertrag_gehalt") }}</dt>
   <dd>{{ player.player_contract_salary|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
-  
+
   <dt>{{ Message("entity_player_vertrag_torpraemie") }}</dt>
   <dd>{{ player.player_contract_goalbonus|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
-  
+
   <dt>{{ Message("entity_player_vertrag_spiele") }}</dt>
   <dd>{{ player.player_contract_matches  }} {{ Message("player_details_unit_matches") }}</dd>
 </dl>
@@ -32,14 +32,14 @@
 
 <form class="form-horizontal" method="post">
 
-	{{ formelements.textfield('fee', Message('entity_player_lending_fee'), env.getRequestParameter('fee'), true, validationMsg, 'number') }}
-	
+	{{ formelements.textfield('fee', Message('entity_player_lending_fee'), Request('fee'), true, validationMsg, 'number') }}
+
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_submit') }}</button>
 		<a href="{{ env.getInternalUrl("myteam") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="lend-player"/>
-	<input type="hidden" name="id" value="{{ env.getRequestParameter('id') }}"/>
+	<input type="hidden" name="id" value="{{ Request('id') }}"/>
 	<input type="hidden" name="action" value="lend-player"/>
 </form>
 {% endblock %}

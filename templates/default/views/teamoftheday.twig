@@ -17,7 +17,7 @@
 	{% endfor %}
 	</select>
 
-	<button type="submit" class="btn btn-primary ajaxSubmit" 
+	<button type="submit" class="btn btn-primary ajaxSubmit"
 		data-ajaxtarget="pagecontent">{{ Message('button_display') }}</button>
 
 	<input type="hidden" name="page" value="teamoftheday" />
@@ -28,38 +28,38 @@
 	<ul class="nav nav-pills">
 		{% for season in seasons %}
 		<li{% if seasonId == season.id %} class="active"{% endif %}><a href="#season{{ loop.index }}" class="ajaxLink"
-			data-ajaxtarget="pagecontent" data-ajaxquerystr="page={{ env.getPageId() }}&leagueid={{ env.getRequestParameter("leagueid") }}&seasonid={{ season.id }}">{{ season.name }}</a></li>
+			data-ajaxtarget="pagecontent" data-ajaxquerystr="page={{ env.getPageId() }}&leagueid={{ Request("leagueid") }}&seasonid={{ season.id }}">{{ season.name }}</a></li>
 		{% endfor %}
 	</ul>
-	
+
 	{% if maxMatchDay > 0 %}
 		<h4>{{ Message("entity_match_spieltag") }}</h4>
 		<ul class="nav nav-pills">
 			{% for matchdayOfSeason in 1..maxMatchDay %}
 			<li{% if matchday == matchdayOfSeason %} class="active"{% endif %}><a href="#matchday{{ loop.index }}" class="ajaxLink"
-				data-ajaxtarget="pagecontent" data-ajaxquerystr="page={{ env.getPageId() }}&leagueid={{ env.getRequestParameter("leagueid") }}&seasonid={{ seasonId }}&matchday={{ matchdayOfSeason }}">{{ matchdayOfSeason }}</a></li>
+				data-ajaxtarget="pagecontent" data-ajaxquerystr="page={{ env.getPageId() }}&leagueid={{ Request("leagueid") }}&seasonid={{ seasonId }}&matchday={{ matchdayOfSeason }}">{{ matchdayOfSeason }}</a></li>
 			{% endfor %}
 			<li{% if matchday == -1 %} class="active"{% endif %}><a href="#all" class="ajaxLink"
-				data-ajaxtarget="pagecontent" data-ajaxquerystr="page={{ env.getPageId() }}&leagueid={{ env.getRequestParameter("leagueid") }}&seasonid={{ seasonId }}&matchday=-1">{{ Message("teamoftheday_teamoftheseason") }}</a></li>
+				data-ajaxtarget="pagecontent" data-ajaxquerystr="page={{ env.getPageId() }}&leagueid={{ Request("leagueid") }}&seasonid={{ seasonId }}&matchday=-1">{{ Message("teamoftheday_teamoftheseason") }}</a></li>
 		</ul>
-		
+
 		{% if openMatchesExist %}
 			{{ messagebox.box("", Message("teamoftheday_openmatchesexist"), "info") }}
 		{% else %}
-		
+
 			{% if players|length > 0 %}
 				<div id="pitch">
-				
+
 				{% set ivSet = FALSE %}
 				{% set dmSet = FALSE %}
 				{% set zmSet = FALSE %}
 				{% set omSet = FALSE %}
 				{% set forwardSet = FALSE %}
-				
+
 				{% for player in players %}
-				
+
 					{% set frontPosition = player.position_main %}
-					
+
 					{% if frontPosition == "IV" %}
 						{% if ivSet %}
 							{% set frontPosition = "IV rightPos" %}
@@ -93,11 +93,11 @@
 							{% set forwardSet = TRUE %}
 						{% endif %}
 					{% endif %}
-				
+
 					<div class="position {{ frontPosition }} text-center">
 						{% if player.memberoftopteam > 1 %}
-							<span class="badge positionPlayerIcons wstooltip" 
-								title="{{ Message("teamoftheday_known_member_tooltip", player.memberoftopteam) }}" 
+							<span class="badge positionPlayerIcons wstooltip"
+								title="{{ Message("teamoftheday_known_member_tooltip", player.memberoftopteam) }}"
 								data-container="body"><small>{{ player.memberoftopteam }}</small></span>
 						{% endif %}
 						<a href="{{ env.getInternalUrl("player", "id=" ~ player.player_id) }}" title="{{ Message("player_navlabel") }}">
@@ -122,9 +122,9 @@
 				{% endfor %}
 				</div>
 			{% endif %}
-		
+
 		{% endif %}
-		
+
 	{% elseif seasonId > 0 %}
 		{{ messagebox.box("", Message("teamoftheday_no_matches_in_season"), "info") }}
 	{% endif %}

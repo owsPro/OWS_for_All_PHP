@@ -25,9 +25,9 @@
 <form class="form-horizontal" method="post">
 	<fieldset>
     	<legend>{{ Message('training_choose_trainer_title') }}</legend>
-    	
-    	
-		{{ formelements.textfield('units', Message('training_choose_trainer_units'), env.getRequestParameter("units"), true, validationMsg, "number") }}
+
+
+		{{ formelements.textfield('units', Message('training_choose_trainer_units'), Request("units"), true, validationMsg, "number") }}
 	</fieldset>
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>

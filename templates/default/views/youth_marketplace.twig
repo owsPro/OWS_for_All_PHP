@@ -13,14 +13,14 @@
   		<label for="position">{{ Message("transfermarket_filter_by_position") }}</label>
   		<select name="position" id="position">
   			<option></option>
-  			<option value="Torwart"{% if env.getRequestParameter("position") == "Torwart" %} selected{% endif %}>{{ Message("option_Torwart") }}</option>
-  			<option value="Abwehr"{% if env.getRequestParameter("position") == "Abwehr" %} selected{% endif %}>{{ Message("option_Abwehr") }}</option>
-  			<option value="Mittelfeld"{% if env.getRequestParameter("position") == "Mittelfeld" %} selected{% endif %}>{{ Message("option_Mittelfeld") }}</option>
-  			<option value="Sturm"{% if env.getRequestParameter("position") == "Sturm" %} selected{% endif %}>{{ Message("option_Sturm") }}</option>
+  			<option value="Torwart"{% if Request("position") == "Torwart" %} selected{% endif %}>{{ Message("option_Torwart") }}</option>
+  			<option value="Abwehr"{% if Request("position") == "Abwehr" %} selected{% endif %}>{{ Message("option_Abwehr") }}</option>
+  			<option value="Mittelfeld"{% if Request("position") == "Mittelfeld" %} selected{% endif %}>{{ Message("option_Mittelfeld") }}</option>
+  			<option value="Sturm"{% if Request("position") == "Sturm" %} selected{% endif %}>{{ Message("option_Sturm") }}</option>
   		</select>
 	  	<button type="submit" class="btn btn-primary">{{ Message("button_display") }}</button>
 	  	<a href="{{ env.getInternalUrl("youth-marketplace") }}" class="btn">{{ Message("button_reset") }}</a>
-	  	
+
 	  	<input type="hidden" name="page" value="youth-marketplace" />
 	</form>
 
@@ -38,9 +38,9 @@
 			</tr>
 		</thead>
 		<tbody>
-		
+
 		{% for player in players %}
-			
+
 			{% if player.position == "Torwart" %}
 				{% set positionId = "goaly" %}
 			{% elseif player.position == "Abwehr" %}
@@ -50,13 +50,13 @@
 			{% else %}
 				{% set positionId = "striker" %}
 			{% endif %}
-			
+
 			{% if i18n.hasMessage("option_" ~ player.nation) %}
 				{% set countryLabel = Message("option_" ~ player.nation) %}
 			{% else %}
 				{% set countryLabel = player.nation %}
 			{% endif %}
-		
+
 			<tr>
 				<td style="text-align: center">
 					<img src="{{ skin.getImage("icons/playertype_" ~ positionId ~ ".png") }}"
@@ -73,7 +73,7 @@
 						<a href="{{ env.getInternalActionUrl("remove-youthplayer-from-market", "id=" ~ player.player_id) }}"
 							title="{{ Message("youthteam_action_removefrommarket") }}"><i class="icon-share darkIcon"></i></a>
 					{% endif %}</p>
-					
+
 					{% if env.user.clubId != player.team_id %}
 						<a href="{{ env.getInternalUrl("youthplayer-buy", "id=" ~ player.player_id) }}" class="btn btn-small"><i class="icon-shopping-cart"></i> {{ Message("youthteam_action_buy") }}</a>
 					{% endif %}
@@ -83,7 +83,7 @@
 						<img src="{{ Config("context_root") }}/uploads/club/{{ player.team_picture }}" style="max-width: 20px"/>
 					{% endif %}
 					<a href="{{ env.getInternalUrl("team", "id=" ~ player.team_id) }}">{{ player.team_name }}</a>
-					
+
 					{% if player.user_id > 0 %}
 						<br>
 						{% if player.user_picture|length > 0 %}
@@ -98,16 +98,16 @@
 					<dl>
 						<dt>{{ Message("entity_youthplayer_st_goals") }}</dt>
 						<dd>{{ player.st_goals }}</dd>
-						
+
 						<dt>{{ Message("entity_youthplayer_st_assists") }}</dt>
 						<dd>{{ player.st_assists }}</dd>
-						
+
 						<dt>{{ Message("entity_youthplayer_st_cards_yellow") }}</dt>
 						<dd>{{ player.st_cards_yellow }}</dd>
-						
+
 						<dt>{{ Message("entity_youthplayer_st_cards_yellow_red") }}</dt>
 						<dd>{{ player.st_cards_yellow_red }}</dd>
-						
+
 						<dt>{{ Message("entity_youthplayer_st_cards_red") }}</dt>
 						<dd>{{ player.st_cards_red }}</dd>
 					</dl>
@@ -120,12 +120,12 @@
 				</td>
 			</tr>
 		{% endfor %}
-		
+
 		</tbody>
 	</table>
-	
+
 	{{ pagination.paginator(paginator) }}
-	
+
 {% else %}
 	{{ messagebox.box(Message("youthmarketplace_no_players"), "", "info") }}
 {% endif %}

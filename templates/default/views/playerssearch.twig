@@ -10,12 +10,12 @@
 
 <form class="form-horizontal" method="post">
 
-	{{ formelements.textfield('fname', Message('entity_player_vorname'), env.getRequestParameter('fname'), false, validationMsg, 'text') }}
-	
-	{{ formelements.textfield('lname', Message('entity_player_nachname'), env.getRequestParameter('lname'), false, validationMsg, 'text') }}
-	
-	{{ formelements.autocomplete("club", Message("entity_player_verein_id"), env.getRequestParameter('club'), false, validationMsg, "clubsearch") }}
-  
+	{{ formelements.textfield('fname', Message('entity_player_vorname'), Request('fname'), false, validationMsg, 'text') }}
+
+	{{ formelements.textfield('lname', Message('entity_player_nachname'), Request('lname'), false, validationMsg, 'text') }}
+
+	{{ formelements.autocomplete("club", Message("entity_player_verein_id"), Request('club'), false, validationMsg, "clubsearch") }}
+
 	<div class="control-group">
 		<label class="control-label" for="position">
 			{{ Message("entity_player_position") }}
@@ -23,14 +23,14 @@
 		<div class="controls">
 	  		<select name="position" id="position">
 	  			<option></option>
-	  			<option value="Torwart"{% if env.getRequestParameter("position") == "Torwart" %} selected{% endif %}>{{ Message("option_Torwart") }}</option>
-	  			<option value="Abwehr"{% if env.getRequestParameter("position") == "Abwehr" %} selected{% endif %}>{{ Message("option_Abwehr") }}</option>
-	  			<option value="Mittelfeld"{% if env.getRequestParameter("position") == "Mittelfeld" %} selected{% endif %}>{{ Message("option_Mittelfeld") }}</option>
-	  			<option value="Sturm"{% if env.getRequestParameter("position") == "Sturm" %} selected{% endif %}>{{ Message("option_Sturm") }}</option>
+	  			<option value="Torwart"{% if Request("position") == "Torwart" %} selected{% endif %}>{{ Message("option_Torwart") }}</option>
+	  			<option value="Abwehr"{% if Request("position") == "Abwehr" %} selected{% endif %}>{{ Message("option_Abwehr") }}</option>
+	  			<option value="Mittelfeld"{% if Request("position") == "Mittelfeld" %} selected{% endif %}>{{ Message("option_Mittelfeld") }}</option>
+	  			<option value="Sturm"{% if Request("position") == "Sturm" %} selected{% endif %}>{{ Message("option_Sturm") }}</option>
 	  		</select>
 		</div>
 	</div>
-	
+
 	{% if Config("hide_strength_attributes") != "1" %}
 	<div class="control-group">
 		<label class="control-label" for="strength">
@@ -39,21 +39,21 @@
 		<div class="controls">
 	  		<select name="strength" id="strength">
 	  			<option></option>
-	  			<option value="20"{% if env.getRequestParameter("strength") == "20" %} selected{% endif %}>1% - 20%</option>
-	  			<option value="40"{% if env.getRequestParameter("strength") == "40" %} selected{% endif %}>21% - 40%</option>
-	  			<option value="60"{% if env.getRequestParameter("strength") == "60" %} selected{% endif %}>41% - 60%</option>
-	  			<option value="80"{% if env.getRequestParameter("strength") == "80" %} selected{% endif %}>61% - 80%</option>
-	  			<option value="100"{% if env.getRequestParameter("strength") == "100" %} selected{% endif %}>81% - 100%</option>
+	  			<option value="20"{% if Request("strength") == "20" %} selected{% endif %}>1% - 20%</option>
+	  			<option value="40"{% if Request("strength") == "40" %} selected{% endif %}>21% - 40%</option>
+	  			<option value="60"{% if Request("strength") == "60" %} selected{% endif %}>41% - 60%</option>
+	  			<option value="80"{% if Request("strength") == "80" %} selected{% endif %}>61% - 80%</option>
+	  			<option value="100"{% if Request("strength") == "100" %} selected{% endif %}>81% - 100%</option>
 	  		</select>
 		</div>
 	</div>
 	{% endif %}
-	
+
 	{% if Config("lending_enabled") %}
-		{{ formelements.checkbox('lendable', Message('lending_player_marker_lendable'), env.getRequestParameter('lendable')) }}
+		{{ formelements.checkbox('lendable', Message('lending_player_marker_lendable'), Request('lendable')) }}
 	{% endif %}
 	<div class="form-actions">
-		<button type="submit" class="btn btn-primary ajaxSubmit" 
+		<button type="submit" class="btn btn-primary ajaxSubmit"
 		data-ajaxblock="playerssearch-results"
 		data-ajaxtarget="playerssearch-results_block">{{ Message('playerssearch_submit') }}</button>
 	</div>

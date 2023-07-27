@@ -12,20 +12,19 @@
 
 <form class="form-horizontal" method="post">
 
-	{{ formelements.textfield('salary', Message('entity_player_vertrag_gehalt'), env.getRequestParameter('salary'), true, validationMsg, 'number') }}
-	
-	{{ formelements.textfield('goal_bonus', Message('entity_player_vertrag_torpraemie'), env.getRequestParameter('goal_bonus'), false, validationMsg, 'number') }}
-	
-	{{ formelements.textfield('matches', Message('entity_player_vertrag_spiele'), env.getRequestParameter('matches'), true, validationMsg, 'number') }}
-	
+	{{ formelements.textfield('salary', Message('entity_player_vertrag_gehalt'), Request('salary'), true, validationMsg, 'number') }}
+
+	{{ formelements.textfield('goal_bonus', Message('entity_player_vertrag_torpraemie'), Request('goal_bonus'), false, validationMsg, 'number') }}
+
+	{{ formelements.textfield('matches', Message('entity_player_vertrag_spiele'), Request('matches'), true, validationMsg, 'number') }}
+
 	<div class="form-actions">
-		<button type="submit" class="btn btn-primary ajaxSubmit" 
+		<button type="submit" class="btn btn-primary ajaxSubmit"
 		data-ajaxtarget="pagecontent">{{ Message('button_submit') }}</button>
 		<a href="{{ env.getInternalUrl("myteam") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="extend-contract"/>
-	<input type="hidden" name="id" value="{{ env.getRequestParameter('id') }}"/>
+	<input type="hidden" name="id" value="{{ Request('id') }}"/>
 	<input type="hidden" name="action" value="extend-contract"/>
 </form>
 {% endif %}
-

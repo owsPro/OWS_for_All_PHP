@@ -7,11 +7,11 @@
 	<form method="post" class="form-inline">
 		<input type="hidden" name="page" value="formation" />
 		<input type="hidden" name="templateid" value="" />
-		<input type="hidden" name="nationalteam" value="{{ env.getRequestParameter("nationalteam") }}" />
+		<input type="hidden" name="nationalteam" value="{{Request("nationalteam") }}" />
 
 		<select class="input-xxlarge" name="id">
 			{% for nextMatch in nextMatches %}
-				<option value="{{ nextMatch.match_id }}"{% if env.getRequestParameter("id") == nextMatch.match_id %} selected{% endif %}>({{ env.getFormattedDatetime(nextMatch.match_date) }}) {{ nextMatch.match_home_name }} - {{ nextMatch.match_guest_name }}</option>
+				<option value="{{ nextMatch.match_id }}"{% if Request("id") == nextMatch.match_id %} selected{% endif %}>({{ env.getFormattedDatetime(nextMatch.match_date) }}) {{ nextMatch.match_home_name }} - {{ nextMatch.match_guest_name }}</option>
 			{% endfor %}
 		</select>
 
@@ -43,7 +43,7 @@
 	<form method="post" class="form-inline">
 		<input type="hidden" name="page" value="formation" />
 		<input type="hidden" id="preselect" name="preselect" value="" />
-		<input type="hidden" name="nationalteam" value="{{ env.getRequestParameter("nationalteam") }}" />
+		<input type="hidden" name="nationalteam" value="{{ env.geRequest("nationalteam") }}" />
 		<input type="hidden" name="id" value="{{ next_match.match_id }}" />
 
 		<h4>{{ Message("formation_setup_title") }}</h4>
@@ -98,7 +98,7 @@
 			</ul>
 			{% endif %}
 		</div>
-		{% if Config("formation_max_templates") > 0  and not env.getRequestParameter("nationalteam") %}
+		{% if Config("formation_max_templates") > 0  and not Request("nationalteam") %}
 		<a class="btn ajaxLink" href="#templatesModal" role="button" data-toggle="modal"
 			data-ajaxblock="formation_templates" data-ajaxtarget="formation-templates-content"
 			data-ajaxquerystr="id={{ next_match.match_id }}"><i class="icon-folder-open-alt"></i> {{ Message("formation_load_from_template") }}</a>
@@ -155,9 +155,9 @@
 				</div>
 			</div>
 		</div>
-		{% if Config("formation_max_templates") > 0 and not env.getRequestParameter("nationalteam") %}
+		{% if Config("formation_max_templates") > 0 and not Request("nationalteam") %}
 		<hr/>
-		{{ formelements.textfield('templatename', Message('formation_templatename_field'), env.getRequestParameter('templatename'), false, validationMsg, 'text', Message('formation_templatename_field_help')) }}
+		{{ formelements.textfield('templatename', Message('formation_templatename_field'), Request('templatename'), false, validationMsg, 'text', Message('formation_templatename_field_help')) }}
 		{% endif %}
 	</div>
 
@@ -174,6 +174,6 @@
 	<input type="hidden" name="page" value="formation"/>
 	<input type="hidden" name="action" value="save-formation"/>
 	<input type="hidden" name="id" value="{{ next_match.match_id }}"/>
-	<input type="hidden" name="nationalteam" value="{{ env.getRequestParameter("nationalteam") }}" />
+	<input type="hidden" name="nationalteam" value="{{ Request("nationalteam") }}" />
 
 {% endblock %}

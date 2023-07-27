@@ -1,8 +1,8 @@
 
-<h4>{{ env.getRequestParameter("group") }}</h4>
+<h4>{{ Request("group") }}</h4>
 
 {% if groupteams is defined and groupteams|length > 0 %}
-	
+
 	<table class="table table-striped">
 		<colgroup>
 			<col style="width: 40px" />
@@ -29,7 +29,7 @@
 		<tbody>
 			{% for team in groupteams %}
 				{% set place = loop.index %}
-			
+
 				<tr>
 					<td>{{ place }}</td>
 					<td>{% if (env.getUser().id > 0 and team.user_id == env.getUser().id) %}<strong>{% endif %}
@@ -49,7 +49,7 @@
 			{% endfor %}
 		</tbody>
 	</table>
-	
+
 {% else %}
 	<p>{{ Message("cup_group_noteamsavailable") }}</p>
 {% endif %}

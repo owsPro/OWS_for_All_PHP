@@ -16,8 +16,8 @@
 
 <form class="form-horizontal" method="post">
 
-	{{ formelements.textfield('amount', Message('premium-exchange_amount_label'), env.getRequestParameter('amount'), true, validationMsg, 'number', Config("premium_credit_unit")) }}
-	
+	{{ formelements.textfield('amount', Message('premium-exchange_amount_label'), Request('amount'), true, validationMsg, 'number', Config("premium_credit_unit")) }}
+
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
 		<a href="{{ env.getInternalUrl("premiumaccount") }}" class="btn">{{ Message('button_cancel') }}</a>

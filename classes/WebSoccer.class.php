@@ -27,6 +27,7 @@
 			function Config($name){global$conf;if(!isset($conf[$name]))throw new Exception('Missing configuration: '.$name);return$conf[$name];}
 			function Message($messageKey,$paramaters=NULL){global$msg;if(!hasMessage($messageKey)){return'???'.$messageKey.'???';}$message=stripslashes($msg[$messageKey]);if($paramaters!=NULL){$message=sprintf($message,$paramaters);}return$message;}
 			function hasMessage($messageKey){global$msg;return isset($msg[$messageKey]);}
+			function Request($name){if(isset($_REQUEST[$name])){$value=trim($_REQUEST[$name]);if(strlen($value)){return$value;}}return NULL;}
 			function owsProVersion(){return'owsPro 8.2.8.23.07.13';}
 			if(!function_exists('mb_strlen')){function mb_strlen($str=''){preg_match_all("/./u",$str,$char);return sizeof($char[0]);}}
 			if(!function_exists('mb_substr')){function mb_substr($maxstr,$length,$str=""){if(!is_numeric($maxstr))$strsize=0;if(!is_numeric($length)&&$length!=NULL)$length=0;preg_match_all("/./u",$str,$char);if($length==NULL)$length=sizeof($char[0]);
@@ -51,14 +52,14 @@ class JoomlaUserLoginMethod extends LoginCheck{
 			function authenticateWithEmail($email,$password){return$this->_authenticate('LOWER(email)=\'%s\'',strtolower($email),$password);}
 			function authenticateWithUsername($nick,$password){return$this->_authenticate('username=\'%s\'',$nick,$password);}
 			function _authenticate($queryWhereCondition,$loginStr,$password){$result=$this->_db->querySelect('username,email,password',Config('joomlalogin_tableprefix').'users','activation=0 AND '.$queryWhereCondition,$loginStr);$wpUser=$result->fetch_array();
-							if(!$wpUser)return FALSE;self::CheckPassword($password,$wpUser['password']);$userEmail=strtolower($wpUser['email']);$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);if($userId>0)return$userId;
+							if(!$wpUser)return FALSE;self::CheckPassword($password,$wpUser['password']);$userEmail=strtolower($wpUser['email']);$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);if($userId)return$userId;
 							return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['users'],$userEmail);}}
 class WordpressUserLoginMethod extends LoginCheck{
 			function authenticateWithEmail($email,$password){ return$this->_authenticate('LOWER(user_email)=\'%s\'',strtolower($email),$password);}
 			function authenticateWithUsername($nick,$password){ return$this->_authenticate('user_login=\'%s\'',$nick,$password);}
 			function _authenticate($queryWhereCondition,$loginStr,$password){$result=$this->_db->querySelect('user_login,user_email,user_pass',Config('wordpresslogin_tableprefix').'users','user_status=0 AND '.$queryWhereCondition,$loginStr);
 							$wpUser=$result->fetch_array();if(!$wpUser)return FALSE;self::CheckPassword($password,$wpUser['user_pass']);$userEmail=strtolower($wpUser['user_email']);$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
-							if($userId>0)return$userId;return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['user_login'],$userEmail);}}
+							if($userId)return$userId;return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['user_login'],$userEmail);}}
 class WebSoccer{private static$_instance;private $_skin,$_pageId,$_templateEngine,$_frontMessages,$_user,$_contextParameters;
 			static function getInstance(){if(self::$_instance==NULL)self::$_instance=new WebSoccer();return self::$_instance;}
     		function getUser(){if($this->_user==null)$this->_user=new User();return$this->_user;}
@@ -71,7 +72,7 @@ class WebSoccer{private static$_instance;private $_skin,$_pageId,$_templateEngin
 			function getRequestParameter($name){if(isset($_REQUEST[$name])){$value=trim($_REQUEST[$name]);if(strlen($value))return$value;}return NULL;}
 			function getInternalUrl($pageId=null,$queryString='',$fullUrl=FALSE){if($pageId==null)$pageId=$this->getPageId();if(strlen((string)$queryString))$queryString='&'.$queryString;if($fullUrl){$url=Config('homepage').Config('context_root');
 							if($pageId!='home'||strlen((string)$queryString))$url.='/?page='.$pageId.$queryString;}else$url=Config('context_root').'/?page='.$pageId.$queryString;return$url;}
-			function getInternalActionUrl($actionId,$queryString='',$pageId=null,$fullUrl=FALSE){if($pageId==null)$pageId=$this->getRequestParameter('page');if(strlen($queryString))$queryString='&'.$queryString;$url=Config('context_root').'/?page='.$pageId.$queryString
+			function getInternalActionUrl($actionId,$queryString='',$pageId=null,$fullUrl=FALSE){if($pageId==null)$pageId=Request('page');if(strlen($queryString))$queryString='&'.$queryString;$url=Config('context_root').'/?page='.$pageId.$queryString
 							.'&action='.$actionId;if($fullUrl)$url=Config('homepage').$url;return$url;}
 			function getFormattedDate($timestamp=null){if($timestamp==null)$timestamp=$this->getNowAsTimestamp();return date(Config('date_format'),$timestamp);}
 			function getFormattedDatetime($timestamp,$i18n=null){if($timestamp==null)$timestamp=$this->getNowAsTimestamp();if($i18n!=null){$dateWord=StringUtil::convertTimestampToWord($timestamp,$this->getNowAsTimestamp(),$i18n);if(strlen($dateWord))
@@ -92,7 +93,7 @@ class ActionHandler{
 							self::_handlePremiumAction($website,$db,$i18n,$actionId,$actionConfig['premiumBalanceMin'],$validatedParams,$controllerName);$actionReturn=self::_executeAction($website,$db,$i18n,$actionId,$controllerName,$validatedParams);
 							if(isset($actionConfig['log'])&& $actionConfig['log'] && $website->getUser()->id)ActionLogDataService::createOrUpdateActionLog($website,$db,$website->getUser()->id,$actionId);return$actionReturn;}
 	 static function _validateParameters($params,$website,$i18n){$errorMessages=[];$validatedParams=[];foreach($params as$param){$paramId=(string)$param->attributes()->id;$type=(string)$param->attributes()->type;$required=($param->attributes()->required=='true');
-							$min=(int)$param->attributes()->min;$max=(int)$param->attributes()->max;$validatorName=(string)$param->attributes()->validator;$paramValue=$website->getRequestParameter($paramId);if($type=='boolean')$paramValue=($paramValue)?'1':'0';
+							$min=(int)$param->attributes()->min;$max=(int)$param->attributes()->max;$validatorName=(string)$param->attributes()->validator;$paramValue=Request($paramId);if($type=='boolean')$paramValue=($paramValue)?'1':'0';
 							if($required&&$paramValue==null)$errorMessages[$paramId]=Message('validation_error_required');elseif($paramValue!=null){if($type=='text'&&$min>0&&strlen($paramValue)<$min)$errorMessages[$paramId]=
 							sprintf(Message('validation_error_min_length'),$min);elseif($type=='text'&&$max>0&&strlen($paramValue)>$max)$errorMessages[$paramId]=sprintf(Message('validation_error_max_length'),$max);elseif($type=='number'&&!is_numeric($paramValue))
 							$errorMessages[$paramId]=Message('validation_error_not_a_number');elseif($type=='number'&&$paramValue<$min)$errorMessages[$paramId]=Message('validation_error_min_number',$min);elseif($type=='number'&&$max>0&&$paramValue>$max)
@@ -103,198 +104,61 @@ class ActionHandler{
 	 static function _executeAction($website,$db,$i18n,$actionId,$controllerName,$validatedParams){if(!class_exists($controllerName))throw new Exception('Controller not found: '.$controllerName);$_SESSION['laction_id']=$actionId;$_SESSION['laction_time']=
 	 						$website->getNowAsTimestamp();$controller=new $controllerName($i18n,$website,$db);return$controller->executeAction($validatedParams);}
 	 static function _handlePremiumAction($website,$db,$i18n,$actionId,$creditsRequired,$validatedParams,$controllerName){if($creditsRequired>$website->getUser()->premiumBalance){$targetPage=Config('premium_infopage');if(filter_var($targetPage,FILTER_VALIDATE_URL)){
-							header('location: '.$targetPage);exit;}else{$website->addContextParameter('premium_balance_required',$creditsRequired);return$targetPage;}}if($website->getRequestParameter('premiumconfirmed')){PremiumDataService::debitAmount($website,$db,
+							header('location: '.$targetPage);exit;}else{$website->addContextParameter('premium_balance_required',$creditsRequired);return$targetPage;}}if(Request('premiumconfirmed')){PremiumDataService::debitAmount($website,$db,
 							$website->getUser()->id,$creditsRequired,$actionId);return self::_executeAction($website,$db,$i18n,$actionId,$controllerName,$validatedParams);}$website->addContextParameter('premium_balance_required',$creditsRequired);
 							$website->addContextParameter('actionparameters',$validatedParams);$website->addContextParameter('actionid',$actionId);$website->addContextParameter('srcpage',$website->getPageId());return'premium-confirm-action';}}
-class BreadcrumbBuilder {
-	static function getBreadcrumbItems($website,$i18n,$pages,$currentPageId){
-		if(!isset($pages[$currentPageId]))return;
-		$items=[];
-		$nextPageId=$currentPageId;
-		while($nextPageId){
-			$pageConfig=json_decode($pages[$nextPageId],TRUE);
-			$items[$nextPageId]=$i18n->getNavigationLabel($nextPageId);
-			if(isset($pageConfig['parentItem'])&& strlen($pageConfig['parentItem']))$nextPageId=$pageConfig['parentItem'];
-			else $nextPageId=FALSE;}
-		return array_reverse($items);}}
-class ConfigCacheFileWriter{
-	private $_frontCacheFileWriter;
-	private $_adminCacheFileWriter;
-	private $_supportedLanguages;
-	private $_messagesFileWriters;
-	private $_adminMessagesFileWriters;
-	private $_entityMessagesFileWriters;
-	private $_settingsCacheFileWriter;
-	private $_eventsCacheFileWriter;
-	private $_newSettings;
-	function __construct($supportedLanguages){
-		$this->_frontCacheFileWriter=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigfront.inc.php');
-		$this->_adminCacheFileWriter=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');
-		$this->_settingsCacheFileWriter=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/cache/settingsconfig.inc.php');
-		$this->_eventsCacheFileWriter=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/cache/eventsconfig.inc.php');
-		$this->_supportedLanguages=$supportedLanguages;
-		$this->_messagesFileWriters=[];
-		$this->_adminMessagesFileWriters=[];
-		$this->_entityMessagesFileWriters=[];
-		foreach($supportedLanguages as$language){
-			$this->_messagesFileWriters[$language]=new FileWriter(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/messages_%s.inc.php',$language));
-			$this->_adminMessagesFileWriters[$language]=new FileWriter(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_%s.inc.php',$language));
-			$this->_entityMessagesFileWriters[$language]=new FileWriter(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/entitymessages_%s.inc.php',$language));}}
-	function buildConfigCache(){
-		$this->_writeFileStart($this->_frontCacheFileWriter);
-		$this->_writeFileStart($this->_adminCacheFileWriter);
-		$this->_writeFileStart($this->_settingsCacheFileWriter);
-		$this->_writeFileStart($this->_eventsCacheFileWriter);
-		foreach($this->_supportedLanguages as$language){
-			$this->_writeMsgFileStart($this->_messagesFileWriters[$language]);
-			$this->_writeMsgFileStart($this->_adminMessagesFileWriters[$language]);
-			$this->_writeMsgFileStart($this->_entityMessagesFileWriters[$language]);}
-		$this->_buildModulesConfig();
-		$this->_writeFileEnd($this->_frontCacheFileWriter);
-		$this->_writeFileEnd($this->_adminCacheFileWriter);
-		$this->_writeFileEnd($this->_settingsCacheFileWriter);
-		$this->_writeFileEnd($this->_eventsCacheFileWriter);
-		foreach($this->_supportedLanguages as$language){
-			$this->_writeMsgFileEnd($this->_messagesFileWriters[$language]);
-			$this->_writeMsgFileEnd($this->_adminMessagesFileWriters[$language]);
-			$this->_writeMsgFileEnd($this->_entityMessagesFileWriters[$language]);}
-		if(is_array($this->_newSettings)&&count($this->_newSettings)){
-			global $conf;
-			$cf=ConfigFileWriter::getInstance($conf);
-			$cf->saveSettings($this->_newSettings);}}
-	function _writeFileStart($fileWriter){
-		$fileWriter->writeLine('<?php');
-		}
-	function _writeMsgFileStart($fileWriter){
-		$this->_writeFileStart($fileWriter);
-		$fileWriter->writeLine('if(!isset($msg))$msg=[];');
-		$fileWriter->writeLine('$msg=$msg+array(');}
-	function _writeFileEnd($fileWriter){$fileWriter->writeLine('?>');}
-	function _writeMsgFileEnd($fileWriter){
-		$fileWriter->writeLine(');');
-		$this->_writeFileEnd($fileWriter);}
-	function _buildModulesConfig(){
-		$modules=scandir($_SERVER['DOCUMENT_ROOT'].'/modules');
-		foreach($modules as$module){
-			if(is_dir($_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module)){
-				$files=scandir($_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module);
-				foreach($files as$file){
-					$pathToFile=$_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module.'/'.$file;
-					if($file=='module.xml')$this->_processModule($pathToFile,$module);
-					elseif(StringUtil::startsWith($file,'messages_'))$this->_processMessages($pathToFile,$this->_messagesFileWriters);
-					elseif(StringUtil::startsWith($file,'adminmessages_'))$this->_processMessages($pathToFile,$this->_adminMessagesFileWriters);
-					elseif(StringUtil::startsWith($file,'entitymessages_'))$this->_processMessages($pathToFile,$this->_entityMessagesFileWriters);}}}}
-	function _processModule($file,$module){
-		$doc=new DOMDocument();
-		$loaded=@$doc->load($file,LIBXML_DTDLOAD|LIBXML_DTDVALID);
-		if(!$loaded)throw new Exception('Could not load XML config file: '.$file);
-		$isValid=$doc->validate();
-		$this->_processItem($doc,'page',$this->_frontCacheFileWriter,$module);
-		$this->_processItem($doc,'block',$this->_frontCacheFileWriter,$module);
-		$this->_processItem($doc,'action',$this->_frontCacheFileWriter,$module);
-		$this->_processItem($doc,'adminpage',$this->_adminCacheFileWriter,$module);
-		$this->_processItem($doc,'setting',$this->_settingsCacheFileWriter,$module);
-		$this->_processItem($doc,'eventlistener',$this->_eventsCacheFileWriter,$module);}
-	function _processItem($doc,$itemName,$fileWriter,$module,$keyAttribute='id'){
-		$items=$doc->getElementsByTagName($itemName);
-		foreach($items as$item){
-			$line=$this->_buildConfigLine($itemName,$keyAttribute,$item,$module);
-			$fileWriter->writeLine($line);}}
-	function _buildConfigLine($itemname,$keyAttribute,$xml,$module){
-		if($itemname=='eventlistener')$line='$'.$itemname.'[\''.$xml->getAttribute('event').'\'][]';
-		else{
-			$id=$xml->getAttribute($keyAttribute);
-			$line='$'.$itemname.'[\''.$xml->getAttribute($keyAttribute).'\']';}
-		$itemAttrs=[];
-		if($xml->hasAttributes()){
-			$attrs=$xml->attributes;
-			foreach($attrs as$attr)$itemAttrs[$attr->name]=$attr->value;}
-		$parent=$xml->parentNode;
-		if($parent->nodeName==$itemname)$itemAttrs['parentItem']=$parent->getAttribute($keyAttribute);
-		if($xml->hasChildNodes()){
-			$children=$xml->childNodes;
-			$childrenIds='';
-			$first=TRUE;
-			foreach($children as$child){
-				if($child->nodeName==$itemname){
-					if(!$first)$childrenIds.=',';
-					$childrenIds .= $child->getAttribute($keyAttribute);
-					$first=FALSE;}
-				elseif($child->nodeName=='script'||$child->nodeName=='css'){
-					$childattrs=$child->attributes;
-					$resourceRef=[];
-					foreach($childattrs as$attr)$resourceRef[$attr->name]=$attr->value;
-					$itemAttrs[$child->nodeName.'s'][]=$resourceRef;}}
-			if(!$first)$itemAttrs['childrenIds']=$childrenIds;}
-		$itemAttrs['module']=$module;
-		$line.='=\''.json_encode($itemAttrs,JSON_HEX_QUOT).'\';';
-		if($itemname=='setting'){
-			global $conf;
-			if(!isset($conf[$id])){
-				$defaultValue='';
-				if($xml->hasAttribute('default'))$defaultValue=$xml->getAttribute('default');
-				$this->_newSettings[$id]=$defaultValue;}}
-		return$line;}
-	function _processMessages($file,$fileWriters){
-		$doc=new DOMDocument();
-		$loaded=@$doc->load($file);
-		if(!$loaded)throw new Exception('Could not load XML messages file: '.$file);
-		$lang=substr($file,strrpos($file,'_')+1,2);
-		if(isset($fileWriters[$lang])){
-			$messages=$doc->getElementsByTagName('message');
-			$fileWriter=$fileWriters[$lang];
-			foreach($messages as$message){
-				$line='\''.$message->getAttribute('id').'\'=>\''. addslashes($this->_getInnerHtml($message)).'\',';
-				$fileWriter->writeLine($line);}}}
-	function _getInnerHtml($node){
-		$innerHTML= '';
-		$children=$node->childNodes;
-		foreach($children as$child)$innerHTML .= $child->ownerDocument->saveXML($child);
-		return$innerHTML;}
-	function __destruct(){
-		if($this->_frontCacheFileWriter){}
-		if($this->_adminCacheFileWriter){}
-		if($this->_settingsCacheFileWriter){}
-		foreach($this->_supportedLanguages as$language){
-			if($this->_messagesFileWriters[$language]){}
-			if($this->_adminMessagesFileWriters[$language]){}
-			if($this->_entityMessagesFileWriters[$language]){}}}}
-class ConfigFileWriter {
-	private static $_instance;
-	private $_settings;
-	static function getInstance($settings){
-        if(self::$_instance==NULL)self::$_instance=new ConfigFileWriter($settings);
-        return self::$_instance;}
-    function saveSettings($newSettings){
-    	foreach($newSettings as$settingId=>$settingValue)$this->_settings[$settingId]=$settingValue;
-    	$this->_writeToFile();}
-    function _writeToFile(){
-    	$content="<?php". PHP_EOL;
-    	foreach($this->_settings as$id=>$value)$content.="\$conf[\"".$id."\"]=\"". addslashes($value)."\";". PHP_EOL;
-    	$content.="?>";
-    	$fw=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');
-    	$fw->writeLine($content);
-    	$fw->close();}
-    function __construct($settings){ $this->_settings=$settings;}}
-class ConverterFactory {
-	private static $_createdConverters;
-	static function getConverter($website,$i18n,$converter){
-		if(isset(self::$_createdConverters[$converter]))return self::$_createdConverters[$converter];
-		if(class_exists($converter)){
-			$converterInstance=new $converter($i18n,$website);
-			self::$_createdConverters[$converter]=$converterInstance;
-			return$converterInstance;}
-		throw new Exception("Converter not found: ".$converter);}}
-class CookieHelper {
-	static function createCookie($name,$value,$lifetimeInDays=null){
-		$expiry=($lifetimeInDays!=null)? time()+ 86400*$lifetimeInDays : 0;
-		setcookie('owsPro'.$name,$value,$expiry,null,null,true,true);}
-	static function getCookieValue($name){
-		if(!isset($_COOKIE['owsPro'.$name]))return null;
-		return$_COOKIE['owsPro'.$name];}
-	static function destroyCookie($name){
-		if(!isset($_COOKIE['owsPro'.$name]))return;
-		setcookie('owsPro'.$name,'',time()-86400,null,null,true,true);}}
+class BreadcrumbBuilder{
+	 static function getBreadcrumbItems($website,$i18n,$pages,$currentPageId){
+							if(!isset($pages[$currentPageId]))return;$items=[];$nextPageId=$currentPageId;while($nextPageId){$pageConfig=json_decode($pages[$nextPageId],TRUE);$items[$nextPageId]=$i18n->getNavigationLabel($nextPageId);
+							if(isset($pageConfig['parentItem'])&& strlen($pageConfig['parentItem']))$nextPageId=$pageConfig['parentItem'];else$nextPageId=FALSE;}return array_reverse($items);}}
+class ConfigCacheFileWriter{private$_frontCacheFileWriter,$_adminCacheFileWriter,$_supportedLanguages,$_messagesFileWriters,$_adminMessagesFileWriters,$_entityMessagesFileWriters,$_settingsCacheFileWriter,$_eventsCacheFileWriter,$_newSettings;
+			function __construct($supportedLanguages){$this->_frontCacheFileWriter=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigfront.inc.php');$this->_adminCacheFileWriter=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');
+							$this->_settingsCacheFileWriter=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/cache/settingsconfig.inc.php');$this->_eventsCacheFileWriter=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/cache/eventsconfig.inc.php');
+							$this->_supportedLanguages=$supportedLanguages;$this->_messagesFileWriters=[];$this->_adminMessagesFileWriters=[];$this->_entityMessagesFileWriters=[];foreach($supportedLanguages as$language){$this->_messagesFileWriters[$language]=
+							new FileWriter(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/messages_%s.inc.php',$language));$this->_adminMessagesFileWriters[$language]=new FileWriter(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_%s.inc.php',$language));
+							$this->_entityMessagesFileWriters[$language]=new FileWriter(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/entitymessages_%s.inc.php',$language));}}
+			function buildConfigCache(){$this->_writeFileStart($this->_frontCacheFileWriter);$this->_writeFileStart($this->_adminCacheFileWriter);$this->_writeFileStart($this->_settingsCacheFileWriter);$this->_writeFileStart($this->_eventsCacheFileWriter);
+							foreach($this->_supportedLanguages as$language){$this->_writeMsgFileStart($this->_messagesFileWriters[$language]);$this->_writeMsgFileStart($this->_adminMessagesFileWriters[$language]);
+							$this->_writeMsgFileStart($this->_entityMessagesFileWriters[$language]);}$this->_buildModulesConfig();$this->_writeFileEnd($this->_frontCacheFileWriter);$this->_writeFileEnd($this->_adminCacheFileWriter);
+							$this->_writeFileEnd($this->_settingsCacheFileWriter);$this->_writeFileEnd($this->_eventsCacheFileWriter);foreach($this->_supportedLanguages as$language){$this->_writeMsgFileEnd($this->_messagesFileWriters[$language]);
+							$this->_writeMsgFileEnd($this->_adminMessagesFileWriters[$language]);$this->_writeMsgFileEnd($this->_entityMessagesFileWriters[$language]);}if(is_array($this->_newSettings)&&count($this->_newSettings)){global $conf;
+							$cf=ConfigFileWriter::getInstance($conf);$cf->saveSettings($this->_newSettings);}}
+			function _writeFileStart($fileWriter){$fileWriter->writeLine('<?php');}
+			function _writeMsgFileStart($fileWriter){$this->_writeFileStart($fileWriter);$fileWriter->writeLine('if(!isset($msg))$msg=[];');$fileWriter->writeLine('$msg=$msg+array(');}
+			function _writeFileEnd($fileWriter){$fileWriter->writeLine('?>');}
+			function _writeMsgFileEnd($fileWriter){$fileWriter->writeLine(');');$this->_writeFileEnd($fileWriter);}
+			function _buildModulesConfig(){$modules=scandir($_SERVER['DOCUMENT_ROOT'].'/modules');foreach($modules as$module){if(is_dir($_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module)){$files=scandir($_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module);
+							foreach($files as$file){$pathToFile=$_SERVER['DOCUMENT_ROOT'].'/modules'.'/'.$module.'/'.$file;if($file=='module.xml')$this->_processModule($pathToFile,$module);
+							elseif(StringUtil::startsWith($file,'messages_'))$this->_processMessages($pathToFile,$this->_messagesFileWriters);elseif(StringUtil::startsWith($file,'adminmessages_'))$this->_processMessages($pathToFile,$this->_adminMessagesFileWriters);
+							elseif(StringUtil::startsWith($file,'entitymessages_'))$this->_processMessages($pathToFile,$this->_entityMessagesFileWriters);}}}}
+			function _processModule($file,$module){$doc=new DOMDocument();$loaded=@$doc->load($file,LIBXML_DTDLOAD|LIBXML_DTDVALID);if(!$loaded)throw new Exception('Could not load XML config file: '.$file);$isValid=$doc->validate();
+							$this->_processItem($doc,'page',$this->_frontCacheFileWriter,$module);$this->_processItem($doc,'block',$this->_frontCacheFileWriter,$module);$this->_processItem($doc,'action',$this->_frontCacheFileWriter,$module);
+							$this->_processItem($doc,'adminpage',$this->_adminCacheFileWriter,$module);$this->_processItem($doc,'setting',$this->_settingsCacheFileWriter,$module);$this->_processItem($doc,'eventlistener',$this->_eventsCacheFileWriter,$module);}
+			function _processItem($doc,$itemName,$fileWriter,$module,$keyAttribute='id'){$items=$doc->getElementsByTagName($itemName);foreach($items as$item){$line=$this->_buildConfigLine($itemName,$keyAttribute,$item,$module);$fileWriter->writeLine($line);}}
+			function _buildConfigLine($itemname,$keyAttribute,$xml,$module){if($itemname=='eventlistener')$line='$'.$itemname.'[\''.$xml->getAttribute('event').'\'][]';else{$id=$xml->getAttribute($keyAttribute);
+							$line='$'.$itemname.'[\''.$xml->getAttribute($keyAttribute).'\']';}$itemAttrs=[];if($xml->hasAttributes()){$attrs=$xml->attributes;foreach($attrs as$attr)$itemAttrs[$attr->name]=$attr->value;}$parent=$xml->parentNode;
+							if($parent->nodeName==$itemname)$itemAttrs['parentItem']=$parent->getAttribute($keyAttribute);if($xml->hasChildNodes()){$children=$xml->childNodes;$childrenIds='';$first=TRUE;foreach($children as$child){if($child->nodeName==$itemname){
+							if(!$first)$childrenIds.=',';$childrenIds.=$child->getAttribute($keyAttribute);$first=FALSE;}elseif($child->nodeName=='script'||$child->nodeName=='css'){$childattrs=$child->attributes;$resourceRef=[];foreach($childattrs as$attr)
+							$resourceRef[$attr->name]=$attr->value;$itemAttrs[$child->nodeName.'s'][]=$resourceRef;}}if(!$first)$itemAttrs['childrenIds']=$childrenIds;}$itemAttrs['module']=$module;$line.='=\''.json_encode($itemAttrs,JSON_HEX_QUOT).'\';';
+							if($itemname=='setting'){global $conf;if(!isset($conf[$id])){$defaultValue='';if($xml->hasAttribute('default'))$defaultValue=$xml->getAttribute('default');$this->_newSettings[$id]=$defaultValue;}}return$line;}
+			function _processMessages($file,$fileWriters){$doc=new DOMDocument();$loaded=@$doc->load($file);if(!$loaded)throw new Exception('Could not load XML messages file: '.$file);$lang=substr($file,strrpos($file,'_')+1,2);if(isset($fileWriters[$lang])){
+							$messages=$doc->getElementsByTagName('message');$fileWriter=$fileWriters[$lang];foreach($messages as$message){$line='\''.$message->getAttribute('id').'\'=>\''. addslashes($this->_getInnerHtml($message)).'\',';$fileWriter->writeLine($line);}}}
+			function _getInnerHtml($node){$innerHTML='';$children=$node->childNodes;foreach($children as$child)$innerHTML.=$child->ownerDocument->saveXML($child);return$innerHTML;}
+			function __destruct(){if($this->_frontCacheFileWriter){}if($this->_adminCacheFileWriter){}if($this->_settingsCacheFileWriter){}foreach($this->_supportedLanguages as$language){if($this->_messagesFileWriters[$language]){}
+							if($this->_adminMessagesFileWriters[$language]){}if($this->_entityMessagesFileWriters[$language]){}}}}
+class ConfigFileWriter{private static $_instance,$_settings;
+	 static function getInstance($settings){if(self::$_instance==NULL)self::$_instance=new ConfigFileWriter($settings);return self::$_instance;}
+    		function saveSettings($newSettings){foreach($newSettings as$settingId=>$settingValue)$this->_settings[$settingId]=$settingValue;$this->_writeToFile();}
+    		function _writeToFile(){$content="<?php".PHP_EOL;foreach($this->_settings as$id=>$value)$content.="\$conf[\"".$id."\"]=\"".addslashes($value)."\";".PHP_EOL;$content.="?>";$fw=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');
+    						$fw->writeLine($content);$fw->close();}
+    		function __construct($settings){ $this->_settings=$settings;}}
+class ConverterFactory{private static $_createdConverters;
+	 static function getConverter($website,$i18n,$converter){if(isset(self::$_createdConverters[$converter]))return self::$_createdConverters[$converter];if(class_exists($converter)){$converterInstance=new $converter($i18n,$website);
+							self::$_createdConverters[$converter]=$converterInstance;return$converterInstance;}throw new Exception("Converter not found: ".$converter);}}
+class CookieHelper{
+	 static function createCookie($name,$value,$lifetimeInDays=null){$expiry=($lifetimeInDays!=null)?time()+86400*$lifetimeInDays:0;setcookie('owsPro'.$name,$value,$expiry,null,null,true,true);}
+	 static function getCookieValue($name){if(!isset($_COOKIE['owsPro'.$name]))return null;return$_COOKIE['owsPro'.$name];}
+	 static function destroyCookie($name){if(!isset($_COOKIE['owsPro'.$name]))return;setcookie('owsPro'.$name,'',time()-86400,null,null,true,true);}}
 class DataUpdateSimulatorObserver {
 	private $_teamsWithSoonEndingContracts;
 	function __construct($websoccer,$db){
@@ -419,7 +283,7 @@ class DataUpdateSimulatorObserver {
 			if(!$isTie){
 				if($isTeamWinner)$columns['w_zufriedenheit']=min(100,$columns['w_zufriedenheit'] + $satisfactionChange);
 				else $columns['w_zufriedenheit']=max(1,$columns['w_zufriedenheit'] - $satisfactionChange);}}
-		if(!$player->team->isNationalTeam && $playerinfo['lending_matches']>0)$this->handleBorrowedPlayer($columns,$playerinfo);
+		if(!$player->team->isNationalTeam && $playerinfo['lending_matches'])$this->handleBorrowedPlayer($columns,$playerinfo);
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);}
 	function updatePlayerWhoDidNotPlay(SimulationMatch $match,$isNationalTeam,$playerinfo){
 		$fromTable=Config('db_prefix').'_spieler';
@@ -437,7 +301,7 @@ class DataUpdateSimulatorObserver {
 		if(!$isNationalTeam ||Config('sim_playerupdate_through_nationalteam')){
 			$columns['w_zufriedenheit']=max(1,$playerinfo['w_zufriedenheit'] - $satisfactionChange);
 			$columns['w_frische']=min(100,$playerinfo['w_frische'] +Config('sim_strengthchange_freshness_notplayed'));}
-		if(!$isNationalTeam && $playerinfo['lending_matches']>0)$this->handleBorrowedPlayer($columns,$playerinfo);
+		if(!$isNationalTeam && $playerinfo['lending_matches'])$this->handleBorrowedPlayer($columns,$playerinfo);
 		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);}
 	function deductSalary(SimulationTeam $team,$salary){
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$team->id,$salary,'match_salarypayment_subject','match_salarypayment_sender');}
@@ -715,7 +579,7 @@ class DbSessionManager{
 		$whereCondition='session_id=\'%s\'';
 		$data='';
 		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$sessionId);
-		if($result->num_rows>0){
+		if($result->num_rows){
 			$row=$result->fetch_array();
 			if($row['expires']<$this->_websoccer->getNowAsTimestamp())$this->destroy($sessionId);
 			else{
@@ -727,7 +591,7 @@ class DbSessionManager{
 		$fromTable=Config('db_prefix').'_session';
 		$whereCondition='session_id=\'%s\'';
 		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$key);
-		if($result->num_rows>0){
+		if($result->num_rows){
 			$row=$result->fetch_array();
 			if($row['expires']<$this->_websoccer->getNowAsTimestamp())$this->destroy($key);
 			else{
@@ -889,7 +753,7 @@ class DefaultSimulationStrategy {
 		foreach($this->_observers as$observer)$observer->onAfterTackle($match,($result)? $player : $opponent,($result)? $opponent : $player);
 		if($result==TRUE){
 			$pTackle['yellow']=round(max(1,min(20,round((100 - $opponent->strengthTech)/ 2)))*Config('sim_cardsprobability')/ 100);
-			if($opponent->yellowCards>0)$pTackle['yellow']=round($pTackle['yellow'] / 2);
+			if($opponent->yellowCards)$pTackle['yellow']=round($pTackle['yellow'] / 2);
 			$pTackle['red']=1;
 			if($pTackle['yellow'] >15)$pTackle['red']=3;
 			$pTackle['fair']=100 - $pTackle['yellow'] - $pTackle['red'];
@@ -1561,8 +1425,8 @@ class MatchSimulationExecutor {
 	static function createInitialMatchData($websoccer,$db,$matchinfo){
 		$db->queryDelete(Config('db_prefix').'_spiel_berechnung', 'spiel_id=%d',$matchinfo['match_id']);
 		$db->queryDelete(Config('db_prefix').'_matchreport', 'match_id=%d',$matchinfo['match_id']);
-		$homeOffensive=($matchinfo['home_formation_offensive']>0)? $matchinfo['home_formation_offensive'] : Config('sim_createformation_without_manager_offensive');
-		$guestOffensive=($matchinfo['guest_formation_offensive']>0)? $matchinfo['guest_formation_offensive'] : Config('sim_createformation_without_manager_offensive');
+		$homeOffensive=($matchinfo['home_formation_offensive'])? $matchinfo['home_formation_offensive'] : Config('sim_createformation_without_manager_offensive');
+		$guestOffensive=($matchinfo['guest_formation_offensive'])? $matchinfo['guest_formation_offensive'] : Config('sim_createformation_without_manager_offensive');
 		$homeTeam=new SimulationTeam($matchinfo['home_id'],$homeOffensive);
 		$homeTeam->setup=$matchinfo['home_formation_setup'];
 		$homeTeam->isNationalTeam=$matchinfo['home_nationalteam'];
@@ -1772,7 +1636,7 @@ class PageIdRouter {
 			if(!in_array($pageId,$freePageIds)){
 				$websoccer->addFrontMessage(new FrontMessage('warning',Message('requireslogin_box_title'),Message('requireslogin_box_message')));
 				$pageId='login';}}
-		if($pageId=='team' && $websoccer->getRequestParameter('id')==null)$pageId='leagues';
+		if($pageId=='team'&&Request('id')==null)$pageId='leagues';
 		if($user->getRole()=='user' &&!strlen($user->username))$pageId='enter-username';
 		return$pageId;}}
 class Paginator {
@@ -1786,7 +1650,7 @@ class Paginator {
 	function addParameter($name,$value){ $this->_parameters[$name]=$value;}
 	function __construct($hits,$eps,$websoccer){
 		$this->eps=$eps;
-		$this->pageNo=max(1, (int)$websoccer->getRequestParameter('pageno'));
+		$this->pageNo=max(1,(int)Request('pageno'));
 		if($hits % $eps)$this->pages=floor($hits / $eps)+ 1;
 		else $this->pages=$hits / $eps;}
 	function getFirstIndex(){ return($this->pageNo - 1)* $this->eps;}}
@@ -1917,7 +1781,7 @@ class SessionBasedUserAuthentication {
 		$currentUser->setProfilePicture($this->_website,$userdata['picture']);
 		$i18n=I18n::getInstance(Config('supported_languages'));
 		$i18n->setCurrentLanguage($userdata['lang']);
-		$columns=array('lastonline'=>$this->_website->getNowAsTimestamp(), 'lastaction'=>$this->_website->getRequestParameter('page'));
+		$columns=array('lastonline'=>$this->_website->getNowAsTimestamp(), 'lastaction'=>Request('page'));
 		$whereCondition='id=%d';
 		$parameter=$userdata['id'];
 		$db->queryUpdate($columns,$fromTable,$whereCondition,$parameter);}}
@@ -2009,9 +1873,9 @@ class SimulationAudienceCalculator {
 		$rate=100 - pow((10 /(2.5*$avgPrice)* $actualPrice), 2);
 		$deviation=$avgSales - (100 - pow((10 /(2.5*$avgPrice)* $avgPrice), 2));
 		$rate=$rate + $deviation;
-		if($rate>0)$rate=$rate - 10 + 1/5*$fanpopularity;
+		if($rate)$rate=$rate - 10 + 1/5*$fanpopularity;
 		if($isAttractiveMatch)$rate=$rate*1.1;
-		if($rate>0)$rate=$rate + $maintenanceInfluence;
+		if($rate)$rate=$rate + $maintenanceInfluence;
 		return min(100, max(0,$rate))/ 100;}
 	static function updateMaintenanceStatus($websoccer,$db,$homeInfo){
 		$columns=array('maintenance_pitch'=>$homeInfo['maintenance_pitch'] - 1, 'maintenance_videowall'=>$homeInfo['maintenance_videowall'] - 1, 'maintenance_seatsquality'=>$homeInfo['maintenance_seatsquality'] - 1,
@@ -3328,9 +3192,9 @@ class BorrowPlayerController extends Controller {
 		if($clubId==null)throw new Exception(Message("feature_requires_team"));
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId==$player["team_id"])throw new Exception(Message("lending_hire_err_ownplayer"));
-		if($player["lending_owner_id"]>0)throw new Exception(Message("lending_hire_err_borrowed_player"));
+		if($player["lending_owner_id"])throw new Exception(Message("lending_hire_err_borrowed_player"));
 		if($player["lending_fee"]==0)throw new Exception(Message("lending_hire_err_notoffered"));
-		if($player["player_transfermarket"]>0)throw new Exception(Message("lending_err_on_transfermarket"));
+		if($player["player_transfermarket"])throw new Exception(Message("lending_err_on_transfermarket"));
 		if($parameters["matches"] <Config("lending_matches_min")|| $parameters["matches"] >Config("lending_matches_max")){
 			throw new Exception(sprintf(Message("lending_hire_err_illegalduration"),Config("lending_matches_min"),Config("lending_matches_max")));}
 		if($parameters["matches"] >= $player["player_contract_matches"])throw new Exception(Message("lending_hire_err_contractendingtoosoon",$player["player_contract_matches"]));
@@ -3453,7 +3317,7 @@ class ChooseTeamController extends Controller {
 	function executeAction($parameters){
 		$user=$this->_websoccer->getUser();
 		if(!Config("assign_team_automatically"))throw new Exception(Message("freeclubs_msg_error"));
-		if($user->getClubId($this->_websoccer,$this->_db)>0)throw new Exception(Message("freeclubs_msg_error_user_is_already_manager"));
+		if($user->getClubId($this->_websoccer,$this->_db))throw new Exception(Message("freeclubs_msg_error_user_is_already_manager"));
 		$teamId=$parameters["teamId"];
 		$fromTable=Config("db_prefix")."_verein";
 		$whereCondition="id=%d AND status=1 AND (user_id=0 OR user_id IS NULL OR interimmanager='1')";
@@ -3586,7 +3450,7 @@ class DirectTransferOfferController extends Controller {
 		if(!Config("transferoffers_enabled"))return;
 		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		if($clubId==null)throw new Exception(Message("feature_requires_team"));
-		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$this->_websoccer->getRequestParameter("id"));
+		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,Request("id"));
 		if(!$player["team_user_id"])throw new Exception(Message("transferoffer_err_nomanager"));
 		if($player["team_user_id"]==$this->_websoccer->getUser()->id)throw new Exception(Message("transferoffer_err_ownplayer"));
 		if($player["player_unsellable"]||$player["player_transfermarket"])throw new Exception(Message("transferoffer_err_unsellable"));
@@ -3833,9 +3697,9 @@ class ExtendStadiumController extends Controller {
 		if($seatsVip >Config("stadium_max_vip"))throw new Exception(Message("stadium_extend_err_exceed_max_vip",Config("stadium_max_vip")));
 		if(StadiumsDataService::getCurrentConstructionOrderOfTeam($this->_websoccer,$this->_db,$teamId)!= NULL)throw new Exception(Message("stadium_extend_err_constructionongoing"));
 		if(isset($parameters["validate-only"])&& $parameters["validate-only"])return "stadium-extend-confirm";
-		$builderId=$this->_websoccer->getRequestParameter("offerid");
-		$offers=StadiumsDataService::getBuilderOffersForExtension($this->_websoccer,$this->_db,$teamId, (int)$this->_websoccer->getRequestParameter("side_standing"), (int)$this->_websoccer->getRequestParameter("side_seats"),
-			(int)$this->_websoccer->getRequestParameter("grand_standing"), (int)$this->_websoccer->getRequestParameter("grand_seats"), (int)$this->_websoccer->getRequestParameter("vip"));
+		$builderId=Request("offerid");
+		$offers=StadiumsDataService::getBuilderOffersForExtension($this->_websoccer,$this->_db,$teamId,(int)Request("side_standing"),(int)Request("side_seats"),
+			(int)Request("grand_standing"),(int)Request("grand_seats"),(int)Request("vip"));
 		if($builderId==NULL||!isset($offers[$builderId]))throw new Exception("Illegal offer ID.");
 		$offer=$offers[$builderId];
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$teamId);
@@ -3879,7 +3743,7 @@ class FirePlayerController extends Controller {
 		if($clubId!=$player["team_id"])throw new Exception("nice try");
 		$teamSize=$this->getTeamSize($clubId);
 		if($teamSize <=Config("transfermarket_min_teamsize"))throw new Exception(Message("sell_player_teamsize_too_small",$teamSize));
-		if(Config("player_resignation_compensation_matches")>0){
+		if(Config("player_resignation_compensation_matches")){
 			$compensation=Config("player_resignation_compensation_matches")* $player["player_contract_salary"];
 			$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
 			if($team["team_budget"] <= $compensation)throw new Exception(Message("fireplayer_tooexpensive"));
@@ -3971,9 +3835,9 @@ class LendPlayerController extends Controller {
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception(Message("lending_err_notownplayer"));
-		if($player["lending_owner_id"]>0)throw new Exception(Message("lending_err_borrowed_player"));
-		if($player["lending_fee"]>0)throw new Exception(Message("lending_err_alreadyoffered"));
-		if($player["player_transfermarket"]>0)throw new Exception(Message("lending_err_on_transfermarket"));
+		if($player["lending_owner_id"])throw new Exception(Message("lending_err_borrowed_player"));
+		if($player["lending_fee"])throw new Exception(Message("lending_err_alreadyoffered"));
+		if($player["player_transfermarket"])throw new Exception(Message("lending_err_on_transfermarket"));
 		$teamSize=TeamsDataService::getTeamSize($this->_websoccer,$this->_db,$clubId);
 		if($teamSize <=Config("transfermarket_min_teamsize"))throw new Exception(Message("lending_err_teamsize_too_small",$teamSize));
 		$minBidBoundary=round($player["player_marketvalue"] / 2);
@@ -4155,7 +4019,7 @@ class RegisterFormController extends Controller {
 		$columns="COUNT(*)AS hits";
 		$fromTable=Config("db_prefix")."_user";
 		$maxNumUsers=(int)Config("max_number_of_users");
-		if($maxNumUsers>0){
+		if($maxNumUsers){
 			$wherePart="status=1";
 			$result=$this->_db->querySelect($columns,$fromTable,$wherePart);
 			$rows=$result->fetch_array();
@@ -4268,7 +4132,7 @@ class ReturnFromAbsenceController extends Controller {
 		return "office";}}
 class SaveFormationController extends Controller {
 	function executeAction($parameters){
-		$this->_isNationalTeam=($this->_websoccer->getRequestParameter('nationalteam'))? TRUE : FALSE;
+		$this->_isNationalTeam=(Request('nationalteam'))?TRUE:FALSE;
 		$user=$this->_websoccer->getUser();
 		if($this->_isNationalTeam)$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
 		else $teamId=$user->getClubId($this->_websoccer,$this->_db);
@@ -4302,7 +4166,7 @@ class SaveFormationController extends Controller {
 			$playerIn=$parameters['sub'.$subNo.'_in'];
 			$playerOut=$parameters['sub'.$subNo.'_out'];
 			$playerMinute=$parameters['sub'.$subNo.'_minute'];
-			if($playerIn!=null && $playerIn>0 && $playerOut!=null && $playerOut>0 && $playerMinute!=null && $playerMinute>0){
+			if($playerIn!=null && $playerIn>0 && $playerOut!=null && $playerOut>0 && $playerMinute!=null && $playerMinute){
 				$this->validateSubstitution($playerIn,$playerOut,$playerMinute,$players);
 				$validSubstitutions[]=$subNo;}}
 		$this->saveFormation($teamId,$matchinfo['match_id'],$parameters,$validSubstitutions);
@@ -4313,7 +4177,7 @@ class SaveFormationController extends Controller {
 		if(!isset($players[$playerId]))throw new Exception(Message('formation_err_invalidplayer'));
 		$position=$players[$playerId]['position'];
 		if(isset($this->_addedPlayers[$position][$playerId]))throw new Exception(Message('formation_err_duplicateplayer'));
-		if($players[$playerId]['matches_injured']>0||$players[$playerId]['matches_blocked']>0)throw new Exception(Message('formation_err_blockedplayer'));
+		if($players[$playerId]['matches_injured']>0||$players[$playerId]['matches_blocked'])throw new Exception(Message('formation_err_blockedplayer'));
 		$this->_addedPlayers[$position][$playerId]=TRUE;}
 	function validateSubstitution($playerIn,$playerOut,$minute,$players){
 		if(!isset($players[$playerIn])|| !isset($players[$playerOut])|| !isset($this->_addedPlayers[$players[$playerIn]['position']][$playerIn])|| !isset($this->_addedPlayers[$players[$playerOut]['position']][$playerOut])){
@@ -4381,7 +4245,7 @@ class SaveMatchChangesController extends Controller {
 		for($subNo=1; $subNo <= 3; $subNo++){
 			$existingMinute=(int)$matchinfo[$teamPrefix.'_sub'.$subNo.'_minute'];
 			if($existingMinute>0 && $existingMinute <= $matchinfo['match_minutes'])$occupiedSubPos[$subNo]=TRUE;
-			elseif($existingMinute>0){
+			elseif($existingMinute){
 				$existingFutureSubs[$matchinfo[$teamPrefix.'_sub'.$subNo.'_out']]=array('minute'=>$matchinfo[$teamPrefix.'_sub'.$subNo.'_minute'],'in'=>$matchinfo[$teamPrefix.'_sub'.$subNo.'_in'],
 					'condition'=>$matchinfo[$teamPrefix.'_sub'.$subNo.'_condition'],'position'=>$matchinfo[$teamPrefix.'_sub'.$subNo.'_position'],'slot'=>$subNo);}}
 		if(count($occupiedSubPos)< 3){
@@ -4561,7 +4425,7 @@ class SaveYouthFormationController extends Controller{
 			$playerIn=$parameters["sub".$subNo ."_in"];
 			$playerOut=$parameters["sub".$subNo ."_out"];
 			$playerMinute=$parameters["sub".$subNo ."_minute"];
-			if($playerIn!=null && $playerIn>0 && $playerOut!=null && $playerOut>0 && $playerMinute!=null && $playerMinute>0){
+			if($playerIn!=null && $playerIn>0 && $playerOut!=null && $playerOut>0 && $playerMinute!=null && $playerMinute){
 				$this->validateSubstitution($playerIn,$playerOut,$playerMinute);
 				$validSubstitutions[]=$subNo;}}
 		$this->saveFormation($teamId,$parameters,$validSubstitutions,$matchinfo,$teamPrefix);
@@ -4627,7 +4491,7 @@ class SaveYouthFormationController extends Controller{
  			$mainPositionMapping[$setupParts[0] + $setupParts[1] + $setupParts[2] + $setupParts[3] + 4]="RS";}
 		$positionMapping=array( "T"=>"Torwart","LV"=>"Abwehr","IV"=>"Abwehr","RV"=>"Abwehr","DM"=>"Mittelfeld","OM"=>"Mittelfeld","ZM"=>"Mittelfeld","LM"=>"Mittelfeld","RM"=>"Mittelfeld","LS"=>"Sturm","MS"=>"Sturm","RS"=>"Sturm");
 		for($playerNo=1; $playerNo <= 11; $playerNo++){
-			$mainPosition=$this->_websoccer->getRequestParameter("player".$playerNo."_pos");
+			$mainPosition=Request("player".$playerNo."_pos");
 			$position=$positionMapping[$mainPosition];
 			$this->savePlayer($parameters["matchid"],$teamId,$parameters["player".$playerNo],$playerNo,$position,$mainPosition, FALSE);}
 		for($playerNo=1; $playerNo <= 5; $playerNo++){
@@ -4640,7 +4504,7 @@ class SaveYouthFormationController extends Controller{
 				$columns[$teamPrefix."_s".$subNo."_in"]=$parameters["sub".$subNo ."_in"];
 				$columns[$teamPrefix."_s".$subNo."_minute"]=$parameters["sub".$subNo ."_minute"];
 				$columns[$teamPrefix."_s".$subNo."_condition"]=$parameters["sub".$subNo ."_condition"];
-				$columns[$teamPrefix."_s".$subNo."_position"]=$this->_websoccer->getRequestParameter("sub".$subNo ."_position");}
+				$columns[$teamPrefix."_s".$subNo."_position"]=Request("sub".$subNo."_position");}
 			else{
 				$columns[$teamPrefix."_s".$subNo."_out"]="";
 				$columns[$teamPrefix."_s".$subNo."_in"]="";
@@ -4739,7 +4603,7 @@ class SellPlayerController extends Controller{
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception("nice try");
 		if($player["player_transfermarket"])throw new Exception(Message("sell_player_already_on_list"));
-		if($player["lending_fee"]>0)throw new Exception(Message("lending_err_alreadyoffered"));
+		if($player["lending_fee"])throw new Exception(Message("lending_err_alreadyoffered"));
 		$teamSize=TeamsDataService::getTeamSize($this->_websoccer,$this->_db,$clubId);
 		if($teamSize <=Config("transfermarket_min_teamsize"))throw new Exception(Message("sell_player_teamsize_too_small",$teamSize));
 		$minBidBoundary=round($player["player_marketvalue"] / 2);
@@ -4916,12 +4780,12 @@ class TransferBidController extends Controller {
 		if($parameters['contract_salary']<$minSalary)throw new Exception(Message('transfer_bid_salary_too_less'));
 		$minGoalBonus=$player['player_contract_goalbonus']*1.1;
 		if($parameters['contract_goal_bonus']<$minGoalBonus)throw new Exception(Message('transfer_bid_goalbonus_too_less'));
-		if($player['team_id']>0){
+		if($player['team_id']){
 			$noOfTransactions=TransfermarketDataService::getTransactionsBetweenUsers($this->_websoccer,$this->_db,$player['team_user_id'],$user->id);
 			$maxTransactions=Config('transfermarket_max_transactions_between_users');
 			if($noOfTransactions >= $maxTransactions)throw new Exception(Message('transfer_bid_too_many_transactions_with_user',$noOfTransactions));}
 		$highestBid=TransfermarketDataService::getHighestBidForPlayer($this->_websoccer,$this->_db,$parameters['id'],$player['transfer_start'],$player['transfer_end']);
-		if($player['team_id']>0){
+		if($player['team_id']){
 			$minBid=$player['transfer_min_bid'] - 1;
 			if(isset($highestBid['amount']))$minBid=$highestBid['amount'];
 			if($parameters['amount'] <= $minBid)throw new Exception(Message('transfer_bid_amount_must_be_higher',$minBid));}
@@ -4963,7 +4827,7 @@ class UnmarkLendableController extends Controller {
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$parameters["id"]);
 		if($clubId!=$player["team_id"])throw new Exception(Message("lending_err_notownplayer"));
-		if($player["lending_owner_id"]>0)throw new Exception(Message("lending_err_borrowed_player"));
+		if($player["lending_owner_id"])throw new Exception(Message("lending_err_borrowed_player"));
 		$columns=array("lending_fee"=> 0);
 		$fromTable=Config("db_prefix")."_spieler";
 		$whereCondition="id=%d";
@@ -5339,7 +5203,7 @@ abstract class AbstractJob {
 			if($stop===1)$this->stop();
 			$now=$this->_websoccer->getNowAsTimestamp();
 			$lastPing=(int)$xmlConfig->attributes()->last_ping;
-			if($lastPing>0){
+			if($lastPing){
 				$myOwnLastPing=$now - $this->_interval + 5;
 				if($lastPing>$myOwnLastPing)exit;}
 			$this->_ping($now);
@@ -5513,7 +5377,7 @@ class DemoUserLoginMethod extends Method{
 		if(!$myUser)return FALSE;
 		if($myUser['password']!=hash('sha256',$password))return FALSE;
 		$existingUserId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db, strtolower($email));
-		if($existingUserId>0)return$existingUserId;
+		if($existingUserId)return$existingUserId;
 		return UsersDataService::createLocalUser($this->_websoccer,$this->_db, null,$email);}
 	function authenticateWithUsername($nick,$password){ throw new Exception('Unsupported action.');}}
 class StadiumEnvironmentPlugin {
@@ -5545,7 +5409,7 @@ class StadiumEnvironmentPlugin {
 		if($event->match->type=='Freundschaft'||$event->match->homeTeam->isNationalTeam)return;
 		$homeTeamId=$event->match->homeTeam->id;
 		$sum=self::getBonusSumFromBuildings($event->websoccer,$event->db, 'effect_income',$homeTeamId);
-		if($sum>0)BankAccountDataService::creditAmount($event->websoccer,$event->db,$homeTeamId,$sum, 'stadiumenvironment_matchincome_subject',Config('projectname'));
+		if($sum)BankAccountDataService::creditAmount($event->websoccer,$event->db,$homeTeamId,$sum, 'stadiumenvironment_matchincome_subject',Config('projectname'));
 		else BankAccountDataService::debitAmount($event->websoccer,$event->db,$homeTeamId, abs($sum), 'stadiumenvironment_costs_per_match_subject',Config('projectname'));}
 	static function handleInjuriesAfterMatch(MatchCompletedEvent $event){
 		if($event->match->type=='Freundschaft'||$event->match->homeTeam->isNationalTeam)return;
@@ -5553,14 +5417,14 @@ class StadiumEnvironmentPlugin {
 		$sumHome=self::getBonusSumFromBuildings($event->websoccer,$event->db, 'effect_injury',$homeTeamId);
 		$guestTeamId=$event->match->guestTeam->id;
 		$sumGuest=self::getBonusSumFromBuildings($event->websoccer,$event->db, 'effect_injury',$guestTeamId);
-		if($sumHome>0||$sumGuest>0){
+		if($sumHome>0||$sumGuest){
 			$playerTable=Config('db_prefix').'_spieler';
 			$result=$event->db->querySelect('id,verein_id AS team_id,verletzt AS injured',$playerTable, '(verein_id=%d OR verein_id=%d)AND verletzt>0',array($homeTeamId,$guestTeamId));
 			while($player=$result->fetch_array()){
 				$reduction=0;
 				if($sumHome>0 && $player['team_id']==$homeTeamId)$reduction=$sumHome;
 				elseif($sumGuest>0 && $player['team_id']==$guestTeamId)$reduction=$sumGuest;
-				if($reduction>0){
+				if($reduction){
 					$injured=max(0,$player['injured'] - $reduction);
 					$event->db->queryUpdate(array('verletzt'=>$injured),$playerTable, 'id=%d',$player['id']);}}
 	 }}
@@ -5653,14 +5517,14 @@ class AlltimeTableModel extends Model {
 		$teams=TeamsDataService::getTeamsOfLeagueOrderedByAlltimeTableCriteria($this->_websoccer,$this->_db,$this->_leagueId,$this->_type);
 		return array("leagueId"=>$this->_leagueId,"teams"=>$teams);}
 	function renderView(){
-		$this->_leagueId=(int)$this->_websoccer->getRequestParameter("id");
-		$this->_type=$this->_websoccer->getRequestParameter("type");
+		$this->_leagueId=(int)Request("id");
+		$this->_type=Request("type");
 		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		if($this->_leagueId==0 && $clubId>0){
+		if($this->_leagueId==0 && $clubId){
 			$result=$db->querySelect("liga_id",Config("db_prefix")."_verein","id=%d",$clubId, 1);
 			$club=$result->fetch_array();
 			$this->_leagueId=$club["liga_id"];}
-		return($this->_leagueId >0);}}
+		return($this->_leagueId);}}
 class AllUserActivitiesModel extends Model { function getTemplateParameters(){ return array("activities"=> ActionLogDataService::getLatestActionLogs($this->_websoccer,$this->_db, 5));}}
 class BadgesModel extends Model{
 	function getTemplateParameters(){
@@ -5670,13 +5534,13 @@ class BadgesModel extends Model{
 		return array("badges"=>$badges);}}
 class ClubSearchModel extends Model {
 	function getTemplateParameters(){
-		$query=$this->_websoccer->getRequestParameter("query");
+		$query=Request("query");
 		$teams=TeamsDataService::findTeamNames($this->_websoccer,$this->_db,$query);
 		return array("items"=>$teams);}}
 class CupGroupDetailsModel extends Model{
 	function getTemplateParameters(){
-		$cupRoundId=$this->_websoccer->getRequestParameter("roundid");
-		$cupGroup=$this->_websoccer->getRequestParameter("group");
+		$cupRoundId=Request("roundid");
+		$cupGroup=Request("group");
 		$columns="C.name AS cup_name, R.name AS round_name";
 		$fromTable=Config("db_prefix")."_cup_round AS R INNER JOIN ".Config("db_prefix")."_cup AS C ON C.id=R.cup_id";
 		$result=$this->_db->querySelect($columns,$fromTable,"R.id=%d",$cupRoundId);
@@ -5685,8 +5549,8 @@ class CupGroupDetailsModel extends Model{
 		return array("matches"=>$matches,"groupteams"=> CupsDataService::getTeamsOfCupGroupInRankingOrder($this->_websoccer,$this->_db,$cupRoundId,$cupGroup));}}
 class CupResultsModel extends Model {
 	function getTemplateParameters(){
-		$cupName=$this->_websoccer->getRequestParameter('cup');
-		$cupRound=$this->_websoccer->getRequestParameter('round');
+		$cupName=Request('cup');
+		$cupRound=Request('round');
 		$columns['C.logo']='cup_logo';
 		$columns['R.id']='round_id';
 		$columns['R.firstround_date']='firstround_date';
@@ -5714,10 +5578,10 @@ class CupsListModel extends Model { function getTemplateParameters(){ return arr
 class DirectTransferOfferModel extends Model {
 	function getTemplateParameters(){
 		$players=[];
-		if($this->_websoccer->getRequestParameter("loadformdata"))$players=PlayersDataService::getPlayersOfTeamByPosition($this->_websoccer,$this->_db,$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db));
+		if(Request("loadformdata"))$players=PlayersDataService::getPlayersOfTeamByPosition($this->_websoccer,$this->_db,$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db));
 		return array("players"=>$players,"player"=>$this->_player);}
 		function renderView(){
-		$playerId=(int)$this->_websoccer->getRequestParameter("id");
+		$playerId=(int)Request("id");
 		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$this->_player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		if(!Config("transferoffers_enabled"))return FALSE;
@@ -5733,7 +5597,7 @@ class FinancesModel extends Model {
 		$count=BankAccountDataService::countAccountStatementsOfTeam($this->_websoccer,$this->_db,$teamId);
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count>0)$statements=BankAccountDataService::getAccountStatementsOfTeam($this->_websoccer,$this->_db,$teamId,$paginator->getFirstIndex(),$eps);
+		if($count)$statements=BankAccountDataService::getAccountStatementsOfTeam($this->_websoccer,$this->_db,$teamId,$paginator->getFirstIndex(),$eps);
 		else $statements=[];
 		return array("budget"=>$team["team_budget"],"statements"=>$statements,"paginator"=>$paginator);}}
 class FinancesSummaryModel extends Model {
@@ -5746,17 +5610,17 @@ class FinancesSummaryModel extends Model {
 		return array('majorPositions'=>$majorPositions);}
 	function renderView(){
 		$this->_teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		return($this->_teamId>0);}}
+		return($this->_teamId);}}
 class FindNationalPlayersModel extends Model {
 	function getTemplateParameters(){
 		$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
 		if(!$teamId)throw new Exception(Message("nationalteams_user_requires_team"));
 		$result=$this->_db->querySelect("name",Config("db_prefix")."_verein","id=%d",$teamId);
 		$team=$result->fetch_array();
-		$firstName=$this->_websoccer->getRequestParameter("fname");
-		$lastName=$this->_websoccer->getRequestParameter("lname");
-		$position=$this->_websoccer->getRequestParameter("position");
-		$mainPosition=$this->_websoccer->getRequestParameter("position_main");
+		$firstName=Request("fname");
+		$lastName=Request("lname");
+		$position=Request("position");
+		$mainPosition=Request("position_main");
 		$playersCount=NationalteamsDataService::findPlayersCount($this->_websoccer,$this->_db,$team["name"],$teamId,$firstName,$lastName,$position,$mainPosition);
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($playersCount,$eps,$this->_websoccer);
@@ -5765,7 +5629,7 @@ class FindNationalPlayersModel extends Model {
 		$paginator->addParameter("position",$position);
 		$paginator->addParameter("position_main",$mainPosition);
 		$paginator->addParameter("search","true");
-		if($playersCount>0)$players=NationalteamsDataService::findPlayers($this->_websoccer,$this->_db,$team["name"],$teamId,$firstName,$lastName,$position,$mainPosition,$paginator->getFirstIndex(),$eps);
+		if($playersCount)$players=NationalteamsDataService::findPlayers($this->_websoccer,$this->_db,$team["name"],$teamId,$firstName,$lastName,$position,$mainPosition,$paginator->getFirstIndex(),$eps);
 		else $players=[];
 		return array("team_name"=>$team["name"],"playersCount"=>$playersCount,"players"=>$players,"paginator"=>$paginator);}
 	function renderView(){ return Config("nationalteams_enabled");}}
@@ -5785,7 +5649,7 @@ class FormationModel extends Model {
 		else $clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$nextMatches=MatchesDataService::getNextMatches($this->_websoccer,$this->_db,$clubId,Config('formation_max_next_matches'));
 		if(!count($nextMatches))throw new Exception(Message('next_match_block_no_nextmatch'));
-		$matchId=$this->_websoccer->getRequestParameter('id');
+		$matchId=Request('id');
 		if(!$matchId)$matchinfo=$nextMatches[0];
 		else{
 			foreach($nextMatches as$nextMatch){
@@ -5794,21 +5658,21 @@ class FormationModel extends Model {
 					break;}}}
 		if(!isset($matchinfo))throw new Exception('illegal match id');
 		$players=null;
-		if($clubId>0){
+		if($clubId){
 			if($this->_nationalteam)$players=NationalteamsDataService::getNationalPlayersOfTeamByPosition($this->_websoccer,$this->_db,$clubId);
 			else $players=PlayersDataService::getPlayersOfTeamByPosition($this->_websoccer,$this->_db,$clubId, 'DESC', count($matchinfo)&& $matchinfo['match_type']=='cup', (isset($matchinfo['match_type'])&& $matchinfo['match_type']!='friendly'));}
-		if($this->_websoccer->getRequestParameter('templateid'))$formation=FormationDataService::getFormationByTemplateId($this->_websoccer,$this->_db,$clubId,$this->_websoccer->getRequestParameter('templateid'));
+		if(Request('templateid'))$formation=FormationDataService::getFormationByTemplateId($this->_websoccer,$this->_db,$clubId,Request('templateid'));
 		else $formation=FormationDataService::getFormationByTeamId($this->_websoccer,$this->_db,$clubId,$matchinfo['match_id']);
 		for($benchNo=1; $benchNo <= 5; $benchNo++){
-			if($this->_websoccer->getRequestParameter('bench'.$benchNo))$formation['bench'.$benchNo]=$this->_websoccer->getRequestParameter('bench'.$benchNo);
+			if(Request('bench'.$benchNo))$formation['bench'.$benchNo]=Request('bench'.$benchNo);
 			elseif(!isset($formation['bench'.$benchNo]))$formation['bench'.$benchNo]='';}
 		for($subNo=1; $subNo <= 3; $subNo++){
-			if($this->_websoccer->getRequestParameter('sub'.$subNo.'_out')){
-				$formation['sub'.$subNo.'_out']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_out');
-				$formation['sub'.$subNo.'_in']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_in');
-				$formation['sub'.$subNo.'_minute']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_minute');
-				$formation['sub'.$subNo.'_condition']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_condition');
-				$formation['sub'.$subNo.'_position']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_position');}
+			if(Request('sub'.$subNo.'_out')){
+				$formation['sub'.$subNo.'_out']=Request('sub'.$subNo.'_out');
+				$formation['sub'.$subNo.'_in']=Request('sub'.$subNo.'_in');
+				$formation['sub'.$subNo.'_minute']=Request('sub'.$subNo.'_minute');
+				$formation['sub'.$subNo.'_condition']=Request('sub'.$subNo.'_condition');
+				$formation['sub'.$subNo.'_position']=Request('sub'.$subNo.'_position');}
 			elseif(!isset($formation['sub'.$subNo.'_out'])){
 				$formation['sub'.$subNo.'_out']='';
 				$formation['sub'.$subNo.'_in']='';
@@ -5816,7 +5680,7 @@ class FormationModel extends Model {
 				$formation['sub'.$subNo.'_condition']='';
 				$formation['sub'.$subNo.'_position']='';}}
 		$setup=$this->getFormationSetup($formation);
-		$criteria=$this->_websoccer->getRequestParameter('preselect');
+		$criteria=Request('preselect');
 		if($criteria !==NULL){
 			if($criteria=='strongest')$sortColumn='w_staerke';
 			elseif($criteria=='freshest')$sortColumn='w_frische';
@@ -5835,16 +5699,16 @@ class FormationModel extends Model {
 				$formation['sub'.$subNo.'_minute']='';
 				$formation['sub'.$subNo.'_condition']='';
 				$formation['sub'.$subNo.'_position']='';}}
-		if($this->_websoccer->getRequestParameter('freekickplayer'))$formation['freekickplayer']=$this->_websoccer->getRequestParameter('freekickplayer');
+		if(Request('freekickplayer'))$formation['freekickplayer']=Request('freekickplayer');
 		elseif(!isset($formation['freekickplayer']))$formation['freekickplayer']='';
-		if($this->_websoccer->getRequestParameter('offensive'))$formation['offensive']=$this->_websoccer->getRequestParameter('offensive');
+		if(Request('offensive'))$formation['offensive']=Request('offensive');
 		elseif(!isset($formation['offensive']))$formation['offensive']=40;
-		if($this->_websoccer->getRequestParameter('longpasses'))$formation['longpasses']=$this->_websoccer->getRequestParameter('longpasses');
-		if($this->_websoccer->getRequestParameter('counterattacks'))$formation['counterattacks']=$this->_websoccer->getRequestParameter('counterattacks');
+		if(Request('longpasses'))$formation['longpasses']=Request('longpasses');
+		if($Request('counterattacks'))$formation['counterattacks']=Request('counterattacks');
 		for($playerNo=1; $playerNo <= 11; $playerNo++){
-			if($this->_websoccer->getRequestParameter('player'.$playerNo)){
-				$formation['player'.$playerNo]=$this->_websoccer->getRequestParameter('player'.$playerNo);
-				$formation['player'.$playerNo.'_pos']=$this->_websoccer->getRequestParameter('player'.$playerNo.'_pos');}
+			if($Request('player'.$playerNo)){
+				$formation['player'.$playerNo]=Request('player'.$playerNo);
+				$formation['player'.$playerNo.'_pos']=Request('player'.$playerNo.'_pos');}
 			elseif(!isset($formation['player'.$playerNo])){
 				$formation['player'.$playerNo]='';
 				$formation['player'.$playerNo.'_pos']='';}}
@@ -5852,15 +5716,15 @@ class FormationModel extends Model {
 			'captain_id'=> TeamsDataService::getTeamCaptainIdOfTeam($this->_websoccer,$this->_db,$clubId));}
 	function getFormationSetup($formation){
 		$setup=array('defense'=> 4, 'dm'=> 1, 'midfield'=> 3, 'om'=> 1, 'striker'=> 1, 'outsideforward'=> 0);
-		if($this->_websoccer->getRequestParameter('formation_defense')!==NULL){
-			$setup['defense']=(int)$this->_websoccer->getRequestParameter('formation_defense');
-			$setup['dm']=(int)$this->_websoccer->getRequestParameter('formation_defensemidfield');
-			$setup['midfield']=(int)$this->_websoccer->getRequestParameter('formation_midfield');
-			$setup['om']=(int)$this->_websoccer->getRequestParameter('formation_offensivemidfield');
-			$setup['striker']=(int)$this->_websoccer->getRequestParameter('formation_forward');
-			$setup['outsideforward']=(int)$this->_websoccer->getRequestParameter('formation_outsideforward');}
-		elseif($this->_websoccer->getRequestParameter('setup')!==NULL){
-			$setupParts=explode('-',$this->_websoccer->getRequestParameter('setup'));
+		if(Request('formation_defense')!==NULL){
+			$setup['defense']=(int)Request('formation_defense');
+			$setup['dm']=(int)Request('formation_defensemidfield');
+			$setup['midfield']=(int)Request('formation_midfield');
+			$setup['om']=(int)Request('formation_offensivemidfield');
+			$setup['striker']=(int)Request('formation_forward');
+			$setup['outsideforward']=(int)Request('formation_outsideforward');}
+		elseif(Request('setup')!==NULL){
+			$setupParts=explode('-',Request('setup'));
 			$setup['defense']=(int)$setupParts[0];
 			$setup['dm']=(int)$setupParts[1];
 			$setup['midfield']=(int)$setupParts[2];
@@ -5895,7 +5759,7 @@ class FormationModel extends Model {
 		if($altered)$this->_websoccer->addFrontMessage(new FrontMessage('warning',Message('formation_setup_altered_warn_title'),Message('formation_setup_altered_warn_details')));
 		return$setup;}
 	function renderView(){
-		$this->_nationalteam=($websoccer->getRequestParameter('nationalteam'))? TRUE : FALSE;
+		$this->_nationalteam=(Request('nationalteam'))? TRUE : FALSE;
 		return TRUE;}}
 class FormationTemplatesModel extends Model {
 	function getTemplateParameters(){
@@ -5929,7 +5793,7 @@ class HighscoreModel extends Model {
 		$count=UsersDataService::countActiveUsersWithHighscore($this->_websoccer,$this->_db);
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count>0)$users=UsersDataService::getActiveUsersWithHighscore($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
+		if($count)$users=UsersDataService::getActiveUsersWithHighscore($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
 		else $users=[];
 		return array("users"=>$users,"paginator"=>$paginator);}}
 class ImprintModel extends Model {
@@ -5959,14 +5823,14 @@ class LatestResultsModel extends Model {
 class LeagueDetailsModel extends Model{
 	function getTemplateParameters(){
 		$league=null;
-		$leagueId=(int)$this->_websoccer->getRequestParameter("id");
+		$leagueId=(int)Request("id");
 		if($leagueId==0){
 			$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-			if($clubId>0){
+			if($clubId){
 				$result=$this->_db->querySelect("liga_id",Config("db_prefix")."_verein","id=%d",$clubId, 1);
 				$club=$result->fetch_array();
 				$leagueId=$club["liga_id"];}}
-		if($leagueId>0){
+		if($leagueId){
 			$league=LeagueDataService::getLeagueById($this->_websoccer,$this->_db,$leagueId);
 			if(!isset($league["league_id"]))throw new Exception(Message('error_page_not_found'));}
 		return array("league"=>$league,"leagues"=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
@@ -5979,7 +5843,7 @@ class LeagueSelectionModel extends Model {
 		while($league=$result->fetch_array())$leagues[]=$league;
 		return array("leagues"=>$leagues);}
 	function renderView(){
-		$this->_country=$this->_websoccer->getRequestParameter("country");
+		$this->_country=Request("country");
 		return (strlen($this->_country));}}
 class LeaguesListModel extends Model {
 	function getTemplateParameters(){
@@ -6026,15 +5890,15 @@ class LeagueTableModel extends Model {
 		while($season=$result->fetch_array())$seasons[]=$season;
 		return array("leagueId"=>$this->_leagueId,"teams"=>$teams,"markers"=>$markers,"seasons"=>$seasons);}
 	function renderView(){
-		$this->_leagueId=(int)$this->_websoccer->getRequestParameter("id");
-		$this->_seasonId=$this->_websoccer->getRequestParameter("seasonid");
-		$this->_type=$this->_websoccer->getRequestParameter("type");
+		$this->_leagueId=(int)Request("id");
+		$this->_seasonId=Request("seasonid");
+		$this->_type=Request("type");
 		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		if($this->_leagueId==0 && $clubId>0){
+		if($this->_leagueId==0 && $clubId){
 			$result=$db->querySelect("liga_id",Config("db_prefix")."_verein","id=%d",$clubId, 1);
 			$club=$result->fetch_array();
 			$this->_leagueId=$club["liga_id"];}
-		return($this->_leagueId >0);}}
+		return($this->_leagueId);}}
 class LentPlayersModel extends Model {
 	function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
@@ -6060,7 +5924,7 @@ class LiveMatchBlockModel extends Model {
 		return (count($this->_match));}}
 class MatchChangesModel extends FormationModel {
 	function getTemplateParameters(){
-		$matchId=(int)$this->_websoccer->getRequestParameter('id');
+		$matchId=(int)Request('id');
 		if($matchId<1)throw new Exception(Message('error_page_not_found'));
 		$match=MatchesDataService::getMatchSubstitutionsById($this->_websoccer,$this->_db,$matchId);
 		if($match['match_simulated'])throw new Exception(Message('match_details_match_completed'));
@@ -6072,13 +5936,13 @@ class MatchChangesModel extends FormationModel {
 		$playersOnField=$players['field'];
 		$playersOnBench=(isset($players['bench']))? $players['bench'] : array();
 		$formation=[];
-		if($this->_websoccer->getRequestParameter('freekickplayer'))$formation['freekickplayer']=$this->_websoccer->getRequestParameter('freekickplayer');
+		if(Request('freekickplayer'))$formation['freekickplayer']=Request('freekickplayer');
 		else $formation['freekickplayer']=$match['match_'.$teamPrefix.'_freekickplayer'];
-		if($this->_websoccer->getRequestParameter('offensive'))$formation['offensive']=$this->_websoccer->getRequestParameter('offensive');
+		if(Request('offensive'))$formation['offensive']=Request('offensive');
 		else $formation['offensive']=$match['match_'.$teamPrefix.'_offensive'];
-		if($this->_websoccer->getRequestParameter('longpasses'))$formation['longpasses']=$this->_websoccer->getRequestParameter('longpasses');
+		if(Request('longpasses'))$formation['longpasses']=Request('longpasses');
 		else $formation['longpasses']=$match['match_'.$teamPrefix.'_longpasses'];
-		if($this->_websoccer->getRequestParameter('counterattacks'))$formation['counterattacks']=$this->_websoccer->getRequestParameter('counterattacks');
+		if($Request('counterattacks'))$formation['counterattacks']=Request('counterattacks');
 		else $formation['counterattacks']=$match['match_'.$teamPrefix.'_counterattacks'];
 		$playerNo=0;
 		foreach($playersOnField as$player){
@@ -6089,23 +5953,23 @@ class MatchChangesModel extends FormationModel {
 		$setupMainMapping=array('LV'=> 'defense', 'RV'=> 'defense', 'IV'=> 'defense', 'DM'=> 'dm', 'LM'=> 'midfield', 'ZM'=> 'midfield', 'RM'=> 'midfield', 'OM'=> 'om', 'LS'=> 'outsideforward', 'MS'=> 'striker', 'RS'=> 'outsideforward');
 		$setupPosMapping=array('Abwehr'=> 'defense', 'Mittelfeld'=> 'midfield', 'Sturm'=> 'striker');
 		for($playerNo=1; $playerNo <= 11; $playerNo++){
-			if($this->_websoccer->getRequestParameter('player'.$playerNo)>0){
-				$formation['player'.$playerNo]=$this->_websoccer->getRequestParameter('player'.$playerNo);
-				$formation['player'.$playerNo.'_pos']=$this->_websoccer->getRequestParameter('player'.$playerNo.'_pos');}}
+			if(Request('player'.$playerNo)){
+				$formation['player'.$playerNo]=Request('player'.$playerNo);
+				$formation['player'.$playerNo.'_pos']=Request('player'.$playerNo.'_pos');}}
 		$benchNo=0;
 		foreach($playersOnBench as$player){
 			$benchNo++;
 			$formation['bench'.$benchNo]=$player['id'];}
 		for($benchNo=1; $benchNo <= 5; $benchNo++){
-			if($this->_websoccer->getRequestParameter('bench'.$benchNo))$formation['bench'.$benchNo]=$this->_websoccer->getRequestParameter('bench'.$benchNo);
+			if(Request('bench'.$benchNo))$formation['bench'.$benchNo]=Request('bench'.$benchNo);
 			elseif(!isset($formation['bench'.$benchNo]))$formation['bench'.$benchNo]='';}
 		for($subNo=1; $subNo <= 3; $subNo++){
-			if($this->_websoccer->getRequestParameter('sub'.$subNo.'_out')){
-				$formation['sub'.$subNo.'_out']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_out');
-				$formation['sub'.$subNo.'_in']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_in');
-				$formation['sub'.$subNo.'_minute']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_minute');
-				$formation['sub'.$subNo.'_condition']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_condition');
-				$formation['sub'.$subNo.'_position']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_position');}
+			if(Request('sub'.$subNo.'_out')){
+				$formation['sub'.$subNo.'_out']=Request('sub'.$subNo.'_out');
+				$formation['sub'.$subNo.'_in']=Request('sub'.$subNo.'_in');
+				$formation['sub'.$subNo.'_minute']=Request('sub'.$subNo.'_minute');
+				$formation['sub'.$subNo.'_condition']=Request('sub'.$subNo.'_condition');
+				$formation['sub'.$subNo.'_position']=Request('sub'.$subNo.'_position');}
 			elseif(isset($match[$teamPrefix.'_sub'.$subNo.'_out'])){
 				$formation['sub'.$subNo.'_out']=$match[$teamPrefix.'_sub'.$subNo.'_out'];
 				$formation['sub'.$subNo.'_in']=$match[$teamPrefix.'_sub'.$subNo.'_in'];
@@ -6124,18 +5988,18 @@ class MatchDayResultsModel extends Model {
 		$matches=MatchesDataService::getMatchesByMatchday($this->_websoccer,$this->_db,$this->_seasonId,$this->_matchday);
 		return array("matches"=>$matches);}
 	function renderView(){
-		$this->_seasonId=(int)$this->_websoccer->getRequestParameter("seasonid");
-		$this->_matchday=(int)$this->_websoccer->getRequestParameter("matchday");
-		return($this->_seasonId>0 && $this->_matchday>0);}}
+		$this->_seasonId=(int)Request("seasonid");
+		$this->_matchday=(int)Request("matchday");
+		return($this->_seasonId>0 && $this->_matchday);}}
 class MatchDetailsModel extends Model {
 	function getTemplateParameters(){
-		$matchId=(int)$this->_websoccer->getRequestParameter('id');
+		$matchId=(int)Request('id');
 		if($matchId<1)throw new Exception(Message('error_page_not_found'));
 		$match=MatchesDataService::getMatchById($this->_websoccer,$this->_db,$matchId);
 		if(!isset($match['match_id']))throw new Exception(Message('error_page_not_found'));
 		$allowTacticChanges=FALSE;
 		$reportmessages=[];
-		if($match['match_minutes']>0){
+		if($match['match_minutes']){
 			$reportmessages=MatchesDataService::getMatchReportMessages($this->_websoccer,$this->_db,$this->_i18n,$matchId);
 			$userTeamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 			$userNationalTeamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
@@ -6151,7 +6015,7 @@ class MatchDetailsModel extends Model {
 		return array('match'=>$match, 'reportmessages'=>$reportmessages, 'allowTacticChanges'=>$allowTacticChanges, 'homeStrikerMessages'=>$homeStrikerMessages, 'guestStrikerMessages'=>$guestStrikerMessages);}}
 class MatchPlayersModel extends Model {
 	function getTemplateParameters(){
-		$matchId=(int)$this->_websoccer->getRequestParameter("id");
+		$matchId=(int)Request("id");
 		if($matchId<1)throw new Exception(Message('error_page_not_found'));
 		$match=MatchesDataService::getMatchById($this->_websoccer,$this->_db,$matchId, FALSE, TRUE);
 		$home_players=MatchesDataService::getMatchReportPlayerRecords($this->_websoccer,$this->_db,$matchId,$match["match_home_id"]);
@@ -6173,7 +6037,7 @@ class MatchPreviewModel extends Model {
 		return array('match'=>$this->_match, 'latestMatchesHome'=>$latestMatchesHome, 'latestMatchesGuest'=>$latestMatchesGuest, 'homeUser'=>$this->_getUserInfoByTeam($this->_match['match_home_id']),
 			'guestUser'=>$this->_getUserInfoByTeam($this->_match['match_guest_id']));}
 	function renderView(){
-		$matchId=(int)$this->_websoccer->getRequestParameter('id');
+		$matchId=(int)Request('id');
 		$this->_match=MatchesDataService::getMatchById($this->_websoccer,$this->_db,$matchId);
 		return($this->_match['match_simulated']!='1' &&!$this->_match['match_minutes']);}
 	function _getLatestMatchesByTeam($teamId){
@@ -6197,7 +6061,7 @@ class MatchPreviewModel extends Model {
 		return$user;}}
 class MatchStatisticsModel extends Model {
 	function getTemplateParameters(){
-		$matchId=(int)$this->_websoccer->getRequestParameter("id");
+		$matchId=(int)Request("id");
 		if($matchId<1)throw new Exception(Message('error_page_not_found'));
 		$match=MatchesDataService::getMatchById($this->_websoccer,$this->_db,$matchId);
 		$columns["SUM(shoots)"]="shoots";
@@ -6216,7 +6080,7 @@ class MatchStatisticsModel extends Model {
 		return array("match"=>$match,"homeStatistics"=>$homeStatistics,"guestStatistics"=>$guestStatistics);}}
 class MessageDetailsModel extends Model {
 	function getTemplateParameters(){
-		$id=$this->_websoccer->getRequestParameter("id");
+		$id=Request("id");
 		$message=MessagesDataService::getMessageById($this->_websoccer,$this->_db,$id);
 		if($message &&!$message["seen"]){
 			$columns["gelesen"]="1";
@@ -6229,7 +6093,7 @@ class MessagesInboxModel extends Model {
 		$count=MessagesDataService::countInboxMessages($this->_websoccer,$this->_db);
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count>0)$messages=MessagesDataService::getInboxMessages($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
+		if($count)$messages=MessagesDataService::getInboxMessages($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
 		else $messages=[];
 		return array("messages"=>$messages,"paginator"=>$paginator);}}
 class MessagesOutboxModel extends Model {
@@ -6238,7 +6102,7 @@ class MessagesOutboxModel extends Model {
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($count,$eps,$this->_websoccer);
 		$paginator->addParameter("block","messages-outbox");
-		if($count>0)$messages=MessagesDataService::getOutboxMessages($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
+		if($count)$messages=MessagesDataService::getOutboxMessages($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
 		else $messages=[];
 		return array("messages"=>$messages,"paginator"=>$paginator);}}
 class MyScheduleModel extends Model {
@@ -6263,7 +6127,7 @@ class MyTeamModel extends Model {
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$captain_id=TeamsDataService::getTeamCaptainIdOfTeam($this->_websoccer,$this->_db,$teamId);
 		$players=[];
-		if($teamId>0)$players=PlayersDataService::getPlayersOfTeamById($this->_websoccer,$this->_db,$teamId);
+		if($teamId)$players=PlayersDataService::getPlayersOfTeamById($this->_websoccer,$this->_db,$teamId);
 		return array("players"=>$players,"captain_id"=>$captain_id);}}
 class MyTransferBidsModel extends Model {
 	function getTemplateParameters(){
@@ -6279,7 +6143,7 @@ class MyYouthTeamModel extends Model {
 	function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$players=[];
-		if($teamId>0){
+		if($teamId){
 			$players=YouthPlayersDataService::getYouthPlayersOfTeam($this->_websoccer,$this->_db,$teamId);
 			$noOfPlayers=count($players);
 			for($playerIndex=0; $playerIndex<$noOfPlayers; $playerIndex++)$players[$playerIndex]["nation_flagfile"]=PlayersDataService::getFlagFilename($players[$playerIndex]["nation"]);}
@@ -6339,7 +6203,7 @@ class NewsDetailsModel extends Model {
 		$tablePrefix=Config("db_prefix")."_";
 		$fromTable=$tablePrefix."news AS NewsTab LEFT JOIN ".$tablePrefix."admin AS AdminTab ON NewsTab.autor_id=AdminTab.id";
 		$whereCondition="NewsTab.id=%d AND status=1";
-		$parameters=(int)$this->_websoccer->getRequestParameter("id");
+		$parameters=(int)Request("id");
 		$result=$this->_db->querySelect("NewsTab.*, AdminTab.name AS author_name",$fromTable,$whereCondition,$parameters);
 		$item=$result->fetch_array();
 		if(!$item)throw new Exception(Message('error_page_not_found'));
@@ -6379,7 +6243,7 @@ class NewsListModel extends Model {
 		return$message;}}
 class NextMatchModel extends Model {
 	function getTemplateParameters(){
-		if($this->_websoccer->getRequestParameter("nationalteam"))$clubId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
+		if(Request("nationalteam"))$clubId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
 		else $clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$matchinfo=MatchesDataService::getNextMatch($this->_websoccer,$this->_db,$clubId);
 		if(count($matchinfo))$matchinfo["previous_matches"]=MatchesDataService::getPreviousMatches($matchinfo,$this->_websoccer,$this->_db);
@@ -6407,14 +6271,14 @@ class PaypalLinkModel extends Model {
 	function renderView(){ return Config("paypal_enabled");}}
 class PlayerDetailsModel extends Model {
 	function getTemplateParameters(){
-		$playerId=(int)$this->_websoccer->getRequestParameter("id");
+		$playerId=(int)Request("id");
 		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		if(!isset($player["player_id"]))throw new Exception(Message('error_page_not_found'));
 		return array("player"=>$player);}}
 class PlayerDetailsWithDependenciesModel extends Model {
 	function getTemplateParameters(){
-		$playerId=(int)$this->_websoccer->getRequestParameter("id");
+		$playerId=(int)Request("id");
 		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		if(!isset($player["player_id"]))throw new Exception(Message('error_page_not_found'));
@@ -6443,20 +6307,20 @@ class PlayersSearchModel extends Model {
 		$paginator->addParameter("position",$this->_position);
 		$paginator->addParameter("strength",$this->_strength);
 		$paginator->addParameter("lendable",$this->_lendableOnly);
-		if($playersCount>0)$players=PlayersDataService::findPlayers($this->_websoccer,$this->_db,$this->_firstName,$this->_lastName,$this->_club,$this->_position,$this->_strength,$this->_lendableOnly,$paginator->getFirstIndex(),$eps);
+		if($playersCount)$players=PlayersDataService::findPlayers($this->_websoccer,$this->_db,$this->_firstName,$this->_lastName,$this->_club,$this->_position,$this->_strength,$this->_lendableOnly,$paginator->getFirstIndex(),$eps);
 		else $players=[];
 		return array("playersCount"=>$playersCount,"players"=>$players,"paginator"=>$paginator);}
 	function renderView(){
-		$this->_firstName=$this->_websoccer->getRequestParameter("fname");
-		$this->_lastName=$this->_websoccer->getRequestParameter("lname");
-		$this->_club=$this->_websoccer->getRequestParameter("club");
-		$this->_position=$this->_websoccer->getRequestParameter("position");
-		$this->_strength=$this->_websoccer->getRequestParameter("strength");
-		$this->_lendableOnly=($this->_websoccer->getRequestParameter("lendable")=="1")? TRUE : FALSE;
+		$this->_firstName=Request("fname");
+		$this->_lastName=Request("lname");
+		$this->_club=Request("club");
+		$this->_position=Request("position");
+		$this->_strength=Request("strength");
+		$this->_lendableOnly=(Request("lendable")=="1")? TRUE : FALSE;
 		return($this->_firstName !==null||$this->_lastName !==null||$this->_club !==null||$this->_position !==null||$this->_strength !==null||$this->_lendableOnly);}}
 class PlayerStatisticsModel extends Model {
 	function getTemplateParameters(){
-		$playerId=(int)$this->_websoccer->getRequestParameter('id');
+		$playerId=(int)Request('id');
 		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$leagueStatistics=[];
 		$cupStatistics=[];
@@ -6477,7 +6341,7 @@ class PremiumAccountModel extends Model {
 		$count=PremiumDataService::countAccountStatementsOfUser($this->_websoccer,$this->_db,$userId);
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count>0)$statements=PremiumDataService::getAccountStatementsOfUser($this->_websoccer,$this->_db,$userId,$paginator->getFirstIndex(),$eps);
+		if($count)$statements=PremiumDataService::getAccountStatementsOfUser($this->_websoccer,$this->_db,$userId,$paginator->getFirstIndex(),$eps);
 		else $statements=[];
 		return array("statements"=>$statements,"paginator"=>$paginator,"payments"=> PremiumDataService::getPaymentsOfUser($this->_websoccer,$this->_db,$userId, 5));}}
 class ProfileBlockModel extends Model {
@@ -6490,7 +6354,7 @@ class ProfileBlockModel extends Model {
 		$userinfo=$result->fetch_array();
 		$clubId=$user->getClubId($this->_websoccer,$this->_db);
 		$team=null;
-		if($clubId>0)$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
+		if($clubId)$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$clubId);
 		$unseenMessages=MessagesDataService::countUnseenInboxMessages($this->_websoccer,$this->_db);
 		$unseenNotifications=NotificationsDataService::countUnseenNotifications($this->_websoccer,$this->_db,$user->id,$clubId);
 		return array("profile"=>$userinfo,"userteam"=>$team,"unseenMessages"=>$unseenMessages,"unseenNotifications"=>$unseenNotifications);}
@@ -6514,7 +6378,7 @@ class ProfileModel extends Model {
 		if(!strlen($userinfo["birthday"])|| substr($userinfo["birthday"],0, 4)=="0000")$userinfo["birthday"]="";
 		else $userinfo["birthday"]=DateTime::createFromFormat("Y-m-d",$userinfo["birthday"])->format(Config("date_format"));
 		foreach($columns as$dbColumn){
-			if($this->_websoccer->getRequestParameter($dbColumn))$userinfo[$dbColumn]=$this->_websoccer->getRequestParameter($dbColumn);}
+			if(Request($dbColumn))$userinfo[$dbColumn]=Request($dbColumn);}
 		return array("user"=>$userinfo);}}
 class ProjectStatisticsModel extends Model {
 	function getTemplateParameters(){
@@ -6532,7 +6396,7 @@ class RegisterFormModel extends Model {
 		return$parameters;}}
 class RssResultsOfUserModel extends Model {
 	function getTemplateParameters(){
-		$userId=(int)$this->_websoccer->getRequestParameter('id');
+		$userId=(int)Request('id');
 		$matches=MatchesDataService::getLatestMatchesByUser($this->_websoccer,$this->_db,$userId);
 		$items=[];
 		foreach($matches as$match)$items[]=array('url'=>$this->_websoccer->getInternalUrl('match', 'id='.$match['id'],TRUE), 'title'=>$match['home_team'].' - '.$match['guest_team'].' ('.$match['home_goals'].':'.$match['guest_goals'].')',
@@ -6549,8 +6413,8 @@ class SeasonsOfLeagueModel extends Model {
 		if(isset($seasons[0]["league_name"]))$league_name=$seasons[0]["league_name"];
 		$currentMatchDay=0;
 		$maxMatchDay=0;
-		if($this->_websoccer->getRequestParameter("seasonid")!= null){
-			$seasonId=$this->_websoccer->getRequestParameter("seasonid");
+		if(Request("seasonid")!= null){
+			$seasonId=Request("seasonid");
 			$fromTable=Config("db_prefix")."_spiel";
 			$condition="saison_id=%d";
 			$result=$this->_db->querySelect("MAX(spieltag)AS maxMatchday",$fromTable,$condition,$seasonId);
@@ -6561,8 +6425,8 @@ class SeasonsOfLeagueModel extends Model {
 			$currentMatchDay=$match["currentMatchday"];}
 		return array("seasons"=>$seasons,"league_name"=>$league_name,"currentMatchDay"=>$currentMatchDay,"maxMatchDay"=>$maxMatchDay);}
 	function renderView(){
-		$this->_leagueId=(int)$this->_websoccer->getRequestParameter("leagueid");
-		return($this->_leagueId>0);}}
+		$this->_leagueId=(int)Request("leagueid");
+		return($this->_leagueId);}}
 class ShoutboxLeagueModel extends Model {
 	function getTemplateParameters(){
 		$messages=[];
@@ -6576,7 +6440,7 @@ class ShoutboxLeagueModel extends Model {
 		while($message=$result->fetch_array())$messages[]=$message;
 		return array("messages"=>$messages,"hidesubmit"=> TRUE);}
 	function renderView(){
-		$this->_leagueId=$this->_websoccer->getRequestParameter('id');
+		$this->_leagueId=Request('id');
 		return($this->_leagueId!=NULL);}}
 class ShoutboxModel extends Model {
 	function getTemplateParameters(){
@@ -6591,7 +6455,7 @@ class ShoutboxModel extends Model {
 		while($message=$result->fetch_array())$messages[]=$message;
 		return array("messages"=>$messages);}
 	function renderView(){
-		$this->_matchId=$this->_websoccer->getRequestParameter('id');
+		$this->_matchId=Request('id');
 		return($this->_matchId!=NULL);}}
 class SponsorModel extends Model {
 	function getTemplateParameters(){
@@ -6626,8 +6490,8 @@ class StadiumEnvironmentModel extends Model {
 class StadiumExtensionModel extends Model {
 	function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		$offers=StadiumsDataService::getBuilderOffersForExtension($this->_websoccer,$this->_db,$teamId, (int)$this->_websoccer->getRequestParameter("side_standing"), (int)$this->_websoccer->getRequestParameter("side_seats"),
-			(int)$this->_websoccer->getRequestParameter("grand_standing"), (int)$this->_websoccer->getRequestParameter("grand_seats"), (int)$this->_websoccer->getRequestParameter("vip"));
+		$offers=StadiumsDataService::getBuilderOffersForExtension($this->_websoccer,$this->_db,$teamId, (int)Request("side_standing"), (int)Request("side_seats"),
+			(int)Request("grand_standing"),(int)Request("grand_seats"),(int)Request("vip"));
 		return array("offers"=>$offers);}}
 class StadiumModel extends Model {
 	function getTemplateParameters(){
@@ -6643,7 +6507,7 @@ class StadiumModel extends Model {
 		return array("stadium"=>$stadium,"construction"=>$construction,"upgradeCosts"=>$upgradeCosts);}}
 class TableHistoryModel extends Model {
 	function getTemplateParameters(){
-		$teamId=(int)$this->_websoccer->getRequestParameter('id');
+		$teamId=(int)Request('id');
 		if($teamId<1)throw new Exception(Message('error_page_not_found'));
 		$team=TeamsDataService::getTeamById($this->_websoccer,$this->_db,$teamId);
 		if(!isset($team['team_id']))throw new Exception(Message('error_page_not_found'));
@@ -6660,7 +6524,7 @@ class TableHistoryModel extends Model {
 		return array('teamName'=>$team['team_name'],'history'=>$history, 'noOfTeamsInLeague'=>$teams['cnt'],'leagueid'=>$team['team_league_id']);}}
 class TeamDetailsModel extends Model {
 	function getTemplateParameters(){
-		$teamId=(int)$this->_websoccer->getRequestParameter('id');
+		$teamId=(int)Request('id');
 		if($teamId<1)throw new Exception(Message('error_page_not_found'));
 		$team=TeamsDataService::getTeamById($this->_websoccer,$this->_db,$teamId);
 		if(!isset($team['team_id']))throw new Exception(Message('error_page_not_found'));
@@ -6719,7 +6583,7 @@ class TeamDetailsModel extends Model {
 		$playerfacts=$result->fetch_array();
 		if(Config('transfermarket_computed_marketvalue'))$playerfacts['sumMarketValue']=$this->computeMarketValue($playerfacts['sumStrength'],$playerfacts['sumTechnique'],$playerfacts['sumFreshness'],$playerfacts['sumSatisfaction'],
 			$playerfacts['sumStamina']);
-		if($playerfacts['numberOfPlayers']>0)$playerfacts['avgMarketValue']=$playerfacts['sumMarketValue'] / $playerfacts['numberOfPlayers'];
+		if($playerfacts['numberOfPlayers'])$playerfacts['avgMarketValue']=$playerfacts['sumMarketValue'] / $playerfacts['numberOfPlayers'];
 		else $playerfacts['avgMarketValue']=0;
 		return$playerfacts;}
 	function computeMarketValue($strength,$technique,$freshness,$satisfaction,$stamina){
@@ -6752,22 +6616,22 @@ class TeamHistoryModel extends Model {
 			else $this->_db->queryDelete($tablePrefix.'_achievement', 'id=%d',$achievement['achievement_id']);}
 		return array("leagues"=>$leagues,"cups"=>$cups);}
 	function renderView(){
-		$this->_teamId=(int)$this->_websoccer->getRequestParameter("teamid");
+		$this->_teamId=(int)Request("teamid");
 		return$this->_teamId>0;}}
 class TeamOfTheDayModel extends Model {
 	function getTemplateParameters(){
 		$players=[];
 		$positions;
 		$leagues=LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db);
-		$leagueId=$this->_websoccer->getRequestParameter("leagueid");
+		$leagueId=Request("leagueid");
 		if(!$leagueId){
 			$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-			if($clubId>0){
+			if($clubId){
 				$result=$this->_db->querySelect("liga_id",Config("db_prefix")."_verein","id=%d",$clubId, 1);
 				$club=$result->fetch_array();
 				$leagueId=$club["liga_id"];}}
 		$seasons=[];
-		$seasonId=$this->_websoccer->getRequestParameter("seasonid");
+		$seasonId=Request("seasonid");
 		if($leagueId){
 			$fromTable=Config("db_prefix")."_saison";
 			$whereCondition="liga_id=%d ORDER BY name ASC";
@@ -6775,7 +6639,7 @@ class TeamOfTheDayModel extends Model {
 			while($season=$result->fetch_array()){
 				$seasons[]=$season;
 				if(!$seasonId &&!$season["beendet"])$seasonId=$season["id"];}}
-		$matchday=$this->_websoccer->getRequestParameter("matchday");
+		$matchday=Request("matchday");
 		$maxMatchDay=0;
 		$openMatchesExist=FALSE;
 		if($seasonId){
@@ -6842,23 +6706,23 @@ class TeamOfTheDayModel extends Model {
 			$players[]=$player;}}}
 class TeamPlayersModel extends Model {
 	function getTemplateParameters(){
-		$isNationalTeam=($this->_websoccer->getRequestParameter("nationalteam"))? TRUE : FALSE;
+		$isNationalTeam=(Request("nationalteam"))? TRUE : FALSE;
 		$players=PlayersDataService::getPlayersOfTeamById($this->_websoccer,$this->_db,$this->_teamid,$isNationalTeam);
 		return array("players"=>$players);}
 	function renderView(){
-		$this->_teamid=(int)$this->_websoccer->getRequestParameter("teamid");
-		return($this->_teamid>0);}}
+		$this->_teamid=(int)Request("teamid");
+		return($this->_teamid);}}
 class TeamResultsModel extends Model {
 	function getTemplateParameters(){
 		$matches=MatchesDataService::getLatestMatchesByTeam($this->_websoccer,$this->_db,$this->_teamId);
 		return array("matches"=>$matches);}
 	function renderView(){
-		$this->_teamId=(int)$this->_websoccer->getRequestParameter("teamid");
+		$this->_teamId=(int)Request("teamid");
 		return$this->_teamId>0;}}
 class TeamTransfersModel extends Model {
 	function getTemplateParameters(){
-		$teamId=$this->_websoccer->getRequestParameter("teamid");
-		if($teamId>0)$transfers=TransfermarketDataService::getCompletedTransfersOfTeam($this->_websoccer,$this->_db,$teamId);
+		$teamId=Request("teamid");
+		if($teamId)$transfers=TransfermarketDataService::getCompletedTransfersOfTeam($this->_websoccer,$this->_db,$teamId);
 		return array("completedtransfers"=>$transfers);}}
 class TermsAndConditionsModel extends Model {
 	function getTemplateParameters(){
@@ -6893,11 +6757,11 @@ class TicketsModel extends Model {
 		$parameters=$teamId;
 		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$parameters);
 		$tickets=$result->fetch_array();
-		if($this->_websoccer->getRequestParameter("p_stands"))$tickets["p_stands"]= $this->_websoccer->getRequestParameter("p_stands");
-		if($this->_websoccer->getRequestParameter("p_seats"))$tickets["p_seats"]= $this->_websoccer->getRequestParameter("p_seats");
-		if($this->_websoccer->getRequestParameter("p_stands_grand"))$tickets["p_stands_grand"]= $this->_websoccer->getRequestParameter("p_stands_grand");
-		if($this->_websoccer->getRequestParameter("p_seats_grand"))$tickets["p_seats_grand"]= $this->_websoccer->getRequestParameter("p_seats_grand");
-		if($this->_websoccer->getRequestParameter("p_vip"))$tickets["p_vip"]= $this->_websoccer->getRequestParameter("p_vip");
+		if(Request("p_stands"))$tickets["p_stands"]=Request("p_stands");
+		if(Request("p_seats"))$tickets["p_seats"]=Request("p_seats");
+		if(Request("p_stands_grand"))$tickets["p_stands_grand"]=Request("p_stands_grand");
+		if(Request("p_seats_grand"))$tickets["p_seats_grand"]=Request("p_seats_grand");
+		if(Request("p_vip"))$tickets["p_vip"]=Request("p_vip");
 		return array("tickets"=>$tickets);}}
 class TodaysMatchesModel extends Model {
 	function getTemplateParameters(){
@@ -6920,19 +6784,19 @@ class TopNewsListModel extends Model {
 		return array("topnews"=>$articles);}}
 class TopScorersModel extends Model {
 	function getTemplateParameters(){
-		return array('players'=> PlayersDataService::getTopScorers($this->_websoccer,$this->_db, config('NUMBER_OF_PLAYERS'),$this->_websoccer->getRequestParameter('leagueid')), 'leagues'=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
+		return array('players'=> PlayersDataService::getTopScorers($this->_websoccer,$this->_db, config('NUMBER_OF_PLAYERS'),Request('leagueid')), 'leagues'=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
 class TopStrikersModel extends Model {
 	function getTemplateParameters(){
-		return array("players"=> PlayersDataService::getTopStrikers($this->_websoccer,$this->_db, config('NUMBER_OF_PLAYERS'),$this->_websoccer->getRequestParameter("leagueid")),"leagues"=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
+		return array("players"=> PlayersDataService::getTopStrikers($this->_websoccer,$this->_db, config('NUMBER_OF_PLAYERS'),Request("leagueid")),"leagues"=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
 class TrainerDetailsModel extends Model {
 	function getTemplateParameters(){
-		$trainerId=$this->_websoccer->getRequestParameter("id");
+		$trainerId=Request("id");
 		$trainer=TrainingDataService::getTrainerById($this->_websoccer,$this->_db,$trainerId);
 		if(!isset($trainer["id"]))throw new Exception('error_page_not_found');
 		return array("trainer"=>$trainer);}}
 class TrainingCampsDetailsModel extends Model {
 	function getTemplateParameters(){
-		$camp=TrainingcampsDataService::getCampById($this->_websoccer,$this->_db,$this->_websoccer->getRequestParameter("id"));
+		$camp=TrainingcampsDataService::getCampById($this->_websoccer,$this->_db,Request("id"));
 		if(!$camp)throw new Exception(Message('error_page_not_found'));
 		$defaultDate=$this->_websoccer->getNowAsTimestamp()+ 24*3600;
 		return array("camp"=>$camp,"defaultDate"=>$defaultDate);}}
@@ -6965,7 +6829,7 @@ class TrainingModel extends Model {
 			$count=TrainingDataService::countTrainers($this->_websoccer,$this->_db);
 			$eps=Config("entries_per_page");
 			$paginator=new Paginator($count,$eps,$this->_websoccer);
-			if($count>0)$trainers=TrainingDataService::getTrainers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);}
+			if($count)$trainers=TrainingDataService::getTrainers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);}
 		else $training_unit["trainer"]=TrainingDataService::getTrainerById($this->_websoccer,$this->_db,$training_unit["trainer_id"]);
 		$trainingEffects=[];
 		$contextParameters=$this->_websoccer->getContextParameters();
@@ -6976,7 +6840,7 @@ class TransferBidModel extends Model {
 		$highestBid=TransfermarketDataService::getHighestBidForPlayer($this->_websoccer,$this->_db,$this->_player["player_id"],$this->_player["transfer_start"],$this->_player["transfer_end"]);
 		return array("player"=>$this->_player,"highestbid"=>$highestBid);}
 	function renderView(){
-		$playerId=(int)$this->_websoccer->getRequestParameter("id");
+		$playerId=(int)Request("id");
 		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$this->_player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		return($this->_player["transfer_end"]>$this->_websoccer->getNowAsTimestamp());}}
@@ -6984,7 +6848,7 @@ class TransfermarketOverviewModel extends Model {
 	function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		if($teamId<1)throw new Exception(Message("feature_requires_team"));
-		$positionInput=$this->_websoccer->getRequestParameter("position");
+		$positionInput=Request("position");
 		$positionFilter=null;
 		if($positionInput=="goaly")$positionFilter="Torwart";
 		elseif($positionInput=="defense")$positionFilter="Abwehr";
@@ -6994,7 +6858,7 @@ class TransfermarketOverviewModel extends Model {
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($count,$eps,$this->_websoccer);
 		if($positionFilter!=null)$paginator->addParameter("position",$positionInput);
-		if($count>0)$players=PlayersDataService::getPlayersOnTransferList($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps,$positionFilter);
+		if($count)$players=PlayersDataService::getPlayersOnTransferList($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps,$positionFilter);
 		else $players=[];
 		return array("transferplayers"=>$players,"playerscount"=>$count,"paginator"=>$paginator);}
 	function renderView(){ return (Config("transfermarket_enabled")==1);}}
@@ -7005,7 +6869,7 @@ class TransferOffersModel extends Model {
 		$count=DirectTransfersDataService::countReceivedOffers($this->_websoccer,$this->_db,$clubId);
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count>0)$offers=DirectTransfersDataService::getReceivedOffers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps,$clubId);
+		if($count)$offers=DirectTransfersDataService::getReceivedOffers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps,$clubId);
 		else $offers=[];
 		return array("offers"=>$offers,"paginator"=>$paginator);}
 	function renderView(){ return (Config("transferoffers_enabled")==1);}}
@@ -7018,11 +6882,11 @@ class TransferOffersSentModel extends Model {
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($count,$eps,$this->_websoccer);
 		$paginator->addParameter("block","directtransfer-sentoffers");
-		if($count>0)$offers=DirectTransfersDataService::getSentOffers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps,$clubId,$userId);
+		if($count)$offers=DirectTransfersDataService::getSentOffers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps,$clubId,$userId);
 		else $offers=[];
 		return array("offers"=>$offers,"paginator"=>$paginator);}
 	function renderView(){ return (Config("transferoffers_enabled")==1);}}
-class UserActivitiesModel extends Model { function getTemplateParameters(){ return array("activities"=> ActionLogDataService::getActionLogsOfUser($this->_websoccer,$this->_db,$this->_websoccer->getRequestParameter('userid')));}}
+class UserActivitiesModel extends Model { function getTemplateParameters(){ return array("activities"=> ActionLogDataService::getActionLogsOfUser($this->_websoccer,$this->_db,Request('userid')));}}
 class UserClubsSelectionModel extends Model {
 	function getTemplateParameters(){
 		$whereCondition="id=%d";
@@ -7033,7 +6897,7 @@ class UserClubsSelectionModel extends Model {
 	function renderView(){ return (strlen($this->_websoccer->getUser()->username))? TRUE : FALSE;}}
 class UserDetailsModel extends Model {
 	function getTemplateParameters(){
-		$userId=(int)$this->_websoccer->getRequestParameter('id');
+		$userId=(int)Request('id');
 		if($userId<1)$userId=$this->_websoccer->getUser()->id;
 		$user=UsersDataService::getUserById($this->_websoccer,$this->_db,$userId);
 		if(!isset($user['id']))throw new Exception(Message('error_page_not_found'));
@@ -7072,11 +6936,11 @@ class UserHistoryModel extends Model {
 			else $this->_db->queryDelete($tablePrefix.'_achievement', 'id=%d',$achievement['achievement_id']);}
 		return array("leagues"=>$leagues,"cups"=>$cups);}
 	function renderView(){
-		$this->_userId=(int)$this->_websoccer->getRequestParameter("userid");
+		$this->_userId=(int)Request("userid");
 		return$this->_userId>0;}}
 class UserNickSearchModel extends Model {
 	function getTemplateParameters(){
-		$query=$this->_websoccer->getRequestParameter("query");
+		$query=Request("query");
 		$users=UsersDataService::findUsernames($this->_websoccer,$this->_db,$query);
 		return array("items"=>$users);}}
 class UserResultsModel extends Model {
@@ -7084,24 +6948,24 @@ class UserResultsModel extends Model {
 		$matches=MatchesDataService::getLatestMatchesByUser($this->_websoccer,$this->_db,$this->_userId);
 		return array("matches"=>$matches);}
 	function renderView(){
-		$this->_userId=(int)$this->_websoccer->getRequestParameter("userid");
+		$this->_userId=(int)Request("userid");
 		return$this->_userId>0;}}
 class UserTransfersModel extends Model {
 	function getTemplateParameters(){
-		$userId=$this->_websoccer->getRequestParameter("userid");
-		if($userId>0)$transfers=TransfermarketDataService::getCompletedTransfersOfUser($this->_websoccer,$this->_db,$userId);
+		$userId=Request("userid");
+		if($userId)$transfers=TransfermarketDataService::getCompletedTransfersOfUser($this->_websoccer,$this->_db,$userId);
 		return array("completedtransfers"=>$transfers);}}
 class WhoIsOnlineModel extends Model {
 	function getTemplateParameters(){
 		$count=UsersDataService::countOnlineUsers($this->_websoccer,$this->_db);
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count>0)$users=UsersDataService::getOnlineUsers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
+		if($count)$users=UsersDataService::getOnlineUsers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
 		else $users=[];
 		return array("users"=>$users,"paginator"=>$paginator);}}
 class YouthMarketplaceModel extends Model {
 	function getTemplateParameters(){
-		$positionFilter=$this->_websoccer->getRequestParameter("position");
+		$positionFilter=Request("position");
 		$count=YouthPlayersDataService::countTransferableYouthPlayers($this->_websoccer,$this->_db,$positionFilter);
 		$eps=Config("entries_per_page");
 		$paginator=new Paginator($count,$eps,$this->_websoccer);
@@ -7121,37 +6985,37 @@ class YouthMatchesModel extends Model {
 class YouthMatchFormationModel extends Model {
 	function getTemplateParameters(){
 		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		$matchinfo=YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer,$this->_db,$this->_i18n,$this->_websoccer->getRequestParameter("matchid"));
+		$matchinfo=YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer,$this->_db,$this->_i18n,Request("matchid"));
 		if($matchinfo["home_team_id"]==$clubId)$teamPrefix="home";
 		elseif($matchinfo["guest_team_id"]==$clubId)$teamPrefix="guest";
 		else throw new Exception(Message('error_page_not_found'));
 		if($matchinfo["matchdate"] <= $this->_websoccer->getNowAsTimestamp()|| $matchinfo["simulated"])throw new Exception(Message("youthformation_err_matchexpired"));
 		$players=null;
-		if($clubId>0)$players=YouthPlayersDataService::getYouthPlayersOfTeamByPosition($this->_websoccer,$this->_db,$clubId,"DESC");
+		if($clubId)$players=YouthPlayersDataService::getYouthPlayersOfTeamByPosition($this->_websoccer,$this->_db,$clubId,"DESC");
 		$formation=$this->_getFormation($teamPrefix,$matchinfo);
 		for($benchNo=1; $benchNo <= 5; $benchNo++){
-			if($this->_websoccer->getRequestParameter("bench".$benchNo))$formation["bench".$benchNo]=$this->_websoccer->getRequestParameter("bench".$benchNo);
+			if(Request("bench".$benchNo))$formation["bench".$benchNo]=Request("bench".$benchNo);
 			elseif(!isset($formation["bench".$benchNo])){
 				$formation["bench".$benchNo]="";}}
 		$setup=$this->getFormationSetup($formation);
 		for($playerNo=1; $playerNo <= 11; $playerNo++){
-			if($this->_websoccer->getRequestParameter("player".$playerNo)){
-				$formation["player".$playerNo]=$this->_websoccer->getRequestParameter("player".$playerNo);
-				$formation["player".$playerNo."_pos"]=$this->_websoccer->getRequestParameter("player".$playerNo."_pos");}
+			if(Request("player".$playerNo)){
+				$formation["player".$playerNo]=Request("player".$playerNo);
+				$formation["player".$playerNo."_pos"]=Request("player".$playerNo."_pos");}
 			elseif(!isset($formation["player".$playerNo])){
 				$formation["player".$playerNo]="";
 				$formation["player".$playerNo."_pos"]="";}}
 		return array("matchinfo"=>$matchinfo,"players"=>$players,"formation"=>$formation,"setup"=>$setup,"youthFormation"=> TRUE);}
 	function getFormationSetup($formation){
 		$setup=array("defense"=> 4,"dm"=> 1,"midfield"=> 3,"om"=> 1,"striker"=> 1);
-		if($this->_websoccer->getRequestParameter("formation_defense")!==NULL){
-			$setup["defense"]=(int)$this->_websoccer->getRequestParameter("formation_defense");
-			$setup["dm"]=(int)$this->_websoccer->getRequestParameter("formation_defensemidfield");
-			$setup["midfield"]=(int)$this->_websoccer->getRequestParameter("formation_midfield");
-			$setup["om"]=(int)$this->_websoccer->getRequestParameter("formation_offensivemidfield");
-			$setup["striker"]=(int)$this->_websoccer->getRequestParameter("formation_forward");}
-		elseif($this->_websoccer->getRequestParameter("setup")!==NULL){
-			$setupParts=explode("-",$this->_websoccer->getRequestParameter("setup"));
+		if(Request("formation_defense")!==NULL){
+			$setup["defense"]=(int)Request("formation_defense");
+			$setup["dm"]=(int)Request("formation_defensemidfield");
+			$setup["midfield"]=(int)Request("formation_midfield");
+			$setup["om"]=(int)Request("formation_offensivemidfield");
+			$setup["striker"]=(int)Request("formation_forward");}
+		elseif(Request("setup")!==NULL){
+			$setupParts=explode("-",Request("setup"));
 			$setup["defense"]=(int)$setupParts[0];
 			$setup["dm"]=(int)$setupParts[1];
 			$setup["midfield"]=(int)$setupParts[2];
@@ -7184,12 +7048,12 @@ class YouthMatchFormationModel extends Model {
 	function _getFormation($teamPrefix,$matchinfo){
 		$formation=[];
 		for($subNo=1; $subNo <= 3; $subNo++){
-			if($this->_websoccer->getRequestParameter("sub".$subNo ."_out")){
-				$formation["sub".$subNo ."_out"]=$this->_websoccer->getRequestParameter("sub".$subNo ."_out");
-				$formation["sub".$subNo ."_in"]=$this->_websoccer->getRequestParameter("sub".$subNo ."_in");
-				$formation["sub".$subNo ."_minute"]=$this->_websoccer->getRequestParameter("sub".$subNo ."_minute");
-				$formation["sub".$subNo ."_condition"]=$this->_websoccer->getRequestParameter("sub".$subNo ."_condition");
-				$formation["sub".$subNo ."_position"]=$this->_websoccer->getRequestParameter("sub".$subNo ."_position");}
+			if(Request("sub".$subNo ."_out")){
+				$formation["sub".$subNo ."_out"]=Request("sub".$subNo ."_out");
+				$formation["sub".$subNo ."_in"]=Request("sub".$subNo ."_in");
+				$formation["sub".$subNo ."_minute"]=Request("sub".$subNo ."_minute");
+				$formation["sub".$subNo ."_condition"]=Request("sub".$subNo ."_condition");
+				$formation["sub".$subNo ."_position"]=Request("sub".$subNo ."_position");}
 			else{
 				$formation["sub".$subNo ."_out"]=$matchinfo[$teamPrefix."_s".$subNo ."_out"];
 				$formation["sub".$subNo ."_in"]=$matchinfo[$teamPrefix."_s".$subNo ."_in"];
@@ -7212,11 +7076,11 @@ class YouthMatchFormationModel extends Model {
 					elseif($mainPosition=="OM")$setup["om"]=$setup["om"] + 1;
 					else $setup["midfield"]=$setup["midfield"] + 1;}}}
 		$setPlayers=$setup["defense"] + $setup["striker"] + $setup["dm"] + $setup["om"] + $setup["midfield"];
-		if($setPlayers>0)$formation["setup"]=$setup["defense"]."-".$setup["dm"]."-".$setup["midfield"]."-".$setup["om"]."-".$setup["striker"];
+		if($setPlayers)$formation["setup"]=$setup["defense"]."-".$setup["dm"]."-".$setup["midfield"]."-".$setup["om"]."-".$setup["striker"];
 		return$formation;}}
 class YouthMatchReportModel extends Model {
 	function getTemplateParameters(){
-		$match=YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer,$this->_db,$this->_i18n,$this->_websoccer->getRequestParameter("id"));
+		$match=YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer,$this->_db,$this->_i18n,Request("id"));
 		$players=[];
 		$statistics=[];
 		$result=$this->_db->querySelect("*",Config("db_prefix")."_youthmatch_player","match_id=%d AND minutes_played>0 ORDER BY playernumber ASC",$match["id"]);
@@ -7281,18 +7145,14 @@ class YouthMatchRequestsModel extends Model {
 	function renderView(){ return Config("youth_enabled")&&Config("youth_matchrequests_enabled");}}
 class YouthPlayerDetailsModel extends Model {
 	function getTemplateParameters(){
-		$playerId=(int)$this->_websoccer->getRequestParameter("id");
+		$playerId=(int)Request("id");
 		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$playerId);
 		return array("player"=>$player);}
 	function renderView(){ return Config("youth_enabled");}}
-class YouthPlayersOfTeamModel extends Model {
-	function getTemplateParameters(){
-		$teamId=$this->_websoccer->getRequestParameter("teamid");
-		$players=[];
-		if($teamId>0)$players=YouthPlayersDataService::getYouthPlayersOfTeam($this->_websoccer,$this->_db,$teamId);
-		return array("players"=>$players);}
-	function renderView(){ return Config("youth_enabled");}}
+class YouthPlayersOfTeamModel extends Model{
+			function getTemplateParameters(){$teamId=Request('teamid');$players=[];if($teamId)$players=YouthPlayersDataService::getYouthPlayersOfTeam($this->_websoccer,$this->_db,$teamId);return['players'=>$players];}
+			function renderView(){return Config('youth_enabled');}}
 class YouthScoutingModel extends Model {
 	function getTemplateParameters(){
 		$lastExecutionTimestamp=YouthPlayersDataService::getLastScoutingExecutionTime($this->_websoccer,$this->_db,$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db));
@@ -7302,8 +7162,8 @@ class YouthScoutingModel extends Model {
 		$countries=[];
 		$scoutingPossible=($nextPossibleExecutionTimestamp <= $now);
 		if($scoutingPossible){
-			$scoutId=(int)$this->_websoccer->getRequestParameter("scoutid");
-			if($scoutId>0)$countries=YouthPlayersDataService::getPossibleScoutingCountries();
+			$scoutId=(int)Request("scoutid");
+			if($scoutId)$countries=YouthPlayersDataService::getPossibleScoutingCountries();
 			else $scouts=YouthPlayersDataService::getScouts($this->_websoccer,$this->_db);}
 		return array("lastExecutionTimestamp"=>$lastExecutionTimestamp,"nextPossibleExecutionTimestamp"=>$nextPossibleExecutionTimestamp,"scoutingPossible"=>$scoutingPossible,"scouts"=>$scouts,"countries"=>$countries);}
 	function renderView(){ return Config("youth_enabled")&&Config("youth_scouting_enabled");}}
@@ -8720,7 +8580,7 @@ class RandomEventsDataService {
 		if($event['effect']=='money'){
 			$amount=$event['effect_money_amount'];
 			$sender=Config('projectname');
-			if($amount>0)BankAccountDataService::creditAmount($websoccer,$db,$clubId,$amount,$subject,$sender);
+			if($amount)BankAccountDataService::creditAmount($websoccer,$db,$clubId,$amount,$subject,$sender);
 			else BankAccountDataService::debitAmount($websoccer,$db,$clubId,$amount*(0-1),$subject,$sender);
 			NotificationsDataService::createNotification($websoccer,$db,$userId,$subject, null,$notificationType, 'finances', null,$clubId);}
 		else{
@@ -9115,7 +8975,7 @@ class TrainingcampsDataService {
 			$updateCondition='id=%d';
 			$duration=round(($bookingInfo['date_end'] - $bookingInfo['date_start'])/(24*3600));
 			foreach($players as$player){
-				if($player['matches_injured']>0)continue;
+				if($player['matches_injured'])continue;
 				$columns=[];
 				$columns['w_staerke']=min(100, max(1,$bookingInfo['effect_strength']* $duration + $player['strength']));
 				$columns['w_technik']=min(100, max(1,$bookingInfo['effect_strength_technique']* $duration + $player['strength_technic']));
@@ -9357,7 +9217,7 @@ class TransfermarketDataService {
 	function transferPlayer($websoccer,$db,$player,$bid){
 		$playerName=(strlen($player['pseudonym']))? $player['pseudonym'] : $player['first_name'].' '.$player['last_name'];
 		if($player['team_id']<1){
-			if($bid['hand_money']>0)BankAccountDataService::debitAmount($websoccer,$db,$bid['team_id'],$bid['hand_money'],'transfer_transaction_subject_handmoney',$playerName);}
+			if($bid['hand_money'])BankAccountDataService::debitAmount($websoccer,$db,$bid['team_id'],$bid['hand_money'],'transfer_transaction_subject_handmoney',$playerName);}
 		else{
 			BankAccountDataService::debitAmount($websoccer,$db,$bid['team_id'],$bid['amount'],'transfer_transaction_subject_fee',$player['team_name']);
 			BankAccountDataService::creditAmount($websoccer,$db,$player['team_id'],$bid['amount'],'transfer_transaction_subject_fee',$bid['team_name']);}
@@ -9445,8 +9305,8 @@ class UsersDataService {
 		$username=trim($nick);
 		$emailAddress=strtolower(trim($email));
 		if(!strlen($username)&&!strlen($emailAddress))throw new Exception('UsersDataService::createBlankUser(): Either user name or e-mail must be provided in order to create a new internal user.');
-		if(strlen($username)&& self::getUserIdByNick($websoccer,$db,$username)>0)throw new Exception('Nick name is already in use.');
-		if(strlen($emailAddress)&& self::getUserIdByEmail($websoccer,$db,$emailAddress)>0)throw new Exception('E-Mail address is already in use.');
+		if(strlen($username)&& self::getUserIdByNick($websoccer,$db,$username))throw new Exception('Nick name is already in use.');
+		if(strlen($emailAddress)&& self::getUserIdByEmail($websoccer,$db,$emailAddress))throw new Exception('E-Mail address is already in use.');
 		$i18n=I18n::getInstance(Config('supported_languages'));
 		$columns=array('nick'=>$username,'email'=>$emailAddress,'status'=>'1','datum_anmeldung'=>$websoccer->getNowAsTimestamp(),'lang'=>$i18n->getCurrentLanguage());
 		if(Config('premium_initial_credit'))$columns['premium_balance']=Config('premium_initial_credit');
@@ -9798,7 +9658,7 @@ function Diagnosis(){
 	function simpleudcall(){for($i=0;$i<900000;++$i)hallo2('hallo');}
 	function hallo2($a){}
 	function mandel(){$w1=92;$h1=843;$recen=-.45;$imcen=0.0;$r=0.7;$s=0;$rec=0;$imc=0;$re=0;$im=0;$re2=0;$im2=0;$x=0;$y=0;$w2=0;$h2=0;$color=0;$s=2*$r/$w1;$w2=40;$h2=12;
-		for ($y=0;$y<=$w1;$y=$y+1){$imc=$s*($y-$h2)+$imcen;for($x=0;$x<=$h1;$x=$x+1){$rec=$s*($x-$w2)+$recen;$re=$rec;$im=$imc;$color=1000;$re2=$re*$re;$im2=$im*$im;while(((($re2+$im2)<900000)&&$color>0)){$im=$re*$im*2+$imc;$re=$re2-$im2+$rec;$re2=$re*$re;$im2=$im*$im;
+		for ($y=0;$y<=$w1;$y=$y+1){$imc=$s*($y-$h2)+$imcen;for($x=0;$x<=$h1;$x=$x+1){$rec=$s*($x-$w2)+$recen;$re=$rec;$im=$imc;$color=1000;$re2=$re*$re;$im2=$im*$im;while(((($re2+$im2)<900000)&&$color)){$im=$re*$im*2+$imc;$re=$re2-$im2+$rec;$re2=$re*$re;$im2=$im*$im;
 		$color=$color-1;}if($color==0)print'_';else print'#';}print'<br>';flush();}}
 	function mandel2(){$b=' .:,;!/>)|&IH%*#';for($y=30;printf('\n'),$C=$y*0.1-1.5,--$y;){for($x=0;$c=$x*0.04-2,$z=0,$Z=0,++$x<75;){for($r=$c,$i=$C,$k=0;$t=$z*$z-$Z*$Z+$r,$Z=2*$z*$Z+$i,$z=$t,$k<5000;++$k)if($z*$z+$Z*$Z>2000000)break;echo$b[$k%16];}}}
 	function Ack($m,$n){if($m==0)return$n+1;if($n==0)return Ack($m-1,1);return Ack($m-1,Ack($m,($n-1)));}
@@ -9819,8 +9679,8 @@ function Diagnosis(){
 	function mmult($rows,$cols,$m1,$m2){$m3=[];for($i=0;$i<$rows;++$i){for($j=0;$j<$cols;++$j){$x=0;for($k=0;$k<$cols;++$k)$x+=$m1[$i][$k]*$m2[$k][$j];$m3[$i][$j]=$x;}}return($m3);}
 	function matrix($n){$SIZE=30;$m1=mkmatrix($SIZE,$SIZE);$m2=mkmatrix($SIZE,$SIZE);while(--$n)$mm=mmult($SIZE,$SIZE,$m1,$m2);print'{$mm[0][0]} {$mm[2][3]} {$mm[3][2]} {$mm[4][4]}\n';}
 	function nestedloop($n){$x=0;for($a=0;$a<$n;++$a)for($b=0;$b<$n;++$b)for($c=0;$c<$n;++$c)for($d=0;$d<$n;++$d)for($e=0;$e<$n;++$e)for($f=0;$f<$n;++$f)++$x;print'$x\n';}
-	function sieve($n){$count=0;while(--$n>0){$count=0;$flags=range(0,8192);for($i=2;$i<8193;++$i){if($flags[$i]>0){for($k=$i+$i;$k<=8192;$k+=$i)$flags[$k]=0;++$count;}}}print'Count: $count\n';}
-	function strcat($n){$str='';while(--$n>0)$str.='hello\n';$len=strlen($str);print'$len\n';}
+	function sieve($n){$count=0;while(--$n){$count=0;$flags=range(0,8192);for($i=2;$i<8193;++$i){if($flags[$i]){for($k=$i+$i;$k<=8192;$k+=$i)$flags[$k]=0;++$count;}}}print'Count: $count\n';}
+	function strcat($n){$str='';while(--$n)$str.='hello\n';$len=strlen($str);print'$len\n';}
 	function getmicrotime(){$t=gettimeofday();return($t['sec']+$t['usec']/1000000);}
 	function start_test(){ob_start();return getmicrotime();}
 	function end_test($start,$name){global$total;$end=getmicrotime();ob_end_clean();$total+=$end-$start;$num=number_format($end-$start,1);ob_start();return getmicrotime();}

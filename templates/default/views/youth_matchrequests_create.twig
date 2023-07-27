@@ -8,7 +8,7 @@
 {% block page_content %}
 
 <form class="form-horizontal" method="post">
-		
+
 	<div class="control-group{% if validationMsg['matchdate'] is defined %} error{% endif %}">
 		<label class="control-label" for="matchdate">
 			<strong>{{ Message("youthteam_matchrequest_create_date") }}</strong>
@@ -16,16 +16,16 @@
 		<div class="controls">
 	  		<select name="matchdate" id="matchdate">
 	  			<option></option>
-	  			
+
 	  			{% for dateOptionLabelValue, dateOptionLabel in dateOptions %}
-					<option value="{{ dateOptionLabelValue }}"{% if env.getRequestParameter('matchdate') == dateOptionLabelValue %} selected{% endif %}>{{ dateOptionLabel }}</p>
+					<option value="{{ dateOptionLabelValue }}"{% if Request('matchdate') == dateOptionLabelValue %} selected{% endif %}>{{ dateOptionLabel }}</p>
 				{% endfor %}
 	  		</select>
 		</div>
 	</div>
-	
-	{{ formelements.textfield('reward', Message('youthteam_matchrequest_reward'), env.getRequestParameter('reward'), false, validationMsg, 'number', Config("game_currency")) }}
-		
+
+	{{ formelements.textfield('reward', Message('youthteam_matchrequest_reward'), Request('reward'), false, validationMsg, 'number', Config("game_currency")) }}
+
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_submit') }}</button>
 		<a href="{{ env.getInternalUrl("youth-matchrequests") }}" class="btn">{{ Message('button_cancel') }}</a>

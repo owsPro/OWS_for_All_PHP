@@ -14,14 +14,14 @@
 	{{ formelements.readonly(Message('entity_users_email'), env.user.email) }}
 
 	{% if Config("login_method") == "DefaultUserLoginMethod" %}
-		{{ formelements.textfield('newemail', Message('profile_field_newemail'), env.getRequestParameter('newemail'), false, validationMsg, 'email') }}
-		
+		{{ formelements.textfield('newemail', Message('profile_field_newemail'), Request('newemail'), false, validationMsg, 'email') }}
+
 		{{ formelements.textfield('newpassword', Message('profile_field_newpassword'), '', false, validationMsg, 'password') }}
 	{% endif %}
-	
+
 	{{ formelements.checkbox("c_hideinonlinelist", Message('entity_users_c_hideinonlinelist'), user.c_hideinonlinelist, true) }}
 	<hr>
-	
+
 	{{ formelements.textfield('realname', Message('entity_users_name'), user.realname, false, validationMsg) }}
 	{{ formelements.textfield('place', Message('entity_users_wohnort'), user.place, false, validationMsg) }}
 	{{ formelements.textfield('country', Message('entity_users_land'), user.country, false, validationMsg) }}
@@ -30,7 +30,7 @@
 	{{ formelements.textfield('interests', Message('entity_users_interessen'), user.interests, false, validationMsg) }}
 	{{ formelements.textfield('favorite_club', Message('entity_users_lieblingsverein'), user.favorite_club, false, validationMsg) }}
 	{{ formelements.textfield('homepage', Message('entity_users_homepage'), user.homepage, false, validationMsg, "url") }}
-	
+
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
 		<a href="{{ env.getInternalUrl("profile") }}" class="btn">{{ Message('button_reset') }}</a>

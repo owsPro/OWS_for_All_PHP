@@ -13,10 +13,10 @@
 {% if stadium is defined and stadium|length > 0 %}
 
 	{{ profile.infofield(Message("entity_stadium_name"), stadium.name) }}
-	
+
 	{% set capacity = stadium.places_stands + stadium.places_seats + stadium.places_stands_grand + stadium.places_seats_grand + stadium.places_vip %}
 	{{ profile.infofield(Message("stadium_capacity"), capacity|number_format(0, ',', ' ')) }}
-	
+
 	<div class="row">
 		<div class="span12">
 			<canvas id="stadium" width="600" height="375" style="margin: 20px;"
@@ -32,9 +32,9 @@
 			</canvas>
 		</div>
 	</div>
-	
+
 	<h2>{{ Message("stadium_maintenance_title") }}</h2>
-	
+
 	<table class="table">
 		{% for upgradetype in ['pitch', 'videowall', 'seatsquality', 'vipquality'] %}
 			<tr>
@@ -60,22 +60,22 @@
 			</tr>
 		{% endfor %}
 	</table>
-	
+
 	{% if construction != NULL %}
 		<h2>{{ Message("entity_stadiumconstruction") }}</h2>
-	
+
 		<p>{{ Message("stadium_construction_ongoing") }}</p>
-		
+
 		{{ profile.infofield(Message("entity_stadiumconstruction_builder_id"), construction.builder_name) }}
 		{{ profile.infofield(Message("entity_stadiumconstruction_started"), env.getFormattedDatetime(construction.started)) }}
 		{{ profile.infofield(Message("entity_stadiumconstruction_deadline"), env.getFormattedDatetime(construction.deadline)) }}
-		
+
 		{{ profile.infofield(Message("entity_stadiumconstruction_p_steh"), construction.p_steh) }}
 		{{ profile.infofield(Message("entity_stadiumconstruction_p_sitz"), construction.p_sitz) }}
 		{{ profile.infofield(Message("entity_stadiumconstruction_p_haupt_steh"), construction.p_haupt_steh) }}
 		{{ profile.infofield(Message("entity_stadiumconstruction_p_haupt_sitz"), construction.p_haupt_sitz) }}
 		{{ profile.infofield(Message("entity_stadiumconstruction_p_vip"), construction.p_vip) }}
-		
+
 		<div style="margin-top: 10px">
 			{% if construction.deadline > env.getNowAsTimestamp() %}
 				{{ msgbox.box("", Message("stadium_construction_checkstatuslater"), "info") }}
@@ -88,38 +88,38 @@
 		{% set maxSide = Config("stadium_max_side") - stadium.places_seats - stadium.places_stands %}
 		{% set maxGrand = Config("stadium_max_grand") - stadium.places_seats_grand - stadium.places_stands_grand %}
 		{% set maxVip = Config("stadium_max_vip") - stadium.places_vip %}
-		
+
 		{% if maxSide > 0 or maxGrand > 0 or maxVip > 0 %}
 			<form class="form-horizontal" method="post">
 				<fieldset>
 			    	<legend>{{ Message('stadium_extend_title') }}</legend>
-			    	
+
 			    	<div class="well">
 			    		<p>{{ Message('stadium_extend_limitation_intro') }}:</p>
-			    		
+
 			    		<ul>
 			    			<li><strong>{{ Message('stadium_extend_limitation_side') }}:</strong> {{ maxSide|number_format(0, ',', ' ') }}</li>
 			    			<li><strong>{{ Message('stadium_extend_limitation_grand') }}:</strong> {{ maxGrand|number_format(0, ',', ' ') }}</li>
 			    			<li><strong>{{ Message('stadium_extend_limitation_vip') }}:</strong> {{ maxVip|number_format(0, ',', ' ') }}</li>
 			    		</ul>
-			    		
+
 			    		<p>{{ Message('stadium_extend_limitation_instruction') }}</p>
 			    	</div>
-				
+
 					{% if maxSide > 0 %}
-						{{ formelements.textfield('side_standing', Message('entity_stadium_p_steh'), env.getRequestParameter("side_standing"), false, validationMsg, "number", null) }}
-						
-						{{ formelements.textfield('side_seats', Message('entity_stadium_p_sitz'), env.getRequestParameter("side_seats"), false, validationMsg, "number", null) }}
+						{{ formelements.textfield('side_standing', Message('entity_stadium_p_steh'), Request("side_standing"), false, validationMsg, "number", null) }}
+
+						{{ formelements.textfield('side_seats', Message('entity_stadium_p_sitz'), Request("side_seats"), false, validationMsg, "number", null) }}
 					{% endif %}
-					
+
 					{% if maxGrand > 0 %}
-						{{ formelements.textfield('grand_standing', Message('entity_stadium_p_haupt_steh'), env.getRequestParameter("grand_standing"), false, validationMsg, "number", null) }}
-						
-						{{ formelements.textfield('grand_seats', Message('entity_stadium_p_haupt_sitz'), env.getRequestParameter("grand_seats"), false, validationMsg, "number", null) }}
+						{{ formelements.textfield('grand_standing', Message('entity_stadium_p_haupt_steh'), Request("grand_standing"), false, validationMsg, "number", null) }}
+
+						{{ formelements.textfield('grand_seats', Message('entity_stadium_p_haupt_sitz'), Request("grand_seats"), false, validationMsg, "number", null) }}
 					{% endif %}
-					
+
 					{% if maxVip > 0 %}
-						{{ formelements.textfield('vip', Message('entity_stadium_p_vip'), env.getRequestParameter("vip"), false, validationMsg, "number", null) }}
+						{{ formelements.textfield('vip', Message('entity_stadium_p_vip'), Request("vip"), false, validationMsg, "number", null) }}
 					{% endif %}
 				</fieldset>
 				<div class="form-actions">

@@ -19,10 +19,10 @@
 
   <dt>{{ Message("entity_player_vertrag_gehalt") }}</dt>
   <dd>{{ player.player_contract_salary|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
-  
+
   <dt>{{ Message("entity_player_vertrag_torpraemie") }}</dt>
   <dd>{{ player.player_contract_goalbonus|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
-  
+
   <dt>{{ Message("entity_player_vertrag_spiele") }}</dt>
   <dd>{{ player.player_contract_matches  }} {{ Message("player_details_unit_matches") }}</dd>
 </dl>
@@ -41,16 +41,16 @@
 			<span class="help-inline">{{ player.lending_fee|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</span>
 		</div>
 	</div>
-	
-	{{ formelements.textfield('matches', Message('entity_player_lending_matches'), env.getRequestParameter('matches'), true, validationMsg, 'number', 
+
+	{{ formelements.textfield('matches', Message('entity_player_lending_matches'),Request('matches'), true, validationMsg, 'number',
 		Message("lending_matches_durationhelp")|format(Config("lending_matches_min"), Config("lending_matches_max"))) }}
-	
+
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('lending_player_hire_button') }}</button>
 		<a href="{{ env.getInternalUrl("myteam") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="borrow-player"/>
-	<input type="hidden" name="id" value="{{ env.getRequestParameter('id') }}"/>
+	<input type="hidden" name="id" value="{{ Request('id') }}"/>
 	<input type="hidden" name="action" value="borrow-player"/>
 </form>
 {% endblock %}

@@ -73,8 +73,8 @@ if ($action == "complete") {
 	$result = $db->querySelect($columns, $fromTable, "M.id = %d", $matchId);$matchinfo = $result->fetch_array();$result->free();
 	$dummyVar = new DefaultSimulationStrategy($website);
 	$matchModel = SimulationStateHelper::loadMatchState($website, $db, $matchinfo);
-	if ($website->getRequestParameter("computetickets"))SimulationAudienceCalculator::computeAndSaveAudience($website, $db, $matchModel);
-	if ($matchinfo["type"] == "Pokalspiel")SimulationCupMatchHelper::checkIfExtensionIsRequired($website, $db, $matchModel);
+	if(RequestParameter("computetickets"))SimulationAudienceCalculator::computeAndSaveAudience($website, $db, $matchModel);
+	if($matchinfo["type"] == "Pokalspiel")SimulationCupMatchHelper::checkIfExtensionIsRequired($website, $db, $matchModel);
 	$observer = new DataUpdateSimulatorObserver($website, $db);
 	$observer->onMatchCompleted($matchModel);
 	echo createSuccessMessage(Message("match_manage_complete_success"), "");}

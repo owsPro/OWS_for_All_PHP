@@ -9,7 +9,7 @@
 
 	<fieldset>
 		<legend>{{ Message("youthplayer-buy_formlabel") }}</legend>
-		
+
 		<p><strong>{{ Message("youthplayer-buy_confirmationmsg") }}</strong></p>
 	</fieldset>
 	<div class="form-actions">
@@ -17,7 +17,7 @@
 		<a href="{{ env.getInternalUrl("youth-marketplace") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="youthplayer-buy"/>
-	<input type="hidden" name="id" value="{{ env.getRequestParameter('id') }}"/>
+	<input type="hidden" name="id" value="{{ Request('id') }}"/>
 	<input type="hidden" name="action" value="buy-youthplayer"/>
 </form>
 {% endblock %}

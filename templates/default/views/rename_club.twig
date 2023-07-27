@@ -8,13 +8,13 @@
 {% block page_content %}
 
 <form class="form-horizontal" method="post">
-	
-	{{ formelements.textfield('name', Message('entity_club_name'), env.getRequestParameter('name'), true, validationMsg, 'text') }}
-	
-	{{ formelements.textfield('kurz', Message('entity_club_kurz'), env.getRequestParameter('kurz'), true, validationMsg, 'text') }}
-	
-	{{ formelements.textfield('stadium', Message('entity_stadium'), env.getRequestParameter('stadium'), true, validationMsg, 'text') }}
-	
+
+	{{ formelements.textfield('name', Message('entity_club_name'), Request('name'), true, validationMsg, 'text') }}
+
+	{{ formelements.textfield('kurz', Message('entity_club_kurz'), Request('kurz'), true, validationMsg, 'text') }}
+
+	{{ formelements.textfield('stadium', Message('entity_stadium'), Request('stadium'), true, validationMsg, 'text') }}
+
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
 		<a href="{{ env.getInternalUrl("team", "id=" ~ env.user.clubId) }}" class="btn">{{ Message('button_cancel') }}</a>

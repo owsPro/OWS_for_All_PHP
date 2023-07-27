@@ -8,15 +8,15 @@
 
 <form class="form-inline" method="post">
 
-	<label class="control-label" for="country">{{ Message("entity_league") }}</label> 
+	<label class="control-label" for="country">{{ Message("entity_league") }}</label>
 	<select id="id" name="id" class="span3">
 		<option></option>
 	{% for leagueItem in leagues %}
-		<option value="{{ leagueItem.league_id }}"{% if league.league_id is defined and league.league_id == leagueItem.league_id or env.getRequestParameter("id") == leagueItem.league_id %} selected{% endif %}>{{ leagueItem.league_country }} - {{ leagueItem.league_name }}</option>
+		<option value="{{ leagueItem.league_id }}"{% if league.league_id is defined and league.league_id == leagueItem.league_id or Request("id") == leagueItem.league_id %} selected{% endif %}>{{ leagueItem.league_country }} - {{ leagueItem.league_name }}</option>
 	{% endfor %}
 	</select>
 
-	<button type="submit" class="btn btn-primary ajaxSubmit" 
+	<button type="submit" class="btn btn-primary ajaxSubmit"
 		data-ajaxtarget="leaguetable_block" data-ajaxblock="leaguetable">{{ Message('button_display') }}</button>
 
 	<input type="hidden" name="page" value="leagues" />

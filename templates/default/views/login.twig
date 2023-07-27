@@ -11,15 +11,15 @@
 
 
 	{%  if Config("login_type") == "email" %}
-    {{ formelements.textfield('loginstr', Message('entity_users_email'), env.getRequestParameter('loginstr'), true, validationMsg, 'email') }}
+    {{ formelements.textfield('loginstr', Message('entity_users_email'), Request('loginstr'), true, validationMsg, 'email') }}
  	{% else %}
- 	{{ formelements.textfield('loginstr', Message('entity_users_nick'), env.getRequestParameter('loginstr'), true, validationMsg) }}
+ 	{{ formelements.textfield('loginstr', Message('entity_users_nick'), Request('loginstr'), true, validationMsg) }}
  	{% endif %}
 
 	{{ formelements.textfield('loginpassword', Message('entity_users_passwort'), '', true, validationMsg, 'password') }}
-	
-	{{ formelements.checkbox('rememberme', Message('formlogin_option_rememberme'), env.getRequestParameter('rememberme')) }}
-	
+
+	{{ formelements.checkbox('rememberme', Message('formlogin_option_rememberme'), Request('rememberme')) }}
+
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('formlogin_submit_button') }}</button>
 	</div>

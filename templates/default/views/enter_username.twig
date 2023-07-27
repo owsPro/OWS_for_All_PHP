@@ -11,10 +11,10 @@
 
 <form class="form-horizontal" method="post">
 
-	{{ formelements.textfield('nick', Message('entity_users_nick'), env.getRequestParameter('nick'), true, validationMsg, 'text') }}
-	
-	{{ formelements.checkbox('termsandconditions', Message('termsandconditions_accept', env.getInternalUrl("termsandconditions")), env.getRequestParameter("termsandconditions"), true, validationMsg) }}
-	
+	{{ formelements.textfield('nick', Message('entity_users_nick'), Request('nick'), true, validationMsg, 'text') }}
+
+	{{ formelements.checkbox('termsandconditions', Message('termsandconditions_accept', env.getInternalUrl("termsandconditions")), Request("termsandconditions"), true, validationMsg) }}
+
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
 	</div>

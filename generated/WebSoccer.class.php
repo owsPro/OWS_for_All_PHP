@@ -481,13 +481,13 @@ class ConverterFactory {
 class CookieHelper {
 	static function createCookie($name,$value,$lifetimeInDays=null){
 		$expiry=($lifetimeInDays!=null)? time()+ 86400*$lifetimeInDays : 0;
-		setcookie(COOKIE_PREFIX .$name,$value,$expiry);}
+		setcookie(COOKIE_PREFIX .$name,$value,$expiry,null,null,true,true);}
 	static function getCookieValue($name){
 		if(!isset($_COOKIE[COOKIE_PREFIX .$name]))return null;
 		return$_COOKIE[COOKIE_PREFIX .$name];}
 	static function destroyCookie($name){
 		if(!isset($_COOKIE[COOKIE_PREFIX .$name]))return;
-		setcookie(COOKIE_PREFIX .$name, '', time()-86400);}}
+		setcookie(COOKIE_PREFIX .$name, '', time()-86400,null,null,true,true);}}
 class DataUpdateSimulatorObserver {
 	private $_teamsWithSoonEndingContracts;
 	function __construct($websoccer,$db){

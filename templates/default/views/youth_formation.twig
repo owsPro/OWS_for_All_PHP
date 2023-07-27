@@ -3,16 +3,16 @@
 {% block formation_setup %}
 
 	<h4>{{ Message("entity_youthmatch") }}</h4>
-	
+
 	<p>{{ env.getFormattedDatetime(matchinfo.matchdate) }}: <a href="{{ env.getInternalUrl("team", "id=" ~ matchinfo.home_team_id) }}">{{ matchinfo.home_team_name }}</a>
 		- <a href="{{ env.getInternalUrl("team", "id=" ~ matchinfo.guest_team_id) }}">{{ matchinfo.guest_team_name }}</a></p>
 
 	<form method="post" class="form-inline">
 		<input type="hidden" name="page" value="youth-formation" />
-		<input type="hidden" name="matchid" value="{{ env.getRequestParameter("matchid") }}" />
-		
+		<input type="hidden" name="matchid" value="{{ Request("matchid") }}" />
+
 		<h4>{{ Message("formation_setup_title") }}</h4>
-		
+
 		<select class="input-mini wstooltip" name="formation_defense" title="{{ Message("player_position_defense") }}">
 			{% for i in 1..4 %}
 				<option value="{{ i }}"{% if setup.defense == i %} selected{% endif %}>{{ i }}</option>
@@ -42,11 +42,11 @@
 				<option value="{{ i }}"{% if setup.striker == i %} selected{% endif %}>{{ i }}</option>
 			{% endfor %}
 		</select>
-		
-		
+
+
 		<button type="submit" class="btn" name="buttonSetupChange" value="1">{{ Message("formation_setup_button") }}</button>
-			
-		
+
+
 		<a class="btn clearAllBtn" href="#"><i class="icon-trash"></i> {{ Message("formation_clearall") }}</a>
 	</form>
 {% endblock %}
@@ -55,15 +55,14 @@
 
 	<div class="form-actions" style="text-align: center">
 		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
-		
-		<a href="{{ env.getInternalUrl(env.getPageId(), "matchid=" ~ env.getRequestParameter("matchid")) }}" class="btn">{{ Message('button_reset') }}</a>
-		
+
+		<a href="{{ env.getInternalUrl(env.getPageId(), "matchid=" ~ Request("matchid")) }}" class="btn">{{ Message('button_reset') }}</a>
+
 		<a href="{{ env.getInternalUrl("youth-matches") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="setup" value="{{ setup.defense }}-{{ setup.dm }}-{{ setup.midfield }}-{{ setup.om }}-{{ setup.striker }}"/>
 	<input type="hidden" name="page" value="youth-formation"/>
 	<input type="hidden" name="action" value="save-youth-formation"/>
-	<input type="hidden" name="matchid" value="{{ env.getRequestParameter("matchid") }}"/>
+	<input type="hidden" name="matchid" value="{{ Request("matchid") }}"/>
 {% endblock %}
-
 
