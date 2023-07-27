@@ -40,7 +40,7 @@ $supportedLanguages=["de"=>"deutsch","en"=>"english","es"=>"español","pt"=>"por
 					include("messages_".$_SESSION["lang"].".inc.php");
 					$messagesIncluded=$_SESSION["lang"];}
 				$action=(isset($_REQUEST["action"]))?$_REQUEST["action"]:"";
-				if(!strlen($action)||substr($action,0,6)!=="action")$view="setAdminScreen";
+				if(!strlen($action)||substr($action,0,6)!=="action")$view="setAdminForm";
 				else $view=$action();
 				if(isset($_SESSION["lang"])&&$_SESSION["lang"]!==$messagesIncluded)	include("messages_".$_SESSION["lang"].".inc.php");
 				if(count($errors))foreach($errors as $error)echo"<div class=\"alert alert-error\">$error</div>";
