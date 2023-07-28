@@ -174,7 +174,7 @@ elseif ($show == 'complete') {
 			$youthresult->free();
 			$event = new SeasonOfTeamCompletedEvent($website, $db, $i18n,$team['id'], $season['id'], $rank);
 			PluginMediator::dispatchEvent($event);
-			$rank++;}
+			++$rank;}
 		$result->free();
 		$teamcolumns = array();
 		$teamcolumns['sa_tore'] = 0;

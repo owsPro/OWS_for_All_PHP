@@ -60,7 +60,7 @@ class WordpressUserLoginMethod extends LoginCheck{
 			function _authenticate($queryWhereCondition,$loginStr,$password){$result=$this->_db->querySelect('user_login,user_email,user_pass',Config('wordpresslogin_tableprefix').'users','user_status=0 AND '.$queryWhereCondition,$loginStr);
 							$wpUser=$result->fetch_array();if(!$wpUser)return FALSE;self::CheckPassword($password,$wpUser['user_pass']);$userEmail=strtolower($wpUser['user_email']);$userId=UsersDataService::getUserIdByEmail($this->_websoccer,$this->_db,$userEmail);
 							if($userId)return$userId;return UsersDataService::createLocalUser($this->_websoccer,$this->_db,$wpUser['user_login'],$userEmail);}}
-class WebSoccer{private static$_instance;private $_skin,$_pageId,$_templateEngine,$_frontMessages,$_user,$_contextParameters;
+class WebSoccer{private static$_instance;private$_skin,$_pageId,$_templateEngine,$_frontMessages,$_user,$_contextParameters;
 			static function getInstance(){if(self::$_instance==NULL)self::$_instance=new WebSoccer();return self::$_instance;}
     		function getUser(){if($this->_user==null)$this->_user=new User();return$this->_user;}
 			function getConfig($name){return Config($name);}
@@ -146,145 +146,60 @@ class ConfigCacheFileWriter{private$_frontCacheFileWriter,$_adminCacheFileWriter
 			function _getInnerHtml($node){$innerHTML='';$children=$node->childNodes;foreach($children as$child)$innerHTML.=$child->ownerDocument->saveXML($child);return$innerHTML;}
 			function __destruct(){if($this->_frontCacheFileWriter){}if($this->_adminCacheFileWriter){}if($this->_settingsCacheFileWriter){}foreach($this->_supportedLanguages as$language){if($this->_messagesFileWriters[$language]){}
 							if($this->_adminMessagesFileWriters[$language]){}if($this->_entityMessagesFileWriters[$language]){}}}}
-class ConfigFileWriter{private static $_instance,$_settings;
+class ConfigFileWriter{private static$_instance,$_settings;
 	 static function getInstance($settings){if(self::$_instance==NULL)self::$_instance=new ConfigFileWriter($settings);return self::$_instance;}
     		function saveSettings($newSettings){foreach($newSettings as$settingId=>$settingValue)$this->_settings[$settingId]=$settingValue;$this->_writeToFile();}
     		function _writeToFile(){$content="<?php".PHP_EOL;foreach($this->_settings as$id=>$value)$content.="\$conf[\"".$id."\"]=\"".addslashes($value)."\";".PHP_EOL;$content.="?>";$fw=new FileWriter($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');
     						$fw->writeLine($content);$fw->close();}
     		function __construct($settings){ $this->_settings=$settings;}}
-class ConverterFactory{private static $_createdConverters;
+class ConverterFactory{private static$_createdConverters;
 	 static function getConverter($website,$i18n,$converter){if(isset(self::$_createdConverters[$converter]))return self::$_createdConverters[$converter];if(class_exists($converter)){$converterInstance=new $converter($i18n,$website);
 							self::$_createdConverters[$converter]=$converterInstance;return$converterInstance;}throw new Exception("Converter not found: ".$converter);}}
 class CookieHelper{
 	 static function createCookie($name,$value,$lifetimeInDays=null){$expiry=($lifetimeInDays!=null)?time()+86400*$lifetimeInDays:0;setcookie('owsPro'.$name,$value,$expiry,null,null,true,true);}
 	 static function getCookieValue($name){if(!isset($_COOKIE['owsPro'.$name]))return null;return$_COOKIE['owsPro'.$name];}
 	 static function destroyCookie($name){if(!isset($_COOKIE['owsPro'.$name]))return;setcookie('owsPro'.$name,'',time()-86400,null,null,true,true);}}
-class DataUpdateSimulatorObserver {
-	private $_teamsWithSoonEndingContracts;
-	function __construct($websoccer,$db){
-		$this->_websoccer=$websoccer;
-		$this->_db=$db;
-		$this->_teamsWithSoonEndingContracts=[];}
-	function onBeforeMatchStarts(SimulationMatch $match){
-		if((Config('sim_income_trough_friendly')|| $match->type !=='Freundschaft')&&!$match->isAtForeignStadium)SimulationAudienceCalculator::computeAndSaveAudience($this->_websoccer,$this->_db,$match);
-		$clubTable=Config('db_prefix').'_verein';
-		$updateColumns=[];
-		$result=$this->_db->querySelect('user_id',$clubTable,'id=%d AND user_id>0',$match->homeTeam->id);
-		$homeUser=$result->fetch_array();
-		if($homeUser)$updateColumns['home_user_id']=$homeUser['user_id'];
-		$result=$this->_db->querySelect('user_id',$clubTable,'id=%d AND user_id>0',$match->guestTeam->id);
-		$guestUser=$result->fetch_array();
-		if($guestUser)$updateColumns['gast_user_id']=$guestUser['user_id'];
-		if(count($updateColumns))$this->_db->queryUpdate($updateColumns,Config('db_prefix').'_spiel', 'id=%d',$match->id);}
-	function onMatchCompleted(SimulationMatch $match){
-		$isFriendlyMatch=($match->type=='Freundschaft');
-		if($isFriendlyMatch){
-			$this->updatePlayersOfFriendlymatch($match->homeTeam);
-			$this->updatePlayersOfFriendlymatch($match->guestTeam);}
-		else{
-			$isTie=$match->homeTeam->getGoals()==$match->guestTeam->getGoals();
-			$this->updatePlayers($match,$match->homeTeam,$match->homeTeam->getGoals()>$match->guestTeam->getGoals(),$isTie);
-			$this->updatePlayers($match,$match->guestTeam,$match->homeTeam->getGoals()< $match->guestTeam->getGoals(),$isTie);
-			if(!$match->homeTeam->isNationalTeam)$this->creditSponsorPayments($match->homeTeam,TRUE,$match->homeTeam->getGoals()>$match->guestTeam->getGoals());
-			if(!$match->guestTeam->isNationalTeam)$this->creditSponsorPayments($match->guestTeam,FALSE,$match->homeTeam->getGoals()< $match->guestTeam->getGoals());
-			if($match->type=='Ligaspiel')$this->updateTeams($match);
-			elseif(strlen($match->cupRoundGroup)){
-				$this->updateTeamsOfCupGroupMatch($match);
-				SimulationCupMatchHelper::checkIfMatchIsLastMatchOfGroupRoundAndCreateFollowingMatches($this->_websoccer,$this->_db,$match);}
-			$this->updateUsers($match);}
-		$this->_db->queryDelete(Config('db_prefix').'_aufstellung', 'match_id=%d',$match->id);}
-	function updatePlayersOfFriendlymatch(SimulationTeam $team){
-		if(!count($team->positionsAndPlayers))return;
-		foreach($team->positionsAndPlayers as$position=>$players){
-			foreach($players as$player)$this->updatePlayerOfFriendlyMatch($player);}
-		if(is_array($team->removedPlayers)&& count($team->removedPlayers)){
-			foreach($team->removedPlayers as$player)$this->updatePlayerOfFriendlyMatch($player);}}
-	function updatePlayerOfFriendlyMatch(SimulationPlayer $player){
-		$columns=[];
-		if(Config('sim_tiredness_through_friendly')){
-			$columns['w_frische']=$player->strengthFreshness;
-			$minMinutes=(int)Config('sim_played_min_minutes');
-			$staminaChange=(int)Config('sim_strengthchange_stamina');
-			if($player->getMinutesPlayed()>= $minMinutes)$columns['w_kondition']=min(100,$player->strengthStamina + $staminaChange);}
-		if($player->injured>0 &&Config('sim_injured_after_friendly'))$columns['verletzt']=$player->injured;
-		if(count($columns)){
-			$fromTable=Config('db_prefix').'_spieler';
-			$this->_db->queryUpdate($columns,$fromTable,'id=%d',$player->id);}}
-	function updatePlayers(SimulationMatch $match,SimulationTeam $team,$isTeamWinner,$isTie){
-		$playersOnPitch=[];
-		foreach($team->positionsAndPlayers as$position=>$players){
-			foreach($players as$player)$playersOnPitch[$player->id]=$player;}
-		if(is_array($team->removedPlayers)&& count($team->removedPlayers)){
-			foreach($team->removedPlayers as$player)$playersOnPitch[$player->id]=$player;}
-		$totalSalary=0;
-		$pcolumns='id,vorname,nachname,kunstname,verein_id,vertrag_spiele,vertrag_gehalt,vertrag_torpraemie,w_zufriedenheit,w_frische,verletzt,gesperrt,gesperrt_cups,gesperrt_nationalteam,lending_fee,lending_matches,lending_owner_id';
-		$fromTable=Config('db_prefix').'_spieler';
-		if($team->isNationalTeam){
-			$fromTable .= ' INNER JOIN '.Config('db_prefix').'_nationalplayer AS NP ON NP.player_id=id';
-			$whereCondition='NP.team_id=%d AND status=1';}
-		else $whereCondition='verein_id=%d AND status=1';
-		$parameters=$team->id;
-		$result=$this->_db->querySelect($pcolumns,$fromTable,$whereCondition,$parameters);
-		while($playerinfo=$result->fetch_array()){
-			$totalSalary += $playerinfo['vertrag_gehalt'];
-			if(isset($playersOnPitch[$playerinfo['id']])){
-				$player=$playersOnPitch[$playerinfo['id']];
-				if($player->getGoals())$totalSalary += $player->getGoals()* $playerinfo['vertrag_torpraemie'];}
-			else $this->updatePlayerWhoDidNotPlay($match,$team->isNationalTeam,$playerinfo);}
-		if(!$team->isNationalTeam)$this->deductSalary($team,$totalSalary);
-		foreach($playersOnPitch as$player)$this->updatePlayer($match,$player,$isTeamWinner,$isTie);}
-	function updatePlayer(SimulationMatch $match,SimulationPlayer $player,$isTeamWinner,$isTie){
-		$fromTable=Config('db_prefix').'_spieler';
-		$whereCondition='id=%d';
-		$parameters=$player->id;
-		$minMinutes=(int)Config('sim_played_min_minutes');
-		$blockYellowCards=(int)Config('sim_block_player_after_yellowcards');
-		$staminaChange=(int)Config('sim_strengthchange_stamina');
-		$satisfactionChange=(int)Config('sim_strengthchange_satisfaction');
-		if($player->team->isNationalTeam)$columns['gesperrt_nationalteam']=$player->blocked;
-		elseif($match->type=='Pokalspiel')$columns['gesperrt_cups']=$player->blocked;
-		else $columns['gesperrt']=$player->blocked;
-		$pcolumns='id,vorname,nachname,kunstname,verein_id,vertrag_spiele,st_tore,st_assists,st_spiele,st_karten_gelb,st_karten_gelb_rot,st_karten_rot,sa_tore,sa_assists,sa_spiele,sa_karten_gelb,sa_karten_gelb_rot,sa_karten_rot,lending_fee,lending_owner_id,
-			lending_matches';
-		$result=$this->_db->querySelect($pcolumns,$fromTable,$whereCondition,$parameters);
-		$playerinfo=$result->fetch_array();
-		$columns['st_tore']=$playerinfo['st_tore'] + $player->getGoals();
-		$columns['sa_tore']=$playerinfo['sa_tore'] + $player->getGoals();
-		$columns['st_assists']=$playerinfo['st_assists'] + $player->getAssists();
-		$columns['sa_assists']=$playerinfo['sa_assists'] + $player->getAssists();
-		$columns['st_spiele']=$playerinfo['st_spiele'] + 1;
-		$columns['sa_spiele']=$playerinfo['sa_spiele'] + 1;
-		if($player->redCard){
-			$columns['st_karten_rot']=$playerinfo['st_karten_rot'] + 1;
-			$columns['sa_karten_rot']=$playerinfo['sa_karten_rot'] + 1;}
-		elseif($player->yellowCards){
-			if($player->yellowCards==2){
-				$columns['st_karten_gelb_rot']=$playerinfo['st_karten_gelb_rot'] + 1;
-				$columns['sa_karten_gelb_rot']=$playerinfo['sa_karten_gelb_rot'] + 1;
-				if($player->team->isNationalTeam)$columns['gesperrt_nationalteam']='1';
-				elseif($match->type=='Pokalspiel')$columns['gesperrt_cups']='1';
-				else $columns['gesperrt']='1';}
-			elseif(!$player->team->isNationalTeam){
-				$columns['st_karten_gelb']=$playerinfo['st_karten_gelb'] + 1;
-				$columns['sa_karten_gelb']=$playerinfo['sa_karten_gelb'] + 1;
-				if($match->type=='Ligaspiel' && $blockYellowCards>0 && $columns['sa_karten_gelb'] % $blockYellowCards==0)$columns['gesperrt']=1;}}
-		if(!$player->team->isNationalTeam){
-			$columns['vertrag_spiele']=max(0,$playerinfo['vertrag_spiele'] - 1);
-			if($columns['vertrag_spiele']==5)$this->_teamsWithSoonEndingContracts[$player->team->id]=TRUE;}
-		if(!$player->team->isNationalTeam ||Config('sim_playerupdate_through_nationalteam')){
-			$columns['w_frische']=$player->strengthFreshness;
-			$columns['verletzt']=$player->injured;
-			if($player->getMinutesPlayed()>= $minMinutes){
-				$columns['w_kondition']=min(100,$player->strengthStamina + $staminaChange);
-				$columns['w_zufriedenheit']=min(100,$player->strengthSatisfaction + $satisfactionChange);}
-			else{
-				$columns['w_kondition']=max(1,$player->strengthStamina - $staminaChange);
-				$columns['w_zufriedenheit']=max(1,$player->strengthSatisfaction - $satisfactionChange);}
-			if(!$isTie){
-				if($isTeamWinner)$columns['w_zufriedenheit']=min(100,$columns['w_zufriedenheit'] + $satisfactionChange);
-				else $columns['w_zufriedenheit']=max(1,$columns['w_zufriedenheit'] - $satisfactionChange);}}
-		if(!$player->team->isNationalTeam && $playerinfo['lending_matches'])$this->handleBorrowedPlayer($columns,$playerinfo);
-		$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);}
+class DataUpdateSimulatorObserver{private$_teamsWithSoonEndingContracts;
+			function __construct($websoccer,$db){$this->_websoccer=$websoccer;$this->_db=$db;$this->_teamsWithSoonEndingContracts=[];}
+			function onBeforeMatchStarts(SimulationMatch $match){
+							if((Config('sim_income_trough_friendly')||$match->type!=='Freundschaft')&&!$match->isAtForeignStadium)SimulationAudienceCalculator::computeAndSaveAudience($this->_websoccer,$this->_db,$match);$clubTable=Config('db_prefix').'_verein';
+							$updateColumns=[];$result=$this->_db->querySelect('user_id',$clubTable,'id=%d AND user_id>0',$match->homeTeam->id);$homeUser=$result->fetch_array();if($homeUser)$updateColumns['home_user_id']=$homeUser['user_id'];
+							$result=$this->_db->querySelect('user_id',$clubTable,'id=%d AND user_id>0',$match->guestTeam->id);$guestUser=$result->fetch_array();if($guestUser)$updateColumns['gast_user_id']=$guestUser['user_id'];
+							if(count($updateColumns))$this->_db->queryUpdate($updateColumns,Config('db_prefix').'_spiel','id=%d',$match->id);}
+			function onMatchCompleted(SimulationMatch$match){$isFriendlyMatch=($match->type=='Freundschaft');if($isFriendlyMatch){$this->updatePlayersOfFriendlymatch($match->homeTeam);$this->updatePlayersOfFriendlymatch($match->guestTeam);}else{
+							$isTie=$match->homeTeam->getGoals()==$match->guestTeam->getGoals();$this->updatePlayers($match,$match->homeTeam,$match->homeTeam->getGoals()>$match->guestTeam->getGoals(),$isTie);$this->updatePlayers($match,$match->guestTeam,
+							$match->homeTeam->getGoals()<$match->guestTeam->getGoals(),$isTie);if(!$match->homeTeam->isNationalTeam)$this->creditSponsorPayments($match->homeTeam,TRUE,$match->homeTeam->getGoals()>$match->guestTeam->getGoals());
+							if(!$match->guestTeam->isNationalTeam)$this->creditSponsorPayments($match->guestTeam,FALSE,$match->homeTeam->getGoals()<$match->guestTeam->getGoals());if($match->type=='Ligaspiel')$this->updateTeams($match);
+							elseif(strlen($match->cupRoundGroup)){$this->updateTeamsOfCupGroupMatch($match);SimulationCupMatchHelper::checkIfMatchIsLastMatchOfGroupRoundAndCreateFollowingMatches($this->_websoccer,$this->_db,$match);}$this->updateUsers($match);}
+							$this->_db->queryDelete(Config('db_prefix').'_aufstellung', 'match_id=%d',$match->id);}
+			function updatePlayersOfFriendlymatch(SimulationTeam $team){if(!count($team->positionsAndPlayers))return;foreach($team->positionsAndPlayers as$position=>$players){foreach($players as$player)$this->updatePlayerOfFriendlyMatch($player);}
+							if(is_array($team->removedPlayers)&& count($team->removedPlayers)){foreach($team->removedPlayers as$player)$this->updatePlayerOfFriendlyMatch($player);}}
+			function updatePlayerOfFriendlyMatch(SimulationPlayer $player){$columns=[];if(Config('sim_tiredness_through_friendly')){$columns['w_frische']=$player->strengthFreshness;$minMinutes=(int)Config('sim_played_min_minutes');
+							$staminaChange=(int)Config('sim_strengthchange_stamina');if($player->getMinutesPlayed()>=$minMinutes)$columns['w_kondition']=min(100,$player->strengthStamina+$staminaChange);}if($player->injured>0&&Config('sim_injured_after_friendly'))
+							$columns['verletzt']=$player->injured;if(count($columns)){$fromTable=Config('db_prefix').'_spieler';$this->_db->queryUpdate($columns,$fromTable,'id=%d',$player->id);}}
+			function updatePlayers(SimulationMatch $match,SimulationTeam $team,$isTeamWinner,$isTie){$playersOnPitch=[];foreach($team->positionsAndPlayers as$position=>$players){foreach($players as$player)$playersOnPitch[$player->id]=$player;}
+							if(is_array($team->removedPlayers)&& count($team->removedPlayers)){foreach($team->removedPlayers as$player)$playersOnPitch[$player->id]=$player;}$totalSalary=0;
+							$pcolumns='id,vorname,nachname,kunstname,verein_id,vertrag_spiele,vertrag_gehalt,vertrag_torpraemie,w_zufriedenheit,w_frische,verletzt,gesperrt,gesperrt_cups,gesperrt_nationalteam,lending_fee,lending_matches,lending_owner_id';
+							$fromTable=Config('db_prefix').'_spieler';if($team->isNationalTeam){$fromTable.=' INNER JOIN '.Config('db_prefix').'_nationalplayer AS NP ON NP.player_id=id';$whereCondition='NP.team_id=%d AND status=1';}
+							else$whereCondition='verein_id=%d AND status=1';$parameters=$team->id;$result=$this->_db->querySelect($pcolumns,$fromTable,$whereCondition,$parameters);while($playerinfo=$result->fetch_array()){$totalSalary+=$playerinfo['vertrag_gehalt'];
+							if(isset($playersOnPitch[$playerinfo['id']])){$player=$playersOnPitch[$playerinfo['id']];if($player->getGoals())$totalSalary+=$player->getGoals()*$playerinfo['vertrag_torpraemie'];}else$this->updatePlayerWhoDidNotPlay($match,
+							$team->isNationalTeam,$playerinfo);}if(!$team->isNationalTeam)$this->deductSalary($team,$totalSalary);foreach($playersOnPitch as$player)$this->updatePlayer($match,$player,$isTeamWinner,$isTie);}
+			function updatePlayer(SimulationMatch $match,SimulationPlayer$player,$isTeamWinner,$isTie){$fromTable=Config('db_prefix').'_spieler';$whereCondition='id=%d';$parameters=$player->id;$minMinutes=(int)Config('sim_played_min_minutes');
+							$blockYellowCards=(int)Config('sim_block_player_after_yellowcards');$staminaChange=(int)Config('sim_strengthchange_stamina');$satisfactionChange=(int)Config('sim_strengthchange_satisfaction');if($player->team->isNationalTeam)
+							$columns['gesperrt_nationalteam']=$player->blocked;elseif($match->type=='Pokalspiel')$columns['gesperrt_cups']=$player->blocked;else$columns['gesperrt']=$player->blocked;$pcolumns='id,vorname,nachname,kunstname,verein_id,vertrag_spiele,
+							st_tore,st_assists,st_spiele,st_karten_gelb,st_karten_gelb_rot,st_karten_rot,sa_tore,sa_assists,sa_spiele,sa_karten_gelb,sa_karten_gelb_rot,sa_karten_rot,lending_fee,lending_owner_id,lending_matches';
+							$result=$this->_db->querySelect($pcolumns,$fromTable,$whereCondition,$parameters);$playerinfo=$result->fetch_array();$columns['st_tore']=$playerinfo['st_tore']+$player->getGoals();$columns['sa_tore']=$playerinfo['sa_tore']+
+							$player->getGoals();$columns['st_assists']=$playerinfo['st_assists']+$player->getAssists();$columns['sa_assists']=$playerinfo['sa_assists']+$player->getAssists();$columns['st_spiele']=$playerinfo['st_spiele']+1;
+							$columns['sa_spiele']=$playerinfo['sa_spiele']+1;if($player->redCard){$columns['st_karten_rot']=$playerinfo['st_karten_rot']+1;$columns['sa_karten_rot']=$playerinfo['sa_karten_rot']+1;}elseif($player->yellowCards){
+							if($player->yellowCards==2){$columns['st_karten_gelb_rot']=$playerinfo['st_karten_gelb_rot']+1;$columns['sa_karten_gelb_rot']=$playerinfo['sa_karten_gelb_rot']+1;if($player->team->isNationalTeam)$columns['gesperrt_nationalteam']='1';
+							elseif($match->type=='Pokalspiel')$columns['gesperrt_cups']='1';else$columns['gesperrt']='1';}elseif(!$player->team->isNationalTeam){$columns['st_karten_gelb']=$playerinfo['st_karten_gelb']+1;			
+							$columns['sa_karten_gelb']=$playerinfo['sa_karten_gelb']+1;if($match->type=='Ligaspiel' && $blockYellowCards>0&&$columns['sa_karten_gelb']%$blockYellowCards==0)$columns['gesperrt']=1;}}if(!$player->team->isNationalTeam){
+							$columns['vertrag_spiele']=max(0,$playerinfo['vertrag_spiele']-1);if($columns['vertrag_spiele']==5)$this->_teamsWithSoonEndingContracts[$player->team->id]=TRUE;}if(!$player->team->isNationalTeam||
+							Config('sim_playerupdate_through_nationalteam')){$columns['w_frische']=$player->strengthFreshness;$columns['verletzt']=$player->injured;if($player->getMinutesPlayed()>=$minMinutes){$columns['w_kondition']=min(100,
+							$player->strengthStamina+$staminaChange);$columns['w_zufriedenheit']=min(100,$player->strengthSatisfaction+$satisfactionChange);}else{$columns['w_kondition']=max(1,$player->strengthStamina- $staminaChange);
+							$columns['w_zufriedenheit']=max(1,$player->strengthSatisfaction-$satisfactionChange);}if(!$isTie){if($isTeamWinner)$columns['w_zufriedenheit']=min(100,$columns['w_zufriedenheit']+$satisfactionChange);
+							else $columns['w_zufriedenheit']=max(1,$columns['w_zufriedenheit']-$satisfactionChange);}}if(!$player->team->isNationalTeam&&$playerinfo['lending_matches'])$this->handleBorrowedPlayer($columns,$playerinfo);
+							$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$parameters);}
 	function updatePlayerWhoDidNotPlay(SimulationMatch $match,$isNationalTeam,$playerinfo){
 		$fromTable=Config('db_prefix').'_spieler';
 		$whereCondition='id=%d';
@@ -463,105 +378,37 @@ class DataUpdateSimulatorObserver {
 				$guestColumns['fanbeliebtheit']=max(1,round($guestUser['popularity']*$popFactor));}
 			if(!$match->guestTeam->isManagedByInterimManager)$this->_db->queryUpdate($guestColumns,$updateTable,$updateCondition,$guestUser['u_id']);
 			if(isset($this->_teamsWithSoonEndingContracts[$match->guestTeam->id]))$this->notifyAboutSoonEndingContracts($guestUser['u_id'],$match->guestTeam->id);}}
-	function handleBorrowedPlayer(&$columns,$playerinfo){
-		$columns['lending_matches']=max(0,$playerinfo['lending_matches'] - 1);
-		if($columns['lending_matches']==0){
-			$columns['lending_fee']=0;
-			$columns['lending_owner_id']=0;
-			$columns['verein_id']=$playerinfo['lending_owner_id'];
-			$borrower=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$playerinfo['verein_id']);
-			$lender=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$playerinfo['lending_owner_id']);
-			$messageKey='lending_notification_return';
-			$messageType='lending_return';
-			$playerName=($playerinfo['kunstname'])? $playerinfo['kunstname'] : $playerinfo['vorname'].' '.$playerinfo['nachname'];
-			$messageData=array('player'=>$playerName,'borrower'=>$borrower['team_name'],'lender'=>$lender['team_name']);
-			if($borrower['user_id'])NotificationsDataService::createNotification($this->_websoccer,$this->_db,$borrower['user_id'],$messageKey,$messageData,$messageType,'player','id='.$playerinfo['id']);
-			if($lender['user_id'])NotificationsDataService::createNotification($this->_websoccer,$this->_db,$lender['user_id'],$messageKey,$messageData,$messageType,'player','id='.$playerinfo['id']);}}
-	function notifyAboutSoonEndingContracts($userId,$teamId){
-		NotificationsDataService::createNotification($this->_websoccer,$this->_db,$userId,'notification_soon_ending_playercontracts','','soon_ending_playercontracts','myteam',null,$teamId);
-		unset($this->_teamsWithSoonEndingContracts[$teamId]);}
-	function onSubstitution(SimulationMatch $match,SimulationSubstitution $substitution){} }
-class DbConnection {
-	public $connection;
-	private static $_instance;
-	private $_queryCache;
-	static function getInstance(){
-		if(self::$_instance==NULL)self::$_instance=new DbConnection();
-		return self::$_instance;}
-	function __construct(){}
-	function connect($host,$user,$password,$dbname){
-		@$this->connection=new mysqli($host,$user,$password,$dbname);
-		@$this->connection->set_charset('utf8');
-		if(mysqli_connect_error())throw new Exception('Database Connection Error (' . mysqli_connect_errno().')'. mysqli_connect_error());}
-	function close(){ $this->connection->close();}
-	function querySelect($columns,$fromTable,$whereCondition,$parameters=null,$limit=null){
-		$queryStr=$this->buildQueryString($columns,$fromTable,$whereCondition,$parameters,$limit);
-		return$this->executeQuery($queryStr);}
-	function queryCachedSelect($columns,$fromTable,$whereCondition,$parameters=null,$limit=null){
-		$queryStr=$this->buildQueryString($columns,$fromTable,$whereCondition,$parameters,$limit);
-		if(isset($this->_queryCache[$queryStr]))return$this->_queryCache[$queryStr];
-		$result=$this->executeQuery($queryStr);
-		$rows=[];
-		while($row=$result->fetch_array())$rows[]=$row;
-		$this->_queryCache[$queryStr]=$rows;
-		return$rows;}
-	function queryUpdate($columns,$fromTable,$whereCondition,$parameters){
-		$queryStr='UPDATE '.$fromTable.' SET ';
-		$queryStr=$queryStr . self::buildColumnsValueList($columns);
-		$queryStr=$queryStr.' WHERE ';
-		$wherePart=self::buildWherePart($whereCondition,$parameters);
-		$queryStr=$queryStr .$wherePart;
-		$this->executeQuery($queryStr);
-		$this->_queryCache=[];}
-	function queryDelete($fromTable,$whereCondition,$parameters){
-		$queryStr='DELETE FROM '.$fromTable;
-		$queryStr=$queryStr.' WHERE ';
-		$wherePart=self::buildWherePart($whereCondition,$parameters);
-		$queryStr=$queryStr .$wherePart;
-		$this->executeQuery($queryStr);
-		$this->_queryCache=[];}
-	function queryInsert($columns,$fromTable){
-		$queryStr='INSERT '.$fromTable.' SET ';
-		$queryStr=$queryStr .$this->buildColumnsValueList($columns);
-		$this->executeQuery($queryStr);}
-	function getLastInsertedId(){ return$this->connection->insert_id;}
-	function buildQueryString($columns,$fromTable,$whereCondition,$parameters=null,$limit=null){
-		$queryStr='SELECT ';
-		if(is_array($columns)){
-			$firstColumn=TRUE;
-			foreach($columns as$dbName=>$aliasName){
-				if(!$firstColumn)$queryStr=$queryStr.', ';
-				else $firstColumn=FALSE;
-				if(is_numeric($dbName))$dbName=$aliasName;
-				$queryStr=$queryStr .$dbName.' AS '.$aliasName;}}
-		else $queryStr=$queryStr .$columns;
-		$queryStr=$queryStr.' FROM '.$fromTable.' WHERE ';
-		$wherePart=self::buildWherePart($whereCondition,$parameters);
-		if(!empty($limit))$wherePart=$wherePart.' LIMIT '.$limit;
-		$queryStr=$queryStr .$wherePart;
-		return$queryStr;}
-	function buildColumnsValueList($columns){
-		$queryStr='';
-		$firstColumn=TRUE;
-		foreach($columns as$dbName=>$value){
-			if(!$firstColumn)$queryStr=$queryStr.', ';
-			else $firstColumn=FALSE;
-			if(strlen($value))$columnValue='\''.$this->connection->real_escape_string($value).'\'';
-			else $columnValue='DEFAULT';
-			$queryStr=$queryStr .$dbName.'='.$columnValue;}
-		return$queryStr;}
-	function buildWherePart($whereCondition,$parameters){
-		$maskedParameters=self::prepareParameters($parameters);
-		return vsprintf($whereCondition,$maskedParameters);}
-	function prepareParameters($parameters){
-		if(!is_array($parameters))$parameters=array($parameters);
-		$arrayLength=count($parameters);
-		for($i=0; $i<$arrayLength;++$i)$parameters[$i]=$this->connection->real_escape_string(trim($parameters[$i]));
-		return$parameters;}
-	function executeQuery($queryStr){
-		$queryResult=$this->connection->query($queryStr);
-		if(!$queryResult)throw new Exception('Database Query Error: '.$this->connection->error);
-		return$queryResult;}}
+			function handleBorrowedPlayer(&$columns,$playerinfo){$columns['lending_matches']=max(0,$playerinfo['lending_matches']-1);if($columns['lending_matches']==0){$columns['lending_fee']=0;$columns['lending_owner_id']=0;$columns['verein_id']=
+					$playerinfo['lending_owner_id'];$borrower=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$playerinfo['verein_id']);$lender=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$playerinfo['lending_owner_id']);
+					$messageKey='lending_notification_return';$messageType='lending_return';$playerName=($playerinfo['kunstname'])?$playerinfo['kunstname']:$playerinfo['vorname'].' '.$playerinfo['nachname'];$messageData=array('player'=>$playerName,
+					'borrower'=>$borrower['team_name'],'lender'=>$lender['team_name']);if($borrower['user_id'])NotificationsDataService::createNotification($this->_websoccer,$this->_db,$borrower['user_id'],$messageKey,$messageData,$messageType,'player','id='.
+					$playerinfo['id']);if($lender['user_id'])NotificationsDataService::createNotification($this->_websoccer,$this->_db,$lender['user_id'],$messageKey,$messageData,$messageType,'player','id='.$playerinfo['id']);}}
+			function notifyAboutSoonEndingContracts($userId,$teamId){NotificationsDataService::createNotification($this->_websoccer,$this->_db,$userId,'notification_soon_ending_playercontracts','','soon_ending_playercontracts','myteam',null,$teamId);
+					unset($this->_teamsWithSoonEndingContracts[$teamId]);}
+			function onSubstitution(SimulationMatch$match,SimulationSubstitution$substitution){} }
+class DbConnection{public$connection;private static$_instance;private$_queryCache;
+			static function getInstance(){if(self::$_instance==NULL)self::$_instance=new DbConnection();return self::$_instance;}
+			function __construct(){}
+			function connect($host,$user,$password,$dbname){@$this->connection=new mysqli($host,$user,$password,$dbname);@$this->connection->set_charset('utf8');if(mysqli_connect_error())throw new Exception('Database Connection Error ('.mysqli_connect_errno().')'.
+			mysqli_connect_error());}
+			function close(){$this->connection->close();}
+			function querySelect($columns,$fromTable,$whereCondition,$parameters=null,$limit=null){$queryStr=$this->buildQueryString($columns,$fromTable,$whereCondition,$parameters,$limit);return$this->executeQuery($queryStr);}
+			function queryCachedSelect($columns,$fromTable,$whereCondition,$parameters=null,$limit=null){$queryStr=$this->buildQueryString($columns,$fromTable,$whereCondition,$parameters,$limit);if(isset($this->_queryCache[$queryStr]))
+					return$this->_queryCache[$queryStr];$result=$this->executeQuery($queryStr);$rows=[];while($row=$result->fetch_array())$rows[]=$row;$this->_queryCache[$queryStr]=$rows;return$rows;}
+			function queryUpdate($columns,$fromTable,$whereCondition,$parameters){$queryStr='UPDATE '.$fromTable.' SET ';$queryStr=$queryStr.self::buildColumnsValueList($columns);$queryStr=$queryStr.' WHERE ';$wherePart=self::buildWherePart($whereCondition,$parameters);
+					$queryStr=$queryStr.$wherePart;$this->executeQuery($queryStr);$this->_queryCache=[];}
+			function queryDelete($fromTable,$whereCondition,$parameters){$queryStr='DELETE FROM '.$fromTable;$queryStr=$queryStr.' WHERE ';$wherePart=self::buildWherePart($whereCondition,$parameters);$queryStr=$queryStr.$wherePart;$this->executeQuery($queryStr);
+					$this->_queryCache=[];}
+			function queryInsert($columns,$fromTable){$queryStr='INSERT '.$fromTable.' SET ';$queryStr=$queryStr .$this->buildColumnsValueList($columns);$this->executeQuery($queryStr);}
+			function getLastInsertedId(){return$this->connection->insert_id;}
+			function buildQueryString($columns,$fromTable,$whereCondition,$parameters=null,$limit=null){$queryStr='SELECT ';if(is_array($columns)){$firstColumn=TRUE;foreach($columns as$dbName=>$aliasName){if(!$firstColumn)$queryStr=$queryStr.', ';else$firstColumn=FALSE;
+					if(is_numeric($dbName))$dbName=$aliasName;$queryStr=$queryStr.$dbName.' AS '.$aliasName;}}else$queryStr=$queryStr.$columns;$queryStr=$queryStr.' FROM '.$fromTable.' WHERE ';$wherePart=self::buildWherePart($whereCondition,$parameters);
+					if(!empty($limit))$wherePart=$wherePart.' LIMIT '.$limit;$queryStr=$queryStr.$wherePart;return$queryStr;}
+			function buildColumnsValueList($columns){$queryStr='';$firstColumn=TRUE;foreach($columns as$dbName=>$value){if(!$firstColumn)$queryStr=$queryStr.', ';else$firstColumn=FALSE;if(strlen($value))$columnValue='\''.$this->connection->real_escape_string($value).
+					'\'';else$columnValue='DEFAULT';$queryStr=$queryStr.$dbName.'='.$columnValue;}return$queryStr;}
+			function buildWherePart($whereCondition,$parameters){$maskedParameters=self::prepareParameters($parameters);return vsprintf($whereCondition,$maskedParameters);}
+			function prepareParameters($parameters){if(!is_array($parameters))$parameters=array($parameters);$arrayLength=count($parameters);for($i=0;$i<$arrayLength;++$i)$parameters[$i]=$this->connection->real_escape_string(trim($parameters[$i]));return$parameters;}
+			function executeQuery($queryStr){$queryResult=$this->connection->query($queryStr);if(!$queryResult)throw new Exception('Database Query Error: '.$this->connection->error);return$queryResult;}}
 class DbSessionManager{
 	function __construct($db,$websoccer){
 		$this->_db=$db;
@@ -851,12 +698,12 @@ class DefaultSimulationStrategy {
 		$playerIndexHome=0;
 		$playerIndexGuest=0;
 		while($shots <= 50){
-			$shots++;
-			if($this->_shootPenalty($match,$playersHome[$playerIndexHome]))$goalsHome++;
-			if($this->_shootPenalty($match,$playersGuest[$playerIndexGuest]))$goalsGuest++;
+			++$shots;
+			if($this->_shootPenalty($match,$playersHome[$playerIndexHome]))++$goalsHome;
+			if($this->_shootPenalty($match,$playersGuest[$playerIndexGuest]))++$goalsGuest;
 			if($shots >= 5 && $goalsHome !==$goalsGuest)return TRUE;
-			$playerIndexHome++;
-			$playerIndexGuest++;
+			++$playerIndexHome;
+			++$playerIndexGuest;
 			if($playerIndexHome >= count($playersHome))$playerIndexHome=0;
 			if($playerIndexGuest >= count($playersGuest))$playerIndexGuest=0;}}
 	function foulPenalty(SimulationMatch $match,SimulationTeam $team){
@@ -906,7 +753,7 @@ class DefaultSimulationStrategy {
 			foreach($team->positionsAndPlayers[config('PLAYER_POSITION_MIDFIELD')] as$player){
 				$mfStrength=$player->getTotalStrength($this->_websoccer,$match);
 				if($player->mainPosition=='OM'){
-					$omPlayers++;
+					++$omPlayers;
 					if($omPlayers <= 3)$mfStrength=$mfStrength*1.3;
 					else $mfStrength=$mfStrength*0.5;}
 				elseif($player->mainPosition=='DM')$mfStrength=$mfStrength*0.7;
@@ -914,7 +761,7 @@ class DefaultSimulationStrategy {
 		$noOfStrikers=0;
 		if(isset($team->positionsAndPlayers[config('PLAYER_POSITION_STRIKER')])){
 			foreach($team->positionsAndPlayers[config('PLAYER_POSITION_STRIKER')] as$player){
-				$noOfStrikers++;
+				++$noOfStrikers;
 				if($noOfStrikers<3)$strength += $player->getTotalStrength($this->_websoccer,$match)* 1.5;
 				else $strength += $player->getTotalStrength($this->_websoccer,$match)* 0.5;}}
 		$offensiveFactor=(80 + $team->offensive*0.4)/ 100;
@@ -930,7 +777,7 @@ class DefaultSimulationStrategy {
 			$strength += $mfStrength;}
 		$noOfDefence=0;
 		foreach($team->positionsAndPlayers[config('PLAYER_POSITION_DEFENCE')] as$player){
-			$noOfDefence++;
+			++$noOfDefence;
 			$strength += $player->getTotalStrength($this->_websoccer,$match);}
 		if($noOfDefence<3)$strength=$strength*0.5;
 		elseif($noOfDefence>4)$strength=$strength*1.5;
@@ -1402,7 +1249,7 @@ class MatchSimulationExecutor {
 			$match->cleanReferences();
 			unset($match);
 			$db->queryUpdate($unlockArray,$matchTable, 'id=%d',$matchinfo['match_id']);
-			$matchesSimulated++;}
+			++$matchesSimulated;}
 		$maxYouthMatchesToSimulate=$maxMatches - $matchesSimulated;
 		if($maxYouthMatchesToSimulate)YouthMatchSimulationExecutor::simulateOpenYouthMatches($websoccer,$db,$maxYouthMatchesToSimulate);}
 	static function handleBothTeamsHaveNoFormation($websoccer,$db,$homeTeam,$guestTeam, SimulationMatch $match){
@@ -1504,7 +1351,7 @@ class MatchSimulationExecutor {
 				else $player->name=$playerinfo['firstName'].' '.$playerinfo['lastName'];
 				$team->positionsAndPlayers[$player->position][]=$player;
 				SimulationStateHelper::createSimulationRecord($websoccer,$db,$matchinfo['match_id'],$player);
-				$addedPlayers++;
+				++$addedPlayers;
 				if($matchinfo[$columnPrefix.'_captain_id']==$playerId)self::computeMorale($player,$playerinfo['matches_played']);
 				if($matchinfo[$columnPrefix.'_formation_freekickplayer']==$playerId)$team->freeKickPlayer=$player;}}
 		if($addedPlayers<11 &&Config('sim_createformation_on_invalidsubmission')){
@@ -1675,7 +1522,7 @@ class ScheduleGenerator {
 		$noOfTeams=count($teamIds);
 		if($noOfTeams % 2 !==0){
 			$teamIds[]=-1;
-			$noOfTeams++;}
+			++$noOfTeams;}
 		$noOfMatchDays=$noOfTeams - 1;
 		$sortedMatchdays=[];
 		foreach($teamIds as$teamId)$sortedMatchdays[1][]=$teamId;
@@ -2075,7 +1922,7 @@ class SimulationFormationHelper {
 			if($mainPosition=='LV'){
 				if($lvExists){
 					$mainPosition='IV';
-					$ivPlayers++;
+					++$ivPlayers;
 					if($ivPlayers==3){
 						$mainPosition='RV';
 						$rvExists=TRUE;}}
@@ -2083,13 +1930,13 @@ class SimulationFormationHelper {
 			elseif($mainPosition=='RV'){
 				if($rvExists){
 					$mainPosition='IV';
-					$ivPlayers++;
+					++$ivPlayers;
 					if($ivPlayers==3){
 						$mainPosition='LV';
 						$lvExists=TRUE;}}
 				else $rvExists=TRUE;}
 			elseif($mainPosition=='IV'){
-				$ivPlayers++;
+				++$ivPlayers;
 				if($ivPlayers==3){
 					if(!$rvExists){
 						$mainPosition='RV';
@@ -2100,16 +1947,16 @@ class SimulationFormationHelper {
 			elseif($mainPosition=='LM'){
 				if($lmExists){
 					$mainPosition='ZM';
-					$zmPlayers++;}
+					++$zmPlayers;}
 				else $lmExists=TRUE;}
 			elseif($mainPosition=='RM'){
 				if($rmExists){
 					$mainPosition='ZM';
-					$zmPlayers++;}
+					++$zmPlayers;}
 				else $rmExists=TRUE;}
 			elseif($mainPosition=='LS'||$mainPosition=='RS')$mainPosition='MS';
 			elseif($mainPosition=='ZM'){
-				$zmPlayers++;
+				++$zmPlayers;
 				if($zmPlayers>2)$mainPosition='DM';}
 			$player=new SimulationPlayer($playerinfo['id'],$team,$position,$mainPosition, 3.0,$playerinfo['age'],$playerinfo['strength'],$playerinfo['technique'],$playerinfo['stamina'],$playerinfo['freshness'],$playerinfo['satisfaction']);
 			if(strlen($playerinfo['pseudonym']))$player->name=$playerinfo['pseudonym'];
@@ -2217,13 +2064,13 @@ class SimulationHelper {
 			if($existingSub->minute>$minute && $existingSub->playerIn->id==$substitution->playerIn->id){
 				$team->substitutions[$index]=$substitution;
 				return TRUE;}
-			$index++;}
+			++$index;}
 		$index=0;
 		foreach($team->substitutions as$existingSub){
 			if($existingSub->minute>$minute){
 				$team->substitutions[$index]=$substitution;
 				return TRUE;}
-			$index++;}
+			++$index;}
 		return FALSE;}
 	static function sortByStrength(SimulationPlayer $a, SimulationPlayer $b){ return$b->strength - $a->strength;}
 	static function getPositionsMapping(){return array('T'=> 'Torwart','LV'=> 'Abwehr','IV'=> 'Abwehr','RV'=> 'Abwehr','DM'=> 'Mittelfeld','OM'=> 'Mittelfeld','ZM'=> 'Mittelfeld','LM'=> 'Mittelfeld','RM'=> 'Mittelfeld','LS'=> 'Sturm','MS'=> 'Sturm','RS'=> 'Sturm');}}
@@ -2472,7 +2319,7 @@ class SimulationStateHelper {
 				$columns['home_w'.$subIndex.'_minute']=$substitution->minute;
 				$columns['home_w'.$subIndex.'_condition']=$substitution->condition;
 				$columns['home_w'.$subIndex.'_position']=$substitution->position;
-				$subIndex++;}}
+				++$subIndex;}}
 		if(is_array($match->guestTeam->substitutions)){
 			$subIndex=1;
 			foreach($match->guestTeam->substitutions as$substitution){
@@ -2481,7 +2328,7 @@ class SimulationStateHelper {
 				$columns['gast_w'.$subIndex.'_minute']=$substitution->minute;
 				$columns['gast_w'.$subIndex.'_condition']=$substitution->condition;
 				$columns['gast_w'.$subIndex.'_position']=$substitution->position;
-				$subIndex++;
+				++$subIndex;
 			}
 		}
 		$fromTable=Config('db_prefix').'_spiel';
@@ -2710,7 +2557,7 @@ class Simulator {
     	if(!is_array($team->positionsAndPlayers)|| count($team->positionsAndPlayers)==0)return FALSE;
     	$noOfPlayers=0;
     	foreach($team->positionsAndPlayers as$position=>$players){
-    		foreach($players as$player)$noOfPlayers++;}
+    		foreach($players as$player)++$noOfPlayers;}
     	return($noOfPlayers>5);}}
 class StringUtil {
 	static function startsWith($message,$needle){ return !strncmp($message,$needle, strlen($needle));}
@@ -3034,7 +2881,7 @@ class YouthMatchSimulationExecutor {
 				else $player->position=$playerinfo['match_position'];
 				if($player->position!=$playerinfo['player_position'])$player->strength=round($strength*(1 -Config('sim_strength_reduction_wrongposition')/ 100));
 				$team->positionsAndPlayers[$player->position][]=$player;
-				$addedFieldPlayers++;}}
+				++$addedFieldPlayers;}}
 		if($addedFieldPlayers<config('MIN_NUMBER_OF_PLAYERS')){
 			$team->noFormationSet=TRUE;
 			self::_createRandomFormation($websoccer,$db,$match,$team);}}
@@ -3054,7 +2901,7 @@ class YouthMatchSimulationExecutor {
 				$db->queryInsert($columns,Config('db_prefix').'_youthmatch_player');
 				$team->positionsAndPlayers[$player->position][]=$player;}
 			catch (Exception $e){}
-			$positionIndex++;
+			++$positionIndex;
 			if($positionIndex==11)break;}}
 	static function _addSubstitutions($websoccer,$db, SimulationMatch $match, SimulationTeam $team,$matchinfo,$teamPrefix){
 		for($subNo=1; $subNo <= 3; $subNo++){
@@ -5946,7 +5793,7 @@ class MatchChangesModel extends FormationModel {
 		else $formation['counterattacks']=$match['match_'.$teamPrefix.'_counterattacks'];
 		$playerNo=0;
 		foreach($playersOnField as$player){
-			$playerNo++;
+			++$playerNo;
 			$formation['player'.$playerNo]=$player['id'];
 			$formation['player'.$playerNo.'_pos']=$player['match_position_main'];}
 		$setup=array('defense'=> 6, 'dm'=> 3, 'midfield'=> 4, 'om'=> 3, 'striker'=> 2, 'outsideforward'=> 2);
@@ -5958,7 +5805,7 @@ class MatchChangesModel extends FormationModel {
 				$formation['player'.$playerNo.'_pos']=Request('player'.$playerNo.'_pos');}}
 		$benchNo=0;
 		foreach($playersOnBench as$player){
-			$benchNo++;
+			++$benchNo;
 			$formation['bench'.$benchNo]=$player['id'];}
 		for($benchNo=1; $benchNo <= 5; $benchNo++){
 			if(Request('bench'.$benchNo))$formation['bench'.$benchNo]=Request('bench'.$benchNo);
@@ -8758,8 +8605,7 @@ class TeamsDataService {
 	static function getTeamsOfLeagueOrderedByTableCriteria($websoccer,$db,$leagueId){
 		$result=$db->querySelect('id',Config('db_prefix').'_saison', 'liga_id=%d AND beendet=\'0\' ORDER BY name DESC',$leagueId, 1);
 		$season=$result->fetch_array();
-		$fromTable=Config('db_prefix').'_verein AS C LEFT JOIN '.Config('db_prefix').'_user AS U ON C.user_id=U.id LEFT JOIN ' .Config('db_prefix').
-			'_leaguehistory AS PREVDAY ON (PREVDAY.team_id=C.id AND PREVDAY.matchday=(C.sa_spiele - 1)';
+		$fromTable=Config('db_prefix').'_verein AS C LEFT JOIN '.Config('db_prefix').'_user AS U ON C.user_id=U.id LEFT JOIN ' .Config('db_prefix').'_leaguehistory AS PREVDAY ON (PREVDAY.team_id=C.id AND PREVDAY.matchday=(C.sa_spiele - 1)';
 		if($season)$fromTable .= ' AND PREVDAY.season_id='.$season['id'];
 		$fromTable .= ')';
 		$columns=[];
@@ -8793,7 +8639,7 @@ class TeamsDataService {
 		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
 		$rank=0;
 		while($team=$result->fetch_array()){
-			$rank++;
+			++$rank;
 			$team['user_picture']=UsersDataService::getUserProfilePicture($websoccer,$team['user_picture'],$team['user_email'],20);
 			$teams[]=$team;
 			if($updateHistory && $team['matches']){
@@ -9670,10 +9516,10 @@ function Diagnosis(){
 	function fibo_r($n){return(($n<2)?1:fibo_r($n-2)+fibo_r($n-1));}
 	function fibo($n){$r=fibo_r($n);print'$r\n';}
 	function hash1($n){for($i=1;$i<=$n;++$i)$X[dechex($i)]=$i;$c=0;for($i=$n;$i>0;--$i)if($X[dechex($i)]){++$c;}print'$c\n';}
-	function hash2($n){for($i=0;$i<$n;++$i){$hash1['foo_$i']=$i;$hash2['foo_$i']=0;}for($i=$n;$i>0;--$i)foreach($hash1 as$key=>$value)$hash2[$key]+=$value;$first='foo_0';$last='foo_'.($n-1);print'$hash1[$first] $hash1[$last] $hash2[$first] $hash2[$last]\n';}
-	function gen_random($n){global$LAST;return(($n*($LAST=($LAST*IA+IC)%IM))/IM);}
-	function heapsort_r($n,&$ra){$l=($n>>1)+1;$ir=$n;while(1){if($l>1)$rra=$ra[--$l];else{$rra=$ra[$ir];$ra[$ir]=$ra[1];if(--$ir==1){$ra[1]=$rra;return;}}$i=$l;$j=$l<<1;while($j<=$ir){if(($j<$ir)&&($ra[$j]<$ra[$j+1]))++$j;if($rra<$ra[$j]){$ra[$i]=$ra[$j];$j+=($i=$j);}
-		else$j=$ir+1;}$ra[$i]=$rra;}}
+	function hash2($n){for($i=0;$i<$n;++$i){$hash1['foo_$i']=$i;$hash2['foo_$i']=0;}for($i=$n;$i>0;--$i)foreach($hash1 as$key=>$value)$hash2[$key]+=$value;$first='foo_0';$last='foo_'.($n-1);print'$hash1[$first]$hash1[$last]$hash2[$first]$hash2[$last]\n';}
+	function gen_random($n){global$LAST;return(($n*($LAST=($LAST*3877+29573)%139968))/139968);}
+	function heapsort_r($n,&$ra){$l=($n>>1)+1;$ir=$n;while(1){if($l>1)$rra=$ra[--$l];else{$rra=$ra[$ir];$ra[$ir]=$ra[1];if(--$ir==1){$ra[1]=$rra;return;}}$i=$l;$j=$l<<1;while($j<=$ir){if(($j<$ir)&&($ra[$j]<$ra[$j+1]))++$j;if($rra<$ra[$j]){$ra[$i]=$ra[$j];$j+=($i=$j);
+			}else$j=$ir+1;}$ra[$i]=$rra;}}
 	function heapsort($N){global$LAST;$LAST=42;for($i=1;$i<=$N;++$i)$ary[$i]=gen_random(1);heapsort_r($N,$ary);printf('%.10f\n',$ary[$N]);}
 	function mkmatrix($rows,$cols){$count=1;$mx=[];for($i=0;$i<$rows;++$i)for($j=0;$j<$cols;++$j)$mx[$i][$j]=++$count;return($mx);}
 	function mmult($rows,$cols,$m1,$m2){$m3=[];for($i=0;$i<$rows;++$i){for($j=0;$j<$cols;++$j){$x=0;for($k=0;$k<$cols;++$k)$x+=$m1[$i][$k]*$m2[$k][$j];$m3[$i][$j]=$x;}}return($m3);}
@@ -9687,7 +9533,7 @@ function Diagnosis(){
 	function total(){global$total;$num=number_format($total,1);echo'<br>Rating Note = '.(round($num*1.668));}$t0=$t=start_test();simple();$t=end_test($t,'simple');simplecall();$t=end_test($t,'simplecall');simpleucall();$t=end_test($t,'simpleucall');simpleudcall();			  $t=end_test($t,'simpleudcall');mandel();$t=end_test($t,'mandel');mandel2();$t=end_test($t,'mandel2');ackermann(7);$t=end_test($t,'ackermann(7)');ary(50000);$t=end_test($t,'ary(50000)');ary2(50000);$t=end_test($t,'ary2(50000)');
 		ary3(2000);$t=end_test($t,'ary3(2000)');	fibo(30);$t=end_test($t,'fibo(30)');hash1(50000);$t=end_test($t,'hash1(50000)');hash2(500);$t=end_test($t,'hash2(500)');heapsort(20000);$t=end_test($t,'heapsort(20000)');matrix(20);
 		$t=end_test($t,'matrix(20)');nestedloop(12);$t=end_test($t,'nestedloop(12)');sieve(30);$t=end_test($t,'sieve(30)');strcat(200000);$t=end_test($t,'strcat(200000)');total();
-echo"<pre><br>
+echo"<pre>
 Diagnosis from  : ".date('m/d/Y H:i:s')."
 Eigene-Adresse  : $_SERVER[REMOTE_ADDR]
 Request-Time    : ".RequestTime()." Milli-Sec.
@@ -9711,14 +9557,14 @@ for($i=NULL;$i<$runs;++$i)implode('&',$array_1);$f1=$timer->totalTime;for($i=NUL
 for($i=NULL;$i<$runs;++$i)intval($string_4);for($i=NULL;$i<$runs;++$i)(int)$string_4;for($i=NULL;$i<$runs;++$i){is_array($array_1);is_array($string_1);}for($i=NULL;$i<$runs;++$i){is_numeric($f1);is_numeric($string_4);}
 for($i=NULL;$i<$runs;++$i){is_int($f1);is_int($string_4);}for($i=NULL;$i<$runs;++$i){is_string($f1);is_string($string_4);}for($i=NULL;$i<$runs;++$i)ip2long('1.2.3.4');for($i=NULL;$i<$runs;++$i)long2ip(89851921);for($i=NULL;$i<$runs_slow;++$i)date('F j,Y,g:i a',$now);
 for($i=NULL;$i<$runs_slow;++$i)date('%B %e,%Y,%l:%M %P',$now);for($i=NULL;$i<$runs_slow;++$i)strtotime($time_1);for($i=NULL;$i<$runs;++$i)strtolower($string_3);for($i=NULL;$i<$runs;++$i)strtoupper($string_1);for($i=NULL;$i<$runs;++$i)hash('sha256',$string_1);
-for($i=NULL;$i<$runs;++$i){unset($array_1['j']); $array_1['j']=NULL;}for($i=NULL;$i<$runs;++$i)list($drink,$runsolor,$power)=$array_2;for($i=NULL;$i<$runs;++$i)urlencode($string_1);$string_1e=urlencode($string_1);for($i=NULL;$i<$runs;++$i)urldecode($string_1e);
+for($i=NULL;$i<$runs;++$i){unset($array_1['j']);$array_1['j']=NULL;}for($i=NULL;$i<$runs;++$i)list($drink,$runsolor,$power)=$array_2;for($i=NULL;$i<$runs;++$i)urlencode($string_1);$string_1e=urlencode($string_1);for($i=NULL;$i<$runs;++$i)urldecode($string_1e);
 for($i=NULL;$i<$runs;++$i)addslashes($string_9);$string_9e=addslashes($string_9);for($i=NULL;$i<$runs;++$i)stripslashes($string_9e);$timer->stop('');echo'<br>PHP Benchmark   : Referenztime PHP 8.2.8 : 1.0 Sec.';
-echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).' : '.number_format($timer->totalTime,1).' Sec.<br></pre>';ob_start();if(function_exists(phpinfo())){phpinfo();$phpinfo=ob_get_contents();ob_end_clean();
+echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).' : '.number_format($timer->totalTime,1).' Sec.</pre>';if(function_exists(phpinfo())){phpinfo();$phpinfo=ob_get_contents();
 $phpinfo=preg_replace('/<\/div><\/body><\/html>/','',$phpinfo);$hr='<div style="width:100%;background:#000;height:10px;margin-bottom:1em;"></div>'.PHP_EOL;ob_start();echo'<table border="0" cellpadding="3" width="600">'.PHP_EOL;
-echo'<tr class="h"><td><a href="http://www.php.net/">';echo'<img border="0"src="http://static.php.net/www.php.net/images/php.gif"alt="PHP Logo"/>';echo'</a><h1 class="p">PHP Extensions</h1>'.PHP_EOL;echo'</td></tr>'.PHP_EOL;echo'</table><br />'.PHP_EOL;
+echo'<tr class="h"><td><a href="http://www.php.net/">';echo'<img border="0"src="http://static.php.net/www.php.net/images/php.gif"alt="PHP Logo"/>';echo'</a><h1 class="p">PHP Extensions</h1>'.PHP_EOL;echo'</td></tr>'.PHP_EOL;echo'</table>'.PHP_EOL;
 echo'<h2>geladene Erweiterungen</h2>'.PHP_EOL;echo'<table border="0"cellpadding="3"width="600">'.PHP_EOL;echo'<tr><td class="e">Extensions</td><td class="v">'.PHP_EOL;foreach(get_loaded_extensions()as$ext)$exts[]=$ext;echo implode(',',$exts).PHP_EOL;
 echo'</td></tr></table><br />'.PHP_EOL;echo'<h2>enthaltene Funktionen</h2>'.PHP_EOL;echo'<table border="0"cellpadding="3"width="600">'.PHP_EOL;foreach($exts as$ext)$extensions=get_loaded_extensions();foreach($extensions as$extension){
-echo'<tr><td class="e">'.$extension.'</td><td class="v">';echo implode(',',(array)get_extension_funcs($extension)),'<br/>';}echo'</td></tr>'.PHP_EOL;echo'</table><br/>'.PHP_EOL;echo'</div></body></html>'.PHP_EOL;$extinfo=ob_get_contents();ob_end_clean();
+echo'<tr><td class="e">'.$extension.'</td><td class="v">';echo implode(',',(array)get_extension_funcs($extension)),'<br/>';}echo'</td></tr>'.PHP_EOL;echo'</table>'.PHP_EOL;echo'</div></body></html>'.PHP_EOL;$extinfo=ob_get_contents();ob_end_clean();
 echo $phpinfo.$hr.$extinfo;}}
 function printWelcomeScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><form method=\'post\'>';foreach($supportedLanguages as$langId=>$langLabel){
 	echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/><input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}
@@ -9830,12 +9676,9 @@ function actionCreateDb(){include($_SERVER['DOCUMENT_ROOT'].'/generated/config.i
 function loadAndExecuteDdl($file,DbConnection$db){$script=file_get_contents($file);$queryResult=$db->connection->multi_query($script);while($db->connection->more_results()&&$db->connection->next_result());
 	if(!$queryResult)throw new Exception('Database Query Error: '.$db->connection->error);}
 function printCreateUserForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='name'><?php echo$messages['label_name']?></label>
-	<div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div>
-	<div class='control-group'><label class='control-label'for='password'><?php echo$messages['label_password']?></label>
-	<div class='controls'><input type='password'id='password'name='password'required value='
-	<?php echo htmlentities((isset($_POST['password']))?$_POST['password']:'');?>'></div></div><br>
-	<div class='control-group'><label class='control-label'for='email'><?php echo$messages['label_email']?></label>
-	<div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities((isset($_POST['email']))?$_POST['email']:'');?>'</div></div></fieldset>
+	<div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div><div class='control-group'><label class='control-label'for='password'>
+	<?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo escapeOutput(isset($_POST['password'])?$_POST['password']:'');?>'></div></div><br><div class='control-group'>
+	<label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities((isset($_POST['email']))?$_POST['email']:'');?>'</div></div></fieldset>
 	<div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
 function actionSaveUser(){global$errors;global$messages;$requiredFields=['name','password','email'];
 	foreach($requiredFields as$requiredField){if(!isset($_POST[$requiredField])||!strlen($_POST[$requiredField]))$errors[]=$messages['requires_value'].': '.$messages['label_'.$requiredField];}if(count($errors))return'printCreateUserForm';
@@ -9849,14 +9692,14 @@ function is__writable($path){if($path[strlen($path)-1]=='/')return is__writable(
 function setAdminScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><form method=\'post\'>';foreach($supportedLanguages as$langId=>$langLabel){
 	echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/><input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}
 	echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"action\"value=\"actionSetLanguage\"></form>";}
-function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label> 
+function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
 	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo escapeOutput(isset($_POST['db_host'])?$_POST['db_host']:'localhost');?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div>
-	<div class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo 
+	<div class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo
 	escapeOutput(isset($_POST['db_name'])?$_POST['db_name']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'>
 	<input type='text'id='db_user'name='db_user'required value="<?php echo escapeOutput(isset($_POST['db_user'])?$_POST['db_user']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?>
 	</label><div class='controls'><input type=text'id='db_password'name='db_password'required value="<?php echo escapeOutput(isset($_POST['db_password'])?$_POST['db_password']:'');?>"></div></div><div class='control-group'><label class='control-label'for='name'>
 	<?php echo$messages['label_name']?></label><div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div><div class='control-group'>
-	<label class='control-label'for='password'><?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo htmlentities((isset($_POST['password']))?$_POST['password']:'');?>'>
+	<label class='control-label'for='password'><?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo escapeOutput(isset($_POST['password'])?$_POST['password']:'');?>'>
 	</div></div><div class='control-group'><label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities(isset($_POST['email'])
 	?$_POST['email']:'');?>'></div></div></fieldset><div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
 function flags($site){?><a href=<?php echo$site?>de><img src='/img/flags/de.png'width='24'height='24'alt='deutsch'title='deutsch'/></a><a href=<?php echo$site?>en><img src='/img/flags/en.png'width='24'height='24'alt='english'title='english'/></a><a href=<?php

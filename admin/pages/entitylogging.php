@@ -1,24 +1,16 @@
 <?php
-/******************************************************
+/*This file is part of "OWS for All PHP" (Rolf Joseph)
+  https://github.com/owsPro/OWS_for_All_PHP/
+  A spinn-off for PHP Versions 5.4 to 8.2 from:
+  OpenWebSoccer-Sim(Ingo Hofmann), https://github.com/ihofmann/open-websoccer.
 
-  This file is part of OpenWebSoccer-Sim.
+  "OWS for All PHP" is is distributed in WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE.
 
-  OpenWebSoccer-Sim is free software: you can redistribute it 
-  and/or modify it under the terms of the 
-  GNU Lesser General Public License 
-  as published by the Free Software Foundation, either version 3 of
-  the License, or any later version.
+  See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
-  OpenWebSoccer-Sim is distributed in the hope that it will be
-  useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-  See the GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public 
-  License along with OpenWebSoccer-Sim.  
-  If not, see <http://www.gnu.org/licenses/>.
-
-******************************************************/
+*****************************************************************************/
 
 $mainTitle = Message('entitylogging_navlabel');
 
@@ -34,7 +26,7 @@ if (!$show) {
   <h1><?php echo $mainTitle; ?></h1>
 
   <p><?php echo Message('entitylogging_intro'); ?></p>
-  
+
   <code>&lt;overview delete=&quot;true&quot; edit=&quot;true&quot; <strong>logging=&quot;true&quot; loggingcolumns=&quot;name,liga_id&quot;</strong>&gt;</code>
 
   <?php
@@ -70,14 +62,14 @@ if (!$show) {
 				$line = $file[$i];
 
                 $row = explode(';', $line);
-				
+
 				$n = $i + 1;
                 echo '<tr>
                   <td><b>'. $n .'</b></td>
                   <td>'. $row[0] .'</td>
                   <td>'. escapeOutput($row[1]) .' ('. escapeOutput($row[2]) . ')</td>
-                  <td>'; 
-                  
+                  <td>';
+
                   	if ($row[3] == 'edit') {
 						echo '<span class=\'label label-info\'><i class=\'icon-white icon-pencil\'></i> '. Message('entitylogging_action_edit') . '</span>';
 					} elseif ($row[3] == 'delete') {
@@ -95,9 +87,9 @@ if (!$show) {
 						} else {
 							echo ', ';
 						}
-						
+
 						echo $fieldKey . ': ' . escapeOutput($fieldValue);
-						
+
 					}
 				   echo ' }</td>
                 </tr>';
