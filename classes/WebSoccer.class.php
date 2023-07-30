@@ -6840,10 +6840,10 @@ class DataGeneratorService {
 		$league=$result->fetch_array();
 		if(!$league)throw new Exception('illegal league ID');
 		$country=$league['land'];
-		$cities=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/cities.txt',$country);
-		$prefixes=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/clubprefix.txt',$country);
+		$cities=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/cities.txt',$country);
+		$prefixes=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/clubprefix.txt',$country);
 		$suffixes=[];
-		try {$suffixes=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/clubsuffix.txt',$country);}
+		try {$suffixes=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/clubsuffix.txt',$country);}
 		catch(Exception $e){}
 		for($teamNo=1; $teamNo <= $numberOfTeams; $teamNo++){
 			$cityName=self::_getItemFromArray($cities);
@@ -6856,8 +6856,8 @@ class DataGeneratorService {
 			$league=$result->fetch_array();
 			if(!$league)throw new Exception('illegal team ID');
 			$country=$league['country'];}
-		$firstNames=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/firstnames.txt',$country);
-		$lastNames=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/module/admin/names/%s/lastnames.txt',$country);
+		$firstNames=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/firstnames.txt',$country);
+		$lastNames=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/lastnames.txt',$country);
 		$mainPositions['T']='Torwart';
 		$mainPositions['LV']='Abwehr';
 		$mainPositions['IV']='Abwehr';
