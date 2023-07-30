@@ -48,7 +48,7 @@ function printNavItem($currentSite, $pageId, $navLabel, $entity = '') {
 }
 if(isset($_GET['DBSave']))DBSave();?><a href='index.php?DBSave=true'><pre>	DBSave</a><?php if(isset($_GET['Diagnosis']))Diagnosis();?><a href='index.php?Diagnosis=true'>	Diagnosis</pre></a>
 <!DOCTYPE html>
-<html lang="<?php echo $i18n->getCurrentLanguage(); ?>">
+<html lang="<?php echo escapeOutput($i18n->getCurrentLanguage()); ?>">
   <head>
     <title><?php echo Message("main_title")?></title>
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -149,12 +149,12 @@ if (preg_match('#^[a-z0-9_-]+$#i', $site) && file_exists($includeFile) ) {
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script src="bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-    <script src="bootstrap-datepicker/js/locales/bootstrap-datepicker.<?php echo $i18n->getCurrentLanguage(); ?>.js"></script>
+    <script src="bootstrap-datepicker/js/locales/bootstrap-datepicker.<?php echo escapeOutput($i18n->getCurrentLanguage()); ?>.js"></script>
     <script src="bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
 	<script src="select2/select2.min.js"></script>
 	<?php
 	if ($i18n->getCurrentLanguage() != "en")
-		echo "<script src=\"select2/select2_locale_". $i18n->getCurrentLanguage() . ".js\"></script>";
+		echo "<script src=\"select2/select2_locale_". escapeOutput($i18n->getCurrentLanguage()) . ".js\"></script>";
 	?>
 	<script src="markitup/jquery.markitup.js"></script>
 	<?php if ($i18n->getCurrentLanguage() == "de") { ?><script src="markitup/sets/ws/set_de.js"></script>
@@ -173,5 +173,5 @@ if (preg_match('#^[a-z0-9_-]+$#i', $site) && file_exists($includeFile) ) {
 			function(result){if(result)window.location = link.attr("href");}});});
 		$(".datepicker").datepicker({
 			format: "<?php echo str_replace("Y", "yyyy",Config("date_format")); ?>",
-			language: "<?php echo $i18n->getCurrentLanguage(); ?>",
+			language: "<?php echo escapeOutput($i18n->getCurrentLanguage()); ?>",
 			autoclose: true});});</script></body></html>

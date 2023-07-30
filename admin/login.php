@@ -12,8 +12,8 @@
 
 *****************************************************************************/
 					include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');include($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');$i18n=I18n::getInstance(Config('supported_languages'));if(isset($_GET['lang']))
-					$i18n->setCurrentLanguage($_GET['lang']);include(escapeOutput(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_%s.inc.php',$i18n->getCurrentLanguage())));include(escapeOutput(sprintf($_SERVER['DOCUMENT_ROOT'].
-					'/languages/messages_%s.php',$i18n->getCurrentLanguage())));$errors=[];$inputUser=(isset($_POST['inputUser']))?$_POST['inputUser']:FALSE;$inputPassword=(isset($_POST['inputPassword']))?$_POST['inputPassword']:FALSE;
+					$i18n->setCurrentLanguage($_GET['lang']);include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_%s.inc.php',$i18n->getCurrentLanguage()));include(sprintf($_SERVER['DOCUMENT_ROOT'].
+					'/languages/messages_%s.php',$i18n->getCurrentLanguage()));$errors=[];$inputUser=(isset($_POST['inputUser']))?$_POST['inputUser']:FALSE;$inputPassword=(isset($_POST['inputPassword']))?$_POST['inputPassword']:FALSE;
 					$forwarded=(isset($_GET['forwarded'])&&$_GET['forwarded']==1)?TRUE:FALSE;$loggedout=(isset($_GET['loggedout'])&&$_GET['loggedout']==1)?TRUE:FALSE;$newpwd=(isset($_GET['newpwd'])&&$_GET['newpwd']==1)?TRUE:FALSE;if($inputUser or$inputPassword){
 					if(!$inputUser)$errors['inputUser']=Message('login_error_nousername');if(!$inputPassword)$errors['inputPassword']=Message('login_error_nopassword');if(count((array)$errors)==0){$columns=['id','passwort','passwort_salt','passwort_neu','name'];
 					$fromTable=$conf['db_prefix'].'_admin';$whereCondition='name=\'%s\'';$parameters=$inputUser;$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);if($result->num_rows<1)$errors['inputUser']=Message('login_error_unknownusername');
@@ -30,5 +30,5 @@
 					<label class='control-label'for='inputUser'><?php echo Message('login_label_user');?></label><div class='controls'><input type='text'name='inputUser'id='inputUser'placeholder='<?php echo Message('login_label_user');?>'required></div></div>
 		  			<div class='control-group<?php if(isset($errors['inputPassword']))echo'error';?>'><label class='control-label'for='inputPassword'><?php echo Message('login_label_password');?></label><div class='controls'>
 			  		<input type='password'name='inputPassword'id='inputPassword'placeholder='<?php echo Message('login_label_password');?>'required></div></div><div class='control-group'><div class='controls'><button type='submit'class='btn'>
-			  		<?php echo Message('login_button_logon');?></button></div></div></form><p><a href='forgot-password.php?lang=de'><?php echo Message('login_link_forgotpassword');?></a><hr><footer><p>Powered by <a href='https://github.com/owsPro/OWS_for_All_PHP' 
+			  		<?php echo Message('login_button_logon');?></button></div></div></form><p><a href='forgot-password.php?lang=de'><?php echo Message('login_link_forgotpassword');?></a><hr><footer><p>Powered by <a href='https://github.com/owsPro/OWS_for_All_PHP'
         			target='_blank'>OWS_for_All_PHP</a></p></footer></div><script src='https://code.jquery.com/jquery-latest.min.js'></script><script src='bootstrap/js/bootstrap.min.js'></script></body></html>
