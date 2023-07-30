@@ -24,8 +24,8 @@
  This version can still be used with the database prefix!
 =====================================================================================*/
 	@include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');
-			// set_exception_handler('TopLevelException');
-			// function TopLevelException($exception){throw new Exception('An undisclosed exception error has occurred!');echo$e->errorMessage();echo'<b>Exception:</b>'.$exception->getMessage();}
+			set_exception_handler('TopLevelException');
+			function TopLevelException($exception){throw new Exception('An undisclosed exception error has occurred!');echo$e->errorMessage();echo'<b>Exception:</b>'.$exception->getMessage();}
 			function Config($name){global$conf;if(!isset($conf[$name]))throw new Exception('Missing configuration: '.$name);return$conf[$name];}
 			function Message($messageKey,$paramaters=NULL){global$msg;if(!hasMessage($messageKey)){return'???'.$messageKey.'???';}$message=stripslashes($msg[$messageKey]);if($paramaters!=NULL){$message=sprintf($message,$paramaters);}return$message;}
 			function hasMessage($messageKey){global$msg;return isset($msg[$messageKey]);}
@@ -713,7 +713,7 @@ class FormBuilder {
 						$htmlType=$type;
 						if($type=='file' && strlen($fieldValue)){
 							global $entity;
-							echo '[<a href=\'../uploads/'.$entity.'/'. escapeOutput($fieldValue).'\' target=\'_blank\'>View</a>] ';}
+							echo '[<a href=\'../uploads/'.$entity.'/'.escapeOutput($fieldValue).'\' target=\'_blank\'>View</a>] ';}
 						elseif($type=='percent'){
 							$htmlType='number';
 							$additionalAttrs='class=\'input-mini\' min=\'0\' ';}
@@ -777,7 +777,7 @@ class FormBuilder {
 			echo '</select>';}
 		else echo '<input type=\'hidden\' class=\'pkpicker\' id=\''.$fieldId.'\' name=\''.$fieldId.'\' value=\''.$fieldValue.'\' data-dbtable=\''.$fieldInfo['jointable'].'\' data-labelcolumns=\''.$fieldInfo['labelcolumns'].'\' data-placeholder=\'' .
 				Message('manage_select_placeholder').'\'>';
-		echo ' <a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''. escapeOutput(Message('manage_add')).'\'><i class=\'icon-plus-sign\'></i></a>';}}
+		echo ' <a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''.escapeOutput(Message('manage_add')).'\'><i class=\'icon-plus-sign\'></i></a>';}}
 class FrontMessage {
 	function __construct($type,$title,$message){
 		if($type !=='info' && $type !=='success' && $type !=='error' && $type !=='warning')throw new Exception('unknown FrontMessage type: '.$type);
@@ -9361,7 +9361,7 @@ function loadAndExecuteDdl($file,DbConnection$db){$script=file_get_contents($fil
 	if(!$queryResult)throw new Exception('Database Query Error: '.$db->connection->error);}
 function printCreateUserForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='name'><?php echo$messages['label_name']?></label>
 	<div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div><div class='control-group'><label class='control-label'for='password'>
-	<?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo htmlentities(isset($_POST['password'])?$_POST['password']:'');?>'></div></div><br><div class='control-group'>
+	<?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo escapeOutput(isset($_POST['password'])?$_POST['password']:'');?>'></div></div><br><div class='control-group'>
 	<label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities((isset($_POST['email']))?$_POST['email']:'');?>'</div></div></fieldset>
 	<div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
 function actionSaveUser(){global$errors;global$messages;$requiredFields=['name','password','email'];
@@ -9383,7 +9383,7 @@ function setAdminForm($messages){?><form method='post'class='form-horizontal'><f
 	<input type='text'id='db_user'name='db_user'required value="<?php echo escapeOutput(isset($_POST['db_user'])?$_POST['db_user']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?>
 	</label><div class='controls'><input type=text'id='db_password'name='db_password'required value="<?php echo escapeOutput(isset($_POST['db_password'])?$_POST['db_password']:'');?>"></div></div><div class='control-group'><label class='control-label'for='name'>
 	<?php echo$messages['label_name']?></label><div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div><div class='control-group'>
-	<label class='control-label'for='password'><?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo htmlentities(isset($_POST['password'])?$_POST['password']:'');?>'>
+	<label class='control-label'for='password'><?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo escapeOutput(isset($_POST['password'])?$_POST['password']:'');?>'>
 	</div></div><div class='control-group'><label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities(isset($_POST['email'])
 	?$_POST['email']:'');?>'></div></div></fieldset><div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
 function flags($site){?><a href=<?php echo$site?>de><img src='/img/flags/de.png'width='24'height='24'alt='deutsch'title='deutsch'/></a><a href=<?php echo$site?>en><img src='/img/flags/en.png'width='24'height='24'alt='english'title='english'/></a><a href=<?php
