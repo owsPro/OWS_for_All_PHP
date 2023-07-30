@@ -12,43 +12,22 @@
 
 *****************************************************************************/
 ignore_user_abort(TRUE);
-set_time_limit(300);
 
-$mainTitle = Message('firemanagers_navlabel');
-
-if (!$admin['r_admin'] && !$admin['r_demo'] && !$admin[$page['permissionrole']]) {
-	throw new Exception(Message('error_access_denied'));
-}
-
-echo '<h1>$mainTitle</h1>';
-
-//********** search form **********
-if (!$show) {
+if (!$admin['r_admin'] && !$admin['r_demo'] && !$admin[$page['permissionrole']])throw new Exception(Message('error_access_denied'));
+if (!$show) {$mainTitle = Message('firemanagers_navlabel');echo "<h1>$mainTitle</h1>";
   ?>
-
   <p><?php echo Message('firemanagers_introduction'); ?></p>
-
   <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
-
 	<fieldset>
     <legend><?php echo Message('firemanagers_search_label'); ?></legend>
-
 	<?php
 	$formFields = array();
-
 	$formFields['maxbudget'] = array('type' => 'number', 'value' => (isset($_POST['maxbudget'])) ? escapeOutput($_POST['maxbudget']) : -1000000);
-
 	$formFields['lastlogindays'] = array('type' => 'number', 'value' => (isset($_POST['lastlogindays'])) ? escapeOutput($_POST['lastlogindays']) : 60);
-
 	$formFields['maxplayers'] = array('type' => 'number', 'value' => (isset($_POST['maxplayers'])) ? escapeOutput($_POST['maxplayers']) : 15);
-
-	$formFields['userid'] = array('type' => 'foreign_key', 'value' => (isset($_POST['userid'])) ? escapeOutput($_POST['userid']) : '',
-				'entity' => 'users', 'jointable' => 'user', 'labelcolumns' => 'nick');
-
-	foreach ($formFields as $fieldId => $fieldInfo) {
-		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], 'firemanagers_search_');
-	}
+	$formFields['userid'] = array('type' => 'foreign_key', 'value' => (isset($_POST['userid'])) ? escapeOutput($_POST['userid']) : '','entity' => 'users', 'jointable' => 'user', 'labelcolumns' => 'nick');
+	foreach ($formFields as $fieldId => $fieldInfo)echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], 'firemanagers_search_');
 	?>
 	</fieldset>
 	<div class="form-actions">
@@ -56,13 +35,8 @@ if (!$show) {
 		<input type="reset" class="btn" value="<?php echo Message('button_reset'); ?>">
 	</div>
   </form>
-
   <?php
-
-	// ********** show search results **********
 	if (!empty($_POST['maxbudget']) || !empty($_POST['lastlogindays']) || !empty($_POST['maxplayers']) || !empty($_POST['userid'])) {
-
-		// build query
 		$columns = array(
 			'C.id' => 'team_id',
 			'C.name' => 'team_name',
@@ -72,39 +46,26 @@ if (!$show) {
 			'U.nick' => 'user_nick',
 			'U.lastonline' => 'user_lastonline'
 		);
-
 		$fromTable = Config('db_prefix') . '_verein AS C';
 		$fromTable .= ' INNER JOIN ' . Config('db_prefix') . '_user AS U ON U.id = C.user_id';
-
 		$whereCondition = 'C.status = \'1\' AND (1=0';
 		$parameters = array();
-
 		if (!empty($_POST['maxbudget'])) {
 			$whereCondition .= ' OR C.finanz_budget < %d';
-			$parameters[] = $_POST['maxbudget'];
-		}
-
+			$parameters[] = $_POST['maxbudget'];}
 		if (!empty($_POST['lastlogindays'])) {
 			$whereCondition .= ' OR U.lastonline < %d';
-			$parameters[] = $website->getNowAsTimestamp() - $_POST['lastlogindays'] * 24 * 3600;
-		}
-
+			$parameters[] = $website->getNowAsTimestamp() - $_POST['lastlogindays'] * 24 * 3600;}
 		if (!empty($_POST['maxplayers'])) {
 			$whereCondition .= ' OR (SELECT COUNT(*) FROM '.Config('db_prefix') . '_spieler AS PlayerTab WHERE PlayerTab.verein_id = C.id AND status = \'1\') < %d';
-			$parameters[] = $_POST['maxplayers'];
-		}
-
+			$parameters[] = $_POST['maxplayers'];}
 		if (!empty($_POST['userid']) && $_POST['userid']) {
 			$whereCondition .= ' OR U.id = %d';
-			$parameters[] = $_POST['userid'];
-		}
+			$parameters[] = $_POST['userid'];}
 		$whereCondition .= ')';
-
 		$result = $db->querySelect($columns, $fromTable, $whereCondition, $parameters, 50);
-		if (!$result->num_rows) {
-			echo createInfoMessage(Message('firemanagers_search_nohits'), '');
-		} else {
-
+		if (!$result->num_rows)echo createInfoMessage(Message('firemanagers_search_nohits'), '');
+		else {
 			?>
 			<form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal' id='frmMain' name='frmMain'>
 				<input type='hidden' name='site' value='<?php echo $site; ?>'>
@@ -135,73 +96,51 @@ if (!$show) {
 					?>
 					</tbody>
 				</table>
-
 				<p><label class='checkbox'><input type='checkbox' name='selAll' value='1' onClick='selectAll()'><?php echo Message('manage_select_all_label'); ?></label></p>
-
 				<p><input type='submit' class='btn btn-primary' accesskey='l' title='Alt + l' value='<?php echo Message('firemanagers_dismiss_button'); ?>'></p>
 			</form>
-
-
 			<?php
 		}
 		$result->free();
 	}
-
 }
-
-//********** set dismiss options
 elseif ($show == 'selectoptions') {
 	if (!isset($_POST['selectedteams']) || !count($_POST['selectedteams'])) {
 		echo createErrorMessage(Message('firemanagers_dismiss_noneselected'), '');
 		echo '<a href=\'?site='. $site .'\' class=\'btn\'>'. Message('back_label') .'</a>';
 	} else {
 ?>
-
   <form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal'>
 	<input type='hidden' name='site' value='<?php echo $site; ?>'>
 	<input type='hidden' name='show' value='dismiss'>
-	<input type='hidden' name='teamids' value='<?php echo implode(',', $_POST['selectedteams']) ?>'>
-
+	<input type='hidden' name='teamids' value='<?php echo implode(',', escapeOutput($_POST['selectedteams'])) ?>'>
 	<fieldset>
     <legend><?php echo Message('firemanagers_dismiss_label'); ?></legend>
-
 	<?php
 	$formFields = array();
-
 	$formFields['disableusers'] = array('type' => 'boolean', 'value' => 0);
 	$formFields['minbudget'] = array('type' => 'number', 'value' => 1000000);
 	$formFields['message_subject'] = array('type' => 'text', 'value' => '');
 	$formFields['message_content'] = array('type' => 'textarea', 'value' => '');
-
-	foreach ($formFields as $fieldId => $fieldInfo) {
-		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], 'firemanagers_dismiss_');
-	}
+	foreach ($formFields as $fieldId => $fieldInfo)echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], 'firemanagers_dismiss_');
 	?>
 	</fieldset>
-
 	<fieldset>
     <legend><?php echo Message('firemanagers_dismiss_label_players'); ?></legend>
-
 	<?php
 	$formFields = array();
-
 	$formFields['mincontractmatches'] = array('type' => 'number', 'value' => 15);
 	$formFields['strength_min_freshness'] = array('type' => 'percent', 'value' => 70);
 	$formFields['strength_min_stamina'] = array('type' => 'percent', 'value' => 70);
 	$formFields['strength_min_satisfaction'] = array('type' => 'percent', 'value' => 70);
-
-	foreach ($formFields as $fieldId => $fieldInfo) {
-		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], 'firemanagers_dismiss_');
-	}
+	foreach ($formFields as $fieldId => $fieldInfo)echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], 'firemanagers_dismiss_');
 	?>
 	</fieldset>
-
 	<fieldset>
     <legend><?php echo Message('firemanagers_dismiss_label_minteamsize'); ?></legend>
     <p><?php echo Message('firemanagers_dismiss_label_minteamsize_intro'); ?></p>
 	<?php
 	$formFields = array();
-
 	$formFields['option_T'] = array('type' => 'number', 'value' => 2);
 	$formFields['option_LV'] = array('type' => 'number', 'value' => 1);
 	$formFields['option_IV'] = array('type' => 'number', 'value' => 2);
@@ -214,25 +153,17 @@ elseif ($show == 'selectoptions') {
 	$formFields['option_LS'] = array('type' => 'number', 'value' => 1);
 	$formFields['option_MS'] = array('type' => 'number', 'value' => 1);
 	$formFields['option_RS'] = array('type' => 'number', 'value' => 1);
-
 	$formFields['player_age'] = array('type' => 'number', 'value' => 25);
-
 	$formFields['player_age_deviation'] = array('type' => 'number', 'value' => 3);
-
 	$formFields['entity_player_vertrag_gehalt'] = array('type' => 'number', 'value' => 10000);
 	$formFields['entity_player_vertrag_spiele'] = array('type' => 'number', 'value' => 60);
-
 	$formFields['entity_player_w_staerke'] = array('type' => 'percent', 'value' => 50);
 	$formFields['entity_player_w_technik'] = array('type' => 'percent', 'value' => 50);
 	$formFields['entity_player_w_kondition'] = array('type' => 'percent', 'value' => 70);
 	$formFields['entity_player_w_frische'] = array('type' => 'percent', 'value' => 80);
 	$formFields['entity_player_w_zufriedenheit'] = array('type' => 'percent', 'value' => 80);
-
 	$formFields['playersgenerator_label_deviation'] = array('type' => 'percent', 'value' => 10);
-
-	foreach ($formFields as $fieldId => $fieldInfo) {
-		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], '');
-	}
+	foreach ($formFields as $fieldId => $fieldInfo)echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], '');
 	?>
 	</fieldset>
 	<div class='form-actions'>
@@ -240,51 +171,28 @@ elseif ($show == 'selectoptions') {
 		<a class='btn' href='?site=<?php echo $site; ?>'><?php echo Message('button_cancel'); ?></a>
 	</div>
   </form>
-
   <?php
-
 	}
 }
-
-//********** execute dismissals **********
 elseif ($show == 'dismiss') {
-
   if ($admin['r_demo']) $err[] = Message('validationerror_no_changes_as_demo');
-
-  if (isset($err)) {
-
-    include('validationerror.inc.php');
-
-  }
+  if (isset($err))include('validationerror.inc.php');
   else {
-
-	// strengths for player generation
 	$strengths['strength'] = $_POST['entity_player_w_staerke'];
 	$strengths['technique'] = $_POST['entity_player_w_technik'];
 	$strengths['stamina'] = $_POST['entity_player_w_kondition'];
 	$strengths['freshness'] = $_POST['entity_player_w_frische'];
 	$strengths['satisfaction'] = $_POST['entity_player_w_zufriedenheit'];
-
 	$teamIds = explode(',', $_POST['teamids']);
 	foreach($teamIds as $teamId) {
-
-		// get team info
 		$team = TeamsDataService::getTeamSummaryById($website, $db, $teamId);
-
-		// update team
 		$teamcolumns = array(
 			'user_id' => '',
 			'captain_id' => '',
 			'finanz_budget' => (!empty($_POST['minbudget'])) ? max($_POST['minbudget'], $team['team_budget']) : $team['team_budget']
 		);
 		$db->queryUpdate($teamcolumns,Config('db_prefix') . '_verein', 'id = %d', $teamId);
-
-		// disable user
-		if (isset($_POST['disableusers']) && $_POST['disableusers']) {
-			$db->queryUpdate(array('status' => '0'),Config('db_prefix') . '_user', 'id = %d', $team['user_id']);
-		}
-
-		// send message to user
+		if (isset($_POST['disableusers']) && $_POST['disableusers'])$db->queryUpdate(array('status' => '0'),Config('db_prefix') . '_user', 'id = %d', $team['user_id']);
 		if (!empty($_POST['message_subject']) && !empty($_POST['message_content'])) {
 			$db->queryInsert(array(
 					'empfaenger_id' => $team['user_id'],
@@ -295,8 +203,6 @@ elseif ($show == 'dismiss') {
 					'nachricht' => trim($_POST['message_content'])
 				),Config('db_prefix') . '_briefe');
 		}
-
-		// count and update players
 		$positionsCount = array();
 		$positionsCount['T'] = 0;
 		$positionsCount['LV'] = 0;
@@ -310,37 +216,30 @@ elseif ($show == 'dismiss') {
 		$positionsCount['LS'] = 0;
 		$positionsCount['MS'] = 0;
 		$positionsCount['RS'] = 0;
-
 		$result = $db->querySelect('id, position_main, w_kondition, w_frische, w_zufriedenheit, vertrag_spiele',Config('db_prefix') . '_spieler',
 			'verein_id = %d AND status = \'1\'', $teamId);
 		while ($player = $result->fetch_array()) {
 			$updateRequired = FALSE;
-
 			$freshness = $player['w_frische'];
 			if (!empty($_POST['strength_min_freshness']) && $_POST['strength_min_freshness'] > $freshness) {
 				$updateRequired = TRUE;
 				$freshness = $_POST['strength_min_freshness'];
 			}
-
 			$stamina = $player['w_kondition'];
 			if (!empty($_POST['strength_min_stamina']) && $_POST['strength_min_stamina'] > $stamina) {
 				$updateRequired = TRUE;
 				$stamina = $_POST['strength_min_stamina'];
 			}
-
 			$satisfaction = $player['w_zufriedenheit'];
 			if (!empty($_POST['strength_min_satisfaction']) && $_POST['strength_min_satisfaction'] > $satisfaction) {
 				$updateRequired = TRUE;
 				$satisfaction = $_POST['strength_min_satisfaction'];
 			}
-
 			$contractMatches = $player['vertrag_spiele'];
 			if (!empty($_POST['mincontractmatches']) && $_POST['mincontractmatches'] > $contractMatches) {
 				$updateRequired = TRUE;
 				$contractMatches = $_POST['mincontractmatches'];
 			}
-
-			// update this guy
 			$db->queryUpdate(array(
 					'w_frische' => $freshness,
 					'w_kondition' => $stamina,
@@ -348,15 +247,9 @@ elseif ($show == 'dismiss') {
 					'vertrag_spiele' => $contractMatches
 				),Config('db_prefix') . '_spieler', 'id = %d', $player['id']);
 
-			// increase position count
-			if (strlen($player['position_main'])) {
-				$positionsCount[$player['position_main']] = $positionsCount[$player['position_main']] + 1;
-			}
-
+			if (strlen($player['position_main']))$positionsCount[$player['position_main']] = $positionsCount[$player['position_main']] + 1;
 		}
 		$result->free();
-
-		// generate players
 		$positions = array();
 		$positions['T'] = (!empty($_POST['option_T'])) ? max(0, $_POST['option_T'] - $positionsCount['T']) : 0;
 		$positions['LV'] = (!empty($_POST['option_LV'])) ? max(0, $_POST['option_LV'] - $positionsCount['LV']) : 0;
@@ -370,7 +263,6 @@ elseif ($show == 'dismiss') {
 		$positions['LS'] = (!empty($_POST['option_LS'])) ? max(0, $_POST['option_LS'] - $positionsCount['LS']) : 0;
 		$positions['MS'] = (!empty($_POST['option_MS'])) ? max(0, $_POST['option_MS'] - $positionsCount['MS']) : 0;
 		$positions['RS'] = (!empty($_POST['option_RS'])) ? max(0, $_POST['option_RS'] - $positionsCount['RS']) : 0;
-
 		$playersToGenerate = FALSE;
 		foreach($positions as $posCount) {
 			if ($posCount > 0) {
@@ -378,19 +270,9 @@ elseif ($show == 'dismiss') {
 				break;
 			}
 		}
-
-		if ($playersToGenerate) {
-			DataGeneratorService::generatePlayers($website, $db, $teamId, $_POST['player_age'], $_POST['player_age_deviation'],
-				$_POST['entity_player_vertrag_gehalt'], $_POST['entity_player_vertrag_spiele'], $strengths, $positions, $_POST['playersgenerator_label_deviation']);
-		}
+		if ($playersToGenerate)DataGeneratorService::generatePlayers($website, $db, $teamId, $_POST['player_age'], $_POST['player_age_deviation'],	$_POST['entity_player_vertrag_gehalt'], $_POST['entity_player_vertrag_spiele'], $strengths, $positions, $_POST['playersgenerator_label_deviation']);
 	}
-
 	echo createSuccessMessage(Message('firemanagers_dismiss_success'), '');
-
     echo '<p>&raquo; <a href=\'?site='. $site .'\'>'. Message('back_label') . '</a></p>';
-
   }
-
 }
-
-?>
