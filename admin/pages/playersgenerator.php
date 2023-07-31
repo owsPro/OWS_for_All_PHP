@@ -11,20 +11,20 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-$mainTitle = $i18n->getMessage("playersgenerator_navlabel");
+$mainTitle=Message("playersgenerator_navlabel");
 echo "<h1>$mainTitle</h1>";
-if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin[$page["permissionrole"]])throw new Exception($i18n->getMessage("error_access_denied"));
+if (!$admin["r_admin"] && !$admin["r_demo"] && !$admin[$page["permissionrole"]])throw new Exception(Message("error_access_denied"));
 $leagueid = (isset($_REQUEST["leagueid"])) ? $_REQUEST["leagueid"] : 0;
 $teamid = (isset($_REQUEST["teamid"])) ? $_REQUEST["teamid"] : 0;
 if (!$show) {
   ?>
     <form class="form-inline">
-  		<label for="leagueid"><?php echo $i18n->getMessage("generator_label_league") ?></label>
+  		<label for="leagueid"><?php echo Message("generator_label_league") ?></label>
   		<select name="leagueid" id="leagueid">
   			<option></option>
   			<?php
   			$columns = "id,land,name";
-  			$fromTable = $website->getConfig("db_prefix") . "_liga";
+  			$fromTable=Config("db_prefix") . "_liga";
   			$result = $db->querySelect($columns, $fromTable, "1 ORDER BY land ASC, name ASC", array());
   			while ($league = $result->fetch_array()) {
 				echo "<option value=\"". $league["id"] . "\"";
@@ -34,11 +34,11 @@ if (!$show) {
 			$result->free();
   			?>
   		</select>
-	  	<button type="submit" class="btn btn-primary"><?php echo $i18n->getMessage("button_display") ?></button>
-	  	<a href="index.php?site=<?php echo $site ?>" class="btn"><?php echo $i18n->getMessage("button_reset") ?></a>
+	  	<button type="submit" class="btn btn-primary"><?php echo Message("button_display") ?></button>
+	  	<a href="index.php?site=<?php echo $site ?>" class="btn"><?php echo Message("button_reset") ?></a>
 	  	<input type="hidden" name="site" value="<?php echo $site ?>" />
 	</form>
-	<p><a href="index.php?site=<?php echo $site ?>&show=generateform&transfermarket=1" class="btn"><?php echo $i18n->getMessage("playersgenerator_generator_for_transfermarket") ?></a></p>
+	<p><a href="index.php?site=<?php echo $site ?>&show=generateform&transfermarket=1" class="btn"><?php echo Message("playersgenerator_generator_for_transfermarket") ?></a></p>
   <?php
   if ($leagueid > 0) {
 	  $columns = array();
@@ -49,20 +49,20 @@ if (!$show) {
 	  $whereCondition = "T1.liga_id = %d ORDER BY T1.name ASC";
 	  $result = $db->querySelect($columns, $fromTable, $whereCondition, $leagueid);
 	  if (!$result->num_rows) {
-	  	echo "<p>" . $i18n->getMessage("playersgenerator_noteams") . "</p>";
+	  	echo "<p>".Message("playersgenerator_noteams") . "</p>";
 	  } else {
 	  	?>
 
 	  	<p><a href="?site=<?php echo $site ?>&show=generateform&leagueid=<?php echo $leagueid ?>"
-	  		class="btn"><?php echo $i18n->getMessage("playersgenerator_create_for_all_teams"); ?></a></p>
+	  		class="btn"><?php echo Message("playersgenerator_create_for_all_teams"); ?></a></p>
 
-	  	<h4 style="margin-top:20px"><?php echo $i18n->getMessage("playersgenerator_create_for_single_teams"); ?></h4>
+	  	<h4 style="margin-top:20px"><?php echo Message("playersgenerator_create_for_single_teams"); ?></h4>
 
 	    <table class="table table-striped">
 	    	<thead>
 	    		<tr>
-	    			<th><?php echo $i18n->getMessage("entity_club_name"); ?></th>
-	    			<th><?php echo $i18n->getMessage("playersgenerator_head_playerscount"); ?></th>
+	    			<th><?php echo Message("entity_club_name"); ?></th>
+	    			<th><?php echo Message("playersgenerator_head_playerscount"); ?></th>
 	    		</tr>
 	    	</thead>
 	    	<tbody>
@@ -97,7 +97,7 @@ elseif ($show == "generateform") {
 	<input type="hidden" name="leagueid" value="<?php echo $leagueid; ?>">
 
 	<fieldset>
-    <legend><?php echo $i18n->getMessage("generator_label"); ?></legend>
+    <legend><?php echo Message("generator_label"); ?></legend>
 
 	<?php
 	$formFields = array();
@@ -140,8 +140,8 @@ elseif ($show == "generateform") {
 	?>
 	</fieldset>
 	<div class="form-actions">
-		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo $i18n->getMessage("generator_button"); ?>">
-		<input type="reset" class="btn" value="<?php echo $i18n->getMessage("button_reset"); ?>">
+		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("generator_button"); ?>">
+		<input type="reset" class="btn" value="<?php echo Message("button_reset"); ?>">
 	</div>
   </form>
 
@@ -149,7 +149,7 @@ elseif ($show == "generateform") {
 
 }
 elseif ($show == "generate") {
-  if ($admin['r_demo']) $err[] = $i18n->getMessage("validationerror_no_changes_as_demo");
+  if ($admin['r_demo']) $err[] = Message("validationerror_no_changes_as_demo");
   if (isset($err))include("validationerror.inc.php");
   else {
 	$strengths["strength"] = $_POST['entity_player_w_staerke'];
@@ -182,11 +182,7 @@ $_POST['entity_player_vertrag_gehalt'], $_POST['entity_player_vertrag_spiele'], 
 $_POST['entity_player_vertrag_gehalt'], $_POST['entity_player_vertrag_spiele'], $strengths, $positions, $_POST["playersgenerator_label_deviation"]);
 		}
 		$result->free();
-	} else {
-		DataGeneratorService::generatePlayers($website, $db, 0, $_POST['player_age'], $_POST['player_age_deviation'],
-$_POST['entity_player_vertrag_gehalt'], $_POST['entity_player_vertrag_spiele'], $strengths, $positions, $_POST["playersgenerator_label_deviation"], $_POST['entity_player_nation']);
 	}
-	echo createSuccessMessage($i18n->getMessage("generator_success"), "");
-      echo "<p>&raquo; <a href=\"?site=". $site ."&leagueid=". $leagueid . "\">". $i18n->getMessage("back_label") . "</a></p>\n";
-  }
-}
+	else DataGeneratorService::generatePlayers($website, $db, 0, $_POST['player_age'], $_POST['player_age_deviation'],$_POST['entity_player_vertrag_gehalt'], $_POST['entity_player_vertrag_spiele'], $strengths, $positions, $_POST["playersgenerator_label_deviation"], $_POST['entity_player_nation']);
+	echo createSuccessMessage(Message('generator_success'),'');
+    echo'<p>&raquo; <a href=\'?site='.$site.'&leagueid='.$leagueid.'\'>'.Message('back_label').'</a></p>\n';}}
