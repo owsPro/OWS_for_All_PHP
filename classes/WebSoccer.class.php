@@ -4986,31 +4986,18 @@ class GreenBootstrapSkin extends DefaultBootstrapSkin {
 			$files[]=$dir.'formation.css';
 			$files[]=$dir.'bootstrap-switch.css';}
 		return$files;}}
-class EmailValidator {
-	function isValid(){
-		$this->_value=$value;
-		return filter_var($this->_value, FILTER_VALIDATE_EMAIL);}
-	function getMessage(){ returnMessage('validation_error_email');}}
-class PasswordValidator {
-	function isValid(){
-		$this->_value=$value;
-		if(!preg_match('/[A-Za-z]/',$this->_value)|| !preg_match('/[0-9]/',$this->_value))return FALSE;
-		$blacklist=array('test123', 'abc123', 'passw0rd', 'passw0rt');
-		if(in_array(strtolower($this->_value),$blacklist))return FALSE;
-		return TRUE;}
-	function getMessage(){ returnMessage('validation_error_password');}}
-class UniqueCupNameValidator {
-	function isValid(){
-		$this->_value=$value;
-		$db=DbConnection::getInstance();
-		$result=$db->querySelect('id',Config('db_prefix').'_cup', 'name=\'%s\'',$this->_value, 1);
-		$cups=$result->fetch_array();
-		if(isset($cups['id'])&& (!isset($_POST['id'])|| $_POST['id'] !==$cups['id']))return FALSE;
-		$result=$db->querySelect('COUNT(*)AS hits',Config('db_prefix').'_spiel', 'pokalname=\'%s\'',$this->_value);
-		$matches=$result->fetch_array();
-		if($matches['hits'] &&!isset($_POST['id']))return FALSE;
-		return TRUE;}
-	function getMessage(){ returnMessage('validation_error_uniquecupname');}}
+class EmailValidator{private$_i18n,$_websoccer,$_value;
+				function __construct($i18n,$websoccer,$value){$this->_i18n=$i18n;$this->_websoccer=$websoccer;$this->_value=$value;}
+				function isValid(){return filter_var($this->_value,FILTER_VALIDATE_EMAIL);}
+				function getMessage(){return Message('validation_error_email');}}
+class PasswordValidator{private$_i18n,$_websoccer,$_value;
+				function __construct($i18n,$websoccer,$value){$this->_i18n=$i18n;$this->_websoccer=$websoccer;$this->_value=$value;}
+				function isValid(){if(!preg_match('/[A-Za-z]/',$this->_value)||!preg_match('/[0-9]/',$this->_value)){return FALSE;}$blacklist=['test123','abc123','passw0rd','passw0rt'];if(in_array(strtolower($this->_value),$blacklist))return FALSE;return TRUE;}
+				function getMessage(){return tMessage('validation_error_password');}}
+class UniqueCupNameValidator{
+	function isValid(){$this->_value=$value;$db=DbConnection::getInstance();$result=$db->querySelect('id',Config('db_prefix').'_cup', 'name=\'%s\'',$this->_value, 1);$cups=$result->fetch_array();if(isset($cups['id'])&&(!isset($_POST['id'])||$_POST['id']!==$cups['id']))
+					return FALSE;$result=$db->querySelect('COUNT(*)AS hits',Config('db_prefix').'_spiel','pokalname=\'%s\'',$this->_value);$matches=$result->fetch_array();if($matches['hits']&&!isset($_POST['id']))return FALSE;return TRUE;}
+	function getMessage(){returnMessage('validation_error_uniquecupname');}}
 class Model{
 	function __construct($db,$i18n,$websoccer){ $this->_websoccer=$websoccer; $this->_db=$db; $this->_i18n=$i18n;}
 	function getTemplateParameters(){ return array();}
