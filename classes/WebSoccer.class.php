@@ -9240,7 +9240,8 @@ function printConfigForm($messages){?><form method='post'class='form-horizontal'
 	<div class='control-group'><label class='control-label'for='projectname'><?php echo$messages['label_projectname']?></label>
 	<div class='controls'><input type='text'id='projectname'name='projectname'required value='<?php echo htmlentities((isset($_POST['projectname']))?$_POST['projectname']:'');?>'>
 	<span class='help-inline'><?php echo$messages['label_projectname_help']?></span></div></div><div class='control-group'><label class='control-label'for='projectname'><?php echo$messages['label_systememail']?></label>
-	<div class='controls'><input type='email'id='systememail'name='systememail'required value='<?php echo htmlentities((isset($_POST['systememail']))?$_POST['systememail']:'');?>'><span class='help-inline'><?php echo$messages['label_systememail_help']?></span></div></div>
+	<div class='controls'><input type='email'id='systememail'name='systememail'required value='<?php echo htmlentities((isset($_POST['systememail']))?$_POST['systememail']:'');?>'><span class='help-inline'><?php
+	echo$messages['label_systememail_help']?></span></div></div>
 	<?php $defaultUrl='http://'.$_SERVER['HTTP_HOST'];?><div class='control-group'><label class='control-label'for='url'><?php echo$messages['label_url']?></label>
 	<div class='controls'><input type='url'id='url'name='url'required value='<?php echo htmlentities((isset($_POST['url']))?$_POST['url']:$defaultUrl);?>'><span class='help-inline'><?php echo $messages['label_url_help']?></span></div></div>
 	<?php $defaultRoot=substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/install'));?></fieldset>

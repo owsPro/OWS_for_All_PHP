@@ -11,4 +11,4 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-	echo'<h1>'.Message('clearcache_title').'</h1>';$website->resetConfigCache();$website->getTemplateEngine($i18n)->clearCache();echo createSuccessMessage(Message('clearcache_success_title'),Message('clearcache_success_message'));
+						echo'<h1>'.Message('clearcache_title').'</h1>';$website->resetConfigCache();$website->getTemplateEngine($i18n)->clearCache();echo createSuccessMessage(Message('clearcache_success_title'),Message('clearcache_success_message'));

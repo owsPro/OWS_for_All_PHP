@@ -11,5 +11,5 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-	echo"<h1>".$mainTitle." &raquo; ".Message('subpage_save_title')." &raquo; ".Message('subpage_error_title')."</h1>";$message='<ul>';foreach($err as$e=>$error)$message.='<li>'.$error.'</li>';$message.='</ul>';
-	echo createErrorMessage(Message('subpage_error_alertbox_title'),$message);echo "<p>&raquo; <a href=\"?site=".$site.'\">'.Message('back_label')."</a></p>\n";
+						echo'<h1>'.$mainTitle.' &raquo; '.Message('subpage_save_title').' &raquo; '.Message('subpage_error_title').'</h1>';$message='<ul>';foreach($err as$e=>$error)$message.='<li>'.$error.'</li>';$message.='</ul>';
+						echo createErrorMessage(Message('subpage_error_alertbox_title'),$message);echo"<p>&raquo; <a href=\"?site=".$site.'\">'.Message('back_label')."</a></p>\n";

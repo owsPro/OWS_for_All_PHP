@@ -11,4 +11,5 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-    echo'<h1>'.$mainTitle.' &raquo; '.Message('subpage_save_title').'</h1>';echo createSuccessMessage(Message('alert_save_success'),'');echo"<p>&raquo; <a href=\"".escapeOutput($_SERVER['PHP_SELF']).'?site='.$site.'\">'.Message('back_label')."</a></p>\n";
+    					echo'<h1>'.$mainTitle.' &raquo; '.Message('subpage_save_title').'</h1>';echo createSuccessMessage(Message('alert_save_success'),'');echo"<p>&raquo; <a href=\"".escapeOutput($_SERVER['PHP_SELF']).'?site='.$site.'\">'.
+    					Message('back_label')."</a></p>\n";
