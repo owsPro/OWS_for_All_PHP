@@ -12,8 +12,8 @@
 
 *****************************************************************************/
 					include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');include($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');$i18n=I18n::getInstance(Config('supported_languages'));if(isset($_GET['lang']))
-					$i18n->setCurrentLanguage($_GET['lang']);$root=$_SERVER['DOCUMENT_ROOT'];$inc=$root.'/cache/adminmessages_%s.inc.php';include(sprintf($inc,$i18n->getCurrentLanguage()));$root=$_SERVER['DOCUMENT_ROOT'];$inc=$root.'/languages/messages_%s.php';
-					include(sprintf($inc,$i18n->getCurrentLanguage()));$errors=[];$inputUser=(isset($_POST['inputUser']))?$_POST['inputUser']:FALSE;$inputPassword=(isset($_POST['inputPassword']))?$_POST['inputPassword']:FALSE;
+					$i18n->setCurrentLanguage($_GET['lang']);$root=$_SERVER['DOCUMENT_ROOT'];$inc=$root.'/cache/adminmessages_%s.inc.php';include(sprintf($inc,escapeOutput($i18n->getCurrentLanguage())));$root=$_SERVER['DOCUMENT_ROOT'];$inc=$root.
+					'/languages/messages_%s.php';include(sprintf($inc,escapeOutput($i18n->getCurrentLanguage())));$errors=[];$inputUser=(isset($_POST['inputUser']))?$_POST['inputUser']:FALSE;$inputPassword=(isset($_POST['inputPassword']))?$_POST['inputPassword']:FALSE;
 					$forwarded=(isset($_GET['forwarded'])&&$_GET['forwarded']==1)?TRUE:FALSE;$loggedout=(isset($_GET['loggedout'])&&$_GET['loggedout']==1)?TRUE:FALSE;$newpwd=(isset($_GET['newpwd'])&&$_GET['newpwd']==1)?TRUE:FALSE;if($inputUser or$inputPassword){
 					if(!$inputUser)$errors['inputUser']=Message('login_error_nousername');if(!$inputPassword)$errors['inputPassword']=Message('login_error_nopassword');if(count((array)$errors)==0){$columns=['id','passwort','passwort_salt','passwort_neu','name'];
 					$fromTable=$conf['db_prefix'].'_admin';$whereCondition='name=\'%s\'';$parameters=$inputUser;$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);if($result->num_rows<1)$errors['inputUser']=Message('login_error_unknownusername');
