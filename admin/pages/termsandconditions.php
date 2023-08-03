@@ -41,7 +41,7 @@ if (!$show) {
 
   <p><?php echo $i18n->getMessage("termsandconditions_introduction"); ?></p>
 
-  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-inline">
+  <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-inline">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
 
 	<label for="lang"><?php echo $i18n->getMessage("termsandconditions_label_language"); ?></label>
