@@ -11,7 +11,7 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-	include($_SERVER['DOCUMENT_ROOT'].'/classes/WebSoccer.class.php');error_reporting(E_ERROR);spl_autoload_register('classes_autoloader');include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');if(!isset($conf)){header('location: install/index.php');exit;}
+	include($_SERVER['DOCUMENT_ROOT'].'/owsPro.php');error_reporting(E_ERROR);spl_autoload_register('classes_autoloader');include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');if(!isset($conf)){header('location: install/index.php');exit;}
 	$page=null;$action=null;$block=null;try{$website=WebSoccer::getInstance();if(!file_exists($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigfront.inc.php'))$website->resetConfigCache();}catch(Exception$e){try{$log=new FileWriter('errorlog.txt');
 	$log->writeLine('Website Configuration Error: '.$e->getMessage());$log->close();}catch(Exception$e){}header('HTTP/1.0 500 Error');die();}try{$db=DbConnection::getInstance();$db->connect(Config('db_host'),Config('db_user'),Config('db_passwort'),Config('db_name'));}
 	catch(Exception$e){try{$log=new FileWriter('dberrorlog.txt');$log->writeLine('DB Error: '.$e->getMessage());$log->close();}catch(Exception$e){}die('<h1>Sorry, our data base is currently not available</h1><p>We are working on it.</p>');}
