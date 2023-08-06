@@ -1,17 +1,17 @@
 {% if Config("sofortcom_enabled") and Config("sofortcom_configkey")|length > 0 %}
 	<h3>{{ Message("sofortcompayment_link_title") }}</h3>
-	
+
 	{% set banner = skin.getImage("sofortcom/banner_" ~ i18n.getCurrentLanguage() ~ ".png") %}
 	{% if banner != null %}
 	<p><a href="https://www.sofort.com" target="_blank"><img src="{{ banner }}" alt="Sofort.com"></a></p>
 	{% endif %}
-	
+
 	<p>{{ Message("sofortcompayment_link_intro")|raw }}</p>
-	
+
 	<form method="post" class="form-inline">
 		<input type="hidden" name="action" value="sofortcom-redirect"/>
-		<input type="hidden" name="page" value="{{ env.getPageId() }}"/>
-		
+		<input type="hidden" name="page" value="{{PageId() }}"/>
+
 		<select name="amount" id="amount">
 		{% set priceOptions = Config("premium_price_options")|split(',') %}
 		{% if priceOptions|length > 0 %}
@@ -21,8 +21,8 @@
 				{% endfor %}
 		{% endif %}
 		</select>
-		
+
 		<button type="submit" class="btn btn-primary">{{ Message("sofortcompayment_label_submit") }}</button>
 	</form>
-	
+
 {% endif %}

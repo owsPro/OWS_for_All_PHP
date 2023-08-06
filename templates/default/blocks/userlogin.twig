@@ -16,14 +16,14 @@
  	<label for="loginstr">{{ Message('entity_users_nick') }}</label>
     <input type="text" id="loginstr" name="loginstr" placeholder="{{ Message('entity_users_nick') }}" required>
  	{% endif %}
- 	
+
     <label for="loginpassword">{{ Message('entity_users_passwort') }}</label>
     <input type="password" id="loginpassword" name="loginpassword" placeholder="{{ Message('entity_users_passwort') }}" required>
-    
+
     <label class="checkbox">
       <input type="checkbox" id="rememberme" name="rememberme" value="1"> {{ Message('formlogin_option_rememberme') }}
     </label>
-    
+
 	<button type="submit" class="btn btn-primary">{{ Message('formlogin_submit_button') }}</button>
 	<input type="hidden" name="page" value="login"/>
 	<input type="hidden" name="action" value="login"/>
@@ -32,14 +32,14 @@
 	{% if Config("allow_userregistration") or Config("login_allow_sendingpassword") or Config("registration_url")|length > 0 %}
 		<p>
 			{% if Config("allow_userregistration") or Config("registration_url")|length > 0 %}
-				{% set registerUrl = env.getInternalUrl("register") %}
+				{% set registerUrl =iUrl("register") %}
 				{% if Config("registration_url")|length > 0 %}
 					{% set registerUrl = Config("registration_url") %}
 				{% endif %}
 				<a href="{{ registerUrl }}">{{ Message('formlogin_link_register') }}</a>
-			{% endif %} 
+			{% endif %}
 			{% if (Config("allow_userregistration") or Config("registration_url")|length > 0) and Config("login_allow_sendingpassword") %} | {% endif %}
-			{% if Config("login_allow_sendingpassword") %}<a href="{{ env.getInternalUrl("forgot-password") }}">{{ Message('formlogin_link_forgot_password') }}</a>{% endif %}
+			{% if Config("login_allow_sendingpassword") %}<a href="{{iUrl("forgot-password") }}">{{ Message('formlogin_link_forgot_password') }}</a>{% endif %}
 		</p>
 	{% endif %}
 {% endblock %}

@@ -8,7 +8,7 @@
 					{% if player.position_main|length > 0 %}<abbr title="{{ Message("option_" ~ player.position_main) }}">{{ Message("player_mainposition_" ~ player.position_main) }}</abbr>{% endif %}
 					{% if player.position_second|length > 0 %}/ <abbr title="{{ Message("option_" ~ player.position_second) }}">{{ Message("player_mainposition_" ~ player.position_second) }}</abbr>{% endif %}
 				</td>
-				<td><a href="{{ env.getInternalUrl("player", "id=" ~ player.id) }}">{{ player.firstname }} {% if player.pseudonym|length > 0 %}"{{ player.pseudonym }}" {% endif %}{{ player.lastname }}</a>
+				<td><a href="{{iUrl("player", "id=" ~ player.id) }}">{{ player.firstname }} {% if player.pseudonym|length > 0 %}"{{ player.pseudonym }}" {% endif %}{{ player.lastname }}</a>
 					{% if Request("captain") == player.id %}
 						<i class="icon-group wstooltip" title="{{ Message("myteam_captain_tooltip") }}"></i>
 					{% endif %}
@@ -68,7 +68,7 @@
 					{% else %}
 					<td title="{{ Message("option_" ~ player.position) }}">{{ Message("option_" ~ player.position)|slice(0, 2)|upper }}</td>
 					{% endif %}
-					<td><a href="{{ env.getInternalUrl("player", "id=" ~ player.id) }}">{% if player.pseudonym|length > 0 %}{{ player.pseudonym }}{% else %}{{ player.firstName }} {{ player.lastName }}{% endif %}</a>
+					<td><a href="{{iUrl("player", "id=" ~ player.id) }}">{% if player.pseudonym|length > 0 %}{{ player.pseudonym }}{% else %}{{ player.firstName }} {{ player.lastName }}{% endif %}</a>
 
 					{% if player.yellowCards > 0 %}
 					<img src="{{ skin.getImage("icons/card_yellow.png") }}" style="width: 16px; height: 16px" alt="{{ Message("player_yellowcard") }}" title="{{ Message("player_yellowcard") }}" />
@@ -107,7 +107,7 @@
 					{% endif %}
 
 					{% if player.is_best_player_of_day is defined and player.is_best_player_of_day %}
-						<a href="{{ env.getInternalUrl("teamoftheday", "leagueid=" ~ match.match_league_id ~ "&seasonid=" ~ match.match_season_id ~ "&matchday=" ~ match.match_matchday) }}" title="{{ Message("teamoftheday_matchreport_tooltip") }}"><i class="icon-heart-empty darkIcon"></i></a>
+						<a href="{{iUrl("teamoftheday", "leagueid=" ~ match.match_league_id ~ "&seasonid=" ~ match.match_season_id ~ "&matchday=" ~ match.match_matchday) }}" title="{{ Message("teamoftheday_matchreport_tooltip") }}"><i class="icon-heart-empty darkIcon"></i></a>
 					{% endif %}
 					<div id="playerstatistics{{ player.id }}" class="collapse">
 						<dl>

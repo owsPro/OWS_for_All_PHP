@@ -12,14 +12,13 @@
 	{% if lastExecutionTimestamp == 0 %}
 		{% set lastScouting = Message("youthteam_scouting_lastexecution_never") %}
 	{% else %}
-		{% set lastScouting = env.getFormattedDatetime(lastExecutionTimestamp) %}
+		{% set lastScouting =Datetime(lastExecutionTimestamp) %}
 	{% endif %}
 	{{ profile.infofield(Message("youthteam_scouting_lastexecution"), lastScouting) }}
 
 	{% if not scoutingPossible %}
 		<hr>
-		{{ messagebox.box(Message("youthteam_scouting_nextpossibleexecution",
-			env.getFormattedDatetime(nextPossibleExecutionTimestamp)), "", "warning") }}
+		{{ messagebox.box(Message("youthteam_scouting_nextpossibleexecution",Datetime(nextPossibleExecutionTimestamp)), "", "warning") }}
 	{% else %}
 
 		{% if Request("scoutid") == null %}
@@ -46,7 +45,7 @@
 							<td>{{ statisticelements.progressbar(scout.expertise) }}</td>
 							<td>{{ scout.fee|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</td>
 							<td>{% if scout.speciality|length %}{{ Message("option_" ~ scout.speciality) }}{% else %}-{% endif %}</td>
-							<td><a href="{{ env.getInternalUrl("youth-scouting", "scoutid=" ~ scout.id) }}" class="btn btn-small"><i class="icon-hand-right"></i> {{ Message("button_choose") }}</a></td>
+							<td><a href="{{iUrl("youth-scouting", "scoutid=" ~ scout.id) }}" class="btn btn-small"><i class="icon-hand-right"></i> {{ Message("button_choose") }}</a></td>
 						</tr>
 					{% endfor %}
 					</tbody>
@@ -58,15 +57,15 @@
 
 			{% for country in countries %}
 				{% set nationImg = skin.getImage("flags/players/" ~ country ~ ".png") %}
-				{% if i18n.hasMessage("option_" ~ country) %}
+				{% if hasMessage("option_" ~ country) %}
 					{% set countryLabel = Message("option_" ~ country) %}
 				{% else %}
 					{% set countryLabel = country %}
 				{% endif %}
-				<a href="{{ env.getInternalActionUrl("scout-youthplayer", "scoutid=" ~ Request("scoutid") ~ "&country=" ~ country) }}" class="btn btn-large btn-block">{% if nationImg %}<img src="{{ nationImg }}" alt="{{ countryLabel }}" /> {% endif %}{{ countryLabel }}</a>
+				<a href="{{aUrl("scout-youthplayer", "scoutid=" ~ Request("scoutid") ~ "&country=" ~ country) }}" class="btn btn-large btn-block">{% if nationImg %}<img src="{{ nationImg }}" alt="{{ countryLabel }}" /> {% endif %}{{ countryLabel }}</a>
 			{% endfor %}
 
-			<p style="margin-top: 10px"><a href="{{ env.getInternalUrl("youth-scouting") }}" class="btn">{{ Message("button_cancel") }}</a></p>
+			<p style="margin-top: 10px"><a href="{{iUrl("youth-scouting") }}" class="btn">{{ Message("button_cancel") }}</a></p>
 
 		{% endif %}
 

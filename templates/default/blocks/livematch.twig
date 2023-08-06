@@ -6,5 +6,5 @@
 
 {% block box_content %}
 
-<a href="{{ env.getInternalUrl("match", "id=" ~ match.match_id) }}">{{ match.match_home_name }} - {{ match.match_guest_name }}</a>
+<a href="{{iUrl("match", "id=" ~ match.match_id) }}">{{ match.match_home_name }} - {{ match.match_guest_name }}</a>
 {% endblock %}

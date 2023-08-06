@@ -41,7 +41,7 @@
 					{% if marker.place_from <= place and marker.place_to >= place %}
 						{% for marker in markers %}
 							{% set markerTitle = marker.name %}
-							{% if i18n.hasMessage(markerTitle) %}
+							{% if hasMessage(markerTitle) %}
 								{% set markerTitle = Message(markerTitle) %}
 							{% endif %}
 							style="background-color: {{ marker.color }}"
@@ -55,13 +55,13 @@
 						<img src="{{ Config("context_root") }}/uploads/club/{{ team.picture }}" style="max-width: 20px"/>
 					{% endif %}
 
-					<a href="{{ env.getInternalUrl("team", "id=" ~ team.id) }}">{{ team.name }}</a>
+					<a href="{{iUrl("team", "id=" ~ team.id) }}">{{ team.name }}</a>
 					{% if team.user_id > 0 %}
 						<br>
 						{% if team.user_picture|length > 0 %}
-							<a href="{{ env.getInternalUrl("user", "id=" ~ team.user_id) }}"><img src="{{ team.user_picture }}" style="width: 20px; height: 20px"/></a>
+							<a href="{{iUrl("user", "id=" ~ team.user_id) }}"><img src="{{ team.user_picture }}" style="width: 20px; height: 20px"/></a>
 						{% endif %}
-						<small><a href="{{ env.getInternalUrl("user", "id=" ~ team.user_id) }}">{{ team.user_name }}</a></small>
+						<small><a href="{{iUrl("user", "id=" ~ team.user_id) }}">{{ team.user_name }}</a></small>
 					{% endif %}
 					{% if (env.getUser().id > 0 and team.user_id == env.getUser().id) %}<strong>{% endif %}
 					</td>
@@ -73,7 +73,7 @@
 					<td>{{ team.goals_diff }}</td>
 					<td>{{ team.score }}
 					{% if team.previous_rank is defined and team.previous_rank > 0 %}
-						<a href="{{ env.getInternalUrl("tablehistory", "id=" ~ team.id) }}" style="text-decoration: none" title="{{ Message("tablehistory_navlabel") }}">
+						<a href="{{iUrl("tablehistory", "id=" ~ team.id) }}" style="text-decoration: none" title="{{ Message("tablehistory_navlabel") }}">
 						{% if team.previous_rank < place %}
 							<i class="icon-arrow-down text-error"></i>
 						{% elseif team.previous_rank > place %}
@@ -99,7 +99,7 @@
 			<tbody>
 			{% for marker in markers %}
 				{% set markerTitle = marker.name %}
-				{% if i18n.hasMessage(markerTitle) %}
+				{% if hasMessage(markerTitle) %}
 					{% set markerTitle = Message(markerTitle) %}
 				{% endif %}
 				<tr>

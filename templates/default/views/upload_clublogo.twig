@@ -17,7 +17,7 @@
 
 		<div class="form-actions">
 			<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
-			<a href="{{ env.getInternalUrl("team", "id=" ~ env.user.clubId) }}" class="btn">{{ Message('button_cancel') }}</a>
+			<a href="{{iUrl("team", "id=" ~ env.user.clubId) }}" class="btn">{{ Message('button_cancel') }}</a>
 		</div>
 		<input type="hidden" name="page" value="upload-clublogo"/>
 		<input type="hidden" name="action" value="upload-club-picture"/>

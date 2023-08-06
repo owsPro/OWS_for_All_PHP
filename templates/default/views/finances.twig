@@ -24,16 +24,16 @@
 		<tbody>
 		{% for statement in statements %}
 		<tr>
-			<td>{{ env.getFormattedDate(statement.date) }}</td>
+			<td>{{FormattedDate(statement.date) }}</td>
 			<td>
-				{% if i18n.hasMessage(statement.sender) %}
+				{% if hasMessage(statement.sender) %}
 					{{ Message(statement.sender) }}
 				{% else %}
 					{{ statement.sender }}
 				{% endif %}
 			</td>
 			<td>
-				{% if i18n.hasMessage(statement.subject) %}
+				{% if hasMessage(statement.subject) %}
 					{{ Message(statement.subject) }}
 				{% else %}
 					{{ statement.subject }}
@@ -48,7 +48,7 @@
 		{% endfor %}
 		</tbody>
 	</table>
-	
+
 	{{ pagination.paginator(paginator) }}
 
 {% endif %}

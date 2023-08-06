@@ -12,20 +12,20 @@
 			</tr>
 		</thead>
 		<tbody>
-  
+
 	  	{% for bid in bids %}
 			<tr>
-				<td><a class="btn btn-mini {% if bid.ishighest %}btn-success{% else %}btn-danger{% endif %} wstooltip" 
-					href="{{ env.getInternalUrl("transfer-bid", "id=" ~ bid.player_id) }}"
-					title="{% if bid.ishighest %}{{ Message("transfer_bids_ishighest") }}{% else %}{{ Message("transfer_bids_overbidden") }}{% endif %}"><i class="icon-hand-up"></i> {{ env.getFormattedDatetime(bid.date) }}</a></td>
-				<td><a href="{{ env.getInternalUrl("player", "id=" ~ bid.player_id) }}">{{ bid.player_firstname }} {{ bid.player_lastname }}</a></td>
-				<td>{{ env.getFormattedDatetime(bid.auction_end) }}</td>
+				<td><a class="btn btn-mini {% if bid.ishighest %}btn-success{% else %}btn-danger{% endif %} wstooltip"
+					href="{{iUrl("transfer-bid", "id=" ~ bid.player_id) }}"
+					title="{% if bid.ishighest %}{{ Message("transfer_bids_ishighest") }}{% else %}{{ Message("transfer_bids_overbidden") }}{% endif %}"><i class="icon-hand-up"></i> {{Datetime(bid.date) }}</a></td>
+				<td><a href="{{iUrl("player", "id=" ~ bid.player_id) }}">{{ bid.player_firstname }} {{ bid.player_lastname }}</a></td>
+				<td>{{ Datetime(bid.auction_end) }}</td>
 				<td>{{ bid.amount|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</td>
 				<td>{{ bid.hand_money|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</td>
 				<td>{{ bid.contract_salary|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</td>
 			</tr>
 	  	{% endfor %}
-	  	
+
 		</tbody>
 	</table>
 

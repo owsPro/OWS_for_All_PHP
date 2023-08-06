@@ -4,7 +4,7 @@
 		{% for majorPosition in majorPositions %}
 			<tr>
 				<td><strong>
-					{% if i18n.hasMessage(majorPosition.subject) %}
+					{% if hasMessage(majorPosition.subject) %}
 						{{ Message(majorPosition.subject) }}
 					{% else %}
 						{{ majorPosition.subject }}

@@ -28,10 +28,10 @@
 </form>
 
 {% if Config("allow_userregistration") %}
-	<p><i class="icon-arrow-right"></i> <a href="{{ env.getInternalUrl("register") }}">{{ Message('formlogin_link_register') }}</a></p>
+	<p><i class="icon-arrow-right"></i> <a href="{{iUrl("register") }}">{{ Message('formlogin_link_register') }}</a></p>
 {% endif %}
 
 {% if Config("login_allow_sendingpassword") %}
-	<p><i class="icon-arrow-right"></i> <a href="{{ env.getInternalUrl("forgot-password") }}">{{ Message('formlogin_link_forgot_password') }}</a></p>
+	<p><i class="icon-arrow-right"></i> <a href="{{iUrl("forgot-password") }}">{{ Message('formlogin_link_forgot_password') }}</a></p>
 {% endif %}
 {% endblock %}

@@ -34,10 +34,10 @@
 		<div id="grouptable">{{ Message("cup_group_select_group_placeholder") }}</div>
 	{% else %}
 		{% if round.secondround_date < 1 %}
-		{{ profile.infofield(Message("cup_firstround_only_date"), env.getFormattedDatetime(round.firstround_date)) }}
+		{{ profile.infofield(Message("cup_firstround_only_date"),Datetime(round.firstround_date)) }}
 		{% else %}
-		{{ profile.infofield(Message("cup_firstround"), env.getFormattedDatetime(round.firstround_date)) }}
-		{{ profile.infofield(Message("cup_secondround"), env.getFormattedDatetime(round.secondround_date)) }}
+		{{ profile.infofield(Message("cup_firstround"),Datetime(round.firstround_date)) }}
+		{{ profile.infofield(Message("cup_secondround"),Datetime(round.secondround_date)) }}
 		{% endif %}
 	{% endif %}
 {% endif %}

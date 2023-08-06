@@ -27,7 +27,7 @@
   <dd>{{ player.player_contract_matches  }} {{ Message("player_details_unit_matches") }}</dd>
 </dl>
 
-<p style="margin-top: 30px"><i class="icon-arrow-right"></i> <a href="{{ env.getInternalUrl("player", "id=" ~ player.player_id) }}">{{ Message("player_navlabel") }}</a></p>
+<p style="margin-top: 30px"><i class="icon-arrow-right"></i> <a href="{{iUrl("player", "id=" ~ player.player_id) }}">{{ Message("player_navlabel") }}</a></p>
 
 <p>{{ Message("borrow-player_intro") }}</p>
 
@@ -47,7 +47,7 @@
 
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('lending_player_hire_button') }}</button>
-		<a href="{{ env.getInternalUrl("myteam") }}" class="btn">{{ Message('button_cancel') }}</a>
+		<a href="{{iUrl("myteam") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="borrow-player"/>
 	<input type="hidden" name="id" value="{{ Request('id') }}"/>

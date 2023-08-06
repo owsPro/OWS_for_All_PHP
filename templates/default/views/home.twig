@@ -15,7 +15,7 @@
   <p>{{ Message("home_teaser") }}</p>
 
   	{% if Config("allow_userregistration") or Config("registration_url")|length > 0 %}
-		{% set registerUrl = env.getInternalUrl("register") %}
+		{% set registerUrl =iUrl("register") %}
 		{% if Config("registration_url")|length > 0 %}
 			{% set registerUrl = Config("registration_url") %}
 		{% endif %}

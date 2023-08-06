@@ -1,6 +1,6 @@
 {% if lentplayers|length > 0 %}
 	<h3>{{ Message("lent_players") }}</h3>
-	
+
 	<table class="table table-striped">
 		<thead>
 			<tr>
@@ -20,10 +20,10 @@
 					<p title="{{ Message("option_" ~ player.position_main) }}">{{ Message("player_mainposition_" ~ player.position_main) }}</p>
 					{% endif %}
 				</td>
-				<td><a href="{{ env.getInternalUrl("player", "id=" ~ player.id) }}">{{ player.firstname }} {% if player.pseudonym|length > 0 %}"{{ player.pseudonym }}" {% endif %}{{ player.lastname }}</a></td>
+				<td><a href="{{iUrl("player", "id=" ~ player.id) }}">{{ player.firstname }} {% if player.pseudonym|length > 0 %}"{{ player.pseudonym }}" {% endif %}{{ player.lastname }}</a></td>
 				<td>{{ player.age }}</td>
 				<td>
-					<a href="{{ env.getInternalUrl("team", "id=" ~ player.team_id) }}">{{ player.team_name }}</a>
+					<a href="{{iUrl("team", "id=" ~ player.team_id) }}">{{ player.team_name }}</a>
 				</td>
 				<td>
 					{{ player.lending_matches }}
@@ -32,5 +32,5 @@
 			{% endfor %}
 		</tbody>
 	</table>
-	
+
 {% endif %}

@@ -17,7 +17,7 @@
 	{% set matchtype = Message("matchtype_" ~ match.match_type) %}
 {% endif %}
 
-{{ profile.infofield(Message("match_details_date"), env.getFormattedDatetime(match.match_date, i18n)) }}
+{{ profile.infofield(Message("match_details_date"),Datetime(match.match_date, i18n)) }}
 {{ profile.infofield(Message("match_details_type"), matchtype) }}
 {% if match.match_stadium_name|length > 0 %}
 	{{ profile.infofield(Message("match_details_stadium"), match.match_stadium_name) }}
@@ -36,7 +36,7 @@
 {% else %}
 
 	<h3>{{ Message("match_details_report_title") }}</h3>
-	
+
 	<div id="report_result">
 		<span id="report_goals_home">
 		{% if match.match_home_picture|length %}<img src="{{ Config("context_root") }}/uploads/club/{{ match.match_home_picture }}" style="max-height: 120px; margin-right: 20px"/>{% endif %}
@@ -58,7 +58,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div style="margin-top: 10px">
 	{% if match.match_home_noformation %}
 	{{ msgbox.box("", Message("match_details_noformation", match.match_home_name), "warning") }}
@@ -67,21 +67,21 @@
 	{{ msgbox.box("", Message("match_details_noformation", match.match_guest_name), "warning") }}
 	{% endif %}
 	</div>
-	
+
 	<p style="margin-top: 10px">
 	{% if not match.match_simulated %}
-		<a id="matchReportRefresh" class="btn ajaxLink" data-ajaxtarget="pagecontent" 
-			data-ajaxquerystr="page=match&amp;id={{ match.match_id }}" 
+		<a id="matchReportRefresh" class="btn ajaxLink" data-ajaxtarget="pagecontent"
+			data-ajaxquerystr="page=match&amp;id={{ match.match_id }}"
 			data-blockseconds="60"
 			href="#refresh"><i class="icon-refresh"></i> {{ Message("button_refresh") }} <span class="timerCount"></span></a>
-			
+
 		{% if allowTacticChanges %}
-			<a class="btn" href="{{ env.getInternalUrl("match-live-changes", "id=" ~ match.match_id) }}"><i class="icon-edit"></i> {{ Message("match_details_button_changes") }}</a>
+			<a class="btn" href="{{iUrl("match-live-changes", "id=" ~ match.match_id) }}"><i class="icon-edit"></i> {{ Message("match_details_button_changes") }}</a>
 		{% endif %}
-	
+
 	{% endif %}
 	</p>
-	
+
 	<ul class="nav nav-tabs" id="reportTab">
 	  <li class="active"><a href="#report" data-toggle="tab">{{ Message("match_details_comments_title") }}</a></li>
 	  <li><a href="#players" data-toggle="tab" class="ajaxLink"
@@ -93,18 +93,18 @@
 	  	data-ajaxquerystr="id={{ match.match_id }}"
 	  	{% if not match.match_simulated %}data-ajaxdisabledcache="1"{% endif %}>{{ Message("match_details_statistic_title") }}</a></li>
 	</ul>
-	 
+
 	<div class="tab-content">
 	  <div class="tab-pane active" id="report">
-	  
-	  	<span class="report_team_home">{{ match.match_home_name }} <a href="{{ env.getInternalUrl("team", "id=" ~ match.match_home_id) }}" title="{{ Message("team_navlabel") }}"><i class="icon-info-sign darkIcon"></i></a></span>
-	  	<span style="margin-left: 20px" class="report_team_guest">{{ match.match_guest_name }} <a href="{{ env.getInternalUrl("team", "id=" ~ match.match_guest_id) }}" title="{{ Message("team_navlabel") }}"><i class="icon-info-sign darkIcon"></i></a></span>
-	  
+
+	  	<span class="report_team_home">{{ match.match_home_name }} <a href="{{iUrl("team", "id=" ~ match.match_home_id) }}" title="{{ Message("team_navlabel") }}"><i class="icon-info-sign darkIcon"></i></a></span>
+	  	<span style="margin-left: 20px" class="report_team_guest">{{ match.match_guest_name }} <a href="{{iUrl("team", "id=" ~ match.match_guest_id) }}" title="{{ Message("team_navlabel") }}"><i class="icon-info-sign darkIcon"></i></a></span>
+
 		<div id="reportarea">
 		{% if match.match_deprecated_report|length > 0 %}
 			{{ match.match_deprecated_report|raw|nl2br }}
 		{% else %}
-		
+
 			<table id="reporttable">
 				<colgroup>
 					<col style="width: 60px" />
@@ -117,10 +117,10 @@
 						<td><h4>{{ Message("match_details_match_completed") }}</h4></td>
 					</tr>
 					{% endif %}
-					
+
 					{% set previousMinute = 0 %}
 					{% for reportmessage in reportmessages %}
-					
+
 						{# half-time #}
 						{% if previousMinute > 45 and reportmessage.minute <= 45 %}
 							<tr>
@@ -132,7 +132,7 @@
 								<td></td>
 								<td><h4>{{ Message("match_details_report_extension")|format(reportmessage.goals) }}</h4></td>
 							</tr>
-						{% elseif displayPenaltyMsg is defined and displayPenaltyMsg == 1 
+						{% elseif displayPenaltyMsg is defined and displayPenaltyMsg == 1
 							and reportmessage.type != "Elfmeter_erfolg" and reportmessage.type != "Elfmeter_verschossen" %}
 							<tr>
 								<td></td>
@@ -185,14 +185,14 @@
 				</tbody>
 			</table>
 		{% endif %}
-		
+
 		</div>
 	  </div>
 	  <div class="tab-pane" id="players">
 		<span id="players-list"></span>
 	  </div>
 	  <div class="tab-pane" id="statistic">
-	  
+
 		{% if match.match_deprecated_report|length > 0 %}
 			<p>{{ Message("match_details_nostatistics_available") }}</p>
 		{% else %}
@@ -200,7 +200,7 @@
 		{% endif %}
 
 	  </div>
-	</div>	
+	</div>
 
 {% endif %}
 {% endblock %}

@@ -8,7 +8,7 @@
 
 {% block page_content %}
 <form id="formationForm" method="post">
-	<h3>{{ Message("match_report_minute", minute) }} (<a href="{{ env.getInternalUrl("match", "id=" ~ Request("id")) }}">{{ Message("match_navlabel") }}</a>)</h3>
+	<h3>{{ Message("match_report_minute", minute) }} (<a href="{{iUrl("match", "id=" ~ Request("id")) }}">{{ Message("match_navlabel") }}</a>)</h3>
 
 	<table class="table table-striped">
 		<thead>
@@ -25,7 +25,7 @@
 					{% set playerName = player.lastname ~ ", " ~ player.firstname %}
 				{% endif %}
 				<tr>
-					<td><a href="{{ env.getInternalUrl("player", "id=" ~ player.id) }}" target="_blank" title="{{ Message("player_navlabel") }}">{{ playerName }}</a> ({{ player.grade }})</td>
+					<td><a href="{{iUrl("player", "id=" ~ player.id) }}" target="_blank" title="{{ Message("player_navlabel") }}">{{ playerName }}</a> ({{ player.grade }})</td>
 					<td>
 						<input type="hidden" name="player{{ loop.index }}" class="playerField" value="{{ formation['player' ~ loop.index] }}">
 						{% if player.match_position == "Torwart" %}
@@ -161,7 +161,7 @@
 
 		<div class="form-actions" style="text-align: center">
 			<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
-			<a href="{{ env.getInternalUrl("match", "id=" ~ Request("id")) }}" class="btn">{{ Message('button_cancel') }}</a>
+			<a href="{{iUrl("match", "id=" ~ Request("id")) }}" class="btn">{{ Message('button_cancel') }}</a>
 		</div>
 		<input type="hidden" name="page" value="match-live-changes"/>
 		<input type="hidden" name="action" value="save-live-formation"/>

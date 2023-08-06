@@ -7,9 +7,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		{% if Request("id")!=null %}
-			{% set url = env.getInternalUrl(null, "id=" ~ Request("id"), TRUE) %}
+			{% set url =iUrl(null, "id=" ~ Request("id"), TRUE) %}
 		{% else %}
-			{% set url = env.getInternalUrl(null, null, TRUE) %}
+			{% set url =iUrl(null, null, TRUE) %}
 		{% endif %}
 		<link rel="canonical" href="{{ url }}"/>
 
@@ -95,11 +95,11 @@
 
 			<hr/>
 			<footer>
-	        	<p><a href="{{ env.getInternalUrl("termsandconditions") }}">{{Message("termsandconditions_navlabel") }}</a>
+	        	<p><a href="{{iUrl("termsandconditions") }}">{{Message("termsandconditions_navlabel") }}</a>
 	        	{% if Config("privacypolicy_url")|length > 0 %}| <a href="{{ Config("privacypolicy_url") }}">{{Message("privacypolicy_navlabel") }}</a>{% endif %}
-	        	| <a href="{{ env.getInternalUrl("imprint") }}">{{Message("imprint_navlabel") }}</a>
+	        	| <a href="{{iUrl("imprint") }}">{{Message("imprint_navlabel") }}</a>
 	        	| Powered by <a href="https://github.com/owsPro/OWS_for_All_PHP" target="_blank">OWS_for_All_PHP</a>
-	        	| <i class="icon-time"></i> {{ env.getFormattedDatetime(null) }}
+	        	| <i class="icon-time"></i> {{Datetime(null) }}
 	        	</p>
 			</footer>
 

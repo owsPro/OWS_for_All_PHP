@@ -4,8 +4,8 @@
 
 	<h4>{{ Message("entity_youthmatch") }}</h4>
 
-	<p>{{ env.getFormattedDatetime(matchinfo.matchdate) }}: <a href="{{ env.getInternalUrl("team", "id=" ~ matchinfo.home_team_id) }}">{{ matchinfo.home_team_name }}</a>
-		- <a href="{{ env.getInternalUrl("team", "id=" ~ matchinfo.guest_team_id) }}">{{ matchinfo.guest_team_name }}</a></p>
+	<p>{{Datetime(matchinfo.matchdate) }}: <a href="{{iUrl("team", "id=" ~ matchinfo.home_team_id) }}">{{ matchinfo.home_team_name }}</a>
+		- <a href="{{iUrl("team", "id=" ~ matchinfo.guest_team_id) }}">{{ matchinfo.guest_team_name }}</a></p>
 
 	<form method="post" class="form-inline">
 		<input type="hidden" name="page" value="youth-formation" />
@@ -56,13 +56,12 @@
 	<div class="form-actions" style="text-align: center">
 		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
 
-		<a href="{{ env.getInternalUrl(env.getPageId(), "matchid=" ~ Request("matchid")) }}" class="btn">{{ Message('button_reset') }}</a>
+		<a href="{{iUrl(PageId(), "matchid=" ~ Request("matchid")) }}" class="btn">{{ Message('button_reset') }}</a>
 
-		<a href="{{ env.getInternalUrl("youth-matches") }}" class="btn">{{ Message('button_cancel') }}</a>
+		<a href="{{iUrl("youth-matches") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="setup" value="{{ setup.defense }}-{{ setup.dm }}-{{ setup.midfield }}-{{ setup.om }}-{{ setup.striker }}"/>
 	<input type="hidden" name="page" value="youth-formation"/>
 	<input type="hidden" name="action" value="save-youth-formation"/>
 	<input type="hidden" name="matchid" value="{{ Request("matchid") }}"/>
 {% endblock %}
-

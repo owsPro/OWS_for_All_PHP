@@ -6,13 +6,13 @@
 
 <dl class="dl-horizontal">
   <dt>{{ Message("entity_club") }}</dt>
-  <dd><a href="{{ env.getInternalUrl("team", "id=" ~ highestbid.team_id) }}">{{ highestbid.team_name }}</a></dd>
+  <dd><a href="{{iUrl("team", "id=" ~ highestbid.team_id) }}">{{ highestbid.team_name }}</a></dd>
 
   <dt>{{ Message("entity_users") }}</dt>
-  <dd><a href="{{ env.getInternalUrl("user", "id=" ~ highestbid.user_id) }}">{{ highestbid.user_name }}</a></dd>
+  <dd><a href="{{iUrl("user", "id=" ~ highestbid.user_id) }}">{{ highestbid.user_name }}</a></dd>
 
   <dt>{{ Message("transfer_bid_date") }}</dt>
-  <dd>{{ env.getFormattedDatetime(highestbid.date) }}</dd>
+  <dd>{{ Datetime(highestbid.date) }}</dd>
 
   {% if player.team_id > 0 %}
   <dt>{{ Message("transfer_bid_amount") }}</dt>
@@ -35,7 +35,7 @@
 	<p>{{ Message("transfer_bid_no_existing_max_bid") }}</p>
 
 	{% if env.user.clubId > 0 and player.team_id == env.user.clubId %}
-		<p><a href="{{ env.getInternalActionUrl("remove-player-from-transfermarket", "id=" ~ player.player_id) }}" class="btn btn-danger"><i class="icon-remove-circle"></i> {{ Message("transfermarket_remove_label") }}</a></p>
+		<p><a href="{{aUrl("remove-player-from-transfermarket", "id=" ~ player.player_id) }}" class="btn btn-danger"><i class="icon-remove-circle"></i> {{ Message("transfermarket_remove_label") }}</a></p>
 	{% endif %}
 {% endif %}
 
@@ -61,7 +61,7 @@
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary ajaxSubmit"
 		data-ajaxtarget="transfer-bid_block" data-ajaxblock="transfer-bid" data-messagetarget="bidmessages">{{ Message('transfermarket_bid') }}</button>
-		<a href="{{ env.getInternalUrl("transfermarket") }}" class="btn">{{ Message('button_cancel') }}</a>
+		<a href="{{iUrl("transfermarket") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="transfer-bid"/>
 	<input type="hidden" name="id" value="{{ Request('id') }}"/>

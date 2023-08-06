@@ -6,9 +6,9 @@
 
 {% block box_content %}
 
-<p><a href="{{ env.getInternalUrl("who-is-online") }}" title="{{ Message("who-is-online_navlabel") }}">{% if usersOnline == 1 %}{{ Message("projectstatistics_onlineusers_single")|raw }}{% else %}{{ Message("projectstatistics_onlineusers", usersOnline)|raw }}{% endif %}.</a> {{ Message("projectstatistics_totalusers", usersTotal)|raw }}.</p>
+<p><a href="{{iUrl("who-is-online") }}" title="{{ Message("who-is-online_navlabel") }}">{% if usersOnline == 1 %}{{ Message("projectstatistics_onlineusers_single")|raw }}{% else %}{{ Message("projectstatistics_onlineusers", usersOnline)|raw }}{% endif %}.</a> {{ Message("projectstatistics_totalusers", usersTotal)|raw }}.</p>
 
 <p>{{ Message("projectstatistics_leagues", numberOfLeagues)|raw }}. <br>
-<a href="{{ env.getInternalUrl("freeclubs") }}">{{ Message("projectstatistics_freeteams", numberOfFreeTeams)|raw }}.</a></p>
+<a href="{{iUrl("freeclubs") }}">{{ Message("projectstatistics_freeteams", numberOfFreeTeams)|raw }}.</a></p>
 
 {% endblock %}

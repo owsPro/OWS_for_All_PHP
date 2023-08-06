@@ -41,10 +41,10 @@
 			{% for player in players %}
 			<tr>
 				<td><strong>{{ loop.index }}</strong></td>
-				<td><p><a href="{{ env.getInternalUrl("player", "id=" ~ player.id) }}">{{ player.firstname }} {% if player.pseudonym|length > 0 %}"{{ player.pseudonym }}" {% endif %}{{ player.lastname }}</a></p></td>
+				<td><p><a href="{{iUrl("player", "id=" ~ player.id) }}">{{ player.firstname }} {% if player.pseudonym|length > 0 %}"{{ player.pseudonym }}" {% endif %}{{ player.lastname }}</a></p></td>
 				<td>
 				{% if player.team_id > 0 %}
-				<a href="{{ env.getInternalUrl("team", "id=" ~ player.team_id) }}">{{ player.team_name }}</a>
+				<a href="{{iUrl("team", "id=" ~ player.team_id) }}">{{ player.team_name }}</a>
 				{% else %}
 				-
 				{% endif %}

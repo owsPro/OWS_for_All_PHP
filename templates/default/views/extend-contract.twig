@@ -12,15 +12,15 @@
 <dl class="dl-horizontal">
   <dt>{{ Message("entity_player_vertrag_gehalt") }}</dt>
   <dd>{{ player.player_contract_salary|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
-  
+
   <dt>{{ Message("entity_player_vertrag_torpraemie") }}</dt>
   <dd>{{ player.player_contract_goalbonus|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</dd>
-  
+
   <dt>{{ Message("entity_player_vertrag_spiele") }}</dt>
   <dd>{{ player.player_contract_matches  }} {{ Message("player_details_unit_matches") }}</dd>
 </dl>
 
-<p style="margin-top: 30px"><i class="icon-arrow-right"></i> <a href="{{ env.getInternalUrl("player", "id=" ~ player.player_id) }}">{{ Message("extend-contract_link_profile") }}</a></p>
+<p style="margin-top: 30px"><i class="icon-arrow-right"></i> <a href="{{iUrl("player", "id=" ~ player.player_id) }}">{{ Message("extend-contract_link_profile") }}</a></p>
 
 <p><i class="icon-warning-sign"></i> {{ Message("extend-contract_decrease_satisfaction_hint") }}</p>
 {% endblock %}

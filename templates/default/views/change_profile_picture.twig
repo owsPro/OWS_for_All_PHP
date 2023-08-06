@@ -16,7 +16,7 @@
 
 			<div class="form-actions">
 				<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
-				<a href="{{ env.getInternalUrl("user", "id=" ~ env.user.id) }}" class="btn">{{ Message('button_cancel') }}</a>
+				<a href="{{iUrl("user", "id=" ~ env.user.id) }}" class="btn">{{ Message('button_cancel') }}</a>
 			</div>
 			<input type="hidden" name="page" value="change-profile-picture"/>
 			<input type="hidden" name="action" value="upload-profile-picture"/>

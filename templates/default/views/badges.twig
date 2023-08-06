@@ -21,7 +21,7 @@
 				{{ badgesmacros.badge(badge.name, badge.level) }}
 			</td>
 			<td>
-				{% if badge.description|length and i18n.hasMessage(badge.description) %}
+				{% if badge.description|length and hasMessage(badge.description) %}
 					{{ Message(badge.description) }}
 				{% else %}
 					{{ badge.description }}

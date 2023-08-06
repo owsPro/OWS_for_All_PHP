@@ -11,10 +11,10 @@
 <h3>{{ Message("entity_users_premium_balance") }}: {{ env.user.premiumBalance|number_format(0, ',', ' ') }} {{ Config("premium_credit_unit") }}</h3>
 
 <p>
-	<a href="{{ env.getInternalUrl(Config("premium_infopage")) }}" class="btn"><i class="icon-info-sign"></i> {{ Message("premiumaccount_recharge_button") }}</a>
+	<a href="{{iUrl(Config("premium_infopage")) }}" class="btn"><i class="icon-info-sign"></i> {{ Message("premiumaccount_recharge_button") }}</a>
 	{% if Config("premium_exchangerate_gamecurrency") > 0 %}
-		<a href="{{ env.getInternalUrl("premium-exchange") }}" class="btn"><i class="icon-money"></i> {{ Message("premiumaccount_exchange_link") }}</a>
-	{% endif %}	
+		<a href="{{iUrl("premium-exchange") }}" class="btn"><i class="icon-money"></i> {{ Message("premiumaccount_exchange_link") }}</a>
+	{% endif %}
 </p>
 
 {% if statements is defined and statements|length > 0 %}
@@ -31,9 +31,9 @@
 		<tbody>
 		{% for statement in statements %}
 		<tr>
-			<td>{{ env.getFormattedDate(statement.created_date) }}</td>
+			<td>{{FormattedDate(statement.created_date) }}</td>
 			<td>
-				{% if i18n.hasMessage("actionsubject_" ~ statement.action_id) %}
+				{% if hasMessage("actionsubject_" ~ statement.action_id) %}
 					{{ Message("actionsubject_" ~ statement.action_id) }}
 				{% else %}
 					{{ statement.action_id }}
@@ -48,14 +48,14 @@
 		{% endfor %}
 		</tbody>
 	</table>
-	
+
 	{{ pagination.paginator(paginator) }}
 
 {% endif %}
 
 {% if payments|length > 0 %}
 	<h3>{{ Message("entity_premiumpayment") }}</h3>
-	
+
 	<table class="table table-striped">
 		<thead>
 			<tr>
@@ -66,7 +66,7 @@
 		<tbody>
 		{% for payment in payments %}
 		<tr>
-			<td>{{ env.getFormattedDatetime(payment.created_date) }}</td>
+			<td>{{Datetime(payment.created_date) }}</td>
 			<td>{{ payment.amount|number_format(0, ',', ' ') }} {{ Config("premium_currency") }}</td>
 		</tr>
 		{% endfor %}

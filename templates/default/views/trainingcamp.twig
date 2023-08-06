@@ -13,18 +13,18 @@
 {% if bookedCamp is defined and bookedCamp|length > 0 %}
 
 	<h3>{{ Message("trainingcamp_bookedcamp") }}</h3>
-	
+
 	{{ profile.infofield(Message("entity_trainingcamp_name"), bookedCamp.name) }}
-	{{ profile.infofield(Message("trainingcamp_startdate"), env.getFormattedDate(bookedCamp.date_start)) }}
-	{{ profile.infofield(Message("trainingcamp_enddate"), env.getFormattedDate(bookedCamp.date_end)) }}
+	{{ profile.infofield(Message("trainingcamp_startdate"),FormattedDate(bookedCamp.date_start)) }}
+	{{ profile.infofield(Message("trainingcamp_enddate"),FormattedDate(bookedCamp.date_end)) }}
 	{{ profile.infofield(Message("entity_trainingcamp_p_staerke"), bookedCamp.effect_strength) }}
 	{{ profile.infofield(Message("entity_trainingcamp_p_technik"), bookedCamp.effect_strength_technique) }}
 	{{ profile.infofield(Message("entity_trainingcamp_p_kondition"), bookedCamp.effect_strength_stamina) }}
 	{{ profile.infofield(Message("entity_trainingcamp_p_frische"), bookedCamp.effect_strength_freshness) }}
 	{{ profile.infofield(Message("entity_trainingcamp_p_zufriedenheit"), bookedCamp.effect_strength_satisfaction) }}
-	
+
 	<p style="margin-top: 10px; margin-bottom: 20px;"><i class="icon-warning-sign"></i> {{ Message('trainingcamp_delete_note') }}</p>
-	
+
 	<form method="post">
 		<div class="form-actions">
 			<button type="submit" class="btn"><i class="icon-remove-sign"></i> {{ Message('trainingcamp_delete') }}</button>
@@ -38,7 +38,7 @@
 	{% if camps is not defined or camps|length < 1 %}
 		<p>{{ Message("trainingcamp_nocamps") }}</p>
 	{% else %}
-	
+
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -55,7 +55,7 @@
 			{% for camp in camps %}
 				<tr>
 					<td><p>{{ camp.name }} ({{ camp.country }})</p>
-					<p><a href="{{ env.getInternalUrl("camp-details", "id=" ~ camp.id) }}" class="btn"><i class="icon-hand-right"></i> {{ Message("button_choose") }}</a></p></td>
+					<p><a href="{{iUrl("camp-details", "id=" ~ camp.id) }}" class="btn"><i class="icon-hand-right"></i> {{ Message("button_choose") }}</a></p></td>
 					<td>{{ camp.costs|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</td>
 					<td>{{ camp.effect_strength }}</td>
 					<td>{{ camp.effect_strength_technique }}</td>
@@ -66,7 +66,7 @@
 			{% endfor %}
 			</tbody>
 		</table>
-	
+
 	{% endif %}
 {% endif %}
 {% endblock %}

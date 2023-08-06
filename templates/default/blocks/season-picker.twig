@@ -59,6 +59,6 @@
 
 {% if Request("matchday") > 0 %}
 	<h4>{{ Message("entity_match_spieltag") }}: {{ Request("matchday") }}</h4>
-	<p><a href="{{ env.getInternalUrl("teamoftheday", "leagueid=" ~ Request("leagueid") ~ "&seasonid=" ~ Request("seasonid") ~ "&matchday=" ~ Request("matchday")) }}" class="btn btn-small"><i class="icon-heart-empty"></i> {{ Message("teamoftheday_navlabel") }}</a></p>
+	<p><a href="{{iUrl("teamoftheday", "leagueid=" ~ Request("leagueid") ~ "&seasonid=" ~ Request("seasonid") ~ "&matchday=" ~ Request("matchday")) }}" class="btn btn-small"><i class="icon-heart-empty"></i> {{ Message("teamoftheday_navlabel") }}</a></p>
 {% endif %}
 <span id="results-list_block">{{ viewHandler.renderBlock("results-list")|raw }}</span>

@@ -1,10 +1,10 @@
 {% if Config("micropayment_enabled") and Config("premium_currency") == "EUR" %}
 	<h3>{{ Message("micropayment_link_title") }}</h3>
-	
+
 	<form method="post">
 		<input type="hidden" name="action" value="micropayment-redirect"/>
-		<input type="hidden" name="page" value="{{ env.getPageId() }}"/>
-		
+		<input type="hidden" name="page" value="{{PageId() }}"/>
+
 		<p>
 		<select name="amount" id="amount">
 		{% set priceOptions = Config("premium_price_options")|split(',') %}
@@ -16,7 +16,7 @@
 		{% endif %}
 		</select>
 		</p>
-		
+
 		{% if Config("micropayment_call2pay_enabled") %}
 			<input type="image" name="module[call2pay]" value="1" style="margin-top: 5px" src="//www.micropayment.ch/resources/?what=img&group=c2p&show=type-a.2&lang={{ i18n.getCurrentLanguage() }}" />
 		{% endif %}

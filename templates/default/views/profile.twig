@@ -33,7 +33,7 @@
 
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
-		<a href="{{ env.getInternalUrl("profile") }}" class="btn">{{ Message('button_reset') }}</a>
+		<a href="{{iUrl("profile") }}" class="btn">{{ Message('button_reset') }}</a>
 	</div>
 	<input type="hidden" name="page" value="profile"/>
 	<input type="hidden" name="action" value="save-profile"/>

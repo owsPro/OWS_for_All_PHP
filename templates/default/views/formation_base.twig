@@ -341,7 +341,7 @@
 												<a href="#" class="btn btn-mini playerRemoveLink"><i class="icon-remove"></i> {{ Message("player_button_remove_from_pitch") }}</a>
 												<a href="#" class="btn btn-mini playerAddToBenchLink"><i class="icon-retweet"></i> {{ Message("player_button_to_bench") }}</a>
 												{% if youthFormation is not defined or not youthFormation %}
-												<a href="{{ env.getInternalUrl("player", "id=" ~ player.id) }}" class="btn btn-mini" target="_blank"><i class="icon-info-sign"></i> {{ Message("player_navlabel") }}</a>
+												<a href="{{iUrl("player", "id=" ~ player.id) }}" class="btn btn-mini" target="_blank"><i class="icon-info-sign"></i> {{ Message("player_navlabel") }}</a>
 												{% endif %}
 											</div>
 										{% endif %}
@@ -428,4 +428,3 @@
 	{% endblock %}
 </form>
 {% endblock %}
-

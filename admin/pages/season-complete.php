@@ -151,7 +151,7 @@ elseif ($show == 'complete') {
 					'team_id' => $team['id'],
 					'season_id' => $season['id'],
 					'rank' => $rank,
-					'date_recorded' => $website->getNowAsTimestamp()
+					'date_recorded' =>Timestamp()
 				), $conf['db_prefix'] .'_achievement');
 				if ($team['min_target_rank'] > 0 && $team['min_target_rank'] < $rank) {
 					if (isset($_POST['target_missed_firemanager']) && $_POST['target_missed_firemanager'])$db->queryUpdate(array('user_id' => ''), $conf['db_prefix'] .'_verein', 'id = %d', $team['id']);

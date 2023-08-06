@@ -19,7 +19,7 @@
   			<option value="Sturm"{% if Request("position") == "Sturm" %} selected{% endif %}>{{ Message("option_Sturm") }}</option>
   		</select>
 	  	<button type="submit" class="btn btn-primary">{{ Message("button_display") }}</button>
-	  	<a href="{{ env.getInternalUrl("youth-marketplace") }}" class="btn">{{ Message("button_reset") }}</a>
+	  	<a href="{{iUrl("youth-marketplace") }}" class="btn">{{ Message("button_reset") }}</a>
 
 	  	<input type="hidden" name="page" value="youth-marketplace" />
 	</form>
@@ -51,7 +51,7 @@
 				{% set positionId = "striker" %}
 			{% endif %}
 
-			{% if i18n.hasMessage("option_" ~ player.nation) %}
+			{% if hasMessage("option_" ~ player.nation) %}
 				{% set countryLabel = Message("option_" ~ player.nation) %}
 			{% else %}
 				{% set countryLabel = player.nation %}
@@ -70,26 +70,26 @@
 						{% if nationImg %}<img src="{{ nationImg }}" title="{{ countryLabel }}" alt="{{ countryLabel}}" />{% else %}({{ countryLabel }}){% endif %}
 					{% endif %}
 					{% if env.user.clubId == player.team_id %}
-						<a href="{{ env.getInternalActionUrl("remove-youthplayer-from-market", "id=" ~ player.player_id) }}"
+						<a href="{{aUrl("remove-youthplayer-from-market", "id=" ~ player.player_id) }}"
 							title="{{ Message("youthteam_action_removefrommarket") }}"><i class="icon-share darkIcon"></i></a>
 					{% endif %}</p>
 
 					{% if env.user.clubId != player.team_id %}
-						<a href="{{ env.getInternalUrl("youthplayer-buy", "id=" ~ player.player_id) }}" class="btn btn-small"><i class="icon-shopping-cart"></i> {{ Message("youthteam_action_buy") }}</a>
+						<a href="{{iUrl("youthplayer-buy", "id=" ~ player.player_id) }}" class="btn btn-small"><i class="icon-shopping-cart"></i> {{ Message("youthteam_action_buy") }}</a>
 					{% endif %}
 				</td>
 				<td>
 					{% if player.team_picture|length %}
 						<img src="{{ Config("context_root") }}/uploads/club/{{ player.team_picture }}" style="max-width: 20px"/>
 					{% endif %}
-					<a href="{{ env.getInternalUrl("team", "id=" ~ player.team_id) }}">{{ player.team_name }}</a>
+					<a href="{{iUrl("team", "id=" ~ player.team_id) }}">{{ player.team_name }}</a>
 
 					{% if player.user_id > 0 %}
 						<br>
 						{% if player.user_picture|length > 0 %}
-							<a href="{{ env.getInternalUrl("user", "id=" ~ player.user_id) }}"><img src="{{ player.user_picture }}" style="width: 20px; height: 20px"/></a>
+							<a href="{{iUrl("user", "id=" ~ player.user_id) }}"><img src="{{ player.user_picture }}" style="width: 20px; height: 20px"/></a>
 						{% endif %}
-						<small><a href="{{ env.getInternalUrl("user", "id=" ~ player.user_id) }}">{{ player.user_nick }}</a></small>
+						<small><a href="{{iUrl("user", "id=" ~ player.user_id) }}">{{ player.user_nick }}</a></small>
 					{% endif %}
 				</td>
 				<td>{{ statisticelements.progressbar(player.strength, "noBottomMargin") }}</td>

@@ -20,7 +20,7 @@
 <form class="form-horizontal" method="post">
 	<fieldset>
     	<legend>{{ Message('camp-detail_form_title') }}</legend>
-		{{ formelements.textfield('start_date', Message('camp-detail_start_date'), (Request("start_date")) ? Request("start_date") : env.getFormattedDate(defaultDate), true, validationMsg) }}
+		{{ formelements.textfield('start_date', Message('camp-detail_start_date'), (Request("start_date")) ? Request("start_date"):FormattedDate(defaultDate), true, validationMsg) }}
 
 		{% set daysLabel = Message('camp-detail_days_help')|format(Config("trainingcamp_min_days"), Config("trainingcamp_max_days")) %}
 		{{ formelements.textfield('days', Message('camp-detail_days'), Request("days"), true, validationMsg, "number", daysLabel) }}
@@ -28,7 +28,7 @@
 	</fieldset>
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_save') }}</button>
-		<a href="{{ env.getInternalUrl("trainingcamp") }}" class="btn">{{ Message('button_cancel') }}</a>
+		<a href="{{iUrl("trainingcamp") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="id" value="{{ camp.id }}"/>
 	<input type="hidden" name="page" value="camp-details"/>

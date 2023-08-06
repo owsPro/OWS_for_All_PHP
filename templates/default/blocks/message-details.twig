@@ -7,7 +7,7 @@
 		 data-toggle="modal"
 		  data-dismiss="modal" aria-hidden="true"
 		  data-ajaxtarget="sendmsgbody" data-ajaxblock="compose-message-body" data-ajaxquerystr="subject={{ replySubject }}&amp;nick={{ replyRecipient }}"><i class="icon-hand-right"></i> {{ Message("messages_reply_button") }}</a>
-	<a href="{{ env.getInternalUrl("messages", "action=delete-message&id=" ~ message.message_id) }}" class="btn btn-small"><i class="icon-trash"></i> {{ Message("button_delete") }}</a>
+	<a href="{{iUrl("messages", "action=delete-message&id=" ~ message.message_id) }}" class="btn btn-small"><i class="icon-trash"></i> {{ Message("button_delete") }}</a>
 </div>
 
 <table style="margin-top: 10px">
@@ -17,15 +17,15 @@
 	</colgroup>
 	<tr>
 		<td><strong>{{ Message("messages_sender") }}</strong></td>
-		<td><a href="{{ env.getInternalUrl("user", "id=" ~ message.sender_id) }}">{{ message.sender_name }}</a></td>
+		<td><a href="{{iUrl("user", "id=" ~ message.sender_id) }}">{{ message.sender_name }}</a></td>
 	</tr>
 	<tr>
 		<td><strong>{{ Message("messages_recipient") }}</strong></td>
-		<td><a href="{{ env.getInternalUrl("user", "id=" ~ message.recipient_id) }}">{{ message.recipient_name }}</a></td>
+		<td><a href="{{iUrl("user", "id=" ~ message.recipient_id) }}">{{ message.recipient_name }}</a></td>
 	</tr>
 	<tr>
 		<td><strong>{{ Message("messages_date") }}</strong></td>
-		<td>{{ env.getFormattedDatetime(message.date) }}</td>
+		<td>{{Datetime(message.date) }}</td>
 	</tr>
 	<tr>
 		<td><strong>{{ Message("messages_subject") }}</strong></td>

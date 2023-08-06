@@ -9,15 +9,15 @@
 {% block box_content %}
 
 {% if env.user.profilepicture|length > 0 %}
-	<a href="{{ env.getInternalUrl("user", "id=" ~ env.user.id) }}">
+	<a href="{{iUrl("user", "id=" ~ env.user.id) }}">
 		<img src="{{ env.user.profilepicture }}" class="pull-left" style="width: 40px; height: 40px; margin-right: 10px" alt="{{ env.user.username }}"/>
 	</a>
 {% endif %}
 
 <p><em>{{ Message('userprofile_block_loggedin_as') }}</em><br/>
-<a href="{{ env.getInternalUrl("user", "id=" ~ env.user.id) }}"><strong>{{ env.user.username }}</strong></a>
+<a href="{{iUrl("user", "id=" ~ env.user.id) }}"><strong>{{ env.user.username }}</strong></a>
 {% if unseenMessages > 0 %}
-(<a href="{{ env.getInternalUrl("messages") }}" title="{{ Message("messages_new_messages", unseenMessages) }}"><i class="icon-envelope"></i><small>{{ unseenMessages }}</small></a>)
+(<a href="{{iUrl("messages") }}" title="{{ Message("messages_new_messages", unseenMessages) }}"><i class="icon-envelope"></i><small>{{ unseenMessages }}</small></a>)
 {% endif %}
 
 <a id="notificationsLink" href="#" title="{{ Message('userprofile_block_notifications') }}"
@@ -29,7 +29,7 @@
 {{ statisticelements.progressbar(profile.user_popularity) }}
 
 <p><em>{{ Message('userprofile_block_highscore') }}</em><br/>
-<a href="{{ env.getInternalUrl("highscore") }}">{{ profile.user_highscore|number_format(0, ',', ' ') }}</a></p>
+<a href="{{iUrl("highscore") }}">{{ profile.user_highscore|number_format(0, ',', ' ') }}</a></p>
 
 {% if env.getUser().clubId > 0 %}
 <p><em>{{ Message('entity_club') }}</em>
@@ -47,29 +47,29 @@
     {{ userteam.team_name }}
     <b class="caret"></b>
   </a>
-  <a href="{{ env.getInternalUrl("team", "id=" ~ userteam.team_id) }}" title="{{ Message("team_navlabel") }}" style="margin: 0 5px"><i class="icon-info-sign darkIcon"></i></a> 
-  <a href="{{ env.getInternalUrl("league", "id=" ~ userteam.team_league_id) }}" title="{{ Message("userprofile_block_link_table") }}"><i class="icon-table darkIcon"></i></a>
+  <a href="{{iUrl("team", "id=" ~ userteam.team_id) }}" title="{{ Message("team_navlabel") }}" style="margin: 0 5px"><i class="icon-info-sign darkIcon"></i></a>
+  <a href="{{iUrl("league", "id=" ~ userteam.team_league_id) }}" title="{{ Message("userprofile_block_link_table") }}"><i class="icon-table darkIcon"></i></a>
   <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" id="clubsSelectionList">
-    
+
   </ul>
 </div>
 {% else %}
 	<br>
-	{{ teamPicture|raw }} <a href="{{ env.getInternalUrl("team", "id=" ~ userteam.team_id) }}" title="{{ Message("team_navlabel") }}">{{ userteam.team_name }}</a> 
-	<a href="{{ env.getInternalUrl("league", "id=" ~ userteam.team_league_id) }}" title="{{ Message("userprofile_block_link_table") }}"><i class="icon-table darkIcon"></i></a>
+	{{ teamPicture|raw }} <a href="{{iUrl("team", "id=" ~ userteam.team_id) }}" title="{{ Message("team_navlabel") }}">{{ userteam.team_name }}</a>
+	<a href="{{iUrl("league", "id=" ~ userteam.team_league_id) }}" title="{{ Message("userprofile_block_link_table") }}"><i class="icon-table darkIcon"></i></a>
 	</p>
 {% endif %}
 
 <p><em>{{ Message('entity_club_finanz_budget') }}</em><br/>
-<a href="{{ env.getInternalUrl("finances") }}">{{ userteam.team_budget|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</a></p>
+<a href="{{iUrl("finances") }}">{{ userteam.team_budget|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</a></p>
 {% endif %}
 
 {% if Config("premium_enabled") %}
 	<p><em>{{ Message('entity_users_premium_balance') }}</em><br/>
-	<a href="{{ env.getInternalUrl("premiumaccount") }}">{{ env.user.premiumBalance|number_format(0, ',', ' ') }} {{ Config("premium_credit_unit") }}</a></p>
+	<a href="{{iUrl("premiumaccount") }}">{{ env.user.premiumBalance|number_format(0, ',', ' ') }} {{ Config("premium_credit_unit") }}</a></p>
 {% endif %}
 
-<p><i class="icon-off"></i> <a href="{{ env.getInternalActionUrl("logout") }}"> {{ Message('userprofile_block_link_logout') }}</a>
-| <i class="icon-user"></i> <a href="{{ env.getInternalUrl("profile") }}"> {{ Message('userprofile_block_link_profile') }}</a></p>
+<p><i class="icon-off"></i> <a href="{{aUrl("logout") }}"> {{ Message('userprofile_block_link_logout') }}</a>
+| <i class="icon-user"></i> <a href="{{iUrl("profile") }}"> {{ Message('userprofile_block_link_profile') }}</a></p>
 
 {% endblock %}

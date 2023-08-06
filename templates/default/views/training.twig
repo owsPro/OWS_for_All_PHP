@@ -17,7 +17,7 @@
 {{ profile.infofield(Message("training_units_count"), unitsCount) }}
 
 {% if lastExecution > 0 %}
-	{{ profile.infofield(Message("training_last_execution"), env.getFormattedDatetime(lastExecution)) }}
+	{{ profile.infofield(Message("training_last_execution"),Datetime(lastExecution)) }}
 {% endif %}
 
 {% if Config("training_min_hours_between_execution") > 0 %}
@@ -41,7 +41,7 @@
 		<tbody>
 		{% for playerId,effect in trainingEffects %}
 			<tr>
-				<td><a href="{{ env.getInternalUrl("player", "id=" ~ playerId) }}" target="_blank" title="{{ Message("player_navlabel") }}">{{ effect.name }}</a></td>
+				<td><a href="{{iUrl("player", "id=" ~ playerId) }}" target="_blank" title="{{ Message("player_navlabel") }}">{{ effect.name }}</a></td>
 				<td>
 					{% set changeLabel = effect.technique %}
 					{% if changeLabel > 0 %}
@@ -120,7 +120,7 @@
 				{% if trainer.premiumfee %}
 					<p>{{ premium.premiumbadge(trainer.premiumfee) }}</p>
 				{% endif %}
-				<p><a href="{{ env.getInternalUrl("trainer-details", "id=" ~ trainer.id) }}" class="btn"><i class="icon-hand-right"></i> {{ Message("button_choose") }}</a></p></td>
+				<p><a href="{{iUrl("trainer-details", "id=" ~ trainer.id) }}" class="btn"><i class="icon-hand-right"></i> {{ Message("button_choose") }}</a></p></td>
 				<td>{{ trainer.salary|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</td>
 				<td>{{ statisticelements.progressbar(trainer.p_technique) }}</td>
 				<td>{{ statisticelements.progressbar(trainer.p_stamina) }}</td>
@@ -177,7 +177,7 @@
 		</fieldset>
 		<div class="form-actions">
 			<button type="submit" class="btn btn-primary">{{ Message('training_execute_button') }}</button>
-			<a href="{{ env.getInternalUrl("office") }}" class="btn">{{ Message('button_cancel') }}</a>
+			<a href="{{iUrl("office") }}" class="btn">{{ Message('button_cancel') }}</a>
 		</div>
 		<input type="hidden" name="id" value="{{ training_unit.id }}"/>
 		<input type="hidden" name="page" value="training"/>

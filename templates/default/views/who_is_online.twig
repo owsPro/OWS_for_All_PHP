@@ -26,33 +26,33 @@
 					{{ Message("who_is_online_anonymous") }}
 				{% else %}
 					{% if user.picture|length > 0 %}
-						<a href="{{ env.getInternalUrl("user", "id=" ~ user.id) }}" 
+						<a href="{{iUrl("user", "id=" ~ user.id) }}"
 						title="{{ Message("user_navlabel") }}"><img src="{{ user.picture }}" alt="{{ user.nick }}" style="width: 40px; height: 40px"/></a>
 					{% endif %}
-					<a href="{{ env.getInternalUrl("user", "id=" ~ user.id) }}">{{ user.nick }}</a>
+					<a href="{{iUrl("user", "id=" ~ user.id) }}">{{ user.nick }}</a>
 				{% endif %}
 
 			</td>
 			<td>
 				{% if user.team_id > 0 and not user.hideinonlinelist %}
 					{% if user.team_picture|length > 0 %}
-						<a href="{{ env.getInternalUrl("team", "id=" ~ user.team_id) }}" 
+						<a href="{{iUrl("team", "id=" ~ user.team_id) }}"
 						title="{{ Message("team_navlabel") }}"><img src="{{ Config("context_root") }}/uploads/club/{{ user.team_picture }}" alt="{{ user.team_name }}" style="max-width: 40px;"/></a>
 					{% endif %}
-					
-					<a href="{{ env.getInternalUrl("team", "id=" ~ user.team_id) }}" 
+
+					<a href="{{iUrl("team", "id=" ~ user.team_id) }}"
 						title="{{ Message("team_navlabel") }}">{{ user.team_name }}</a>
 				{% else %}
 					-
 				{% endif %}
 			</td>
-			<td>{{ env.getFormattedDatetime(user.lastonline) }}</td>
-			<td>{% if i18n.hasMessage(user.lastaction ~ "_navlabel") %}{{ Message(user.lastaction ~ "_navlabel") }}{% else %}-{% endif %}</td>
+			<td>{{Datetime(user.lastonline) }}</td>
+			<td>{% if hasMessage(user.lastaction ~ "_navlabel") %}{{ Message(user.lastaction ~ "_navlabel") }}{% else %}-{% endif %}</td>
 		</tr>
 		{% endfor %}
 		</tbody>
 	</table>
-	
+
 	{{ pagination.paginator(paginator) }}
 
 {% endif %}

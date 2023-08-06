@@ -7,16 +7,16 @@
 {% block box_content %}
 
 {% if activities is defined and activities|length > 0 %}
-	
+
 	<table class="table table-striped">
 	{% for activity in activities %}
-		{% set username = "<a href=\"" ~ env.getInternalUrl("user", "id=" ~ activity.user_id) ~ "\">" ~ activity.user_name|e ~ "</a>" %}
+		{% set username = "<a href=\"" ~iUrl("user", "id=" ~ activity.user_id) ~ "\">" ~ activity.user_name|e ~ "</a>" %}
 		<tr>
 			<td>{{ Message("activitylog_" ~ activity.action_id)|format(username)|raw }}</td>
 		</tr>
 	{% endfor %}
 	</table>
-	
+
 {% endif %}
 
 

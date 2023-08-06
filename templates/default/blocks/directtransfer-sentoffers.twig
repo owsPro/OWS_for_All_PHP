@@ -16,28 +16,28 @@
 		<tbody>
 		{% for offer in offers %}
 			<tr>
-				<td><p>{{ env.getFormattedDatetime(offer.offer_submitted_date) }}</p>
+				<td><p>{{Datetime(offer.offer_submitted_date) }}</p>
 				{% if offer.offer_message|length > 0 %}
 				<a href="#" class="btn btn-mini wspopover" data-toggle="popover"
 					data-title="{{ Message("transferoffers_offer_comment_title", offer.sender_user_name) }}"
 					data-content="{{ offer.offer_message }}">{{ Message("transferoffers_offer_showcomment") }}</a>
 				{% endif %}
 				</td>
-				<td><a href="{{ env.getInternalUrl("player", "id=" ~ offer.player_id) }}">{% if offer.player_pseudonym|length > 0 %}{{ offer.player_pseudonym }}{% else %}{{ offer.player_firstname }} {{ offer.player_lastname }}{% endif %}</a>
+				<td><a href="{{iUrl("player", "id=" ~ offer.player_id) }}">{% if offer.player_pseudonym|length > 0 %}{{ offer.player_pseudonym }}{% else %}{{ offer.player_firstname }} {{ offer.player_lastname }}{% endif %}</a>
 					{% if offer.player_position_main|length > 0 %}({{ Message("player_mainposition_" ~ offer.player_position_main) }}){% endif %}<br>
 				<small>{{ Message("entity_player_vertrag_gehalt") }}: {{ offer.player_salary|number_format(0, ',', ' ') }} {{ Config("game_currency") }}<br>
 				{{ Message("entity_player_marktwert") }}: {{ offer.player_marketvalue|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</small></td>
-				<td><a href="{{ env.getInternalUrl("team", "id=" ~ offer.receiver_club_id) }}">{{ offer.receiver_club_name }}</a><br> (<a href="{{ env.getInternalUrl("user", "id=" ~ offer.receiver_user_id) }}">{{ offer.receiver_user_name }}</a>)</td>
+				<td><a href="{{iUrl("team", "id=" ~ offer.receiver_club_id) }}">{{ offer.receiver_club_name }}</a><br> (<a href="{{iUrl("user", "id=" ~ offer.receiver_user_id) }}">{{ offer.receiver_user_name }}</a>)</td>
 				<td>
 					<span>{{ offer.offer_amount|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</span>
 					{% if offer.explayer1_id > 0 or offer.explayer2_id > 0 %}
 						<ul class="unstyled">
 							{% if offer.explayer1_id > 0  %}
-							<li><small>+ <a href="{{ env.getInternalUrl("player", "id=" ~ offer.explayer1_id) }}">{% if offer.explayer1_pseudonym|length > 0 %}{{ offer.explayer1_pseudonym }}{% else %}{{ offer.explayer1_firstname }} {{ offer.explayer1_lastname }}{% endif %}</a></small></li>
+							<li><small>+ <a href="{{iUrl("player", "id=" ~ offer.explayer1_id) }}">{% if offer.explayer1_pseudonym|length > 0 %}{{ offer.explayer1_pseudonym }}{% else %}{{ offer.explayer1_firstname }} {{ offer.explayer1_lastname }}{% endif %}</a></small></li>
 							{% endif %}
 
 							{% if offer.explayer2_id > 0  %}
-							<li><small>+ <a href="{{ env.getInternalUrl("player", "id=" ~ offer.explayer2_id) }}">{% if offer.explayer2_pseudonym|length > 0 %}{{ offer.explayer2_pseudonym }}{% else %}{{ offer.explayer2_firstname }} {{ offer.explayer2_lastname }}{% endif %}</a></small></li>
+							<li><small>+ <a href="{{iUrl("player", "id=" ~ offer.explayer2_id) }}">{% if offer.explayer2_pseudonym|length > 0 %}{{ offer.explayer2_pseudonym }}{% else %}{{ offer.explayer2_firstname }} {{ offer.explayer2_lastname }}{% endif %}</a></small></li>
 							{% endif %}
 						</ul>
 					{% endif %}

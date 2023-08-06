@@ -33,9 +33,9 @@
 				<tr>
 					<td>{{ place }}</td>
 					<td>{% if (env.getUser().id > 0 and team.user_id == env.getUser().id) %}<strong>{% endif %}
-					<a href="{{ env.getInternalUrl("team", "id=" ~ team.id) }}">{{ team.name }}</a>
+					<a href="{{iUrl("team", "id=" ~ team.id) }}">{{ team.name }}</a>
 					{% if team.user_id > 0 %}
-					<br><small>(<a href="{{ env.getInternalUrl("user", "id=" ~ team.user_id) }}">{{ team.user_name }}</a>)</small>
+					<br><small>(<a href="{{iUrl("user", "id=" ~ team.user_id) }}">{{ team.user_name }}</a>)</small>
 					{% endif %}
 					{% if (env.getUser().id > 0 and team.user_id == env.getUser().id) %}<strong>{% endif %}
 					</td>

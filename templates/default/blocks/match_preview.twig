@@ -3,9 +3,9 @@
 	<div class="span6 text-center">
 		{% if homeUser != null %}
 			{% if homeUser.picture|length > 0 %}
-				<p><a href="{{ env.getInternalUrl("user", "id=" ~ homeUser.user_id) }}"><img src="{{ homeUser.picture }}" class="img-rounded" style="max-width:120px;max-height:120px"/></a></p>
+				<p><a href="{{iUrl("user", "id=" ~ homeUser.user_id) }}"><img src="{{ homeUser.picture }}" class="img-rounded" style="max-width:120px;max-height:120px"/></a></p>
 			{% endif %}
-			<p><a href="{{ env.getInternalUrl("user", "id=" ~ homeUser.user_id) }}">{{ homeUser.nick }}</a></p>
+			<p><a href="{{iUrl("user", "id=" ~ homeUser.user_id) }}">{{ homeUser.nick }}</a></p>
 		{% else %}
 			<p>{{ Message("matchpreview_nouser", match.match_home_name) }}</p>
 		{% endif %}
@@ -13,9 +13,9 @@
 	<div class="span6">
 		{% if guestUser != null %}
 			{% if guestUser.picture|length > 0 %}
-				<p><a href="{{ env.getInternalUrl("user", "id=" ~ guestUser.user_id) }}"><img src="{{ guestUser.picture }}" class="img-rounded" style="max-width:120px;max-height:120px"/></a></p>
+				<p><a href="{{iUrl("user", "id=" ~ guestUser.user_id) }}"><img src="{{ guestUser.picture }}" class="img-rounded" style="max-width:120px;max-height:120px"/></a></p>
 			{% endif %}
-			<p><a href="{{ env.getInternalUrl("user", "id=" ~ guestUser.user_id) }}">{{ guestUser.nick }}</a></p>
+			<p><a href="{{iUrl("user", "id=" ~ guestUser.user_id) }}">{{ guestUser.nick }}</a></p>
 		{% else %}
 			<p>{{ Message("matchpreview_nouser", match.match_guest_name) }}</p>
 		{% endif %}
@@ -32,14 +32,14 @@
 			{% for previousMatch in latestMatchesHome %}
 				<tr>
 					<td>{{ previousMatch.home_team }} - {{ previousMatch.guest_team }}</td>
-					<td><a href="{{ env.getInternalUrl("match", "id=" ~ previousMatch.id) }}">{{ previousMatch.home_goals }} - {{ previousMatch.guest_goals }}</a></td>
+					<td><a href="{{iUrl("match", "id=" ~ previousMatch.id) }}">{{ previousMatch.home_goals }} - {{ previousMatch.guest_goals }}</a></td>
 				</tr>
 			{% endfor %}
 			</table>
 		{% else %}
 			<p>{{ Message("matchpreview_nolastmatches", match.match_home_name) }}</p>
 		{% endif %}
-		<p><a href="{{ env.getInternalUrl("team", "id=" ~ match.match_home_id) }}" class="btn">{{ Message("team_navlabel") }}</a></p>
+		<p><a href="{{iUrl("team", "id=" ~ match.match_home_id) }}" class="btn">{{ Message("team_navlabel") }}</a></p>
 	</div>
 	<div class="span6">
 		{% if latestMatchesGuest|length > 0 %}
@@ -48,13 +48,13 @@
 			{% for previousMatch in latestMatchesGuest %}
 				<tr>
 					<td>{{ previousMatch.home_team }} - {{ previousMatch.guest_team }}</td>
-					<td><a href="{{ env.getInternalUrl("match", "id=" ~ previousMatch.id) }}">{{ previousMatch.home_goals }} - {{ previousMatch.guest_goals }}</a></td>
+					<td><a href="{{iUrl("match", "id=" ~ previousMatch.id) }}">{{ previousMatch.home_goals }} - {{ previousMatch.guest_goals }}</a></td>
 				</tr>
 			{% endfor %}
 			</table>
 		{% else %}
 			<p>{{ Message("matchpreview_nolastmatches", match.match_guest_name) }}</p>
 		{% endif %}
-		<p><a href="{{ env.getInternalUrl("team", "id=" ~ match.match_guest_id) }}" class="btn">{{ Message("team_navlabel") }}</a></p>
+		<p><a href="{{iUrl("team", "id=" ~ match.match_guest_id) }}" class="btn">{{ Message("team_navlabel") }}</a></p>
 	</div>
 </div>

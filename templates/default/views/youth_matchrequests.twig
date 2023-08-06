@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block page_content %}
-<p><a href="{{ env.getInternalUrl("youth-matchrequests-create") }}" class="btn"><i class="icon-bullhorn"></i> {{ Message("youthteam_matchrequest_createnew") }}</a></p>
+<p><a href="{{iUrl("youth-matchrequests-create") }}" class="btn"><i class="icon-bullhorn"></i> {{ Message("youthteam_matchrequest_createnew") }}</a></p>
 
 {% if requests|length == 0 %}
 	{{ messagebox.box(Message("youthteam_matchrequest_none_available"), "", "info") }}
@@ -26,15 +26,15 @@
 		<tbody>
 		{% for request in requests %}
 			<tr>
-				<td>{{ env.getFormattedDatetime(request.matchdate, i18n) }}</td>
-				<td><a href="{{ env.getInternalUrl("team", "id=" ~ request.team_id) }}"
+				<td>{{Datetime(request.matchdate, i18n) }}</td>
+				<td><a href="{{iUrl("team", "id=" ~ request.team_id) }}"
 					title="{{ Message("team_navlabel") }}">{{ request.team_name }}</a></td>
 				<td>
 					{% if request.user_picture|length > 0 %}
-						<a href="{{ env.getInternalUrl("user", "id=" ~ request.user_id) }}" 
+						<a href="{{iUrl("user", "id=" ~ request.user_id) }}"
 						title="{{ Message("user_navlabel") }}"><img src="{{ request.user_picture }}" alt="{{ request.user_nick }}" style="width: 40px; height: 40px"/></a>
 					{% endif %}
-					<a href="{{ env.getInternalUrl("user", "id=" ~ request.user_id) }}" 
+					<a href="{{iUrl("user", "id=" ~ request.user_id) }}"
 						title="{{ Message("user_navlabel") }}">{{ request.user_nick }}</a>
 				</td>
 				<td>
@@ -46,9 +46,9 @@
 				</td>
 				<td>
 					{% if env.user.clubId == request.team_id %}
-						<a href="{{ env.getInternalActionUrl("cancel-youth-match-request", "id=" ~ request.request_id) }}" class="btn btn-small btn-danger"><i class="icon-remove icon-white"></i> {{ Message("youthteam_matchrequest_cancel") }}</a>
+						<a href="{{aUrl("cancel-youth-match-request", "id=" ~ request.request_id) }}" class="btn btn-small btn-danger"><i class="icon-remove icon-white"></i> {{ Message("youthteam_matchrequest_cancel") }}</a>
 					{% else %}
-						<a href="{{ env.getInternalActionUrl("accept-youth-match-request", "id=" ~ request.request_id) }}" class="btn btn-small btn-success"><i class="icon-ok icon-white"></i> {{ Message("youthteam_matchrequest_accept") }}</a>
+						<a href="{{aUrl("accept-youth-match-request", "id=" ~ request.request_id) }}" class="btn btn-small btn-success"><i class="icon-ok icon-white"></i> {{ Message("youthteam_matchrequest_accept") }}</a>
 					{% endif %}
 				</td>
 			</tr>

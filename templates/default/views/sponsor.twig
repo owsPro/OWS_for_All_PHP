@@ -35,7 +35,7 @@
 	{% else %}
 
 		<p style="margin-top: 10px; margin-bottom: 20px;">{{ Message('sponsor_contractduraction_info', Config("sponsor_matches")) }}</p>
-	
+
 		{% if sponsors|length > 0 %}
 		<table class="table table-striped">
 			<thead>
@@ -49,11 +49,11 @@
 			</thead>
 			<tbody>
 			{% for sponsor in sponsors %}
-			
+
 				<tr>
 					<td><p>{{ sponsor.name }}</p>
 					<p><a href="#" class="btn ajaxLink"
-						data-ajaxtarget="pagecontent" data-ajaxquerystr="page={{ env.getPageId() }}&amp;action=choose-sponsor&amp;id={{ sponsor.sponsor_id }}"><i class="icon-hand-right"></i> {{ Message("button_choose") }}</a></p></td>
+						data-ajaxtarget="pagecontent" data-ajaxquerystr="page={{PageId() }}&amp;action=choose-sponsor&amp;id={{ sponsor.sponsor_id }}"><i class="icon-hand-right"></i> {{ Message("button_choose") }}</a></p></td>
 					<td>{{ sponsor.amount_match|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</td>
 					<td>{{ sponsor.amount_home_bonus|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</td>
 					<td>{{ sponsor.amount_win|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</td>

@@ -1,8 +1,8 @@
 {% macro badge(label, level, date = null) %}
-	{% if i18n.hasMessage(label) %}
+	{% if hasMessage(label) %}
 		{% set label = Message(label) %}
 	{% endif %}
-	
+
 	{% if level == 'bronze' %}
 		{% set color = '#B8860B' %}
 	{% elseif level == 'silver' %}
@@ -10,5 +10,5 @@
 	{% else %}
 		{% set color = '#FFD700' %}
 	{% endif %}
-	<a href="{{ env.getInternalUrl("badges") }}"><span class="badge wstooltip" title="{{ Message("badge_level_" ~ level) }}{% if date != null %} ({{ env.getFormattedDate(date, i18n) }}){% endif %}" style="background-color: {{ color }}">{{ label }}</span></a>
+	<a href="{{iUrl("badges") }}"><span class="badge wstooltip" title="{{ Message("badge_level_" ~ level) }}{% if date != null %} ({{FormattedDate(date, i18n) }}){% endif %}" style="background-color: {{ color }}">{{ label }}</span></a>
 {% endmacro %}

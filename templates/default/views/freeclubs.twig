@@ -12,7 +12,7 @@
 <div class="accordion" id="countries">
 	{% for country,clubs in countries %}
 		{% set nationImg = skin.getImage("flags/players/" ~ country ~ ".png") %}
-		{% if i18n.hasMessage("option_" ~ country) %}
+		{% if hasMessage("option_" ~ country) %}
 			{% set countryLabel = Message("option_" ~ country) %}
 		{% else %}
 			{% set countryLabel = country %}
@@ -42,19 +42,19 @@
 								{% if club.team_picture|length %}
 									<img src="{{ Config("context_root") }}/uploads/club/{{ club.team_picture }}" style="max-width: 40px"/>
 								{% endif %}
-								<a href="{{ env.getInternalUrl("team", "id=" ~ club.team_id ) }}">{{ club.team_name }}</a>
+								<a href="{{iUrl("team", "id=" ~ club.team_id ) }}">{{ club.team_name }}</a>
 							</td>
-							<td><a href="{{ env.getInternalUrl("league", "id=" ~ club.league_id ) }}">{{ club.league_name }}</a></td>
+							<td><a href="{{iUrl("league", "id=" ~ club.league_id ) }}">{{ club.league_name }}</a></td>
 							<td>
 								<small>
 									<p><strong>{{ Message("entity_player_w_staerke") }}</strong><br>
 									{% for strengthlevel in 1..5 %}
 										<i class="icon-star{% if (30 + strengthlevel * 10) > club.team_strength %}-empty{% endif %}"></i>
 									{% endfor %}</p>
-								
+
 									<p><strong>{{ Message("entity_club_finanz_budget") }}</strong><br>
 									{{ club.team_budget|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</p>
-									
+
 									<p><strong>{{ Message("entity_stadium") }}</strong><br>
 									{{ (club.stadium_p_steh + club.stadium_p_sitz + club.stadium_p_haupt_steh + club.stadium_p_haupt_sitz + club.stadium_p_vip)|number_format(0, ',', ' ') }}</p>
 								</small>
@@ -62,9 +62,9 @@
 							{% if Config("assign_team_automatically") %}
 							<td>
 								{% if env.user.clubId < 1 %}
-									<a href="{{ env.getInternalActionUrl("choose-team", "teamId=" ~ club.team_id) }}" class="btn btn-small"><i class="icon-file-text-alt"></i> {{ Message("freeclubs_button_choose") }}</a>
+									<a href="{{aUrl("choose-team", "teamId=" ~ club.team_id) }}" class="btn btn-small"><i class="icon-file-text-alt"></i> {{ Message("freeclubs_button_choose") }}</a>
 								{% elseif Config("max_number_teams_per_user") > 1 %}
-									<a href="{{ env.getInternalActionUrl("choose-additional-team", "teamId=" ~ club.team_id) }}" class="btn btn-small"><i class="icon-file-text-alt"></i> {{ Message("freeclubs_button_choose_another") }}</a>
+									<a href="{{aUrl("choose-additional-team", "teamId=" ~ club.team_id) }}" class="btn btn-small"><i class="icon-file-text-alt"></i> {{ Message("freeclubs_button_choose_another") }}</a>
 								{% endif %}
 							</td>
 							{% endif %}

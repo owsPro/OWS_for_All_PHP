@@ -29,7 +29,7 @@
 
 
 	</div>
-	<a class="btn" style="margin-bottom: 10px;" href="{{ env.getInternalUrl("results", "leagueid=" ~ leagueId ~ "&seasonid=" ~ Request("seasonid")) }}"><i class="icon-list"></i> {{ Message("results_navlabel") }}</a>
+	<a class="btn" style="margin-bottom: 10px;" href="{{iUrl("results", "leagueid=" ~ leagueId ~ "&seasonid=" ~ Request("seasonid")) }}"><i class="icon-list"></i> {{ Message("results_navlabel") }}</a>
 
 	{% if Request("seasonid") == null and Request("type") != null %}
 	<p><i class="icon-info-sign"></i> <em>{{ Message("leaguetable_timedelay_info") }}</em></p>

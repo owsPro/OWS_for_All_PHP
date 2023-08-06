@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
-		{% set pageId = env.getPageId() %}
-		<atom:link href="{{ env.getInternalUrl(pageId, "lang=" ~ i18n.getCurrentLanguage() ~ "&id=" ~ Request("id"), TRUE) }}" rel="self" type="application/rss+xml" />
+		{% set pageId =PageId() %}
+		<atom:link href="{{iUrl(pageId, "lang=" ~ i18n.getCurrentLanguage() ~ "&id=" ~ Request("id"), TRUE) }}" rel="self" type="application/rss+xml" />
 		<title>{{ Config("projectname") }} - {{ Message(pageId ~ "_rss_title") }}</title>
-		<link>{{ env.getInternalUrl("home", null, TRUE) }}</link>
+		<link>{{iUrl("home", null, TRUE) }}</link>
 		<description>{{ Message(pageId ~ "_rss_description") }}</description>
 		<language>{{ i18n.getCurrentLanguage() }}</language>
 		<ttl>120</ttl>

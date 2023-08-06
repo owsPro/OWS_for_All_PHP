@@ -5,7 +5,7 @@
 		<li class="active">{{ breadcrumbItemLabel }}</li>
 		{% else %}
 		<li>
-			<a href="{{ env.getInternalUrl(breadcrumbItemKey) }}">{{ breadcrumbItemLabel }}</a> 
+			<a href="{{iUrl(breadcrumbItemKey) }}">{{ breadcrumbItemLabel }}</a>
 			<span class="divider">/</span>
 		</li>
 		{% endif %}

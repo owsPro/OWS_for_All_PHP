@@ -38,17 +38,3 @@
 								function(e){e.preventDefault();var link=$(this);bootbox.confirm("<?php echo Message("manage_delete_link_confirm");?>","<?php echo Message("option_no");?>","<?php echo Message("option_yes");?>",function(result){
 								if(result)window.location=link.attr("href");}});});$(".datepicker").datepicker({format: "<?php echo str_replace("Y","yyyy",Config("date_format"));?>",language: "<?php echo escapeOutput($i18n->getCurrentLanguage());?>",autoclose: true});});
 								</script></body></html>
-			  					
-			  					
-			  					
-			  					
-			  					
-			  					
-			  					
-			  					
-			  					
-			  					
-			  					
-			  					
-			  					
-			  					

@@ -12,12 +12,12 @@
 {% endif %}
 
 {% for article in articles %}
-<h4><a href="{{ env.getInternalUrl("news-details", "id=" ~ article.id) }}">{{ article.title }}</a></h4>
+<h4><a href="{{iUrl("news-details", "id=" ~ article.id) }}">{{ article.title }}</a></h4>
 <p><em>{{ article.date }}</em></p>
 
 <p>{{ article.teaser|raw }}</p>
 
-<p style="margin-bottom: 30px;"><a href="{{ env.getInternalUrl("news-details", "id=" ~ article.id) }}">Mehr</a></p>
+<p style="margin-bottom: 30px;"><a href="{{iUrl("news-details", "id=" ~ article.id) }}">Mehr</a></p>
 {% endfor %}
 
 {{ pagination.paginator(paginator) }}

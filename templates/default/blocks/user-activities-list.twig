@@ -1,16 +1,16 @@
 {% import "macros/messagebox.twig" as messagebox %}
 
 {% if activities is defined and activities|length > 0 %}
-	
+
 	<table class="table table-striped">
 	{% for activity in activities %}
 		<tr>
 			<td>{{ Message("activitylog_" ~ activity.action_id)|format(activity.user_name)}}<br>
-			<small>{{ env.getFormattedDatetime(activity.created_date) }}</small></td>
+			<small>{{Datetime(activity.created_date) }}</small></td>
 		</tr>
 	{% endfor %}
 	</table>
-	
+
 {% else %}
 	{{ messagebox.box(Message("activities_none_available_for_user"), "", "info") }}
 {% endif %}

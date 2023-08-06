@@ -44,7 +44,7 @@
 				  <dt>{{ Message("entity_player_verein_id") }}</dt>
 				  <dd>
 				  {% if player.team_id > 0 %}
-				  	<a href="{{ env.getInternalUrl("team", "id=" ~ player.team_id) }}">{{ player.team_name }}</a>
+				  	<a href="{{iUrl("team", "id=" ~ player.team_id) }}">{{ player.team_name }}</a>
 
 				  	{% if player.lending_owner_id > 0 %}
 						<i class="icon-star-empty" title="{{ Message("lending_player_marker_tooltip") }}"></i></em>
@@ -57,7 +57,7 @@
 				  {% if player.lending_owner_id > 0 %}
 					  <dt>{{ Message("entity_player_lending_owner_id") }}</dt>
 					  <dd>
-					  	<a href="{{ env.getInternalUrl("team", "id=" ~ player.lending_owner_id) }}">{{ player.lending_owner_name }}</a>
+					  	<a href="{{iUrl("team", "id=" ~ player.lending_owner_id) }}">{{ player.lending_owner_name }}</a>
 					  </dd>
 				  {% endif %}
 
@@ -72,7 +72,7 @@
 
 				  <dt>{{ Message("entity_player_nation") }}</dt>
 				  {% set nationImg = skin.getImage("flags/players/" ~ player.player_nationality_filename ~ ".png") %}
-				  	{% if i18n.hasMessage("option_" ~ player.player_nationality_filename) %}
+				  	{% if hasMessage("option_" ~ player.player_nationality_filename) %}
 						{% set countryLabel = Message("option_" ~ player.player_nationality_filename) %}
 					{% else %}
 						{% set countryLabel = player.player_nationality_filename %}
@@ -122,7 +122,7 @@
 			<div class="alert alert-info">
 			<p>{{ Message("player_details_avaiable_on_transfermarket") }}</p>
 			{% if env.getUser().getClubId() != player.team_id %}
-				<p><a class="btn btn-mini" href="{{ env.getInternalUrl("transfer-bid", "id=" ~ player.player_id) }}"><i class="icon-hand-up"></i> {{ Message("transfermarket_bid") }}</a></p>
+				<p><a class="btn btn-mini" href="{{iUrl("transfer-bid", "id=" ~ player.player_id) }}"><i class="icon-hand-up"></i> {{ Message("transfermarket_bid") }}</a></p>
 			{% endif %}
 			</div>
 		{% elseif player.player_unsellable > 0 %}
@@ -133,7 +133,7 @@
 			<div class="alert alert-info">
 			<p>{{ Message("lending_player_lendable_info", player.lending_fee|number_format(0, ',', ' ') ~ " " ~ Config("game_currency"))|raw }}</p>
 			{% if env.getUser().getClubId() != player.team_id %}
-				<p><a class="btn btn-mini" href="{{ env.getInternalUrl("borrow-player", "id=" ~ player.player_id) }}"><i class="icon-share-alt"></i> {{ Message("lending_player_hire_button") }}</a></p>
+				<p><a class="btn btn-mini" href="{{iUrl("borrow-player", "id=" ~ player.player_id) }}"><i class="icon-share-alt"></i> {{ Message("lending_player_hire_button") }}</a></p>
 			{% endif %}
 			</div>
 		{% endif %}

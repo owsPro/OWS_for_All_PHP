@@ -11,46 +11,46 @@
 			</tr>
 		</thead>
 		<tbody>
-  
+
 	  	{% for transfer in completedtransfers %}
 			<tr>
-				<td>{{ env.getFormattedDate(transfer.transfer_date) }}</td>
-				<td><a href="{{ env.getInternalUrl("player", "id=" ~ transfer.player_id) }}">{{ transfer.player_firstname }} {{ transfer.player_lastname }}</a></td>
+				<td>{{FormattedDate(transfer.transfer_date) }}</td>
+				<td><a href="{{iUrl("player", "id=" ~ transfer.player_id) }}">{{ transfer.player_firstname }} {{ transfer.player_lastname }}</a></td>
 				<td>{% if transfer.from_id > 0 %}
-				<a href="{{ env.getInternalUrl("team", "id=" ~ transfer.from_id) }}">{{ transfer.from_name }}</a>
+				<a href="{{iUrl("team", "id=" ~ transfer.from_id) }}">{{ transfer.from_name }}</a>
 				{% else %}-{% endif %}
 				</td>
-				<td><a href="{{ env.getInternalUrl("team", "id=" ~ transfer.to_id) }}">{{ transfer.to_name }}</a></td>
+				<td><a href="{{iUrl("team", "id=" ~ transfer.to_id) }}">{{ transfer.to_name }}</a></td>
 				<td>
 					{% if transfer.hand_money > 0 %}
 						<p><small>{{ Message("transfer_bid_handmoney") }}</small><br>
 						{{ transfer.hand_money|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}</p>
 					{% endif %}
-				
+
 					<p>
 						{% if transfer.directtransfer_amount > 0 %}
 							{{ transfer.directtransfer_amount|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}
 						{% else %}
 							{{ transfer.amount|number_format(0, ',', ' ')  }} {{ Config("game_currency") }}
 						{% endif %}
-						
+
 						{% if transfer.exchangeplayer1_id > 0 or transfer.exchangeplayer2_id > 0 %}
 							<ul class="unstyled">
 								{% if transfer.exchangeplayer1_id > 0  %}
-								<li><small>+ <a href="{{ env.getInternalUrl("player", "id=" ~ transfer.exchangeplayer1_id) }}">{% if transfer.exchangeplayer1_pseudonym|length > 0 %}{{ transfer.exchangeplayer1_pseudonym }}{% else %}{{ transfer.exchangeplayer1_firstname }} {{ transfer.exchangeplayer1_lastname }}{% endif %}</a></small></li>
+								<li><small>+ <a href="{{iUrl("player", "id=" ~ transfer.exchangeplayer1_id) }}">{% if transfer.exchangeplayer1_pseudonym|length > 0 %}{{ transfer.exchangeplayer1_pseudonym }}{% else %}{{ transfer.exchangeplayer1_firstname }} {{ transfer.exchangeplayer1_lastname }}{% endif %}</a></small></li>
 								{% endif %}
-								
+
 								{% if transfer.exchangeplayer2_id > 0  %}
-								<li><small>+ <a href="{{ env.getInternalUrl("player", "id=" ~ transfer.exchangeplayer2_id) }}">{% if transfer.exchangeplayer2_pseudonym|length > 0 %}{{ transfer.exchangeplayer2_pseudonym }}{% else %}{{ transfer.exchangeplayer2_firstname }} {{ transfer.exchangeplayer2_lastname }}{% endif %}</a></small></li>
+								<li><small>+ <a href="{{iUrl("player", "id=" ~ transfer.exchangeplayer2_id) }}">{% if transfer.exchangeplayer2_pseudonym|length > 0 %}{{ transfer.exchangeplayer2_pseudonym }}{% else %}{{ transfer.exchangeplayer2_firstname }} {{ transfer.exchangeplayer2_lastname }}{% endif %}</a></small></li>
 								{% endif %}
 							</ul>
 						{% endif %}
-					
+
 					</p>
 				</td>
 			</tr>
 	  	{% endfor %}
-	  	
+
 		</tbody>
 	</table>
 

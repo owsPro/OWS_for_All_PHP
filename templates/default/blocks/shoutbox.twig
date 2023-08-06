@@ -17,9 +17,9 @@
 	{% for message in messages %}
 	<div>
 		{% if env.user.isAdmin() %}<a href="#" class="ajaxLink"
-		data-ajaxtarget="shoutbox_block" data-ajaxblock="shoutbox" data-ajaxquerystr="id={{ Request("id") }}&action=delete-shoutbox-message&mid={{ message.message_id }}" title="{{ Message("button_delete") }}"><i class="icon-trash"></i></a>{% endif %} <small class="muted" style="font-size: 9px">[{{ env.getFormattedDatetime(message.date, i18n) }}] <a href="{{ env.getInternalUrl("match", "id=" ~ message.match_id) }}" class="muted">{{ message.home_name }} - {{ message.guest_name }}</a></small>
+		data-ajaxtarget="shoutbox_block" data-ajaxblock="shoutbox" data-ajaxquerystr="id={{ Request("id") }}&action=delete-shoutbox-message&mid={{ message.message_id }}" title="{{ Message("button_delete") }}"><i class="icon-trash"></i></a>{% endif %} <small class="muted" style="font-size: 9px">[{{Datetime(message.date, i18n) }}] <a href="{{iUrl("match", "id=" ~ message.match_id) }}" class="muted">{{ message.home_name }} - {{ message.guest_name }}</a></small>
 		<br>
-		<a href="{{ env.getInternalUrl("user", "id=" ~ message.user_id) }}">{{ message.user_name }}</a>: {{ message.message }}
+		<a href="{{iUrl("user", "id=" ~ message.user_id) }}">{{ message.user_name }}</a>: {{ message.message }}
 	</div>
 	{% endfor %}
 

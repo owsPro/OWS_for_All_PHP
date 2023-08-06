@@ -16,7 +16,7 @@
 
 	<div class="form-actions">
 		<button type="submit" class="btn btn-success">{{ Message('button_confirm') }}</button>
-		<a href="{{ env.getInternalUrl("premium-exchange", "amount=" ~ Request("amount")) }}" class="btn btn-danger">{{ Message('button_cancel') }}</a>
+		<a href="{{iUrl("premium-exchange", "amount=" ~ Request("amount")) }}" class="btn btn-danger">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="premium-exchange-confirm"/>
 	<input type="hidden" name="validateonly" value="0"/>

@@ -25,31 +25,31 @@
 
 	{% if user.id == env.user.id %}
 		<p style="text-align: center; margin-top: 10px;">
-		
+
 		{% if Config("user_picture_upload_enabled") %}
-			<a href="{{ env.getInternalUrl("change-profile-picture") }}" class="btn btn-small">
+			<a href="{{iUrl("change-profile-picture") }}" class="btn btn-small">
 				<i class="icon-upload"></i> {{ Message("user_changepicture_button") }}
 			</a>
 			{% if user.picture_uploadfile|length > 0 %}
-				<a href="{{ env.getInternalActionUrl("delete-profile-picture") }}" class="btn btn-small">
+				<a href="{{aUrl("delete-profile-picture") }}" class="btn btn-small">
 					<i class="icon-remove"></i> {{ Message("user_deletepicture_button") }}
 				</a>
 			{% endif %}
 		{% endif %}
-		
+
 		{% if Config("gravatar_enable") %}
-			<a href="http://{{ i18n.getCurrentLanguage() }}.gravatar.com" target="_blank" 
+			<a href="http://{{ i18n.getCurrentLanguage() }}.gravatar.com" target="_blank"
 				title="{{ Message("gravatar_edit_picture") }}" class="btn btn-small">
 				<i class="icon-external-link"></i> {{ Message("gravatar_edit_picture_button") }}
 			</a>
 		{% endif %}
-		
+
 		</p>
 	{% endif %}
 </div>
 
 {% if absence %}
-	{{ messagebox.box("", Message("absence_profile_info", env.getFormattedDate(absence.to_date)), "warning") }}
+	{{ messagebox.box("", Message("absence_profile_info",FormattedDate(absence.to_date)), "warning") }}
 {% endif %}
 
 <ul class="nav nav-tabs" id="userTab">
@@ -64,44 +64,44 @@
   {% endif %}
   <li><a href="#history" data-toggle="tab" class="ajaxLink"
   	data-ajaxtarget="historycontent" data-ajaxblock="user-history" data-ajaxquerystr="userid={{ user.id }}">{{ Message("history_tab") }}</a></li>
-  
+
 </ul>
 
 <div class="tab-content">
   <div class="tab-pane active" id="general">
-  
+
   	{% if user.id == env.user.id %}
-  	<p><a href="{{ env.getInternalUrl("profile") }}" class="btn"><i class="icon-edit"></i> {{ Message("button_edit") }}</a></p>
+  	<p><a href="{{iUrl("profile") }}" class="btn"><i class="icon-edit"></i> {{ Message("button_edit") }}</a></p>
   	{% endif %}
-  
+
 	<div class="row-fluid">
 		<div class="span6">
 			{% if userteams|length > 1 %}
 				{% set team = "<ul class=\"unstyled\">" %}
 				{% for userteam in userteams %}
-					{% set team = team ~ "<li><a href=\"" ~ env.getInternalUrl("team", "id=" ~ userteam.id) ~ "\">" ~ userteam.name|e ~ "</a></li>" %}
+					{% set team = team ~ "<li><a href=\"" ~iUrl("team", "id=" ~ userteam.id) ~ "\">" ~ userteam.name|e ~ "</a></li>" %}
 				{% endfor %}
 				{% set team = team ~ "</ul>" %}
 			{% elseif userteams|length == 1 %}
-				{% set team = "<a href=\"" ~ env.getInternalUrl("team", "id=" ~ userteams[0].id) ~ "\">" ~ userteams[0].name|e ~ "</a>" %}
+				{% set team = "<a href=\"" ~iUrl("team", "id=" ~ userteams[0].id) ~ "\">" ~ userteams[0].name|e ~ "</a>" %}
 			{% else %}
 				{% set team = "-" %}
 			{% endif %}
-			
+
 			{{ profile.infofield(Message("entity_club"), team, true) }}
-			
+
 			{% if user.nationalteam is defined %}
-				{% set nationalteam = "<a href=\"" ~ env.getInternalUrl("team", "id=" ~ user.nationalteam.id) ~ "\">" ~ user.nationalteam.name|e ~ "</a>" %}
+				{% set nationalteam = "<a href=\"" ~iUrl("team", "id=" ~ user.nationalteam.id) ~ "\">" ~ user.nationalteam.name|e ~ "</a>" %}
 				{{ profile.infofield(Message("nationalteams_team_label"), nationalteam, true) }}
 			{% endif %}
-			
+
 			{{ profile.infofield(Message("entity_users_highscore"), user.highscore) }}
 			{{ profile.infofield(Message("entity_users_fanbeliebtheit"), user.popularity ~ "%") }}
-			{{ profile.infofield(Message("entity_users_datum_anmeldung"), env.getFormattedDate(user.registration_date)) }}
-			{{ profile.infofield(Message("entity_users_lastonline"), env.getFormattedDate(user.lastonline)) }}
+			{{ profile.infofield(Message("entity_users_datum_anmeldung"),FormattedDate(user.registration_date)) }}
+			{{ profile.infofield(Message("entity_users_lastonline"),FormattedDate(user.lastonline)) }}
 		</div>
 		<div class="span6">
-		
+
 		{% if user.name|length > 0 %}
 			{{ profile.infofield(Message("entity_users_name"), user.name) }}
 		{% endif %}
@@ -124,33 +124,33 @@
 			{{ profile.infofield(Message("entity_users_lieblingsverein"), user.favorite_club) }}
 		{% endif %}
 		{% if user.homepage|length > 0 %}
-		
+
 			{% set websiteLink = "<a href=\"" ~ user.homepage ~ "\" target=\"_blank\">" ~ Message("user_visit_website") ~ "</a>" %}
-		
+
 			{{ profile.infofield(Message("entity_users_homepage"), websiteLink, true) }}
 		{% endif %}
 		</div>
 	</div>
-  
+
   </div>
-  
+
   <div class="tab-pane" id="activities">
   	<div id="activitieslist"></div>
   </div>
-  
+
   <div class="tab-pane" id="results">
   	<div id="resultslist"></div>
   </div>
-  
+
   {% if Config("transfermarket_enabled") or Config("transferoffers_enabled") %}
   <div class="tab-pane" id="transfers">
   	<div id="transferslist"></div>
   </div>
   {% endif %}
-  
+
   <div class="tab-pane" id="history">
   	<div id="historycontent"></div>
-  	
+
   	{% if user.history|length > 0 %}
   		<h4>{{ Message("entity_users_history") }}</h4>
 			{{ user.history|nl2br }}

@@ -7,7 +7,7 @@
 
 	{% for leagueName,seasons in leagues %}
 		<h4>{{ leagueName }}</h4>
-		
+
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -20,17 +20,17 @@
 			{% for season in seasons %}
 				<tr>
 					<td>{{ season.season_name }}</td>
-					<td><a href="{{ env.getInternalUrl("user", "id=" ~ season.user_id) }}">{{ season.user_name }}</a></td>
+					<td><a href="{{iUrl("user", "id=" ~ season.user_id) }}">{{ season.user_name }}</a></td>
 					<td>{{ season.season_rank }}</td>
 				</tr>
 			{% endfor %}
 			</tbody>
 		</table>
 	{% endfor %}
-	
+
 	{% if cups|length > 0 %}
 		<h4>{{ Message("entity_cup") }}</h4>
-		
+
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -43,8 +43,8 @@
 			{% for cup in cups %}
 				<tr>
 					<td>{{ cup.cup_name }}</td>
-					<td><a href="{{ env.getInternalUrl("user", "id=" ~ cup.user_id) }}">{{ cup.user_name }}</a></td>
-					<td>{{ cup.cup_round_name }}<br>{{ env.getFormattedDate(cup.achievement_date) }}</td>
+					<td><a href="{{iUrl("user", "id=" ~ cup.user_id) }}">{{ cup.user_name }}</a></td>
+					<td>{{ cup.cup_round_name }}<br>{{FormattedDate(cup.achievement_date) }}</td>
 				</tr>
 			{% endfor %}
 			</tbody>

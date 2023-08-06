@@ -29,7 +29,7 @@
 
 					<dl>
 						<dt>{{ Message("entity_stadiumconstruction_deadline") }}</dt>
-						<dd>{{ env.getFormattedDate(offer.deadline) }} ({{ Message("stadium_extend_builders_constructiontime", offer.deadline_days) }})</dd>
+						<dd>{{FormattedDate(offer.deadline) }} ({{ Message("stadium_extend_builders_constructiontime", offer.deadline_days) }})</dd>
 
 						<dt>{{ Message("stadium_extend_builders_totalcosts") }}</dt>
 						<dd>{{ offer.totalCosts|number_format(0, ',', ' ') }} {{ Config("game_currency") }}</dd>
@@ -63,11 +63,7 @@
 						</dl>
 					</div>
 
-					<p><a href="{{ env.getInternalActionUrl("extend-stadium", "offerid=" ~ offer.builder_id
-																				~ "&side_standing=" ~ Request("side_standing")
-																				~ "&side_seats=" ~ Request("side_seats")
-																				~ "&grand_standing=" ~ Request("grand_standing")
-																				~ "&grand_seats=" ~ Request("grand_seats")
+					<p><a href="{{aUrl("extend-stadium","offerid="~offer.builder_id~"&side_standing="~Request("side_standing")~"&side_seats="~Request("side_seats")~"&grand_standing="~Request("grand_standing")~"&grand_seats="~Request("grand_seats")
 																				~ "&vip=" ~ Request("vip")) }}" class="btn btn-primary"><i class="icon-hand-right"></i> {{ Message("stadium_extend_button") }}</a></p>
 				</div>
 			{% endfor %}
@@ -77,6 +73,6 @@
 	{% endif %}
 
 	<hr/>
-	<p><a class="btn" href="{{ env.getInternalUrl("stadium") }}">{{ Message("button_cancel") }}</a></p>
+	<p><a class="btn" href="{{iUrl("stadium") }}">{{ Message("button_cancel") }}</a></p>
 
 {% endblock %}

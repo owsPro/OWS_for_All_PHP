@@ -22,41 +22,41 @@
 		<tbody>
 		{% for match in matches %}
 			<tr>
-				<td>{{ env.getFormattedDatetime(match.date, i18n) }}</td>
+				<td>{{Datetime(match.date, i18n) }}</td>
 				<td>
 					{% if match.home_team_picture|length %}
 						<img src="{{ Config("context_root") }}/uploads/club/{{ match.home_team_picture }}" style="max-width: 20px"/>
 					{% endif %}
-					<a href="{{ env.getInternalUrl("team", "id=" ~ match.home_id) }}">{{ match.home_team }}</a>
-					
+					<a href="{{iUrl("team", "id=" ~ match.home_id) }}">{{ match.home_team }}</a>
+
 					{% if match.home_user_id > 0 %}
 						<br>
 						{% if match.home_user_picture|length > 0 %}
-							<a href="{{ env.getInternalUrl("user", "id=" ~ match.home_user_id) }}"><img src="{{ match.home_user_picture }}" style="width: 20px; height: 20px"/></a>
+							<a href="{{iUrl("user", "id=" ~ match.home_user_id) }}"><img src="{{ match.home_user_picture }}" style="width: 20px; height: 20px"/></a>
 						{% endif %}
-						<small><a href="{{ env.getInternalUrl("user", "id=" ~ match.home_user_id) }}">{{ match.home_user_nick }}</a></small>
+						<small><a href="{{iUrl("user", "id=" ~ match.home_user_id) }}">{{ match.home_user_nick }}</a></small>
 					{% endif %}
 				</td>
 				<td>
 					{% if match.guest_team_picture|length %}
 						<img src="{{ Config("context_root") }}/uploads/club/{{ match.guest_team_picture }}" style="max-width: 20px"/>
 					{% endif %}
-					<a href="{{ env.getInternalUrl("team", "id=" ~ match.guest_id) }}">{{ match.guest_team }}</a>
-					
+					<a href="{{iUrl("team", "id=" ~ match.guest_id) }}">{{ match.guest_team }}</a>
+
 					{% if match.guest_user_id > 0 %}
 						<br>
 						{% if match.guest_user_picture|length > 0 %}
-							<a href="{{ env.getInternalUrl("user", "id=" ~ match.guest_user_id) }}"><img src="{{ match.guest_user_picture }}" style="width: 20px; height: 20px"/></a>
+							<a href="{{iUrl("user", "id=" ~ match.guest_user_id) }}"><img src="{{ match.guest_user_picture }}" style="width: 20px; height: 20px"/></a>
 						{% endif %}
-						<small><a href="{{ env.getInternalUrl("user", "id=" ~ match.guest_user_id) }}">{{ match.guest_user_nick }}</a></small>
+						<small><a href="{{iUrl("user", "id=" ~ match.guest_user_id) }}">{{ match.guest_user_nick }}</a></small>
 					{% endif %}
 				</td>
 				<td>
 					{% if match.simulated == 1 %}
-						<a href="{{ env.getInternalUrl("youth-match", "id=" ~ match.match_id) }}" 
+						<a href="{{iUrl("youth-match", "id=" ~ match.match_id) }}"
 							title="{{ Message("match_navlabel") }}">{{ match.home_goals }} - {{ match.guest_goals }}</a>
 					{% else %}
-						<a href="{{ env.getInternalUrl("youth-formation", "matchid=" ~ match.match_id) }}" class="btn btn-small"><i class="icon-sitemap"></i> {{ Message("formation_navlabel") }}</a>
+						<a href="{{iUrl("youth-formation", "matchid=" ~ match.match_id) }}" class="btn btn-small"><i class="icon-sitemap"></i> {{ Message("formation_navlabel") }}</a>
 					{% endif %}
 				</td>
 			</tr>

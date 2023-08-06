@@ -13,7 +13,7 @@
 		{% for league,seasons in leagues %}
 			{% set country = seasons[0].league_country %}
 			{% set nationImg = skin.getImage("flags/players/" ~ country ~ ".png") %}
-			{% if i18n.hasMessage("option_" ~ country) %}
+			{% if hasMessage("option_" ~ country) %}
 				{% set countryLabel = Message("option_" ~ country) %}
 			{% else %}
 				{% set countryLabel = country %}
@@ -40,7 +40,7 @@
 									{% if season.team_picture|length %}
 										<img src="{{ Config("context_root") }}/uploads/club/{{ season.team_picture }}" style="max-width: 40px"/>
 									{% endif %}
-									<a href="{{ env.getInternalUrl("team", "id=" ~ season.team_id ) }}">{{ season.team_name }}</a>
+									<a href="{{iUrl("team", "id=" ~ season.team_id ) }}">{{ season.team_name }}</a>
 								</td>
 							</tr>
 						{% endfor %}
@@ -74,7 +74,7 @@
 					{% if cup.team_picture|length %}
 						<img src="{{ Config("context_root") }}/uploads/club/{{ cup.team_picture }}" style="max-width: 40px"/>
 					{% endif %}
-					<a href="{{ env.getInternalUrl("team", "id=" ~ cup.team_id ) }}">{{ cup.team_name }}</a>
+					<a href="{{iUrl("team", "id=" ~ cup.team_id ) }}">{{ cup.team_name }}</a>
 				</td>
 			</tr>
 		{% endfor %}

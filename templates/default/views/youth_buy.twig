@@ -14,7 +14,7 @@
 	</fieldset>
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">{{ Message('button_confirm') }}</button>
-		<a href="{{ env.getInternalUrl("youth-marketplace") }}" class="btn">{{ Message('button_cancel') }}</a>
+		<a href="{{iUrl("youth-marketplace") }}" class="btn">{{ Message('button_cancel') }}</a>
 	</div>
 	<input type="hidden" name="page" value="youthplayer-buy"/>
 	<input type="hidden" name="id" value="{{ Request('id') }}"/>
