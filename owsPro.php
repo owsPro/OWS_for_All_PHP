@@ -25,8 +25,8 @@
 =====================================================================================*/
 			@include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');
 class Value{static$pageId;}
-			set_exception_handler('TopLevelException');
-			function TopLevelException($exception){throw new Exception('An undisclosed exception error has occurred!');echo$e->errorMessage();echo'<b>Exception:</b>'.$exception->getMessage();}
+			// set_exception_handler('TopLevelException');
+			// function TopLevelException($exception){throw new Exception('An undisclosed exception error has occurred!');echo$e->errorMessage();echo'<b>Exception:</b>'.$exception->getMessage();}
 			function connectDB($host,$user,$password,$dbname){Value::$connection=new mysqli($db->connect(Config('db_host'),Config('db_user'),Config('db_passwort'),Config('db_name')));Value::$connection->set_charset('utf8');if(mysqli_connect_error()){
 							throw new Exception('Die Datenbank ist zur Zeit nicht verfügbar: ('.mysqli_connect_errno().') '.mysqli_connect_error());}}
 			function Config($name){global$conf;if(!isset($conf[$name]))throw new Exception('Missing configuration: '.$name);return$conf[$name];}
@@ -4999,19 +4999,11 @@ class AbsenceModel extends Model {
 			$deputyName=$deputy['nick'];}
 		return array('currentAbsence'=>$absence, 'deputyName'=>$deputyName);}}
 class AdsModel extends Model { function renderView(){ return($this->_websoccer->getUser()->premiumBalance==0||!Config('frontend_ads_hide_for_premiumusers'));}}
-class AlltimeTableModel extends Model {
-	function getTemplateParameters(){
-		$teams=TeamsDataService::getTeamsOfLeagueOrderedByAlltimeTableCriteria($this->_websoccer,$this->_db,$this->_leagueId,$this->_type);
-		return array("leagueId"=>$this->_leagueId,"teams"=>$teams);}
-	function renderView(){
-		$this->_leagueId=(int)Request("id");
-		$this->_type=Request("type");
-		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		if($this->_leagueId==0 && $clubId){
-			$result=$db->querySelect("liga_id",Config("db_prefix")."_verein","id=%d",$clubId, 1);
-			$club=$result->fetch_array();
-			$this->_leagueId=$club["liga_id"];}
-		return($this->_leagueId);}}
+class AlltimeTableModel extends Model{
+			function __construct($db,$i18n,$websoccer){$this->_db=$db;$this->_i18n=$i18n;$this->_websoccer=$websoccer;$this->_leagueId=(int)Request('id');$this->_type=Request('type');$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
+						if($this->_leagueId==0&&$clubId>0){$result=$db->querySelect('liga_id',Config('db_prefix').'_verein','id=%d',$clubId,1);$club=$result->fetch_array();$result->free();$this->_leagueId=$club['liga_id'];}}
+			function getTemplateParameters(){$teams=TeamsDataService::getTeamsOfLeagueOrderedByAlltimeTableCriteria($this->_websoccer,$this->_db,$this->_leagueId,$this->_type);return['leagueId'=>$this->_leagueId,'teams'=>$teams];}
+			function renderView(){return($this->_leagueId>0);}}
 class AllUserActivitiesModel extends Model { function getTemplateParameters(){ return array("activities"=> ActionLogDataService::getLatestActionLogs($this->_websoccer,$this->_db, 5));}}
 class BadgesModel extends Model{
 	function getTemplateParameters(){
@@ -5131,76 +5123,82 @@ class ForgotPasswordModel extends Model {
 		return$parameters;}
 	function renderView(){ return Config("login_allow_sendingpassword");}}
 class FormationModel extends Model {
-	function getTemplateParameters(){
-		if($this->_nationalteam)$clubId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
-		else $clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		$nextMatches=MatchesDataService::getNextMatches($this->_websoccer,$this->_db,$clubId,Config('formation_max_next_matches'));
-		if(!count($nextMatches))throw new Exception(Message('next_match_block_no_nextmatch'));
-		$matchId=Request('id');
-		if(!$matchId)$matchinfo=$nextMatches[0];
-		else{
-			foreach($nextMatches as$nextMatch){
-				if($nextMatch['match_id']==$matchId){
-					$matchinfo=$nextMatch;
+	function getTemplateParameters() {
+		if ($this->_nationalteam) $clubId = NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer, $this->_db);
+		else $clubId = $this->_websoccer->getUser()->getClubId($this->_websoccer, $this->_db);
+		$nextMatches = MatchesDataService::getNextMatches($this->_websoccer, $this->_db, $clubId,$this->_websoccer->getConfig('formation_max_next_matches'));
+		if (!count($nextMatches)) throw new Exception($this->_i18n->getMessage('next_match_block_no_nextmatch'));
+		$matchId = $this->_websoccer->getRequestParameter('id');
+		if (!$matchId) $matchinfo = $nextMatches[0];
+		else {
+			foreach ($nextMatches as $nextMatch) {
+				if ($nextMatch['match_id'] == $matchId) {
+					$matchinfo = $nextMatch;
 					break;}}}
-		if(!isset($matchinfo))throw new Exception('illegal match id');
-		$players=null;
-		if($clubId){
-			if($this->_nationalteam)$players=NationalteamsDataService::getNationalPlayersOfTeamByPosition($this->_websoccer,$this->_db,$clubId);
-			else $players=PlayersDataService::getPlayersOfTeamByPosition($this->_websoccer,$this->_db,$clubId, 'DESC', count($matchinfo)&& $matchinfo['match_type']=='cup', (isset($matchinfo['match_type'])&& $matchinfo['match_type']!='friendly'));}
-		if(Request('templateid'))$formation=FormationDataService::getFormationByTemplateId($this->_websoccer,$this->_db,$clubId,Request('templateid'));
-		else $formation=FormationDataService::getFormationByTeamId($this->_websoccer,$this->_db,$clubId,$matchinfo['match_id']);
-		for($benchNo=1; $benchNo <= 5; $benchNo++){
-			if(Request('bench'.$benchNo))$formation['bench'.$benchNo]=Request('bench'.$benchNo);
-			elseif(!isset($formation['bench'.$benchNo]))$formation['bench'.$benchNo]='';}
-		for($subNo=1; $subNo <= 3; $subNo++){
-			if(Request('sub'.$subNo.'_out')){
-				$formation['sub'.$subNo.'_out']=Request('sub'.$subNo.'_out');
-				$formation['sub'.$subNo.'_in']=Request('sub'.$subNo.'_in');
-				$formation['sub'.$subNo.'_minute']=Request('sub'.$subNo.'_minute');
-				$formation['sub'.$subNo.'_condition']=Request('sub'.$subNo.'_condition');
-				$formation['sub'.$subNo.'_position']=Request('sub'.$subNo.'_position');}
-			elseif(!isset($formation['sub'.$subNo.'_out'])){
-				$formation['sub'.$subNo.'_out']='';
-				$formation['sub'.$subNo.'_in']='';
-				$formation['sub'.$subNo.'_minute']='';
-				$formation['sub'.$subNo.'_condition']='';
-				$formation['sub'.$subNo.'_position']='';}}
-		$setup=$this->getFormationSetup($formation);
-		$criteria=Request('preselect');
-		if($criteria !==NULL){
-			if($criteria=='strongest')$sortColumn='w_staerke';
-			elseif($criteria=='freshest')$sortColumn='w_frische';
-			else $sortColumn='w_zufriedenheit';
-			$proposedPlayers=FormationDataService::getFormationProposalForTeamId($this->_websoccer,$this->_db,$clubId,$setup['defense'],$setup['dm'],$setup['midfield'],$setup['om'],$setup['striker'],$setup['outsideforward'],$sortColumn, 'DESC',
-				$this->_nationalteam, (isset($matchinfo['match_type'])&& $matchinfo['match_type']=='cup'));
-			for($playerNo=1; $playerNo <= 11; $playerNo++){
-				$playerIndex=$playerNo - 1;
-				if(isset($proposedPlayers[$playerIndex])){
-					$formation['player'.$playerNo]=$proposedPlayers[$playerIndex]['id'];
-					$formation['player'.$playerNo.'_pos']=$proposedPlayers[$playerIndex]['position'];}}
-			for($benchNo=1; $benchNo <= 5; $benchNo++)$formation['bench'.$benchNo]='';
-			for($subNo=1; $subNo <= 3; $subNo++){
-				$formation['sub'.$subNo.'_out']='';
-				$formation['sub'.$subNo.'_in']='';
-				$formation['sub'.$subNo.'_minute']='';
-				$formation['sub'.$subNo.'_condition']='';
-				$formation['sub'.$subNo.'_position']='';}}
-		if(Request('freekickplayer'))$formation['freekickplayer']=Request('freekickplayer');
-		elseif(!isset($formation['freekickplayer']))$formation['freekickplayer']='';
-		if(Request('offensive'))$formation['offensive']=Request('offensive');
-		elseif(!isset($formation['offensive']))$formation['offensive']=40;
-		if(Request('longpasses'))$formation['longpasses']=Request('longpasses');
-		if($Request('counterattacks'))$formation['counterattacks']=Request('counterattacks');
-		for($playerNo=1; $playerNo <= 11; $playerNo++){
-			if($Request('player'.$playerNo)){
-				$formation['player'.$playerNo]=Request('player'.$playerNo);
-				$formation['player'.$playerNo.'_pos']=Request('player'.$playerNo.'_pos');}
-			elseif(!isset($formation['player'.$playerNo])){
-				$formation['player'.$playerNo]='';
-				$formation['player'.$playerNo.'_pos']='';}}
-		return array('nextMatches'=>$nextMatches, 'next_match'=>$matchinfo, 'previous_matches'=> MatchesDataService::getPreviousMatches($matchinfo,$this->_websoccer,$this->_db), 'players'=>$players, 'formation'=>$formation, 'setup'=>$setup,
-			'captain_id'=> TeamsDataService::getTeamCaptainIdOfTeam($this->_websoccer,$this->_db,$clubId));}
+		if (!isset($matchinfo))throw new Exception('illegal match id');
+		$players = null;
+		if ($clubId > 0) {
+			if ($this->_nationalteam) $players = NationalteamsDataService::getNationalPlayersOfTeamByPosition($this->_websoccer, $this->_db, $clubId);
+			else $players = PlayersDataService::getPlayersOfTeamByPosition($this->_websoccer, $this->_db, $clubId, 'DESC', count($matchinfo) && $matchinfo['match_type'] == 'cup',(isset($matchinfo['match_type']) && $matchinfo['match_type'] != 'friendly'));}
+		if ($this->_websoccer->getRequestParameter('templateid'))$formation = FormationDataService::getFormationByTemplateId($this->_websoccer, $this->_db, $clubId, $this->_websoccer->getRequestParameter('templateid'));
+		else $formation = FormationDataService::getFormationByTeamId($this->_websoccer, $this->_db, $clubId, $matchinfo['match_id']);
+		for ($benchNo = 1; $benchNo <= 5; $benchNo++) {
+			if ($this->_websoccer->getRequestParameter('bench' . $benchNo))$formation['bench' . $benchNo] = $this->_websoccer->getRequestParameter('bench' . $benchNo);
+			elseif (!isset($formation['bench' . $benchNo]))$formation['bench' . $benchNo] = '';}
+		for ($subNo = 1; $subNo <= 3; $subNo++) {
+			if ($this->_websoccer->getRequestParameter('sub' . $subNo .'_out')) {
+				$formation['sub' . $subNo .'_out'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_out');
+				$formation['sub' . $subNo .'_in'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_in');
+				$formation['sub' . $subNo .'_minute'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_minute');
+				$formation['sub' . $subNo .'_condition'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_condition');
+				$formation['sub' . $subNo .'_position'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_position');}
+			elseif (!isset($formation['sub' . $subNo .'_out'])) {
+				$formation['sub' . $subNo .'_out'] = '';
+				$formation['sub' . $subNo .'_in'] = '';
+				$formation['sub' . $subNo .'_minute'] = '';
+				$formation['sub' . $subNo .'_condition'] = '';
+				$formation['sub' . $subNo .'_position'] = '';}}
+		$setup = $this->getFormationSetup($formation);
+		$criteria = $this->_websoccer->getRequestParameter('preselect');
+		if ($criteria !== NULL) {
+			if ($criteria == 'strongest')$sortColumn = 'w_staerke'; 
+			elseif ($criteria == 'freshest')$sortColumn = 'w_frische';
+			else $sortColumn = 'w_zufriedenheit';
+
+			$proposedPlayers = FormationDataService::getFormationProposalForTeamId($this->_websoccer, $this->_db, $clubId,$setup['defense'], $setup['dm'], $setup['midfield'], $setup['om'], $setup['striker'], $setup['outsideforward'], $sortColumn, 'DESC',
+					$this->_nationalteam, (isset($matchinfo['match_type']) && $matchinfo['match_type'] == 'cup'));
+			for ($playerNo = 1; $playerNo <= 11; $playerNo++) {
+				$playerIndex = $playerNo - 1;
+				if (isset($proposedPlayers[$playerIndex])) {
+					$formation['player' . $playerNo] = $proposedPlayers[$playerIndex]['id'];
+					$formation['player' . $playerNo . '_pos'] = $proposedPlayers[$playerIndex]['position'];}}
+			for ($benchNo = 1; $benchNo <= 5; $benchNo++)$formation['bench' . $benchNo] = '';
+			for ($subNo = 1; $subNo <= 3; $subNo++) {
+				$formation['sub' . $subNo .'_out'] = '';
+				$formation['sub' . $subNo .'_in'] = '';
+				$formation['sub' . $subNo .'_minute'] = '';
+				$formation['sub' . $subNo .'_condition'] = '';
+				$formation['sub' . $subNo .'_position'] = '';}}
+		if ($this->_websoccer->getRequestParameter('freekickplayer')) $formation['freekickplayer'] = $this->_websoccer->getRequestParameter('freekickplayer');
+		elseif (!isset($formation['freekickplayer']))$formation['freekickplayer'] = '';
+		if ($this->_websoccer->getRequestParameter('offensive'))$formation['offensive'] = $this->_websoccer->getRequestParameter('offensive');
+		elseif (!isset($formation['offensive']))$formation['offensive'] = 40;
+		if ($this->_websoccer->getRequestParameter('longpasses'))$formation['longpasses'] = $this->_websoccer->getRequestParameter('longpasses');
+		if ($this->_websoccer->getRequestParameter('counterattacks'))$formation['counterattacks'] = $this->_websoccer->getRequestParameter('counterattacks');
+		for ($playerNo = 1; $playerNo <= 11; $playerNo++) {
+			if ($this->_websoccer->getRequestParameter('player' . $playerNo)) {
+				$formation['player' . $playerNo] = $this->_websoccer->getRequestParameter('player' . $playerNo);
+				$formation['player' . $playerNo . '_pos'] = $this->_websoccer->getRequestParameter('player' . $playerNo . '_pos');}
+			elseif (!isset($formation['player' . $playerNo])) {
+				$formation['player' . $playerNo] = '';
+				$formation['player' . $playerNo . '_pos'] = '';}}
+		return array('nextMatches' => $nextMatches,
+				'next_match' => $matchinfo,
+				'previous_matches' => MatchesDataService::getPreviousMatches($matchinfo, $this->_websoccer, $this->_db),
+				'players' => $players,
+				'formation' => $formation,
+				'setup' => $setup,
+				'captain_id' => TeamsDataService::getTeamCaptainIdOfTeam($this->_websoccer, $this->_db, $clubId));}
 	function getFormationSetup($formation){
 		$setup=array('defense'=> 4, 'dm'=> 1, 'midfield'=> 3, 'om'=> 1, 'striker'=> 1, 'outsideforward'=> 0);
 		if(Request('formation_defense')!==NULL){
@@ -5350,42 +5348,16 @@ class LeaguesOverviewModel extends Model {
 		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition);
 		while($country=$result->fetch_array())$countries[]=$country;
 		return array("countries"=>$countries);}}
-class LeagueTableModel extends Model {
-	function getTemplateParameters(){
-		$markers=[];
-		$teams=[];
-		if($this->_seasonId==null && $this->_type==null){
-			$teams=TeamsDataService::getTeamsOfLeagueOrderedByTableCriteria($this->_websoccer,$this->_db,$this->_leagueId);
-			$fromTable=Config("db_prefix")."_tabelle_markierung";
-			$columns["bezeichnung"]="name";
-			$columns["farbe"]="color";
-			$columns["platz_von"]="place_from";
-			$columns["platz_bis"]="place_to";
-			$whereCondition="liga_id=%d ORDER BY place_from ASC";
-			$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$this->_leagueId);
-			while($marker=$result->fetch_array())$markers[]=$marker;}
-		else{
-			$seasonId=0;
-			if($this->_seasonId==null){
-				$result=$this->_db->querySelect("id",Config("db_prefix")."_saison","liga_id=%d AND beendet='0' ORDER BY name DESC",$this->_leagueId, 1);
-				$season=$result->fetch_array();
-				if($season["id"])$seasonId=$season["id"];}
-			else $seasonId=$this->_seasonId;
-			if($seasonId)$teams=TeamsDataService::getTeamsOfSeasonOrderedByTableCriteria($this->_websoccer,$this->_db,$seasonId,$this->_type);}
-		$seasons=[];
-		$result=$this->_db->querySelect("id,name",Config("db_prefix")."_saison","liga_id=%d AND beendet='1' ORDER BY name DESC",$this->_leagueId);
-		while($season=$result->fetch_array())$seasons[]=$season;
-		return array("leagueId"=>$this->_leagueId,"teams"=>$teams,"markers"=>$markers,"seasons"=>$seasons);}
-	function renderView(){
-		$this->_leagueId=(int)Request("id");
-		$this->_seasonId=Request("seasonid");
-		$this->_type=Request("type");
-		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		if($this->_leagueId==0 && $clubId){
-			$result=$db->querySelect("liga_id",Config("db_prefix")."_verein","id=%d",$clubId, 1);
-			$club=$result->fetch_array();
-			$this->_leagueId=$club["liga_id"];}
-		return($this->_leagueId);}}
+class LeagueTableModel extends Model{
+	  			function __construct($db,$i18n,$websoccer){$this->_db=$db;$this->_i18n=$i18n;$this->_websoccer=$websoccer;$this->_leagueId=(int)Request('id');$this->_seasonId=Request('seasonid');$this->_type=Request('type');$clubId=$this->_websoccer->getUser()->
+							getClubId($this->_websoccer,$this->_db);if($this->_leagueId==0&&$clubId>0){$result=$db->querySelect('liga_id',Config('db_prefix').'_verein','id=%d',$clubId,1);$club=$result->fetch_array();$result->free();$this->_leagueId=$club['liga_id'];}}
+				function getTemplateParameters(){$markers=[];$teams=[];if($this->_seasonId==null&&$this->_type==null){$teams=TeamsDataService::getTeamsOfLeagueOrderedByTableCriteria($this->_websoccer,$this->_db,$this->_leagueId);$result=$this->_db->querySelect(
+							['bezeichnung'=>'name','farbe'=>'color','platz_von'=>'place_from','platz_bis'=>'place_to'],Config('db_prefix').'_tabelle_markierung','liga_id=%d ORDER BY place_from ASC',$this->_leagueId);while($marker=$result->fetch_array())$markers[]=
+							$marker;}else{$seasonId=0;if($this->_seasonId==null){$result=$this->_db->querySelect('id',Config('db_prefix').'_saison',"liga_id=%d AND beendet='0'ORDER BY name DESC",$this->_leagueId,1);$season=$result->fetch_array();if($season['id'])
+							$seasonId=$season['id'];}else$seasonId=$this->_seasonId;if($seasonId)$teams=TeamsDataService::getTeamsOfSeasonOrderedByTableCriteria($this->_websoccer,$this->_db,$seasonId,$this->_type);}$seasons=[];$result=$this->_db->querySelect('id,name',
+							Config('db_prefix').'_saison',"liga_id=%d AND beendet='1'ORDER BY name DESC",$this->_leagueId);while($season=$result->fetch_array())$seasons[]=$season;return['leagueId'=>$this->_leagueId,'teams'=>$teams,'markers'=>$markers,
+							'seasons'=>$seasons];}
+				function renderView(){return($this->_leagueId>0);}}
 class LentPlayersModel extends Model {
 	function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
