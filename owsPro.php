@@ -275,25 +275,25 @@ class DataUpdateSimulatorObserver{private$_teamsWithSoonEndingContracts;
 							unset($this->_teamsWithSoonEndingContracts[$teamId]);}
 			function onSubstitution(SimulationMatch$match,SimulationSubstitution$substitution){} }
 class DbConnection{public$connection;private static$_instance;private$_queryCache;
-			static function getInstance(){if(self::$_instance==NULL)self::$_instance=new DbConnection();return self::$_instance;}
+	 static function getInstance(){if(self::$_instance==NULL)self::$_instance=new DbConnection();return self::$_instance;}
 			function __construct(){}
 			function connect($host,$user,$password,$dbname){@$this->connection=new mysqli($host,$user,$password,$dbname);@$this->connection->set_charset('utf8');if(mysqli_connect_error())throw new Exception('Database Connection Error ('.mysqli_connect_errno().')'.
-			mysqli_connect_error());}
+							mysqli_connect_error());}
 			function close(){$this->connection->close();}
 			function querySelect($columns,$fromTable,$whereCondition,$parameters=null,$limit=null){$queryStr=$this->buildQueryString($columns,$fromTable,$whereCondition,$parameters,$limit);return$this->executeQuery($queryStr);}
 			function queryCachedSelect($columns,$fromTable,$whereCondition,$parameters=null,$limit=null){$queryStr=$this->buildQueryString($columns,$fromTable,$whereCondition,$parameters,$limit);if(isset($this->_queryCache[$queryStr]))
-					return$this->_queryCache[$queryStr];$result=$this->executeQuery($queryStr);$rows=[];while($row=$result->fetch_array())$rows[]=$row;$this->_queryCache[$queryStr]=$rows;return$rows;}
+							return$this->_queryCache[$queryStr];$result=$this->executeQuery($queryStr);$rows=[];while($row=$result->fetch_array())$rows[]=$row;$this->_queryCache[$queryStr]=$rows;return$rows;}
 			function queryUpdate($columns,$fromTable,$whereCondition,$parameters){$queryStr='UPDATE '.$fromTable.' SET ';$queryStr=$queryStr.self::buildColumnsValueList($columns);$queryStr=$queryStr.' WHERE ';$wherePart=self::buildWherePart($whereCondition,$parameters);
-					$queryStr=$queryStr.$wherePart;$this->executeQuery($queryStr);$this->_queryCache=[];}
+							$queryStr=$queryStr.$wherePart;$this->executeQuery($queryStr);$this->_queryCache=[];}
 			function queryDelete($fromTable,$whereCondition,$parameters){$queryStr='DELETE FROM '.$fromTable;$queryStr=$queryStr.' WHERE ';$wherePart=self::buildWherePart($whereCondition,$parameters);$queryStr=$queryStr.$wherePart;$this->executeQuery($queryStr);
-					$this->_queryCache=[];}
+							$this->_queryCache=[];}
 			function queryInsert($columns,$fromTable){$queryStr='INSERT '.$fromTable.' SET ';$queryStr=$queryStr .$this->buildColumnsValueList($columns);$this->executeQuery($queryStr);}
 			function getLastInsertedId(){return$this->connection->insert_id;}
 			function buildQueryString($columns,$fromTable,$whereCondition,$parameters=null,$limit=null){$queryStr='SELECT ';if(is_array($columns)){$firstColumn=TRUE;foreach($columns as$dbName=>$aliasName){if(!$firstColumn)$queryStr=$queryStr.', ';else$firstColumn=FALSE;
-					if(is_numeric($dbName))$dbName=$aliasName;$queryStr=$queryStr.$dbName.' AS '.$aliasName;}}else$queryStr=$queryStr.$columns;$queryStr=$queryStr.' FROM '.$fromTable.' WHERE ';$wherePart=self::buildWherePart($whereCondition,$parameters);
-					if(!empty($limit))$wherePart=$wherePart.' LIMIT '.$limit;$queryStr=$queryStr.$wherePart;return$queryStr;}
+							if(is_numeric($dbName))$dbName=$aliasName;$queryStr=$queryStr.$dbName.' AS '.$aliasName;}}else$queryStr=$queryStr.$columns;$queryStr=$queryStr.' FROM '.$fromTable.' WHERE ';$wherePart=self::buildWherePart($whereCondition,$parameters);
+							if(!empty($limit))$wherePart=$wherePart.' LIMIT '.$limit;$queryStr=$queryStr.$wherePart;return$queryStr;}
 			function buildColumnsValueList($columns){$queryStr='';$firstColumn=TRUE;foreach($columns as$dbName=>$value){if(!$firstColumn)$queryStr=$queryStr.', ';else$firstColumn=FALSE;if(strlen($value))$columnValue='\''.$this->connection->real_escape_string($value).
-					'\'';else$columnValue='DEFAULT';$queryStr=$queryStr.$dbName.'='.$columnValue;}return$queryStr;}
+							'\'';else$columnValue='DEFAULT';$queryStr=$queryStr.$dbName.'='.$columnValue;}return$queryStr;}
 			function buildWherePart($whereCondition,$parameters){$maskedParameters=self::prepareParameters($parameters);return vsprintf($whereCondition,$maskedParameters);}
 			function prepareParameters($parameters){if(!is_array($parameters))$parameters=array($parameters);$arrayLength=count($parameters);for($i=0;$i<$arrayLength;++$i)$parameters[$i]=$this->connection->real_escape_string(trim($parameters[$i]));return$parameters;}
 			function executeQuery($queryStr){$queryResult=$this->connection->query($queryStr);if(!$queryResult)throw new Exception('Database Query Error: '.$this->connection->error);return$queryResult;}}
@@ -303,85 +303,56 @@ class DbSessionManager{
 			function close(){return TRUE;}
 			function destroy($sessionId){$fromTable=Config('db_prefix').'_session';$whereCondition='session_id=\'%s\'';$this->_db->queryDelete($fromTable,$whereCondition,$sessionId);return TRUE;}
 			function read($sessionId){$columns='expires,session_data';$fromTable=Config('db_prefix').'_session';$whereCondition='session_id=\'%s\'';$data='';$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$sessionId);if($result->num_rows){
-					$row=$result->fetch_array();if($row['expires']<Timestamp())$this->destroy($sessionId);else{$data=$row['session_data'];if($data==null)$data='';}}return$data;}
+							$row=$result->fetch_array();if($row['expires']<Timestamp())$this->destroy($sessionId);else{$data=$row['session_data'];if($data==null)$data='';}}return$data;}
 			function validate_sid($key){$columns='expires';$fromTable=Config('db_prefix').'_session';$whereCondition='session_id=\'%s\'';$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$key);if($result->num_rows){$row=$result->fetch_array();
-					if($row['expires']<Timestamp())$this->destroy($key);else{return true;}}return FALSE;}
-			function write($sessionId,$data){$lifetime=(int)Config('session_lifetime');$expiry=Timestamp()+$lifetime;$fromTable=Config('db_prefix').'_session';$columns['session_data']=$data;$columns['expires']=$expiry;
-					if($this->validate_sid($sessionId)){$whereCondition='session_id=\'%s\'';$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$sessionId);}elseif(!empty($data)){$columns['session_id']=$sessionId;$this->_db->queryInsert($columns,$fromTable);}
-					return FALSE;}
+							if($row['expires']<Timestamp())$this->destroy($key);else{return true;}}return FALSE;}
+			function write($sessionId,$data){$lifetime=(int)Config('session_lifetime');$expiry=Timestamp()+$lifetime;$fromTable=Config('db_prefix').'_session';$columns['session_data']=$data;$columns['expires']=$expiry;if($this->validate_sid($sessionId)){
+							$whereCondition='session_id=\'%s\'';$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$sessionId);}elseif(!empty($data)){$columns['session_id']=$sessionId;$this->_db->queryInsert($columns,$fromTable);}return FALSE;}
 			function gc($maxlifetime){$this->_deleteExpiredSessions();return true;}
 			function _deleteExpiredSessions(){$fromTable=Config('db_prefix').'_session';$whereCondition='expires<%d';$this->_db->queryDelete($fromTable,$whereCondition,Timestamp());}}
 class DefaultSimulationObserver {
 			function onGoal(SimulationMatch$match,SimulationPlayer$scorer,SimulationPlayer$goaly){$assistPlayer=($match->getPreviousPlayerWithBall()!==NULL&&$match->getPreviousPlayerWithBall()->team->id==$scorer->team->id)? $match->getPreviousPlayerWithBall():'';
-					$scorer->improveMark(config('MARK_IMPROVE_GOAL_SCORER'));$goaly->downgradeMark(config('MARK_DOWNGRADE_GOAL_GOALY'));if(strlen($assistPlayer)){$assistPlayer->improveMark(config('MARK_IMPROVE_GOAL_PASSPLAYER'));
-					$assistPlayer->setAssists($assistPlayer->getAssists()+1);}$scorer->team->setGoals($scorer->team->getGoals()+1);$scorer->setGoals($scorer->getGoals()+1);$scorer->setShoots($scorer->getShoots()+1);}
+							$scorer->improveMark(config('MARK_IMPROVE_GOAL_SCORER'));$goaly->downgradeMark(config('MARK_DOWNGRADE_GOAL_GOALY'));if(strlen($assistPlayer)){$assistPlayer->improveMark(config('MARK_IMPROVE_GOAL_PASSPLAYER'));
+							$assistPlayer->setAssists($assistPlayer->getAssists()+1);}$scorer->team->setGoals($scorer->team->getGoals()+1);$scorer->setGoals($scorer->getGoals()+1);$scorer->setShoots($scorer->getShoots()+1);}
 			function onShootFailure(SimulationMatch$match,SimulationPlayer$scorer,SimulationPlayer$goaly){if($scorer->getGoals()<3)$scorer->downgradeMark(config('MARK_DOWNGRADE_SHOOTFAILURE'));$goaly->improveMark(config('MARK_IMPROVE_SHOOTFAILURE_GOALY'));
-					if($goaly->team->getGoals()>3)$goaly->setMark(max(2.0,$goaly->getMark()));$scorer->setShoots($scorer->getShoots()+ 1);}
+							if($goaly->team->getGoals()>3)$goaly->setMark(max(2.0,$goaly->getMark()));$scorer->setShoots($scorer->getShoots()+ 1);}
 			function onAfterTackle(SimulationMatch$match,SimulationPlayer$winner,SimulationPlayer$looser){if($looser->getGoals()>0&&$looser->getGoals()<3&&$looser->getAssists()>0&&$looser->getAssists()<3)$looser->downgradeMark(
-					config('MARK_DOWNGRADE_TACKLE_LOOSER')*0.5);elseif($looser->getGoals()<3&&$looser->getAssists()<3)$looser->downgradeMark(config('MARK_DOWNGRADE_TACKLE_LOOSER'));$winner->improveMark(config('MARK_IMPROVE_TACKLE_WINNER'));
-					$winner->setWonTackles($winner->getWonTackles()+ 1);$looser->setLostTackles($winner->getLostTackles()+ 1);}
+							config('MARK_DOWNGRADE_TACKLE_LOOSER')*0.5);elseif($looser->getGoals()<3&&$looser->getAssists()<3)$looser->downgradeMark(config('MARK_DOWNGRADE_TACKLE_LOOSER'));$winner->improveMark(config('MARK_IMPROVE_TACKLE_WINNER'));
+							$winner->setWonTackles($winner->getWonTackles()+ 1);$looser->setLostTackles($winner->getLostTackles()+ 1);}
 			function onBallPassSuccess(SimulationMatch$match,SimulationPlayer$player){$player->improveMark(config('MARK_IMPROVE_BALLPASS_SUCCESS'));$player->setPassesSuccessed($player->getPassesSuccessed()+1);}
 			function onBallPassFailure(SimulationMatch$match,SimulationPlayer$player){if($player->getGoals()<2&&$player->getAssists()<2&&($player->getGoals()==0||$player->getAssists()==0))$player->downgradeMark(config('MARK_DOWNGRADE_BALLPASS_FAILURE'));
-					$player->setPassesFailed($player->getPassesFailed()+1);}
-			function onInjury(SimulationMatch$match,SimulationPlayer$player,$numberOfMatches){$player->injured=$numberOfMatches;$substituted=SimulationHelper::createUnplannedSubstitutionForPlayer($match->minute+1,$player);
-					if(!$substituted)$player->team->removePlayer($player);}
+							$player->setPassesFailed($player->getPassesFailed()+1);}
+			function onInjury(SimulationMatch$match,SimulationPlayer$player,$numberOfMatches){$player->injured=$numberOfMatches;$substituted=SimulationHelper::createUnplannedSubstitutionForPlayer($match->minute+1,$player);if(!$substituted)
+							$player->team->removePlayer($player);}
 			function onYellowCard(SimulationMatch$match,SimulationPlayer$player){$player->yellowCards=$player->yellowCards+1;if($player->yellowCards==2){$player->downgradeMark(config('MARK_DOWNGRADE_TACKLE_LOOSER'));$player->team->removePlayer($player);}}
 			function onRedCard(SimulationMatch$match,SimulationPlayer$player,$matchesBlocked){$player->redCard=1;$player->blocked=$matchesBlocked;$player->team->removePlayer($player);}
 			function onPenaltyShoot(SimulationMatch$match,SimulationPlayer$player,SimulationPlayer$goaly,$successful){if($successful){$player->improveMark(config('MARK_IMPROVE_GOAL_SCORER'));$player->team->setGoals($player->team->getGoals()+1);}else{
-					$player->downgradeMark(config('MARK_DOWNGRADE_SHOOTFAILURE'));$goaly->improveMark(config('MARK_IMPROVE_SHOOTFAILURE_GOALY'));}}
+							$player->downgradeMark(config('MARK_DOWNGRADE_SHOOTFAILURE'));$goaly->improveMark(config('MARK_IMPROVE_SHOOTFAILURE_GOALY'));}}
 			function onCorner(SimulationMatch$match,SimulationPlayer$concededByPlayer,SimulationPlayer$targetPlayer){$match->setPlayerWithBall($concededByPlayer);$concededByPlayer->improveMark(config('MARK_IMPROVE_BALLPASS_SUCCESS'));
-					$concededByPlayer->setPassesSuccessed($concededByPlayer->getPassesSuccessed()+1);}
-			function onFreeKick(SimulationMatch$match,SimulationPlayer$player,SimulationPlayer$goaly,$successful){$player->setShoots($player->getShoots()+1);if($successful){$player->improveMark(config('MARK_IMPROVE_GOAL_SCORER'));
-					$player->team->setGoals($player->team->getGoals()+1);$player->setGoals($player->getGoals()+1);}else{$player->downgradeMark(config('MARK_DOWNGRADE_SHOOTFAILURE'));$goaly->improveMark(config('MARK_IMPROVE_SHOOTFAILURE_GOALY'));}}}
+							$concededByPlayer->setPassesSuccessed($concededByPlayer->getPassesSuccessed()+1);}
+			function onFreeKick(SimulationMatch$match,SimulationPlayer$player,SimulationPlayer$goaly,$successful){$player->setShoots($player->getShoots()+1);if($successful){$player->improveMark(config('MARK_IMPROVE_GOAL_SCORER'));$player->team->setGoals(
+							$player->team->getGoals()+1);$player->setGoals($player->getGoals()+1);}else{$player->downgradeMark(config('MARK_DOWNGRADE_SHOOTFAILURE'));$goaly->improveMark(config('MARK_IMPROVE_SHOOTFAILURE_GOALY'));}}}
 class DefaultSimulationStrategy{private$_websoccer,$_passTargetProbPerPosition,$_opponentPositions,$_shootStrengthPerPosition,$_shootProbPerPosition,$_observers;
 			function __construct($websoccer){$this->_websoccer=$websoccer;$this->_setPassTargetProbabilities();$this->_setOpponentPositions();$this->_setShootStrengthPerPosition();$this->_setShootProbPerPosition();$this->_observers=[];}
 			function attachObserver($observer){$this->_observers[]=$observer;}
 			function kickoff(SimulationMatch$match){$pHomeTeam[TRUE]=50;$pHomeTeam[FALSE]=50;$team=SimulationHelper::selectItemFromProbabilities($pHomeTeam)?$match->homeTeam:$match->guestTeam;$match->setPlayerWithBall(SimulationHelper::selectPlayer($team,
-					config('PLAYER_POSITION_DEFENCE'),null));}
-	function nextAction(SimulationMatch $match){
-		$player=$match->getPlayerWithBall();
-		if($player->position==config('PLAYER_POSITION_GOALY'))return 'passBall';
-		$opponentTeam=SimulationHelper::getOpponentTeam($player,$match);
-		$opponentPosition=$this->_opponentPositions[$player->position];
-		$noOfOwnPlayersInPosition=count($player->team->positionsAndPlayers[$player->position]);
-		if(isset($opponentTeam->positionsAndPlayers[$opponentPosition]))$noOfOpponentPlayersInPosition=count($opponentTeam->positionsAndPlayers[$opponentPosition]);
-		else $noOfOpponentPlayersInPosition=0;
-		$pTackle=10;
-		if($noOfOpponentPlayersInPosition==$noOfOwnPlayersInPosition)$pTackle += 10;
-		elseif($noOfOpponentPlayersInPosition>$noOfOwnPlayersInPosition)$pTackle += 10 + 20*($noOfOpponentPlayersInPosition - $noOfOwnPlayersInPosition);
-		$pAction['tackle']=min($pTackle,40);
-		$pShoot=$this->_shootProbPerPosition[$player->position];
-		$tacticInfluence=($this->_getOffensiveStrength($player->team,$match)- $this->_getDefensiveStrength($opponentTeam,$match))/ 10;
-		if($player->team->counterattacks)$pShoot=round($pShoot*0.5);
-		$resultInfluence=($player->team->getGoals()- $opponentTeam->getGoals())* (0 - 5);
-		if($player->team->getGoals()< $opponentTeam->getGoals()&& $player->team->morale)$resultInfluence += floor($player->team->morale / 100*5);
-		if($player->position==config('PLAYER_POSITION_STRIKER')||$player->position==config('PLAYER_POSITION_MIDFIELD'))$minShootProb=5;
-		else $minShootProb=1;
-		$pAction['shoot']=round(max($minShootProb,min($pShoot + $tacticInfluence + $resultInfluence,50))*Config('sim_shootprobability')/ 100);
-		$pAction['passBall']=100 - $pAction['tackle'] - $pAction['shoot'] ;
-		return SimulationHelper::selectItemFromProbabilities($pAction);}
-	function passBall(SimulationMatch $match){
-		$player=$match->getPlayerWithBall();
-		$pFailed[FALSE]=round(($player->getTotalStrength($this->_websoccer,$match)+ $player->strengthTech)/ 2);
-		if($player->team->longPasses)$pFailed[FALSE]=round($pFailed[FALSE]*0.7);
-		$pFailed[TRUE]=100 - $pFailed[FALSE];
-		if(SimulationHelper::selectItemFromProbabilities($pFailed)==TRUE){
-			$opponentTeam=SimulationHelper::getOpponentTeam($player,$match);
-			$targetPosition=$this->_opponentPositions[$player->position];
-			$match->setPlayerWithBall(SimulationHelper::selectPlayer($opponentTeam,$targetPosition,null));
-			foreach($this->_observers as$observer)$observer->onBallPassFailure($match,$player);
-			return FALSE;}
-		$pTarget[config('PLAYER_POSITION_GOALY')]=$this->_passTargetProbPerPosition[$player->position][config('PLAYER_POSITION_GOALY')];
-		$pTarget[config('PLAYER_POSITION_DEFENCE')]=$this->_passTargetProbPerPosition[$player->position][config('PLAYER_POSITION_DEFENCE')];
-		$pTarget[config('PLAYER_POSITION_STRIKER')]=$this->_passTargetProbPerPosition[$player->position][config('PLAYER_POSITION_STRIKER')];
-		if($player->position!=config('PLAYER_POSITION_GOALY'))$pTarget[config('PLAYER_POSITION_STRIKER')] += 10;
-		$offensiveInfluence=round(10 - $player->team->offensive*0.2);
-		$pTarget[config('PLAYER_POSITION_DEFENCE')]=$pTarget[config('PLAYER_POSITION_DEFENCE')]+$offensiveInfluence;
-		$pTarget[config('PLAYER_POSITION_MIDFIELD')]=100 - $pTarget[config('PLAYER_POSITION_STRIKER')] - $pTarget[config('PLAYER_POSITION_DEFENCE')]-$pTarget[config('PLAYER_POSITION_GOALY')];
-		$targetPosition=SimulationHelper::selectItemFromProbabilities($pTarget);
-		$match->setPlayerWithBall(SimulationHelper::selectPlayer($player->team,$targetPosition,$player));
-		foreach($this->_observers as$observer)$observer->onBallPassSuccess($match,$player);
-		return TRUE;}
+							config('PLAYER_POSITION_DEFENCE'),null));}
+			function nextAction(SimulationMatch $match){$player=$match->getPlayerWithBall();if($player->position==config('PLAYER_POSITION_GOALY'))return'passBall';$opponentTeam=SimulationHelper::getOpponentTeam($player,$match);$opponentPosition=$this->_opponentPositions[
+							$player->position];$noOfOwnPlayersInPosition=count($player->team->positionsAndPlayers[$player->position]);if(isset($opponentTeam->positionsAndPlayers[$opponentPosition]))$noOfOpponentPlayersInPosition=count($opponentTeam->positionsAndPlayers[
+							$opponentPosition]);else$noOfOpponentPlayersInPosition=0;$pTackle=10;if($noOfOpponentPlayersInPosition==$noOfOwnPlayersInPosition)$pTackle+=10;elseif($noOfOpponentPlayersInPosition>$noOfOwnPlayersInPosition)$pTackle+=10+20*(
+							$noOfOpponentPlayersInPosition-$noOfOwnPlayersInPosition);$pAction['tackle']=min($pTackle,40);$pShoot=$this->_shootProbPerPosition[$player->position];$tacticInfluence=($this->_getOffensiveStrength($player->team,$match)-
+							$this->_getDefensiveStrength($opponentTeam,$match))/10;if($player->team->counterattacks)$pShoot=round($pShoot*0.5);$resultInfluence=($player->team->getGoals()-$opponentTeam->getGoals())*(0-5);if($player->team->getGoals()<
+							$opponentTeam->getGoals()&&$player->team->morale)$resultInfluence+=floor($player->team->morale/100*5);if($player->position==config('PLAYER_POSITION_STRIKER')||$player->position==config('PLAYER_POSITION_MIDFIELD'))$minShootProb=5;
+							else$minShootProb=1;$pAction['shoot']=round(max($minShootProb,min($pShoot+$tacticInfluence+$resultInfluence,50))*Config('sim_shootprobability')/100);$pAction['passBall']=100-$pAction['tackle']-$pAction['shoot'];
+							return SimulationHelper::selectItemFromProbabilities($pAction);}
+			function passBall(SimulationMatch$match){$player=$match->getPlayerWithBall();$pFailed[FALSE]=round(($player->getTotalStrength($this->_websoccer,$match)+$player->strengthTech)/2);if($player->team->longPasses)$pFailed[FALSE]=round($pFailed[FALSE]*0.7);
+							$pFailed[TRUE]=100-$pFailed[FALSE];if(SimulationHelper::selectItemFromProbabilities($pFailed)==TRUE){$opponentTeam=SimulationHelper::getOpponentTeam($player,$match);$targetPosition=$this->_opponentPositions[$player->position];
+							$match->setPlayerWithBall(SimulationHelper::selectPlayer($opponentTeam,$targetPosition,null));foreach($this->_observers as$observer)$observer->onBallPassFailure($match,$player);return FALSE;}$pTarget[config('PLAYER_POSITION_GOALY')]=
+							$this->_passTargetProbPerPosition[$player->position][config('PLAYER_POSITION_GOALY')];$pTarget[config('PLAYER_POSITION_DEFENCE')]=$this->_passTargetProbPerPosition[$player->position][config('PLAYER_POSITION_DEFENCE')];$pTarget[
+							config('PLAYER_POSITION_STRIKER')]=$this->_passTargetProbPerPosition[$player->position][config('PLAYER_POSITION_STRIKER')];if($player->position!=config('PLAYER_POSITION_GOALY'))$pTarget[config('PLAYER_POSITION_STRIKER')]+=10;
+							$offensiveInfluence=round(10-$player->team->offensive*0.2);$pTarget[config('PLAYER_POSITION_DEFENCE')]=$pTarget[config('PLAYER_POSITION_DEFENCE')]+$offensiveInfluence;$pTarget[config('PLAYER_POSITION_MIDFIELD')]=100-$pTarget[
+							config('PLAYER_POSITION_STRIKER')]-$pTarget[config('PLAYER_POSITION_DEFENCE')]-$pTarget[config('PLAYER_POSITION_GOALY')];$targetPosition=SimulationHelper::selectItemFromProbabilities($pTarget);$match->setPlayerWithBall(
+							SimulationHelper::selectPlayer($player->team,$targetPosition,$player));foreach($this->_observers as$observer)$observer->onBallPassSuccess($match,$player);return TRUE;}
 	function tackle(SimulationMatch $match){
 		$player=$match->getPlayerWithBall();
 		$opponentTeam=SimulationHelper::getOpponentTeam($player,$match);
@@ -583,11 +554,10 @@ class DefaultSimulationStrategy{private$_websoccer,$_passTargetProbPerPosition,$
 			function _kickoff(SimulationMatch$match,SimulationPlayer$scorer){$match->setPlayerWithBall(SimulationHelper::selectPlayer(SimulationHelper::getOpponentTeam($scorer,$match),config('PLAYER_POSITION_DEFENCE'),null));}}
 class EmailHelper {
 	 static function sendSystemEmailFromTemplate($websoccer,$i18n,$recipient,$subject,$templateName,$parameters){$emailTemplateEngine=new TemplateEngine($websoccer,$i18n,null);$template=$emailTemplateEngine->loadTemplate('emails/'.$templateName);
-					$content=$template->render($parameters);self::sendSystemEmail($websoccer,$recipient,$subject,$content);}
+							$content=$template->render($parameters);self::sendSystemEmail($websoccer,$recipient,$subject,$content);}
 	 static function sendSystemEmail($websoccer,$recipient,$subject,$content){$fromName=Config('projectname');$fromEmail=Config('systememail');$headers=[];$headers[]='Content-type:text/plain;charset=\'UTF-8\'';$headers[]='From: '.$fromName.' <'.$fromEmail.'>';
-					$encodedsubject='=?UTF-8?B?'.base64_encode($subject).'?=';if(@mail($recipient,$encodedsubject,$content,implode("\r\n",$headers))==FALSE)throw new Exception('e-mail not sent.');}}
-
-require_once($_SERVER['DOCUMENT_ROOT'].'/classes/facebooksdk/facebook.php');
+							$encodedsubject='=?UTF-8?B?'.base64_encode($subject).'?=';if(@mail($recipient,$encodedsubject,$content,implode("\r\n",$headers))==FALSE)throw new Exception('e-mail not sent.');}}require_once($_SERVER['DOCUMENT_ROOT'].
+							'/classes/facebooksdk/facebook.php');
 class FacebookSdk {
 	private static $_instance;
 	private $_facebook;
@@ -626,7 +596,7 @@ class FileUploadHelper {
 		if($imagesize===FALSE)throw new Exception(Message('validationerror_imageupload_noimagefile'));
 		$type=substr($imagesize['mime'],strrpos($imagesize['mime'],'/')+ 1);
 		if(!in_array($type,$allowedExtensions))throw new Exception(Message('validationerror_imageupload_noimagefile'));
-		$targetFilename .= '.'.$ext;
+		$targetFilename.='.'.$ext;
 		self::_uploadFile($i18n,$requestParameter,$targetFilename,$targetDirectory);
 		return$ext;}
 	static function _uploadFile($i18n,$requestParameter,$targetFilename,$targetDirectory){
@@ -637,14 +607,11 @@ class FileUploadHelper {
 			$uploaded=@move_uploaded_file($tmp_name,$_SERVER['DOCUMENT_ROOT'].'/uploads/' .$targetDirectory.'/'.$name);
 			if(!$uploaded)throw new Exception(Message('error_file_upload_failed'));}
 		else throw new Exception(Message('error_file_upload_failed'));}}
-class FileWriter {
-	private $_filePointer;
-	function __construct($file,$truncateExistingFile=TRUE){
-		$this->_filePointer=@fopen($file,($truncateExistingFile)? 'w' : 'a');
-		if($this->_filePointer===FALSE)throw new Exception('Could not create or open file '.$file.'! Verify that the file or its folder is writable.');}
-	function writeLine($line){ if(@fwrite($this->_filePointer,$line . PHP_EOL)===FALSE)throw new Exception('Could not write line \''.$line.'\' into file '.$file.'!');}
-	function close(){
-		if($this->_filePointer===FALSE)@fclose($this->_filePointer);}
+class FileWriter {private$_filePointer;
+	  		function __construct($file,$truncateExistingFile=TRUE){$this->_filePointer=@fopen($file,($truncateExistingFile)?'w':'a');if($this->_filePointer===FALSE)throw new Exception('Could not create or open file '.
+	  						$file.'! Verify that the file or its folder is writable.');}
+			function writeLine($line){if(@fwrite($this->_filePointer,$line.PHP_EOL)===FALSE)throw new Exception('Could not write line \''.$line.'\' into file '.$file.'!');}
+			function close(){if($this->_filePointer===FALSE)@fclose($this->_filePointer);}
 	function __destruct(){ $this->close();}}
 class FormBuilder {
 	static function createFormGroup($i18n,$fieldId,$fieldInfo,$fieldValue,$labelKeyPrefix){
@@ -780,7 +747,7 @@ class FormBuilder {
 				$label='';
 				$first=TRUE;
 				foreach($labels as$labelColumn){
-					if(!$first)$label .= ' - ';
+					if(!$first)$label.=' - ';
 					$first=FALSE;
 					$label .= $row[trim($labelColumn)];}
 				echo '<option value=\''.$row['id'].'\'';
@@ -790,86 +757,61 @@ class FormBuilder {
 		else echo '<input type=\'hidden\' class=\'pkpicker\' id=\''.$fieldId.'\' name=\''.$fieldId.'\' value=\''.$fieldValue.'\' data-dbtable=\''.$fieldInfo['jointable'].'\' data-labelcolumns=\''.$fieldInfo['labelcolumns'].'\' data-placeholder=\'' .
 				Message('manage_select_placeholder').'\'>';
 		echo ' <a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\' title=\''.escapeOutput(Message('manage_add')).'\'><i class=\'icon-plus-sign\'></i></a>';}}
-class FrontMessage {
-	function __construct($type,$title,$message){if($type!=='info'&&$type!=='success'&&$type!=='error'&&$type!=='warning')throw new Exception('unknown FrontMessage type: '.$type);$this->type=$type;$this->title=$title;$this->message=$message;}}
-require_once($_SERVER['DOCUMENT_ROOT'].'/classes/googleapi/Google_Client.php');
-class GoogleplusSdk {
-	private static $_instance;
-	private $_client;
-	private $_websoccer;
-	private $_oauth2Service;
-	static function getInstance($websoccer){
-		if(self::$_instance==NULL)self::$_instance=new GoogleplusSdk($websoccer);
-		return self::$_instance;}
-	function __construct($websoccer){
-		$this->_websoccer=$websoccer;
-		$client=new Google_Client();
-		$client->setApplicationName(Config('googleplus_appname'));
-		$client->setClientId(Config('googleplus_clientid'));
-		$client->setClientSecret(Config('googleplus_clientsecret'));
-		$client->setRedirectUri(aUrl('googleplus-login',null,'home',TRUE));
-		$client->setDeveloperKey(Config('googleplus_developerkey'));
-		$client->setScopes(array('https://www.googleapis.com/auth/plus.login','https://www.googleapis.com/auth/userinfo.email'));
-		$this->_oauth2Service=new Google_Oauth2Service($client);
-		$this->_client=$client;}
-	function getLoginUrl(){ return$this->_client->createAuthUrl();}
-	function authenticateUser(){
-		if(isset($_GET['code'])){
-			$this->_client->authenticate();
-			$_SESSION['gptoken']=$this->_client->getAccessToken();}
-		if(isset($_SESSION['gptoken']))$this->_client->setAccessToken($_SESSION['gptoken']);
-		if($this->_client->getAccessToken()){
-			$userinfo=$this->_oauth2Service->userinfo->get();
-			$email=$userinfo['email'];
-			$_SESSION['gptoken']=$this->_client->getAccessToken();
-			if(strlen($email))return$email;}
-		return FALSE;}}
+class FrontMessage{
+			function __construct($type,$title,$message){if($type!=='info'&&$type!=='success'&&$type!=='error'&&$type!=='warning')throw new Exception('unknown FrontMessage type: '.$type);$this->type=$type;$this->title=$title;$this->message=$message;}}
+							require_once($_SERVER['DOCUMENT_ROOT'].'/classes/googleapi/Google_Client.php');
+class GoogleplusSdk{private static$_instance;private$_client,$_websoccer,$_oauth2Service;
+	 static function getInstance($websoccer){if(self::$_instance==NULL)self::$_instance=new GoogleplusSdk($websoccer);return self::$_instance;}
+			function __construct($websoccer){$this->_websoccer=$websoccer;$client=new Google_Client();$client->setApplicationName(Config('googleplus_appname'));$client->setClientId(Config('googleplus_clientid'));client->setClientSecret(Config('googleplus_clientsecret'));
+							$client->setRedirectUri(aUrl('googleplus-login',null,'home',TRUE));$client->setDeveloperKey(Config('googleplus_developerkey'));$client->setScopes(['https://www.googleapis.com/auth/plus.login','https://www.googleapis.com/auth/userinfo.email']);
+							$this->_oauth2Service=new Google_Oauth2Service($client);$this->_client=$client;}
+			function getLoginUrl(){return$this->_client->createAuthUrl();}
+			function authenticateUser(){if(isset($_GET['code'])){$this->_client->authenticate();$_SESSION['gptoken']=$this->_client->getAccessToken();}if(isset($_SESSION['gptoken']))$this->_client->setAccessToken($_SESSION['gptoken']);
+							if($this->_client->getAccessToken()){$userinfo=$this->_oauth2Service->userinfo->get();$email=$userinfo['email'];$_SESSION['gptoken']=$this->_client->getAccessToken();if(strlen($email))return$email;}return FALSE;}}
 class I18n{private static$_instance;private$_currentLanguage,$_supportedLanguages;
-	static function getInstance($supportedLanguages){if(self::$_instance==NULL)self::$_instance=new I18n($supportedLanguages);return self::$_instance;}
-	function __construct($supportedLanguages){ $this->_supportedLanguages=array_map('trim',explode(',',$supportedLanguages));}
-	function getCurrentLanguage(){if($this->_currentLanguage==null){if(isset($_SESSION['lang']))$lang=$_SESSION['lang'];elseif(isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))$lang=strtolower(substr($_SERVER['HTTP_ACCEPT_LANGUAGE'],0,2));
-						else$lang=$this->_supportedLanguages[0];if(!in_array($lang,$this->_supportedLanguages))$lang=$this->_supportedLanguages[0];$this->_currentLanguage=$lang;}return$this->_currentLanguage;}
-	function setCurrentLanguage($language){if($language==$this->_currentLanguage)return;$lang=strtolower($language);if(!in_array($lang,$this->_supportedLanguages))$lang=$this->getCurrentLanguage();$_SESSION['lang']=$lang;$this->_currentLanguage=$lang;}
-	function getMessage($messageKey,$paramaters=null){global$msg;if(!isset($msg[$messageKey]))return'MessageKey: '.$messageKey.' is not defined!';$message=stripslashes($msg[$messageKey]);if($paramaters!=null)$message=sprintf($message,$paramaters);return$message;}
-	function hasMessage($messageKey){global$msg;return isset($msg[$messageKey]);}
-	function getNavigationLabel($pageId){ return$this->getMessage($pageId.'_navlabel');}
-	function getSupportedLanguages(){ return$this->_supportedLanguages;}}
+	 static function getInstance($supportedLanguages){if(self::$_instance==NULL)self::$_instance=new I18n($supportedLanguages);return self::$_instance;}
+			function __construct($supportedLanguages){$this->_supportedLanguages=array_map('trim',explode(',',$supportedLanguages));}
+			function getCurrentLanguage(){if($this->_currentLanguage==null){if(isset($_SESSION['lang']))$lang=$_SESSION['lang'];elseif(isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))$lang=strtolower(substr($_SERVER['HTTP_ACCEPT_LANGUAGE'],0,2));
+							else$lang=$this->_supportedLanguages[0];if(!in_array($lang,$this->_supportedLanguages))$lang=$this->_supportedLanguages[0];$this->_currentLanguage=$lang;}return$this->_currentLanguage;}
+			function setCurrentLanguage($language){if($language==$this->_currentLanguage)return;$lang=strtolower($language);if(!in_array($lang,$this->_supportedLanguages))$lang=$this->getCurrentLanguage();$_SESSION['lang']=$lang;$this->_currentLanguage=$lang;}
+			function getMessage($messageKey,$paramaters=null){global$msg;if(!isset($msg[$messageKey]))return'MessageKey: '.$messageKey.' is not defined!';$message=stripslashes($msg[$messageKey]);if($paramaters!=null)$message=sprintf($message,$paramaters);return$message;}
+			function hasMessage($messageKey){global$msg;return isset($msg[$messageKey]);}
+			function getNavigationLabel($pageId){return$this->getMessage($pageId.'_navlabel');}
+			function getSupportedLanguages(){return$this->_supportedLanguages;}}
 class MatchReportSimulatorObserver{private$_availableTexts,$_websoccer,$_db;
-	function __construct(WebSoccer$websoccer,DbConnection$db){$this->_availableTexts=[];$this->_websoccer=$websoccer;$this->_db=$db;$fromTable=Config('db_prefix').'_spiel_text';$columns='id,aktion AS actiontype';$whereCondition='aktion=\'Auswechslung\'';
-					$result=$db->querySelect($columns,$fromTable,$whereCondition);while($text=$result->fetch_array())$this->_availableTexts[$text['actiontype']][]=$text['id'];$result->free();}
-	function onSubstitution(SimulationMatch$match,SimulationSubstitution$substitution){$this->_createMessage($match,'Auswechslung',[$substitution->playerIn->name,$substitution->playerOut->name],($substitution->playerIn->team->id==$match->homeTeam->id));}
-	function _createMessage($match,$messageType,$playerNames=null,$isHomeActive=TRUE){if(!isset($this->_availableTexts[$messageType]))return;$texts=count($this->_availableTexts[$messageType]);$index=SimulationHelper::getMagicNumber(0,$texts-1);
-					$messageId=$this->_availableTexts[$messageType][$index];$players='';if($playerNames!=null)$players=implode(';',$playerNames);$fromTable=Config('db_prefix').'_matchreport';$columns['match_id']=$match->id;$columns['minute']=$match->minute;
-					$columns['message_id']=$messageId;$columns['playernames']=$players;$columns['active_home']=$isHomeActive;$this->_db->queryInsert($columns,$fromTable);}
-	function onMatchCompleted(SimulationMatch$match){}
-	function onBeforeMatchStarts(SimulationMatch$match){}}
-
+			function __construct(WebSoccer$websoccer,DbConnection$db){$this->_availableTexts=[];$this->_websoccer=$websoccer;$this->_db=$db;$fromTable=Config('db_prefix').'_spiel_text';$columns='id,aktion AS actiontype';$whereCondition='aktion=\'Auswechslung\'';
+							$result=$db->querySelect($columns,$fromTable,$whereCondition);while($text=$result->fetch_array())$this->_availableTexts[$text['actiontype']][]=$text['id'];$result->free();}
+			function onSubstitution(SimulationMatch$match,SimulationSubstitution$substitution){$this->_createMessage($match,'Auswechslung',[$substitution->playerIn->name,$substitution->playerOut->name],($substitution->playerIn->team->id==$match->homeTeam->id));}
+			function _createMessage($match,$messageType,$playerNames=null,$isHomeActive=TRUE){if(!isset($this->_availableTexts[$messageType]))return;$texts=count($this->_availableTexts[$messageType]);$index=SimulationHelper::getMagicNumber(0,$texts-1);
+							$messageId=$this->_availableTexts[$messageType][$index];$players='';if($playerNames!=null)$players=implode(';',$playerNames);$fromTable=Config('db_prefix').'_matchreport';$columns['match_id']=$match->id;$columns['minute']=$match->minute;
+							$columns['message_id']=$messageId;$columns['playernames']=$players;$columns['active_home']=$isHomeActive;$this->_db->queryInsert($columns,$fromTable);}
+			function onMatchCompleted(SimulationMatch$match){}
+			function onBeforeMatchStarts(SimulationMatch$match){}}
 class MatchReportSimulationObserver{private$_availableTexts,$_websoccer,$_db;
-	function __construct(WebSoccer$websoccer,DbConnection$db){$this->_availableTexts=[];$this->_websoccer=$websoccer;$this->_db=$db;$fromTable=Config('db_prefix').'_spiel_text';$columns='id,aktion AS actiontype';$result=$db->querySelect($columns,$fromTable,'1=1');
-		     			while($text=$result->fetch_array())$this->_availableTexts[$text['actiontype']][]=$text['id'];$result->free();}
+			function __construct(WebSoccer$websoccer,DbConnection$db){$this->_availableTexts=[];$this->_websoccer=$websoccer;$this->_db=$db;$fromTable=Config('db_prefix').'_spiel_text';$columns='id,aktion AS actiontype';
+							$result=$db->querySelect($columns,$fromTable,'1=1');while($text=$result->fetch_array())$this->_availableTexts[$text['actiontype']][]=$text['id'];$result->free();}
 	function onGoal(SimulationMatch$match,SimulationPlayer$scorer,SimulationPlayer$goaly){$assistPlayerName=($match->getPreviousPlayerWithBall()!==NULL&&$match->getPreviousPlayerWithBall()->team->id==$scorer->team->id)?$match->getPreviousPlayerWithBall()->name:'';
-						if(strlen($assistPlayerName))$this->_createMessage($match,'Tor_mit_vorlage',[$scorer->name,$assistPlayerName],($scorer->team->id==$match->homeTeam->id));else$this->_createMessage($match,'Tor',[$scorer->name,$goaly->name],
-						($scorer->team->id==$match->homeTeam->id));}
+							if(strlen($assistPlayerName))$this->_createMessage($match,'Tor_mit_vorlage',[$scorer->name,$assistPlayerName],($scorer->team->id==$match->homeTeam->id));else$this->_createMessage($match,'Tor',[$scorer->name,$goaly->name],($scorer->team->id==
+							$match->homeTeam->id));}
 	function onShootFailure(SimulationMatch$match,SimulationPlayer$scorer,SimulationPlayer$goaly){if(SimulationHelper::getMagicNumber(0,1))$this->_createMessage($match,'Torschuss_daneben',[$scorer->name,$goaly->name],($scorer->team->id==$match->homeTeam->id));
-						else$this->_createMessage($match,'Torschuss_auf_Tor',[$scorer->name,$goaly->name],($scorer->team->id==$match->homeTeam->id));}
+							else$this->_createMessage($match,'Torschuss_auf_Tor',[$scorer->name,$goaly->name],($scorer->team->id==$match->homeTeam->id));}
 	function onAfterTackle(SimulationMatch$match,SimulationPlayer$winner,SimulationPlayer$looser){if(SimulationHelper::getMagicNumber(0,1))$this->_createMessage($match,'Zweikampf_gewonnen',[$winner->name,$looser->name],($winner->team->id==$match->homeTeam->id));
-						else$this->_createMessage($match,'Zweikampf_verloren',[$looser->name,$winner->name],($looser->team->id==$match->homeTeam->id));}
+							else$this->_createMessage($match,'Zweikampf_verloren',[$looser->name,$winner->name],($looser->team->id==$match->homeTeam->id));}
 	function onBallPassSuccess(SimulationMatch$match,SimulationPlayer$player){}
-	function onBallPassFailure(SimulationMatch$match,SimulationPlayer$player){if($player->position!='Torwart'){$targetPlayer=SimulationHelper::selectPlayer($player->team,$player->position,$player);
-						$this->_createMessage($match,'Pass_daneben',[$player->name,$targetPlayer->name],($player->team->id==$match->homeTeam->id));}}
+	function onBallPassFailure(SimulationMatch$match,SimulationPlayer$player){if($player->position!='Torwart'){$targetPlayer=SimulationHelper::selectPlayer($player->team,$player->position,$player);$this->_createMessage($match,'Pass_daneben',
+							[$player->name,$targetPlayer->name],($player->team->id==$match->homeTeam->id));}}
 	function onInjury(SimulationMatch$match,SimulationPlayer$player,$numberOfMatches){$this->_createMessage($match,'Verletzung',[$player->name],($player->team->id==$match->homeTeam->id));}
-	function onYellowCard(SimulationMatch$match,SimulationPlayer$player){if($player->yellowCards>1)$this->_createMessage($match,'Karte_gelb_rot',[$player->name],($player->team->id==$match->homeTeam->id));
-						else$this->_createMessage($match,'Karte_gelb',[$player->name],($player->team->id==$match->homeTeam->id));}
+	function onYellowCard(SimulationMatch$match,SimulationPlayer$player){if($player->yellowCards>1)$this->_createMessage($match,'Karte_gelb_rot',[$player->name],($player->team->id==$match->homeTeam->id));else$this->_createMessage($match,'Karte_gelb',
+							[$player->name],($player->team->id==$match->homeTeam->id));}
 	function onRedCard(SimulationMatch$match,SimulationPlayer$player,$matchesBlocked){$this->_createMessage($match,'Karte_rot',[$player->name],($player->team->id==$match->homeTeam->id));}
 	function onPenaltyShoot(SimulationMatch$match,SimulationPlayer$player,SimulationPlayer$goaly,$successful){if($successful)$this->_createMessage($match,'Elfmeter_erfolg',[$player->name,$goaly->name],($player->team->id==$match->homeTeam->id));
-						else$this->_createMessage($match,'Elfmeter_verschossen',[$player->name,$goaly->name],($player->team->id==$match->homeTeam->id));}
+							else$this->_createMessage($match,'Elfmeter_verschossen',[$player->name,$goaly->name],($player->team->id==$match->homeTeam->id));}
 	function onCorner(SimulationMatch $match,SimulationPlayer$concededByPlayer,SimulationPlayer$targetPlayer){$this->_createMessage($match,'Ecke',[$concededByPlayer->name,$targetPlayer->name],($concededByPlayer->team->id==$match->homeTeam->id));}
 	function onFreeKick(SimulationMatch$match,SimulationPlayer$player,SimulationPlayer$goaly,$successful){if($successful)$this->_createMessage($match,'Freistoss_treffer',[$player->name,$goaly->name],($player->team->id==$match->homeTeam->id));
-						else$this->_createMessage($match,'Freistoss_daneben',[$player->name,$goaly->name],($player->team->id==$match->homeTeam->id));}
+							else$this->_createMessage($match,'Freistoss_daneben',[$player->name,$goaly->name],($player->team->id==$match->homeTeam->id));}
 	function _createMessage($match,$messageType,$playerNames=null,$isHomeActive=TRUE){if(!isset($this->_availableTexts[$messageType]))return;$texts=count($this->_availableTexts[$messageType]);$index=SimulationHelper::getMagicNumber(0,$texts-1);
-						$messageId=$this->_availableTexts[$messageType][$index];$players='';if ($playerNames!=null)$players=implode(';',$playerNames);$fromTable=Config('db_prefix').'_matchreport';$columns['match_id']=$match->id;$columns['minute']=$match->minute;
-						$columns['message_id']=$messageId;$columns['playernames']=$players;$columns['goals']=$match->homeTeam->getGoals().':'.$match->guestTeam->getGoals();$columns['active_home']=$isHomeActive;$this->_db->queryInsert($columns,$fromTable);}}
-
+							$messageId=$this->_availableTexts[$messageType][$index];$players='';if ($playerNames!=null)$players=implode(';',$playerNames);$fromTable=Config('db_prefix').'_matchreport';$columns['match_id']=$match->id;$columns['minute']=$match->minute;
+							$columns['message_id']=$messageId;$columns['playernames']=$players;$columns['goals']=$match->homeTeam->getGoals().':'.$match->guestTeam->getGoals();$columns['active_home']=$isHomeActive;$this->_db->queryInsert($columns,$fromTable);}}
 class MatchSimulationExecutor {
 	static function simulateOpenMatches($websoccer,$db){
 		$simulator=new Simulator($db,$websoccer);
@@ -928,7 +870,7 @@ class MatchSimulationExecutor {
 		$columns['GUEST_T.name']='guest_name';
 		$columns['GUEST_T.captain_id']='guest_captain_id';
 		$columns['GUEST_T.interimmanager']='guest_interimmanager';
-		for($playerNo=1; $playerNo <= 11; $playerNo++){
+		for($playerNo=1; $playerNo <= 11;++$playerNo){
 			$columns['HOME_F.spieler'.$playerNo]='home_formation_player'.$playerNo;
 			$columns['HOME_F.spieler'.$playerNo.'_position']='home_formation_player_pos_'.$playerNo;
 			$columns['GUEST_F.spieler'.$playerNo]='guest_formation_player'.$playerNo;
@@ -936,7 +878,7 @@ class MatchSimulationExecutor {
 			if($playerNo <= 5){
 				$columns['HOME_F.ersatz'.$playerNo]='home_formation_bench'.$playerNo;
 				$columns['GUEST_F.ersatz'.$playerNo]='guest_formation_bench'.$playerNo;}}
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($subNo=1; $subNo <= 3;++$subNo){
 			$columns['HOME_F.w'.$subNo.'_raus']='home_formation_sub'.$subNo.'_out';
 			$columns['HOME_F.w'.$subNo.'_rein']='home_formation_sub'.$subNo.'_in';
 			$columns['HOME_F.w'.$subNo.'_minute']='home_formation_sub'.$subNo.'_minute';
@@ -1064,12 +1006,12 @@ class MatchSimulationExecutor {
 		else $ageColumn='age';
 		$columns[$ageColumn]='age';
 		$whereCondition='id=%d AND verletzt=0';
-		if($team->isNationalTeam)$whereCondition .= ' AND gesperrt_nationalteam=0';
-		elseif($matchinfo['type']=='Pokalspiel')$whereCondition .= ' AND gesperrt_cups=0';
-		elseif($matchinfo['type']!='Freundschaft')$whereCondition .= ' AND gesperrt=0';
+		if($team->isNationalTeam)$whereCondition.=' AND gesperrt_nationalteam=0';
+		elseif($matchinfo['type']=='Pokalspiel')$whereCondition.=' AND gesperrt_cups=0';
+		elseif($matchinfo['type']!='Freundschaft')$whereCondition.=' AND gesperrt=0';
 		$positionMapping=SimulationHelper::getPositionsMapping();
 		$addedPlayers=0;
-		for($playerNo=1; $playerNo <= 11; $playerNo++){
+		for($playerNo=1; $playerNo <= 11;++$playerNo){
 			$playerId=$matchinfo[$columnPrefix.'_formation_player'.$playerNo];
 			$mainPosition= $matchinfo[$columnPrefix.'_formation_player_pos_'.$playerNo];
 			$result=$db->querySelect($columns,$fromTable,$whereCondition,$playerId);
@@ -1094,7 +1036,7 @@ class MatchSimulationExecutor {
 			SimulationFormationHelper::generateNewFormationForTeam($websoccer,$db,$team,$matchinfo['match_id']);
 			$team->noFormationSet=TRUE;
 			return;}
-		for($playerNo=1; $playerNo <= 5; $playerNo++){
+		for($playerNo=1; $playerNo <= 5;++$playerNo){
 			$playerId=$matchinfo[$columnPrefix.'_formation_bench'.$playerNo];
 			$result=$db->querySelect($columns,$fromTable,$whereCondition,$playerId);
 			$playerinfo=$result->fetch_array();
@@ -1106,7 +1048,7 @@ class MatchSimulationExecutor {
 				$team->playersOnBench[$playerId]=$player;
 				SimulationStateHelper::createSimulationRecord($websoccer,$db,$matchinfo['match_id'],$player, TRUE);}}}
 	static function addSubstitution($websoccer,$db, SimulationTeam $team,$matchinfo,$columnPrefix){
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($subNo=1; $subNo <= 3;++$subNo){
 			if($matchinfo[$columnPrefix.'_formation_sub'.$subNo.'_out']){
 				$out=$matchinfo[$columnPrefix.'_formation_sub'.$subNo.'_out'];
 				$in=$matchinfo[$columnPrefix.'_formation_sub'.$subNo.'_in'];
@@ -1194,122 +1136,40 @@ class NavigationBuilder {
 		$addedItemsCache[$item->pageId]=$item;
 		$listToAdd[]=$item;}
 	static function sortByWeight($a,$b){ return$a->weight - $b->weight;}}
-class NavigationItem {
-	public $pageId;
-	public $label;
-	public $children;
-	public $isActive;
-	public $weight;
-	function __construct($pageId,$label,$children,$isActive,$weight){
-		$this->pageId=$pageId;
-		$this->label=$label;
-		$this->children=$children;
-		$this->isActive=$isActive;
-		$this->weight=$weight;}}
-class PageIdRouter {
-	static function getTargetPageId($websoccer,$i18n,$requestedPageId){
-		$pageId=$requestedPageId;
-		if($pageId==NULL)$pageId=config('DEFAULT_PAGE_ID');
-		$user=$websoccer->getUser();
-		if(Config('password_protected')&& $user->getRole()=='guest'){
-			$freePageIds=array('login', 'register', 'register-success', 'activate-user', 'forgot-password', 'imprint', 'logout', 'termsandconditions');
-			if(!Config('password_protected_startpage'))$freePageIds[]=config('DEFAULT_PAGE_ID');
-			if(!in_array($pageId,$freePageIds)){
-				$websoccer->addFrontMessage(new FrontMessage('warning',Message('requireslogin_box_title'),Message('requireslogin_box_message')));
-				$pageId='login';}}
-		if($pageId=='team'&&Request('id')==null)$pageId='leagues';
-		if($user->getRole()=='user' &&!strlen($user->username))$pageId='enter-username';
-		return$pageId;}}
-class Paginator {
-	public $pages;
-	public $pageNo;
-	public $eps;
-	private $_parameters;
-	function getQueryString(){
-		if($this->_parameters!=null)return http_build_query($this->_parameters);
-		return '';}
-	function addParameter($name,$value){ $this->_parameters[$name]=$value;}
-	function __construct($hits,$eps,$websoccer){
-		$this->eps=$eps;
-		$this->pageNo=max(1,(int)Request('pageno'));
-		if($hits % $eps)$this->pages=floor($hits / $eps)+ 1;
-		else $this->pages=$hits / $eps;}
-	function getFirstIndex(){ return($this->pageNo - 1)* $this->eps;}}
-class PluginMediator {
-	private static $_eventlistenerConfigs;
-	static function dispatchEvent(AbstractEvent $event){
-		if(self::$_eventlistenerConfigs==null){
-			include($_SERVER['DOCUMENT_ROOT'].'/cache/eventsconfig.inc.php');
-			if(isset($eventlistener))self::$_eventlistenerConfigs=$eventlistener;
-			else self::$_eventlistenerConfigs=[];}
-		if(!count(self::$_eventlistenerConfigs))return;
-		$eventName=get_class($event);
-		if(!isset(self::$_eventlistenerConfigs[$eventName]))return;
-		$eventListeners=self::$_eventlistenerConfigs[$eventName];
-		foreach($eventListeners as$listenerConfigStr){
-			$listenerConfig=json_decode($listenerConfigStr, TRUE);
-			if(method_exists($listenerConfig['class'],$listenerConfig['method']))call_user_func($listenerConfig['class'].'::'.$listenerConfig['method'],$event);
-			else throw new Exception('Configured event listener must have function: '.$listenerConfig['class'].'::'.$listenerConfig['method']);}}}
-class ScheduleGenerator {
-	static function createRoundRobinSchedule($teamIds){
-		shuffle($teamIds);
-		$noOfTeams=count($teamIds);
-		if($noOfTeams % 2 !==0){
-			$teamIds[]=-1;
-			++$noOfTeams;}
-		$noOfMatchDays=$noOfTeams - 1;
-		$sortedMatchdays=[];
-		foreach($teamIds as$teamId)$sortedMatchdays[1][]=$teamId;
-		for($matchdayNo=2; $matchdayNo <= $noOfMatchDays; $matchdayNo++){
-			$rowCenterWithoutFixedEnd=$noOfTeams / 2 - 1;
-			for($teamIndex=0; $teamIndex<$rowCenterWithoutFixedEnd; $teamIndex++){
-				$targetIndex=$teamIndex + $noOfTeams / 2;
-				$sortedMatchdays[$matchdayNo][]=$sortedMatchdays[$matchdayNo - 1][$targetIndex];}
-			for($teamIndex=$rowCenterWithoutFixedEnd; $teamIndex<$noOfTeams - 1; $teamIndex++){
-				$targetIndex=0 + $teamIndex - $rowCenterWithoutFixedEnd;
-				$sortedMatchdays[$matchdayNo][]=$sortedMatchdays[$matchdayNo - 1][$targetIndex];}
-			$sortedMatchdays[$matchdayNo][]=$teamIds[count($teamIds)- 1];}
-		$schedule=[];
-		$matchesNo=$noOfTeams / 2;
-		for($matchDayNo=1; $matchDayNo <= $noOfMatchDays; $matchDayNo++){
-			$matches=[];
-			for($teamNo=1; $teamNo <= $matchesNo; $teamNo++){
-				$homeTeam=$sortedMatchdays[$matchDayNo][$teamNo - 1];
-				$guestTeam=$sortedMatchdays[$matchDayNo][count($teamIds)- $teamNo];
-				if($homeTeam==-1||$guestTeam==-1)continue;
-				if($teamNo===1 && $matchDayNo % 2==0){
-					$swapTemp=$homeTeam;
-					$homeTeam=$guestTeam;
-					$guestTeam=$swapTemp;}
-				$match=array($homeTeam,$guestTeam);
-				$matches[]=$match;}
-			$schedule[$matchDayNo]=$matches;}
-		return$schedule;}}
-class SecurityUtil {
-	static function hashPassword($password,$salt){ return hash('sha256',$salt . hash('sha256',$password));}
-	static function isAdminLoggedIn(){
-		if(isset($_SESSION['HTTP_USER_AGENT'])){
-			if($_SESSION['HTTP_USER_AGENT']!=hash('sha256',$_SERVER['HTTP_USER_AGENT'])){
-				self::logoutAdmin();
-				return FALSE;}}
-		else $_SESSION['HTTP_USER_AGENT']=hash('sha256',$_SERVER['HTTP_USER_AGENT']);
-	    return (isset($_SESSION['valid'])&& $_SESSION['valid']);}
-	static function logoutAdmin(){
-	    $_SESSION=[];
-	    session_destroy();}
-	static function generatePassword(){
-		$chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789%!=?';
-		return substr(str_shuffle($chars), 0, 8);}
-	static function generatePasswordSalt(){ return substr(self::generatePassword(), 0, 4);}
-	static function generateSessionToken($userId,$salt){
-		$useragent=(isset($_SESSION['HTTP_USER_AGENT']))? $_SESSION['HTTP_USER_AGENT'] : 'n.a.';
-		return hash('sha256',$salt .$useragent .$userId);}
-	static function loginFrontUserUsingApplicationSession($websoccer,$userId){
-		$_SESSION['frontuserid']=$userId;
-		session_regenerate_id();
-		$userProvider=new SessionBasedUserAuthentication($websoccer);
-		$userProvider->verifyAndUpdateCurrentUser($websoccer->getUser());}}
-class SessionBasedUserAuthentication {
+class NavigationItem{public$pageId,$label,$children,$isActive,$weight;
+			function __construct($pageId,$label,$children,$isActive,$weight){$this->pageId=$pageId;$this->label=$label;$this->children=$children;$this->isActive=$isActive;$this->weight=$weight;}}
+class PageIdRouter{
+	 static function getTargetPageId($websoccer,$i18n,$requestedPageId){$pageId=$requestedPageId;if($pageId==NULL)$pageId=Config('DEFAULT_PAGE_ID');$user=$websoccer->getUser();if(Config('password_protected')&&$user->getRole()=='guest'){$freePageIds=array('login',
+	 						'register','register-success','activate-user','forgot-password','imprint','logout','termsandconditions');if(!Config('password_protected_startpage'))$freePageIds[]=config('DEFAULT_PAGE_ID');if(!in_array($pageId,$freePageIds)){
+							$websoccer->addFrontMessage(new FrontMessage('warning',Message('requireslogin_box_title'),Message('requireslogin_box_message')));$pageId='login';}}if($pageId=='team'&&Request('id')==null)$pageId='leagues';if($user->getRole()=='user'&&
+							!strlen($user->username))$pageId='enter-username';return$pageId;}}
+class Paginator {public$pages,$pageNo,$eps;private$_parameters;
+			function getQueryString(){if($this->_parameters!=null)return http_build_query($this->_parameters);return'';}
+			function addParameter($name,$value){$this->_parameters[$name]=$value;}
+			function __construct($hits,$eps,$websoccer){$this->eps=$eps;$this->pageNo=max(1,(int)Request('pageno'));if($hits%$eps)$this->pages=floor($hits/$eps)+1;else$this->pages=$hits/$eps;}
+			function getFirstIndex(){return($this->pageNo-1)*$this->eps;}}
+class PluginMediator {private static $_eventlistenerConfigs;
+	 static function dispatchEvent(AbstractEvent$event){if(self::$_eventlistenerConfigs==null){include($_SERVER['DOCUMENT_ROOT'].'/cache/eventsconfig.inc.php');if(isset($eventlistener))self::$_eventlistenerConfigs=$eventlistener;else self::$_eventlistenerConfigs=[];}
+							if(!count(self::$_eventlistenerConfigs))return;$eventName=get_class($event);if(!isset(self::$_eventlistenerConfigs[$eventName]))return;$eventListeners=self::$_eventlistenerConfigs[$eventName];foreach($eventListeners as$listenerConfigStr){
+							$listenerConfig=json_decode($listenerConfigStr, TRUE);if(method_exists($listenerConfig['class'],$listenerConfig['method']))call_user_func($listenerConfig['class'].'::'.$listenerConfig['method'],$event);else throw new Exception(
+							'Configured event listener must have function: '.$listenerConfig['class'].'::'.$listenerConfig['method']);}}}
+class ScheduleGenerator{
+	 static function createRoundRobinSchedule($teamIds){shuffle($teamIds);$noOfTeams=count($teamIds);if($noOfTeams%2!==0){$teamIds[]=-1;++$noOfTeams;}$noOfMatchDays=$noOfTeams-1;$sortedMatchdays=[];foreach($teamIds as$teamId)$sortedMatchdays[1][]=$teamId;
+							for($matchdayNo=2;$matchdayNo<=$noOfMatchDays;++$matchdayNo){$rowCenterWithoutFixedEnd=$noOfTeams/2-1;for($teamIndex=0;$teamIndex<$rowCenterWithoutFixedEnd;++$teamIndex){$targetIndex=$teamIndex+$noOfTeams/2;$sortedMatchdays[$matchdayNo][]=
+							$sortedMatchdays[$matchdayNo-1][$targetIndex];}for($teamIndex=$rowCenterWithoutFixedEnd;$teamIndex<$noOfTeams-1;++$teamIndex){$targetIndex=0+$teamIndex-$rowCenterWithoutFixedEnd;$sortedMatchdays[$matchdayNo][]=
+							$sortedMatchdays[$matchdayNo-1][$targetIndex];}$sortedMatchdays[$matchdayNo][]=$teamIds[count($teamIds)-1];}$schedule=[];$matchesNo=$noOfTeams/2;for($matchDayNo=1;$matchDayNo<=$noOfMatchDays;++$matchDayNo){$matches=[];for($teamNo=1;
+							$teamNo<=$matchesNo;++$teamNo){$homeTeam=$sortedMatchdays[$matchDayNo][$teamNo-1];$guestTeam=$sortedMatchdays[$matchDayNo][count($teamIds)-$teamNo];if($homeTeam==-1||$guestTeam==-1)continue;if($teamNo===1&&$matchDayNo%2==0){
+							$swapTemp=$homeTeam;$homeTeam=$guestTeam;$guestTeam=$swapTemp;}$match=array($homeTeam,$guestTeam);$matches[]=$match;}$schedule[$matchDayNo]=$matches;}return$schedule;}}
+class SecurityUtil{
+	 static function hashPassword($password,$salt){return hash('sha256',$salt.hash('sha256',$password));}
+	 static function isAdminLoggedIn(){if(isset($_SESSION['HTTP_USER_AGENT'])){if($_SESSION['HTTP_USER_AGENT']!=hash('sha256',$_SERVER['HTTP_USER_AGENT'])){self::logoutAdmin();return FALSE;}}else$_SESSION['HTTP_USER_AGENT']=hash('sha256',$_SERVER['HTTP_USER_AGENT']);
+	    					return(isset($_SESSION['valid'])&&$_SESSION['valid']);}
+	 static function logoutAdmin(){$_SESSION=[];session_destroy();}
+	 static function generatePassword(){$chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789%!=?';return substr(str_shuffle($chars),0,8);}
+	 static function generatePasswordSalt(){return substr(self::generatePassword(),0,4);}
+	 static function generateSessionToken($userId,$salt){$useragent=(isset($_SESSION['HTTP_USER_AGENT']))?$_SESSION['HTTP_USER_AGENT']:'n.a.';return hash('sha256',$salt.$useragent.$userId);}
+	 static function loginFrontUserUsingApplicationSession($websoccer,$userId){$_SESSION['frontuserid']=$userId;session_regenerate_id();$userProvider=new SessionBasedUserAuthentication($websoccer);$userProvider->verifyAndUpdateCurrentUser($websoccer->getUser());}}
+class SessionBasedUserAuthentication{
 	private $_website;
 	function __construct($website){ $this->_website=$website;}
 	function verifyAndUpdateCurrentUser(User $currentUser){
@@ -1450,29 +1310,13 @@ class SimulationAudienceCalculator {
 		$result=$db->querySelect($columns,$fromTable,$whereCondition,$teamId);
 		$record=$result->fetch_array();
 		return$record;}
-	static function computeRate($avgPrice,$avgSales,$actualPrice,$fanpopularity,$isAttractiveMatch,$maintenanceInfluence){
-		$rate=100 - pow((10 /(2.5*$avgPrice)* $actualPrice), 2);
-		$deviation=$avgSales - (100 - pow((10 /(2.5*$avgPrice)* $avgPrice), 2));
-		$rate=$rate + $deviation;
-		if($rate)$rate=$rate - 10 + 1/5*$fanpopularity;
-		if($isAttractiveMatch)$rate=$rate*1.1;
-		if($rate)$rate=$rate + $maintenanceInfluence;
-		return min(100, max(0,$rate))/ 100;}
-	static function updateMaintenanceStatus($websoccer,$db,$homeInfo){
-		$columns=array('maintenance_pitch'=>$homeInfo['maintenance_pitch'] - 1, 'maintenance_videowall'=>$homeInfo['maintenance_videowall'] - 1, 'maintenance_seatsquality'=>$homeInfo['maintenance_seatsquality'] - 1,
-			'maintenance_vipquality'=>$homeInfo['maintenance_vipquality'] - 1);
-		$types=array('pitch', 'videowall', 'seatsquality', 'vipquality');
-		foreach($types as$type){
-			if($columns['maintenance_'.$type] <= 0){
-				$columns['maintenance_'.$type]=Config('stadium_maintenanceinterval_'.$type);
-				$columns['level_'.$type]=max(0,$homeInfo['level_'.$type] - 1);}}
-		$db->queryUpdate($columns,Config('db_prefix').'_stadion', 'id=%d',$homeInfo['stadium_id']);}
-	static function weakenPlayersDueToGrassQuality($websoccer,$homeInfo, SimulationMatch $match){
-		$strengthChange=(5 - $homeInfo['level_pitch'])*Config('stadium_pitch_effect');
-		if($strengthChange && $match->type!='Freundschaft'){
-			$playersAndPositions=$match->homeTeam->positionsAndPlayers;
-			foreach($playersAndPositions as$positions=>$players){
-				foreach($players as$player)$player->strengthTech=max(1,$player->strengthTech - $strengthChange);}}}}
+	 static function computeRate($avgPrice,$avgSales,$actualPrice,$fanpopularity,$isAttractiveMatch,$maintenanceInfluence){$rate=100-pow((10/(2.5*$avgPrice)*$actualPrice),2);$deviation=$avgSales-(100-pow((10/(2.5*$avgPrice)*$avgPrice),2));$rate=$rate+$deviation;
+							if($rate)$rate=$rate-10+1/5*$fanpopularity;if($isAttractiveMatch)$rate=$rate*1.1;if($rate)$rate=$rate+$maintenanceInfluence;return min(100,max(0,$rate))/100;}
+	 static function updateMaintenanceStatus($websoccer,$db,$homeInfo){$columns=['maintenance_pitch'=>$homeInfo['maintenance_pitch']-1,'maintenance_videowall'=>$homeInfo['maintenance_videowall']-1,'maintenance_seatsquality'=>$homeInfo['maintenance_seatsquality']-1,
+							'maintenance_vipquality'=>$homeInfo['maintenance_vipquality']-1];$types=['pitch','videowall','seatsquality','vipquality'];foreach($types as$type){if($columns['maintenance_'.$type]<=0){$columns['maintenance_'.$type]=
+							Config('stadium_maintenanceinterval_'.$type);$columns['level_'.$type]=max(0,$homeInfo['level_'.$type]-1);}}$db->queryUpdate($columns,Config('db_prefix').'_stadion','id=%d',$homeInfo['stadium_id']);}
+	 static function weakenPlayersDueToGrassQuality($websoccer,$homeInfo,SimulationMatch$match){$strengthChange=(5-$homeInfo['level_pitch'])*Config('stadium_pitch_effect');if($strengthChange&&$match->type!='Freundschaft'){$playersAndPositions=
+							$match->homeTeam->positionsAndPlayers;foreach($playersAndPositions as$positions=>$players){foreach($players as$player)$player->strengthTech=max(1,$player->strengthTech-$strengthChange);}}}}
 class SimulationCupMatchHelper {
 	static function checkIfExtensionIsRequired($websoccer,$db, SimulationMatch $match){
 		if(strlen($match->cupRoundGroup))return FALSE;
@@ -1569,7 +1413,7 @@ class SimulationCupMatchHelper {
 		$nextRoundTeams=[];
 		foreach($nextConfigs as$groupName=>$rankings){
 			$teamsInGroup=CupsDataService::getTeamsOfCupGroupInRankingOrder($websoccer,$db,$roundId,$groupName);
-			for($teamRank=1; $teamRank <= count($teamsInGroup); $teamRank++){
+			for($teamRank=1; $teamRank <= count($teamsInGroup);++$teamRank){
 				$configIndex=''.$teamRank;
 				if(isset($rankings[$configIndex])){
 					$team=$teamsInGroup[$teamRank - 1];
@@ -1636,9 +1480,9 @@ class SimulationFormationHelper {
 			$nation=$db->connection->escape_string($team->name);
 			$dbPrefix=Config('db_prefix');
 			$queryStr='(SELECT '.$columnsStr.' FROM '.$dbPrefix.'_spieler WHERE nation=\''.$nation.'\' AND position=\'Torwart\' ORDER BY w_staerke DESC, w_frische DESC LIMIT 1)';
-			$queryStr .= ' UNION ALL (SELECT '.$columnsStr.' FROM '.$dbPrefix.'_spieler WHERE nation=\''.$nation.'\' AND position=\'Abwehr\' ORDER BY w_staerke DESC, w_frische DESC LIMIT 4)';
-			$queryStr .= ' UNION ALL (SELECT '.$columnsStr.' FROM '.$dbPrefix.'_spieler WHERE nation=\''.$nation.'\' AND position=\'Mittelfeld\' ORDER BY w_staerke DESC, w_frische DESC LIMIT 4)';
-			$queryStr .= ' UNION ALL (SELECT '.$columnsStr.' FROM '.$dbPrefix.'_spieler WHERE nation=\''.$nation.'\' AND position=\'Sturm\' ORDER BY w_staerke DESC, w_frische DESC LIMIT 2)';
+			$queryStr.=' UNION ALL (SELECT '.$columnsStr.' FROM '.$dbPrefix.'_spieler WHERE nation=\''.$nation.'\' AND position=\'Abwehr\' ORDER BY w_staerke DESC, w_frische DESC LIMIT 4)';
+			$queryStr.=' UNION ALL (SELECT '.$columnsStr.' FROM '.$dbPrefix.'_spieler WHERE nation=\''.$nation.'\' AND position=\'Mittelfeld\' ORDER BY w_staerke DESC, w_frische DESC LIMIT 4)';
+			$queryStr.=' UNION ALL (SELECT '.$columnsStr.' FROM '.$dbPrefix.'_spieler WHERE nation=\''.$nation.'\' AND position=\'Sturm\' ORDER BY w_staerke DESC, w_frische DESC LIMIT 2)';
 			$result=$db->executeQuery($queryStr);}
 		$lvExists=FALSE;
 		$rvExists=FALSE;
@@ -2010,7 +1854,7 @@ class SimulationStateHelper {
 		if($matchinfo['prev_player_with_ball'] && isset(self::$_addedPlayers[$matchinfo['prev_player_with_ball']]))$match->setPreviousPlayerWithBall(self::$_addedPlayers[$matchinfo['prev_player_with_ball']]);
 		if($matchinfo['home_freekickplayer'] && isset(self::$_addedPlayers[$matchinfo['home_freekickplayer']]))$homeTeam->freeKickPlayer=self::$_addedPlayers[$matchinfo['home_freekickplayer']];
 		if($matchinfo['guest_freekickplayer'] && isset(self::$_addedPlayers[$matchinfo['guest_freekickplayer']]))$guestTeam->freeKickPlayer=self::$_addedPlayers[$matchinfo['guest_freekickplayer']];
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($subNo=1; $subNo <= 3;++$subNo){
 			if($matchinfo['home_sub_'.$subNo.'_out'] && isset(self::$_addedPlayers[$matchinfo['home_sub_'.$subNo.'_in']])&& isset(self::$_addedPlayers[$matchinfo['home_sub_'.$subNo.'_out']])){
 				$sub=new SimulationSubstitution($matchinfo['home_sub_'.$subNo.'_minute'],self::$_addedPlayers[$matchinfo['home_sub_'.$subNo.'_in']],self::$_addedPlayers[$matchinfo['home_sub_'.$subNo.'_out']],
 					$matchinfo['home_sub_'.$subNo.'_condition'],$matchinfo['home_sub_'.$subNo.'_position']);
@@ -2253,7 +2097,7 @@ class Simulator {
     	if(!$this->_hasPlayers($match->homeTeam)|| !$this->_hasPlayers($match->guestTeam)){
     		$this->completeMatch($match);
     		return;}
-    	for($simMinute=1; $simMinute <= $minutes; $simMinute++){
+    	for($simMinute=1; $simMinute <= $minutes;++$simMinute){
     		$match->minute=$match->minute + 1;
     		if($match->minute==1)$this->_simStrategy->kickoff($match);
     		else{
@@ -2347,11 +2191,11 @@ class UrlUtil {
 		$url=htmlentities($_SERVER['PHP_SELF']).'?';
 		$first=TRUE;
 		foreach($parameters as$parameterName=>$parameterValue){
-			if(!$first)$url .= '&';
+			if(!$first)$url.='&';
 			$url .= $parameterName.'='.$parameterValue;
 			$first=FALSE;}
 		foreach($_GET as$parameterName=>$parameterValue){
-			if(!isset($parameters[$parameterName]))$url .= '&'.$parameterName.'='.$parameterValue;}
+			if(!isset($parameters[$parameterName]))$url.='&'.$parameterName.'='.$parameterValue;}
 		return escapeOutput($url);}}
 class User {
 	public $id;
@@ -2638,7 +2482,7 @@ class YouthMatchSimulationExecutor {
 			++$positionIndex;
 			if($positionIndex==11)break;}}
 	static function _addSubstitutions($websoccer,$db, SimulationMatch $match, SimulationTeam $team,$matchinfo,$teamPrefix){
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($subNo=1; $subNo <= 3;++$subNo){
 			if($matchinfo[$teamPrefix.'_s'.$subNo.'_out']){
 				$out=$matchinfo[$teamPrefix.'_s'.$subNo.'_out'];
 				$in=$matchinfo[$teamPrefix.'_s'.$subNo.'_in'];
@@ -2786,7 +2630,7 @@ class BorrowPlayerController extends Controller {
 		BankAccountDataService::debitAmount($this->_websoccer,$this->_db,$clubId,$fee,"lending_fee_subject",$player["team_name"]);
 		BankAccountDataService::creditAmount($this->_websoccer,$this->_db,$player["team_id"],$fee,"lending_fee_subject",$team["team_name"]);
 		$this->updatePlayer($player["player_id"],$player["team_id"],$clubId,$parameters["matches"]);
-		$playerName=(strlen($player["player_pseudonym"]))? $player["player_pseudonym"] : $player["player_firstname"]." ".$player["player_lastname"];
+		$playerName=(strlen($player["player_pseudonym"]))? $player["player_pseudonym"]:$player["player_firstname"]." ".$player["player_lastname"];
 		if($player["team_user_id"]){ NotificationsDataService::createNotification($this->_websoccer,$this->_db,$player["team_user_id"],"lending_notification_lent",array("player"=>$playerName,"matches"=>$parameters["matches"],"newteam"=>$team["team_name"]),
 			"lending_lent","player","id=".$player["player_id"]);}
 		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("lending_hire_success"),""));
@@ -2928,7 +2772,7 @@ class ChooseTrainerController extends Controller {
 		$columns["team_id"]=$teamId;
 		$columns["trainer_id"]=$trainer["id"];
 		$fromTable=Config("db_prefix")."_training_unit";
-		for($unitNo=1; $unitNo <= $numberOfUnits; $unitNo++)$this->_db->queryInsert($columns,$fromTable);
+		for($unitNo=1; $unitNo <= $numberOfUnits;++$unitNo)$this->_db->queryInsert($columns,$fromTable);
 		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message("saved_message_title"),""));
 		return "training";}}
 class CreateYouthMatchRequestController extends Controller {
@@ -3011,7 +2855,7 @@ class DirectTransferAcceptController extends Controller {
 		return null;}
 	function checkExchangePlayer($playerId,$userId,$teamBudget){
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
-		$playerName=(strlen($player["player_pseudonym"]))? $player["player_pseudonym"] : $player["player_firstname"]." ".$player["player_lastname"];
+		$playerName=(strlen($player["player_pseudonym"]))? $player["player_pseudonym"]:$player["player_firstname"]." ".$player["player_lastname"];
 		if($player["player_transfermarket"])throw new Exception(Message("transferoffer_accept_err_exchangeplayer_on_transfermarket",$playerName));
 		if($player["team_user_id"]!=$userId)throw new Exception(Message("transferoffer_accept_err_exchangeplayer_notinteam",$playerName));
 		$minBudget=40*$player["player_contract_salary"];
@@ -3072,7 +2916,7 @@ class DirectTransferOfferController extends Controller {
 		if($count["hits"])throw new Exception(Message("transferoffer_err_transferstop",Config("transferoffers_transfer_stop_days")));}
 	function checkExchangePlayer($playerId){
 		$player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
-		$playerName=(strlen($player["player_pseudonym"]))? $player["player_pseudonym"] : $player["player_firstname"]." ".$player["player_lastname"];
+		$playerName=(strlen($player["player_pseudonym"]))? $player["player_pseudonym"]:$player["player_firstname"]." ".$player["player_lastname"];
 		if($player["player_transfermarket"]||$player["team_user_id"]!=$this->_websoccer->getUser()->id)throw new Exception(Message("transferoffer_err_exchangeplayer_on_transfermarket",$playerName));
 		$result=$this->_db->querySelect("COUNT(*)AS hits",Config("db_prefix")."_transfer_offer","rejected_date=0 AND (offer_player1=%d OR offer_player2=%d)",array($playerId,$playerId,$playerId));
 		$count=$result->fetch_array();
@@ -3204,7 +3048,7 @@ class ExecuteTrainingController extends Controller {
 			$columns=array("w_frische"=> min(100, max(1,$player["strength_freshness"] + $effectFreshness)),"w_technik"=> min(100, max(1,$player["strength_technic"] + $effectTechnique)),"w_kondition"=> min(100, max(1,
 				$player["strength_stamina"] + $effectStamina)),"w_zufriedenheit"=> min(100, max(1,$player["strength_satisfaction"] + $effectSatisfaction)));
 			$this->_db->queryUpdate($columns,$fromTable,$whereCondition,$player["id"]);
-			$trainingEffects[$player["id"]]=array("name"=>($player["pseudonym"])? $player["pseudonym"] : $player["firstname"]." ".$player["lastname"],"freshness"=>$effectFreshness,"technique"=>$effectTechnique,"stamina"=>$effectStamina,
+			$trainingEffects[$player["id"]]=array("name"=>($player["pseudonym"])? $player["pseudonym"]:$player["firstname"]." ".$player["lastname"],"freshness"=>$effectFreshness,"technique"=>$effectTechnique,"stamina"=>$effectStamina,
 				"satisfaction"=>$effectSatisfaction);}
 		$this->_websoccer->addContextParameter("trainingEffects",$trainingEffects);}}
 class ExtendContractController extends Controller {
@@ -3485,7 +3329,7 @@ class MicropaymentRedirectController extends Controller {
 		$parameters=array('project'=>$projectId, 'amount'=>$amount, 'freeparam'=>$this->_websoccer->getUser()->id);
 		$queryStr=http_build_query($parameters);
 		$seal=hash('sha256',$parameters .$accessKey);
-		$queryStr .= '&seal='.$seal;
+		$queryStr.='&seal='.$seal;
 		$paymentUrl .= $queryStr;
 		header('Location: '.escapeOutput($paymentUrl));
 		exit;
@@ -3743,7 +3587,7 @@ class SaveFormationController extends Controller {
 		$this->validatePlayer($parameters['bench4'],$players, TRUE);
 		$this->validatePlayer($parameters['bench5'],$players, TRUE);
 		$validSubstitutions=[];
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($subNo=1; $subNo <= 3;++$subNo){
 			$playerIn=$parameters['sub'.$subNo.'_in'];
 			$playerOut=$parameters['sub'.$subNo.'_out'];
 			$playerMinute=$parameters['sub'.$subNo.'_minute'];
@@ -3773,11 +3617,11 @@ class SaveFormationController extends Controller {
 		$columns['longpasses']=$parameters['longpasses'];
 		$columns['counterattacks']=$parameters['counterattacks'];
 		$columns['freekickplayer']=$parameters['freekickplayer'];
-		for($playerNo=1; $playerNo <= 11; $playerNo++){
+		for($playerNo=1; $playerNo <= 11;++$playerNo){
 			$columns['spieler'.$playerNo]=$parameters['player'.$playerNo];
 			$columns['spieler'.$playerNo.'_position']=$parameters['player'.$playerNo.'_pos'];}
 		for($playerNo=1; $playerNo <= 5; $playerNo++)$columns['ersatz'.$playerNo]=$parameters['bench'.$playerNo];
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($subNo=1; $subNo <= 3;++$subNo){
 			if(in_array($subNo,$validSubstitutions)){
 				$columns['w'.$subNo.'_raus']=$parameters['sub'.$subNo.'_out'];
 				$columns['w'.$subNo.'_rein']=$parameters['sub'.$subNo.'_in'];
@@ -3823,7 +3667,7 @@ class SaveMatchChangesController extends Controller {
 		$teamPrefixDb=($matchinfo['match_home_id']==$teamId||$matchinfo['match_home_id']==$nationalTeamId)? 'home' : 'gast';
 		$occupiedSubPos=[];
 		$existingFutureSubs=[];
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($subNo=1; $subNo <= 3;++$subNo){
 			$existingMinute=(int)$matchinfo[$teamPrefix.'_sub'.$subNo.'_minute'];
 			if($existingMinute>0 && $existingMinute <= $matchinfo['match_minutes'])$occupiedSubPos[$subNo]=TRUE;
 			elseif($existingMinute){
@@ -3831,7 +3675,7 @@ class SaveMatchChangesController extends Controller {
 					'condition'=>$matchinfo[$teamPrefix.'_sub'.$subNo.'_condition'],'position'=>$matchinfo[$teamPrefix.'_sub'.$subNo.'_position'],'slot'=>$subNo);}}
 		if(count($occupiedSubPos)< 3){
 			$nextPossibleMinute=$matchinfo['match_minutes'] +Config('sim_interval')+ 1;
-			for($subNo=1; $subNo <= 3; $subNo++){
+			for($subNo=1; $subNo <= 3;++$subNo){
 				$newOut=(int)$parameters['sub'.$subNo.'_out'];
 				$newIn=(int)$parameters['sub'.$subNo.'_in'];
 				$newMinute=(int)$parameters['sub'.$subNo.'_minute'];
@@ -3842,7 +3686,7 @@ class SaveMatchChangesController extends Controller {
 				if(isset($existingFutureSubs[$newOut])&& $newIn==$existingFutureSubs[$newOut]['in'] && $newCondition==$existingFutureSubs[$newOut]['condition'] && $newMinute==$existingFutureSubs[$newOut]['minute']
 					&& $newPosition==$existingFutureSubs[$newOut]['position']){
 					$saveSub=FALSE;}
-				for($slotNo=1; $slotNo <= 3; $slotNo++){
+				for($slotNo=1; $slotNo <= 3;++$slotNo){
 					if(!isset($occupiedSubPos[$slotNo])){
 						$slot=$slotNo;
 						break;}}
@@ -3882,7 +3726,7 @@ class SaveMatchChangesController extends Controller {
 		$players=MatchesDataService::getMatchPlayerRecordsByField($this->_websoccer,$this->_db,$matchId,$teamId);
 		$playersOnField=$players['field'];
 		$submittedPositions=[];
-		for($playerNo=1; $playerNo <= 11; $playerNo++){
+		for($playerNo=1; $playerNo <= 11;++$playerNo){
 			$playerId=$parameters['player'.$playerNo];
 			$playerPos=$parameters['player'.$playerNo.'_pos'];
 			if($playerId && $playerPos)$submittedPositions[$playerId]=$playerPos;}
@@ -4002,7 +3846,7 @@ class SaveYouthFormationController extends Controller{
 		$this->validatePlayer($parameters["bench4"]);
 		$this->validatePlayer($parameters["bench5"]);
 		$validSubstitutions=[];
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($subNo=1; $subNo <= 3;++$subNo){
 			$playerIn=$parameters["sub".$subNo ."_in"];
 			$playerOut=$parameters["sub".$subNo ."_out"];
 			$playerMinute=$parameters["sub".$subNo ."_minute"];
@@ -4071,15 +3915,15 @@ class SaveYouthFormationController extends Controller{
  			$mainPositionMapping[$setupParts[0] + $setupParts[1] + $setupParts[2] + $setupParts[3] + 3]="MS";
  			$mainPositionMapping[$setupParts[0] + $setupParts[1] + $setupParts[2] + $setupParts[3] + 4]="RS";}
 		$positionMapping=array( "T"=>"Torwart","LV"=>"Abwehr","IV"=>"Abwehr","RV"=>"Abwehr","DM"=>"Mittelfeld","OM"=>"Mittelfeld","ZM"=>"Mittelfeld","LM"=>"Mittelfeld","RM"=>"Mittelfeld","LS"=>"Sturm","MS"=>"Sturm","RS"=>"Sturm");
-		for($playerNo=1; $playerNo <= 11; $playerNo++){
+		for($playerNo=1; $playerNo <= 11;++$playerNo){
 			$mainPosition=Request("player".$playerNo."_pos");
 			$position=$positionMapping[$mainPosition];
 			$this->savePlayer($parameters["matchid"],$teamId,$parameters["player".$playerNo],$playerNo,$position,$mainPosition, FALSE);}
-		for($playerNo=1; $playerNo <= 5; $playerNo++){
+		for($playerNo=1; $playerNo <= 5;++$playerNo){
 			if($parameters["bench".$playerNo])$this->savePlayer($parameters["matchid"],$teamId,$parameters["bench".$playerNo],$playerNo,"-","-",TRUE);}
 		$fromTable=Config("db_prefix")."_youthmatch";
 		$columns=[];
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($subNo=1; $subNo <= 3;++$subNo){
 			if(in_array($subNo,$validSubstitutions)){
 				$columns[$teamPrefix."_s".$subNo."_out"]=$parameters["sub".$subNo ."_out"];
 				$columns[$teamPrefix."_s".$subNo."_in"]=$parameters["sub".$subNo ."_in"];
@@ -4161,7 +4005,7 @@ class SelectCaptainController extends Controller {
 			if($oldPlayer["team_id"]==$clubId){
 				$newSatisfaction=round($oldPlayer["player_strength_satisfaction"]*0.6);
 				$this->_db->queryUpdate(array("w_zufriedenheit"=>$newSatisfaction),Config("db_prefix")."_spieler","id=%d",$oldPlayer["player_id"]);
-				$playername=(strlen($oldPlayer["player_pseudonym"]))? $oldPlayer["player_pseudonym"] : $oldPlayer["player_firstname"]." ".$oldPlayer["player_lastname"];
+				$playername=(strlen($oldPlayer["player_pseudonym"]))? $oldPlayer["player_pseudonym"]:$oldPlayer["player_firstname"]." ".$oldPlayer["player_lastname"];
 				$this->_websoccer->addFrontMessage(new FrontMessage('warning',Message("myteam_player_select_as_captain_warning_old_captain",$playername),""));}}
 		return null;}}
 class SelectTeamController extends Controller {
@@ -4385,7 +4229,7 @@ class TransferBidController extends Controller {
 		$this->saveBid($playerId,$user->id,$clubId,$parameters);
 		if(isset($highestBid['bid_id']))$this->_db->queryUpdate(array('ishighest'=> '0'),Config('db_prefix').'_transfer_angebot', 'id=%d',$highestBid['bid_id']);
 		if(isset($highestBid['user_id'])&& $highestBid['user_id']){
-			$playerName=(strlen($player['player_pseudonym']))? $player['player_pseudonym'] : $player['player_firstname'].' '.$player['player_lastname'];
+			$playerName=(strlen($player['player_pseudonym']))? $player['player_pseudonym']:$player['player_firstname'].' '.$player['player_lastname'];
 			NotificationsDataService::createNotification($this->_websoccer,$this->_db,$highestBid['user_id'],'transfer_bid_notification_outbidden',array('player'=>$playerName), 'transfermarket', 'transfer-bid', 'id='.$playerId);}
 		$this->_websoccer->addFrontMessage(new FrontMessage('success',Message('transfer_bid_success'), ''));
 		return null;}
@@ -4586,12 +4430,12 @@ class InactivityConverter extends Converter{
 		else return 'red';}
 	function _renderInActivityPopup($row){
 		$popup='';
-		$popup .= '<div id=\'actPopup'.$row['id'].'\' class=\'modal hide fade\' tabindex=\'-1\' role=\'dialog\' aria-labelledby=\'actPopupLabel\' aria-hidden=\'true\'>';
-		$popup .= '<div class=\'modal-header\'><button type=\'button\' class=\'close\' data-dismiss=\'modal\' aria-hidden=\'true\' title=\''.Message('button_close').'\'>&times;</button>';
-		$popup .= '<h3 id=\'actPopupLabel'.$row['id'].'\'>'.Message('entity_user_inactivity').': '. escapeOutput($row['entity_users_nick']).'</h3></div>';
-		$popup .= '<div class=\'modal-body\'>';
+		$popup.='<div id=\'actPopup'.$row['id'].'\' class=\'modal hide fade\' tabindex=\'-1\' role=\'dialog\' aria-labelledby=\'actPopupLabel\' aria-hidden=\'true\'>';
+		$popup.='<div class=\'modal-header\'><button type=\'button\' class=\'close\' data-dismiss=\'modal\' aria-hidden=\'true\' title=\''.Message('button_close').'\'>&times;</button>';
+		$popup.='<h3 id=\'actPopupLabel'.$row['id'].'\'>'.Message('entity_user_inactivity').': '. escapeOutput($row['entity_users_nick']).'</h3></div>';
+		$popup.='<div class=\'modal-body\'>';
 		$gesamt=$row['entity_user_inactivity_login'] + $row['entity_user_inactivity_aufstellung'] + $row['entity_user_inactivity_transfer']+ $row['entity_user_inactivity_vertragsauslauf'];
-		$popup .= '<table class=\'table table-bordered\'>
+		$popup.='<table class=\'table table-bordered\'>
           <thead><tr>
             <th>'.Message('popup_user_inactivity_title_action').'</th>
             <th>'.Message('entity_user_inactivity').'</th>
@@ -4618,14 +4462,14 @@ class InactivityConverter extends Converter{
           <tr>
             <td><b>'.Message('popup_user_inactivity_total').'</b></td>
             <td style=\'text-align: center; font-weight: bold; color: '.$this->_color($this->_format($gesamt)).'\'>'.$this->_format($gesamt).' %';
-		if($gesamt>100)$popup .= '<br/>('.$gesamt.'%)';
-		$popup .= '</td>
+		if($gesamt>100)$popup.='<br/>('.$gesamt.'%)';
+		$popup.='</td>
           </tr>
 		</tfoot>
         </table>';
-		$popup .= '</div>';
-		$popup .= '<div class=\'modal-footer\'><button class=\'btn btn-primary\' data-dismiss=\'modal\' aria-hidden=\'true\'>'.Message('button_close').'</button></div>';
-		$popup .= '</div>';
+		$popup.='</div>';
+		$popup.='<div class=\'modal-footer\'><button class=\'btn btn-primary\' data-dismiss=\'modal\' aria-hidden=\'true\'>'.Message('button_close').'</button></div>';
+		$popup.='</div>';
 		return$popup;}
 	function _format($rate){
 		$rate=($rate)? $rate : 0;
@@ -4635,15 +4479,15 @@ class InactivityConverter extends Converter{
 class MatchReportLinkConverter extends Converter {
 	function toHtml($row){
 		$output='<div class=\'btn-group\'>';
-		$output .= '<a class=\'btn btn-small dropdown-toggle\' data-toggle=\'dropdown\' href=\'#\'>';
+		$output.='<a class=\'btn btn-small dropdown-toggle\' data-toggle=\'dropdown\' href=\'#\'>';
 		$output .= Message('entity_match_matchreportitems').' <span class=\'caret\'></span>';
-		$output .= '</a>';
-		$output .= '<ul class=\'dropdown-menu\'>';
-		$output .= '<li><a href=\'?site=manage-match-playerstatistics&match='.$row['id'].'\'><i class=\'icon-cog\'></i> '.Message('match_manage_playerstatistics').'</a></li>';
-		$output .= '<li><a href=\'?site=manage-match-reportitems&match='.$row['id'].'\'><i class=\'icon-th-list\'></i> '.Message('match_manage_reportitems').'</a></li>';
-		if(!$row['entity_match_berechnet'])$output .= '<li><a href=\'?site=manage-match-complete&match='.$row['id'].'\'><i class=\'icon-ok-sign\'></i> '.Message('match_manage_complete').'</a></li>';
-		$output .= '</ul>';
-		$output .= '</div>';
+		$output.='</a>';
+		$output.='<ul class=\'dropdown-menu\'>';
+		$output.='<li><a href=\'?site=manage-match-playerstatistics&match='.$row['id'].'\'><i class=\'icon-cog\'></i> '.Message('match_manage_playerstatistics').'</a></li>';
+		$output.='<li><a href=\'?site=manage-match-reportitems&match='.$row['id'].'\'><i class=\'icon-th-list\'></i> '.Message('match_manage_reportitems').'</a></li>';
+		if(!$row['entity_match_berechnet'])$output.='<li><a href=\'?site=manage-match-complete&match='.$row['id'].'\'><i class=\'icon-ok-sign\'></i> '.Message('match_manage_complete').'</a></li>';
+		$output.='</ul>';
+		$output.='</div>';
 		return$output;}}
 class MoneyTransactionConverter extends Converter {
 	function toDbValue($value){
@@ -4836,11 +4680,11 @@ FROM (SELECT C.id AS team_id, M.saison_id AS season_id,
 	GROUP BY C.id, M.saison_id)AS matches";
 		$this->_db->executeQuery($query);
 		$strengthQuery=' UPDATE '.Config('db_prefix').'_verein c INNER JOIN (';
-		$strengthQuery .= ' SELECT verein_id, AVG( w_staerke)AS strength_avg';
-		$strengthQuery .= ' FROM '.Config('db_prefix').'_spieler';
-		$strengthQuery .= ' GROUP BY verein_id';
-		$strengthQuery .= ')AS r ON r.verein_id=c.id';
-		$strengthQuery .= ' SET c.strength=r.strength_avg';
+		$strengthQuery.=' SELECT verein_id, AVG( w_staerke)AS strength_avg';
+		$strengthQuery.=' FROM '.Config('db_prefix').'_spieler';
+		$strengthQuery.=' GROUP BY verein_id';
+		$strengthQuery.=')AS r ON r.verein_id=c.id';
+		$strengthQuery.=' SET c.strength=r.strength_avg';
 		$this->_db->executeQuery($strengthQuery);}}
 class UserInactivityCheckJob extends AbstractJob {
 	function execute(){
@@ -4934,40 +4778,6 @@ class StadiumEnvironmentPlugin {
 		$resArray=$result->fetch_array();
 		if($resArray)return$resArray['attrSum'];
 		return 0;}}
-class DefaultBootstrapSkin {
-	protected $_websoccer;
-	function __construct($websoccer){ $this->_websoccer=$websoccer;}
-	function getTemplatesSubDirectory(){ return 'default';}
-	function getCssSources(){
-		Bootstrap_css();
-		$files[]='//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css';
-		$dir=Config('context_root').'/css/';
-		$files[]=$dir.'defaultskin.css';
-		$files[]=$dir.'websoccer.css';
-		$files[]=$dir.'bootstrap-responsive.min.css';
-		return$files;}
-	function getJavaScriptSources(){
-		$dir=Config('context_root').'/js/';
-		$files[]='//code.jquery.com/jquery-1.11.1.min.js';
-		$files[]=$dir.'websoccer.min.js';
-		return$files;}
-	function getTemplate($templateName){ return$templateName.'.twig';}
-	function getImage($fileName){
-		if(file_exists($_SERVER['DOCUMENT_ROOT'].'/img/'.$fileName))return Config('context_root').'/img/'.$fileName;
-		return FALSE;}
-	function __toString(){ return 'DefaultBootstrapSkin';}}
-class GreenBootstrapSkin extends DefaultBootstrapSkin {
-	function getCssSources(){
-		$dir=Config('context_root').'/css/';
-		$files[]=$dir.'bootstrap_green.css';
-		$files[]=$dir.'websoccer.css';
-		$files[]=$dir.'bootstrap-responsive.min.css';
-		$files[]='//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css';
-		if(PageId()=='formation'||PageId()=='training')$files[]=$dir.'slider.css';
-		if(PageId()=='formation'||PageId()=='youth-formation'||PageId()=='teamoftheday'){
-			$files[]=$dir.'formation.css';
-			$files[]=$dir.'bootstrap-switch.css';}
-		return$files;}}
 class EmailValidator{private$_i18n,$_websoccer,$_value;
 				function __construct($i18n,$websoccer,$value){$this->_i18n=$i18n;$this->_websoccer=$websoccer;$this->_value=$value;}
 				function isValid(){return filter_var($this->_value,FILTER_VALIDATE_EMAIL);}
@@ -5074,9 +4884,8 @@ class FinancesModel extends Model {
 		if($teamId<1)throw new Exception(Message("feature_requires_team"));
 		$team=TeamsDataService::getTeamSummaryById($this->_websoccer,$this->_db,$teamId);
 		$count=BankAccountDataService::countAccountStatementsOfTeam($this->_websoccer,$this->_db,$teamId);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count)$statements=BankAccountDataService::getAccountStatementsOfTeam($this->_websoccer,$this->_db,$teamId,$paginator->getFirstIndex(),$eps);
+		$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
+		if($count)$statements=BankAccountDataService::getAccountStatementsOfTeam($this->_websoccer,$this->_db,$teamId,$paginator->getFirstIndex(),Config('entries_per_page'));
 		else $statements=[];
 		return array("budget"=>$team["team_budget"],"statements"=>$statements,"paginator"=>$paginator);}}
 class FinancesSummaryModel extends Model {
@@ -5101,14 +4910,13 @@ class FindNationalPlayersModel extends Model {
 		$position=Request("position");
 		$mainPosition=Request("position_main");
 		$playersCount=NationalteamsDataService::findPlayersCount($this->_websoccer,$this->_db,$team["name"],$teamId,$firstName,$lastName,$position,$mainPosition);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($playersCount,$eps,$this->_websoccer);
+		$paginator=new Paginator($playersCount,Config('entries_per_page'),$this->_websoccer);
 		$paginator->addParameter("fname",$firstName);
 		$paginator->addParameter("lname",$lastName);
 		$paginator->addParameter("position",$position);
 		$paginator->addParameter("position_main",$mainPosition);
 		$paginator->addParameter("search","true");
-		if($playersCount)$players=NationalteamsDataService::findPlayers($this->_websoccer,$this->_db,$team["name"],$teamId,$firstName,$lastName,$position,$mainPosition,$paginator->getFirstIndex(),$eps);
+		if($playersCount)$players=NationalteamsDataService::findPlayers($this->_websoccer,$this->_db,$team["name"],$teamId,$firstName,$lastName,$position,$mainPosition,$paginator->getFirstIndex(),Config('entries_per_page'));
 		else $players=[];
 		return array("team_name"=>$team["name"],"playersCount"=>$playersCount,"players"=>$players,"paginator"=>$paginator);}
 	function renderView(){ return Config("nationalteams_enabled");}}
@@ -5142,56 +4950,56 @@ class FormationModel extends Model {
 			else $players = PlayersDataService::getPlayersOfTeamByPosition($this->_websoccer, $this->_db, $clubId, 'DESC', count($matchinfo) && $matchinfo['match_type'] == 'cup',(isset($matchinfo['match_type']) && $matchinfo['match_type'] != 'friendly'));}
 		if ($this->_websoccer->getRequestParameter('templateid'))$formation = FormationDataService::getFormationByTemplateId($this->_websoccer, $this->_db, $clubId, $this->_websoccer->getRequestParameter('templateid'));
 		else $formation = FormationDataService::getFormationByTeamId($this->_websoccer, $this->_db, $clubId, $matchinfo['match_id']);
-		for ($benchNo = 1; $benchNo <= 5; $benchNo++) {
-			if ($this->_websoccer->getRequestParameter('bench' . $benchNo))$formation['bench' . $benchNo] = $this->_websoccer->getRequestParameter('bench' . $benchNo);
-			elseif (!isset($formation['bench' . $benchNo]))$formation['bench' . $benchNo] = '';}
-		for ($subNo = 1; $subNo <= 3; $subNo++) {
-			if ($this->_websoccer->getRequestParameter('sub' . $subNo .'_out')) {
-				$formation['sub' . $subNo .'_out'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_out');
-				$formation['sub' . $subNo .'_in'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_in');
-				$formation['sub' . $subNo .'_minute'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_minute');
-				$formation['sub' . $subNo .'_condition'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_condition');
-				$formation['sub' . $subNo .'_position'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_position');}
-			elseif (!isset($formation['sub' . $subNo .'_out'])) {
-				$formation['sub' . $subNo .'_out'] = '';
-				$formation['sub' . $subNo .'_in'] = '';
-				$formation['sub' . $subNo .'_minute'] = '';
-				$formation['sub' . $subNo .'_condition'] = '';
-				$formation['sub' . $subNo .'_position'] = '';}}
+		for ($benchNo = 1; $benchNo <= 5;++$benchNo) {
+			if ($this->_websoccer->getRequestParameter('bench'.$benchNo))$formation['bench'.$benchNo] = $this->_websoccer->getRequestParameter('bench'.$benchNo);
+			elseif (!isset($formation['bench'.$benchNo]))$formation['bench'.$benchNo]='';}
+		for ($subNo = 1; $subNo <= 3;++$subNo) {
+			if ($this->_websoccer->getRequestParameter('sub'.$subNo.'_out')) {
+				$formation['sub'.$subNo.'_out']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_out');
+				$formation['sub'.$subNo.'_in']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_in');
+				$formation['sub'.$subNo.'_minute']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_minute');
+				$formation['sub'.$subNo.'_condition']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_condition');
+				$formation['sub'.$subNo.'_position']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_position');}
+			elseif (!isset($formation['sub'.$subNo.'_out'])) {
+				$formation['sub'.$subNo.'_out']='';
+				$formation['sub'.$subNo.'_in']='';
+				$formation['sub'.$subNo.'_minute']='';
+				$formation['sub'.$subNo.'_condition']='';
+				$formation['sub'.$subNo.'_position']='';}}
 		$setup = $this->getFormationSetup($formation);
 		$criteria = $this->_websoccer->getRequestParameter('preselect');
 		if ($criteria !== NULL) {
-			if ($criteria == 'strongest')$sortColumn = 'w_staerke'; 
+			if ($criteria == 'strongest')$sortColumn = 'w_staerke';
 			elseif ($criteria == 'freshest')$sortColumn = 'w_frische';
 			else $sortColumn = 'w_zufriedenheit';
 
 			$proposedPlayers = FormationDataService::getFormationProposalForTeamId($this->_websoccer, $this->_db, $clubId,$setup['defense'], $setup['dm'], $setup['midfield'], $setup['om'], $setup['striker'], $setup['outsideforward'], $sortColumn, 'DESC',
 					$this->_nationalteam, (isset($matchinfo['match_type']) && $matchinfo['match_type'] == 'cup'));
-			for ($playerNo = 1; $playerNo <= 11; $playerNo++) {
+			for ($playerNo = 1; $playerNo <= 11;++$playerNo) {
 				$playerIndex = $playerNo - 1;
 				if (isset($proposedPlayers[$playerIndex])) {
-					$formation['player' . $playerNo] = $proposedPlayers[$playerIndex]['id'];
-					$formation['player' . $playerNo . '_pos'] = $proposedPlayers[$playerIndex]['position'];}}
-			for ($benchNo = 1; $benchNo <= 5; $benchNo++)$formation['bench' . $benchNo] = '';
-			for ($subNo = 1; $subNo <= 3; $subNo++) {
-				$formation['sub' . $subNo .'_out'] = '';
-				$formation['sub' . $subNo .'_in'] = '';
-				$formation['sub' . $subNo .'_minute'] = '';
-				$formation['sub' . $subNo .'_condition'] = '';
-				$formation['sub' . $subNo .'_position'] = '';}}
-		if ($this->_websoccer->getRequestParameter('freekickplayer')) $formation['freekickplayer'] = $this->_websoccer->getRequestParameter('freekickplayer');
-		elseif (!isset($formation['freekickplayer']))$formation['freekickplayer'] = '';
-		if ($this->_websoccer->getRequestParameter('offensive'))$formation['offensive'] = $this->_websoccer->getRequestParameter('offensive');
-		elseif (!isset($formation['offensive']))$formation['offensive'] = 40;
-		if ($this->_websoccer->getRequestParameter('longpasses'))$formation['longpasses'] = $this->_websoccer->getRequestParameter('longpasses');
-		if ($this->_websoccer->getRequestParameter('counterattacks'))$formation['counterattacks'] = $this->_websoccer->getRequestParameter('counterattacks');
-		for ($playerNo = 1; $playerNo <= 11; $playerNo++) {
-			if ($this->_websoccer->getRequestParameter('player' . $playerNo)) {
-				$formation['player' . $playerNo] = $this->_websoccer->getRequestParameter('player' . $playerNo);
-				$formation['player' . $playerNo . '_pos'] = $this->_websoccer->getRequestParameter('player' . $playerNo . '_pos');}
-			elseif (!isset($formation['player' . $playerNo])) {
-				$formation['player' . $playerNo] = '';
-				$formation['player' . $playerNo . '_pos'] = '';}}
+					$formation['player'.$playerNo] = $proposedPlayers[$playerIndex]['id'];
+					$formation['player'.$playerNo . '_pos']=$proposedPlayers[$playerIndex]['position'];}}
+			for ($benchNo = 1; $benchNo <= 5;++$benchNo)$formation['bench'.$benchNo]='';
+			for ($subNo = 1; $subNo <= 3;++$subNo) {
+				$formation['sub'.$subNo.'_out']='';
+				$formation['sub'.$subNo.'_in']='';
+				$formation['sub'.$subNo.'_minute']='';
+				$formation['sub'.$subNo.'_condition']='';
+				$formation['sub'.$subNo.'_position']='';}}
+		if ($this->_websoccer->getRequestParameter('freekickplayer')) $formation['freekickplayer']=$this->_websoccer->getRequestParameter('freekickplayer');
+		elseif (!isset($formation['freekickplayer']))$formation['freekickplayer']='';
+		if ($this->_websoccer->getRequestParameter('offensive'))$formation['offensive']=$this->_websoccer->getRequestParameter('offensive');
+		elseif (!isset($formation['offensive']))$formation['offensive']=40;
+		if ($this->_websoccer->getRequestParameter('longpasses'))$formation['longpasses']=$this->_websoccer->getRequestParameter('longpasses');
+		if ($this->_websoccer->getRequestParameter('counterattacks'))$formation['counterattacks']=$this->_websoccer->getRequestParameter('counterattacks');
+		for ($playerNo = 1; $playerNo <= 11;++$playerNo) {
+			if ($this->_websoccer->getRequestParameter('player'.$playerNo)) {
+				$formation['player'.$playerNo] = $this->_websoccer->getRequestParameter('player'.$playerNo);
+				$formation['player'.$playerNo . '_pos']=$this->_websoccer->getRequestParameter('player'.$playerNo . '_pos');}
+			elseif (!isset($formation['player'.$playerNo])) {
+				$formation['player'.$playerNo]='';
+				$formation['player'.$playerNo . '_pos']='';}}
 		return array('nextMatches' => $nextMatches,
 				'next_match' => $matchinfo,
 				'previous_matches' => MatchesDataService::getPreviousMatches($matchinfo, $this->_websoccer, $this->_db),
@@ -5276,9 +5084,8 @@ class HallOfFameModel extends Model {
 class HighscoreModel extends Model {
 	function getTemplateParameters(){
 		$count=UsersDataService::countActiveUsersWithHighscore($this->_websoccer,$this->_db);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count)$users=UsersDataService::getActiveUsersWithHighscore($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
+		$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
+		if($count)$users=UsersDataService::getActiveUsersWithHighscore($this->_websoccer,$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'));
 		else $users=[];
 		return array("users"=>$users,"paginator"=>$paginator);}}
 class ImprintModel extends Model {
@@ -5397,37 +5204,37 @@ class MatchChangesModel extends FormationModel{private$_db,$_i18n,$_websoccer;
 		$setup = array('defense'=>6,'dm' => 3,'midfield' => 4,'om' => 3,'striker' => 2,'outsideforward' => 2);
 		$setupMainMapping = array('LV' => 'defense','RV' => 'defense','IV' => 'defense','DM' => 'dm','LM' => 'midfield','ZM' => 'midfield','RM' => 'midfield','OM' => 'om','LS' => 'outsideforward','MS' => 'striker','RS' => 'outsideforward');
 		$setupPosMapping = array('Abwehr' => 'defense','Mittelfeld' => 'midfield','Sturm' => 'striker');
-		for ($playerNo = 1; $playerNo <= 11; $playerNo++) {
-			if ($this->_websoccer->getRequestParameter('player' . $playerNo) > 0) {
-				$formation['player' . $playerNo] = $this->_websoccer->getRequestParameter('player' . $playerNo);
-				$formation['player' . $playerNo . '_pos'] = $this->_websoccer->getRequestParameter('player' . $playerNo . '_pos');}}
+		for ($playerNo = 1; $playerNo <= 11;++$playerNo) {
+			if ($this->_websoccer->getRequestParameter('player'.$playerNo) > 0) {
+				$formation['player'.$playerNo] = $this->_websoccer->getRequestParameter('player'.$playerNo);
+				$formation['player'.$playerNo . '_pos']=$this->_websoccer->getRequestParameter('player'.$playerNo . '_pos');}}
 		$benchNo = 0;
 		foreach ($playersOnBench as $player) {
-			$benchNo++;
-			$formation['bench' . $benchNo] = $player['id'];}
-		for ($benchNo = 1; $benchNo <= 5; $benchNo++) {
-			if ($this->_websoccer->getRequestParameter('bench' . $benchNo))$formation['bench' . $benchNo] = $this->_websoccer->getRequestParameter('bench' . $benchNo);
-			elseif (!isset($formation['bench' . $benchNo]))$formation['bench' . $benchNo] = '';
+			++$benchNo;
+			$formation['bench'.$benchNo] = $player['id'];}
+		for ($benchNo = 1; $benchNo <= 5;++$benchNo) {
+			if ($this->_websoccer->getRequestParameter('bench'.$benchNo))$formation['bench'.$benchNo] = $this->_websoccer->getRequestParameter('bench'.$benchNo);
+			elseif (!isset($formation['bench'.$benchNo]))$formation['bench'.$benchNo]='';
 		}
-	for ($subNo = 1; $subNo <= 3; $subNo++) {
-			if ($this->_websoccer->getRequestParameter('sub' . $subNo .'_out')) {
-				$formation['sub' . $subNo .'_out'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_out');
-				$formation['sub' . $subNo .'_in'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_in');
-				$formation['sub' . $subNo .'_minute'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_minute');
-				$formation['sub' . $subNo .'_condition'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_condition');
-				$formation['sub' . $subNo .'_position'] = $this->_websoccer->getRequestParameter('sub' . $subNo .'_position');}
-			elseif (isset($match[$teamPrefix . '_sub' . $subNo .'_out'])) {
-				$formation['sub' . $subNo .'_out'] = $match[$teamPrefix . '_sub' . $subNo .'_out'];
-				$formation['sub' . $subNo .'_in'] = $match[$teamPrefix . '_sub' . $subNo .'_in'];
-				$formation['sub' . $subNo .'_minute'] = $match[$teamPrefix . '_sub' . $subNo .'_minute'];
-				$formation['sub' . $subNo .'_condition'] = $match[$teamPrefix . '_sub' . $subNo .'_condition'];
-				$formation['sub' . $subNo .'_position'] = $match[$teamPrefix . '_sub' . $subNo .'_position'];}
+	for ($subNo = 1; $subNo <= 3;++$subNo) {
+			if ($this->_websoccer->getRequestParameter('sub'.$subNo.'_out')) {
+				$formation['sub'.$subNo.'_out']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_out');
+				$formation['sub'.$subNo.'_in']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_in');
+				$formation['sub'.$subNo.'_minute']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_minute');
+				$formation['sub'.$subNo.'_condition']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_condition');
+				$formation['sub'.$subNo.'_position']=$this->_websoccer->getRequestParameter('sub'.$subNo.'_position');}
+			elseif (isset($match[$teamPrefix.'_sub'.$subNo.'_out'])) {
+				$formation['sub'.$subNo.'_out']=$match[$teamPrefix.'_sub'.$subNo.'_out'];
+				$formation['sub'.$subNo.'_in']=$match[$teamPrefix.'_sub'.$subNo.'_in'];
+				$formation['sub'.$subNo.'_minute']=$match[$teamPrefix.'_sub'.$subNo.'_minute'];
+				$formation['sub'.$subNo.'_condition']=$match[$teamPrefix.'_sub'.$subNo.'_condition'];
+				$formation['sub'.$subNo.'_position']=$match[$teamPrefix.'_sub'.$subNo.'_position'];}
 			else {
-				$formation['sub' . $subNo .'_out'] = '';
-				$formation['sub' . $subNo .'_in'] = '';
-				$formation['sub' . $subNo .'_minute'] = '';
-				$formation['sub' . $subNo .'_condition'] = '';
-				$formation['sub' . $subNo .'_position'] = '';}}
+				$formation['sub'.$subNo.'_out']='';
+				$formation['sub'.$subNo.'_in']='';
+				$formation['sub'.$subNo.'_minute']='';
+				$formation['sub'.$subNo.'_condition']='';
+				$formation['sub'.$subNo.'_position']='';}}
 		return array('setup' => $setup, 'players' => $players, 'formation' => $formation, 'minute' => $match['match_minutes']);}}
 class MatchDayResultsModel extends Model {
 	function getTemplateParameters(){
@@ -5471,9 +5278,9 @@ class MatchPlayersModel extends Model {
 			$topPlayerIds=[];
 			while($topmember=$result->fetch_array())$topPlayerIds[]=$topmember["player_id"];
 			if(count($topPlayerIds)){
-				for($playerIndex=0; $playerIndex<count($home_players); $playerIndex++){
+				for($playerIndex=0; $playerIndex<count($home_players);++$playerIndex){
 					if(in_array($home_players[$playerIndex]["id"],$topPlayerIds))$home_players[$playerIndex]["is_best_player_of_day"]=TRUE;}
-				for($playerIndex=0; $playerIndex<count($guest_players); $playerIndex++){
+				for($playerIndex=0; $playerIndex<count($guest_players);++$playerIndex){
 					if(in_array($guest_players[$playerIndex]["id"],$topPlayerIds))$guest_players[$playerIndex]["is_best_player_of_day"]=TRUE;}}}
 		return array("match"=>$match,"home_players"=>$home_players,"guest_players"=>$guest_players);}}
 class MatchPreviewModel extends Model {
@@ -5490,12 +5297,12 @@ class MatchPreviewModel extends Model {
 		$whereCondition="M.berechnet=1 AND (HOME.id=%d OR GUEST.id=%d)";
 		$parameters=array($teamId,$teamId);
 		if($this->_match['match_season_id']){
-			$whereCondition .= ' AND M.saison_id=%d';
+			$whereCondition.=' AND M.saison_id=%d';
 			$parameters[]=$this->_match['match_season_id'];}
 		elseif(strlen($this->_match['match_cup_name'])){
-			$whereCondition .= ' AND M.pokalname=\'%s\'';
+			$whereCondition.=' AND M.pokalname=\'%s\'';
 			$parameters[]=$this->_match['match_cup_name'];}
-		else $whereCondition .= ' AND M.spieltyp=\'Freundschaft\'';
+		else $whereCondition.=' AND M.spieltyp=\'Freundschaft\'';
 		$whereCondition.=" ORDER BY M.datum DESC";
 		return MatchesDataService::getMatchesByCondition($this->_websoccer,$this->_db,$whereCondition,$parameters, 5);}
 	function _getUserInfoByTeam($teamId){
@@ -5537,18 +5344,16 @@ class MessageDetailsModel extends Model {
 class MessagesInboxModel extends Model {
 	function getTemplateParameters(){
 		$count=MessagesDataService::countInboxMessages($this->_websoccer,$this->_db);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count)$messages=MessagesDataService::getInboxMessages($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
+		$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
+		if($count)$messages=MessagesDataService::getInboxMessages($this->_websoccer,$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'));
 		else $messages=[];
 		return array("messages"=>$messages,"paginator"=>$paginator);}}
 class MessagesOutboxModel extends Model {
 	function getTemplateParameters(){
 		$count=MessagesDataService::countOutboxMessages($this->_websoccer,$this->_db);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
+		$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
 		$paginator->addParameter("block","messages-outbox");
-		if($count)$messages=MessagesDataService::getOutboxMessages($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
+		if($count)$messages=MessagesDataService::getOutboxMessages($this->_websoccer,$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'));
 		else $messages=[];
 		return array("messages"=>$messages,"paginator"=>$paginator);}}
 class MyScheduleModel extends Model {
@@ -5563,10 +5368,9 @@ class MyScheduleModel extends Model {
 		if($matchesCnt)$count=$matchesCnt['hits'];
 		else $count=0;
 		if($count){
-			$whereCondition .= ' ORDER BY M.datum ASC';
-			$eps=Config("entries_per_page");
-			$paginator=new Paginator($count,$eps,$this->_websoccer);
-			$matches=MatchesDataService::getMatchesByCondition($this->_websoccer,$this->_db,$whereCondition,$parameters,$paginator->getFirstIndex().','.$eps);}
+			$whereCondition.=' ORDER BY M.datum ASC';
+			$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
+			$matches=MatchesDataService::getMatchesByCondition($this->_websoccer,$this->_db,$whereCondition,$parameters,$paginator->getFirstIndex().','.Config('entries_per_page'));}
 		return array("matches"=>$matches,"paginator"=>$paginator);}}
 class MyTeamModel extends Model {
 	function getTemplateParameters(){
@@ -5592,7 +5396,7 @@ class MyYouthTeamModel extends Model {
 		if($teamId){
 			$players=YouthPlayersDataService::getYouthPlayersOfTeam($this->_websoccer,$this->_db,$teamId);
 			$noOfPlayers=count($players);
-			for($playerIndex=0; $playerIndex<$noOfPlayers; $playerIndex++)$players[$playerIndex]["nation_flagfile"]=PlayersDataService::getFlagFilename($players[$playerIndex]["nation"]);}
+			for($playerIndex=0; $playerIndex<$noOfPlayers;++$playerIndex)$players[$playerIndex]["nation_flagfile"]=PlayersDataService::getFlagFilename($players[$playerIndex]["nation"]);}
 		return array("players"=>$players);}
 	function renderView(){ return Config("youth_enabled");}}
 class NationalMatchResultsModel extends Model {
@@ -5600,11 +5404,10 @@ class NationalMatchResultsModel extends Model {
 		$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
 		if(!$teamId)throw new Exception(Message("nationalteams_user_requires_team"));
 		$matchesCount=NationalteamsDataService::countSimulatedMatches($this->_websoccer,$this->_db,$teamId);
-		$eps=5;
-		$paginator=new Paginator($matchesCount,$eps,$this->_websoccer);
+		$paginator=new Paginator($matchesCount,5,$this->_websoccer);
 		$paginator->addParameter("block","national-match-results");
 		$matches=[];
-		if($matchesCount)$matches=NationalteamsDataService::getSimulatedMatches($this->_websoccer,$this->_db,$teamId,$paginator->getFirstIndex(),$eps);
+		if($matchesCount)$matches=NationalteamsDataService::getSimulatedMatches($this->_websoccer,$this->_db,$teamId,$paginator->getFirstIndex(),5);
 		return array("paginator"=>$paginator,"matches"=>$matches);}
 	function renderView(){ return Config("nationalteams_enabled");}}
 class NationalNextMatchesModel extends Model {
@@ -5612,11 +5415,10 @@ class NationalNextMatchesModel extends Model {
 		$teamId=NationalteamsDataService::getNationalTeamManagedByCurrentUser($this->_websoccer,$this->_db);
 		if(!$teamId)throw new Exception(Message("nationalteams_user_requires_team"));
 		$matchesCount=NationalteamsDataService::countNextMatches($this->_websoccer,$this->_db,$teamId);
-		$eps=5;
-		$paginator=new Paginator($matchesCount,$eps,$this->_websoccer);
+		$paginator=new Paginator($matchesCount,5,$this->_websoccer);
 		$paginator->addParameter("block","national-next-matches");
 		$matches=[];
-		if($matchesCount)$matches=NationalteamsDataService::getNextMatches($this->_websoccer,$this->_db,$teamId,$paginator->getFirstIndex(),$eps);
+		if($matchesCount)$matches=NationalteamsDataService::getNextMatches($this->_websoccer,$this->_db,$teamId,$paginator->getFirstIndex(),5);
 		return array("paginator"=>$paginator,"matches"=>$matches);}
 	function renderView(){ return Config("nationalteams_enabled");}}
 class NationalNextMatchModel extends Model {
@@ -5673,11 +5475,10 @@ class NewsListModel extends Model {
 		$parameters="1";
 		$result=$this->_db->querySelect("COUNT(*)AS hits",$fromTable,$whereCondition,$parameters);
 		$rows=$result->fetch_array();
-		$eps=config('NEWS_ENTRIES_PER_PAGE');
-		$paginator=new Paginator($rows["hits"],$eps,$this->_websoccer);
+		$paginator=new Paginator($rows["hits"],Config('NEWS_ENTRIES_PER_PAGE'),$this->_websoccer);
 		$columns="id, titel, datum, nachricht";
 		$whereCondition.=" ORDER BY datum DESC";
-		$limit=$paginator->getFirstIndex().",".$eps;
+		$limit=$paginator->getFirstIndex().",".Config('NEWS_ENTRIES_PER_PAGE');
 		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
 		$articles=[];
 		while($article=$result->fetch_array())$articles[]=array("id"=>$article["id"],"title"=>$article["titel"],"date"=>FormattedDate($article["datum"]),"teaser"=>$this->_shortenMessage($article["nachricht"]));
@@ -5744,8 +5545,7 @@ class PlayerDetailsWithDependenciesModel extends Model {
 class PlayersSearchModel extends Model {
 	function getTemplateParameters(){
 		$playersCount=PlayersDataService::findPlayersCount($this->_websoccer,$this->_db,$this->_firstName,$this->_lastName,$this->_club,$this->_position,$this->_strength,$this->_lendableOnly);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($playersCount,$eps,$this->_websoccer);
+		$paginator=new Paginator($playersCount,Config('entries_per_page'),$this->_websoccer);
 		$paginator->addParameter("block","playerssearch-results");
 		$paginator->addParameter("fname",$this->_firstName);
 		$paginator->addParameter("lname",$this->_lastName);
@@ -5753,7 +5553,7 @@ class PlayersSearchModel extends Model {
 		$paginator->addParameter("position",$this->_position);
 		$paginator->addParameter("strength",$this->_strength);
 		$paginator->addParameter("lendable",$this->_lendableOnly);
-		if($playersCount)$players=PlayersDataService::findPlayers($this->_websoccer,$this->_db,$this->_firstName,$this->_lastName,$this->_club,$this->_position,$this->_strength,$this->_lendableOnly,$paginator->getFirstIndex(),$eps);
+		if($playersCount)$players=PlayersDataService::findPlayers($this->_websoccer,$this->_db,$this->_firstName,$this->_lastName,$this->_club,$this->_position,$this->_strength,$this->_lendableOnly,$paginator->getFirstIndex(),Config('entries_per_page'));
 		else $players=[];
 		return array("playersCount"=>$playersCount,"players"=>$players,"paginator"=>$paginator);}
 	function renderView(){
@@ -5785,9 +5585,8 @@ class PremiumAccountModel extends Model {
 	function getTemplateParameters(){
 		$userId=$this->_websoccer->getUser()->id;
 		$count=PremiumDataService::countAccountStatementsOfUser($this->_websoccer,$this->_db,$userId);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count)$statements=PremiumDataService::getAccountStatementsOfUser($this->_websoccer,$this->_db,$userId,$paginator->getFirstIndex(),$eps);
+		$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
+		if($count)$statements=PremiumDataService::getAccountStatementsOfUser($this->_websoccer,$this->_db,$userId,$paginator->getFirstIndex(),Config('entries_per_page'));
 		else $statements=[];
 		return array("statements"=>$statements,"paginator"=>$paginator,"payments"=> PremiumDataService::getPaymentsOfUser($this->_websoccer,$this->_db,$userId, 5));}}
 class ProfileBlockModel extends Model {
@@ -5934,13 +5733,13 @@ class StadiumEnvironmentModel extends Model {
 			$availableBuildings[]=$building;}
 		return array('existingBuildings'=>$existingBuildings, 'availableBuildings'=>$availableBuildings);}}
 class StadiumExtensionModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$offers=StadiumsDataService::getBuilderOffersForExtension($this->_websoccer,$this->_db,$teamId, (int)Request("side_standing"), (int)Request("side_seats"),
 			(int)Request("grand_standing"),(int)Request("grand_seats"),(int)Request("vip"));
 		return array("offers"=>$offers);}}
 class StadiumModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$stadium=StadiumsDataService::getStadiumByTeamId($this->_websoccer,$this->_db,$teamId);
 		$construction=StadiumsDataService::getCurrentConstructionOrderOfTeam($this->_websoccer,$this->_db,$teamId);
@@ -5952,7 +5751,7 @@ class StadiumModel extends Model {
 			$upgradeCosts["vipquality"]=StadiumsDataService::computeUpgradeCosts($this->_websoccer,"vipquality",$stadium);}
 		return array("stadium"=>$stadium,"construction"=>$construction,"upgradeCosts"=>$upgradeCosts);}}
 class TableHistoryModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$teamId=(int)Request('id');
 		if($teamId<1)throw new Exception(Message('error_page_not_found'));
 		$team=TeamsDataService::getTeamById($this->_websoccer,$this->_db,$teamId);
@@ -5969,7 +5768,7 @@ class TableHistoryModel extends Model {
 		$teams=$result->fetch_array();
 		return array('teamName'=>$team['team_name'],'history'=>$history, 'noOfTeamsInLeague'=>$teams['cnt'],'leagueid'=>$team['team_league_id']);}}
 class TeamDetailsModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$teamId=(int)Request('id');
 		if($teamId<1)throw new Exception(Message('error_page_not_found'));
 		$team=TeamsDataService::getTeamById($this->_websoccer,$this->_db,$teamId);
@@ -5985,7 +5784,7 @@ class TeamDetailsModel extends Model {
 		$team['victories']=$this->getVictories($team['team_id'],$team['team_league_id']);
 		$team['cupvictories']=$this->getCupVictories($team['team_id']);
 		return array('team'=>$team, 'stadium'=>$stadium, 'playerfacts'=>$playerfacts);}
-	function getVictories($teamId,$leagueId){
+			function getVictories($teamId,$leagueId){
 		$fromTable=Config('db_prefix').'_saison AS S INNER JOIN '.Config('db_prefix').'_liga AS L ON L.id=S.liga_id';
 		$columns['S.name']='season_name';
 		$columns['L.name']='league_name';
@@ -6006,14 +5805,14 @@ class TeamDetailsModel extends Model {
 			elseif($season['season_fivth']==$teamId)$place=5;
 			$victories[]=array('season_name'=>$season['season_name'],'season_place'=>$place, 'league_name'=>$season['league_name']);}
 		return$victories;}
-	function getCupVictories($teamId){
+			function getCupVictories($teamId){
 		$fromTable=Config('db_prefix').'_cup';
 		$whereCondition='winner_id=%d ORDER BY name ASC';
 		$result=$this->_db->querySelect('id AS cup_id,name AS cup_name,logo AS cup_logo',$fromTable,$whereCondition,$teamId);
 		$victories=[];
 		while($cup=$result->fetch_array())$victories[]=$cup;;
 		return$victories;}
-	function getPlayerFacts($teamId){
+			function getPlayerFacts($teamId){
 		$columns=array('COUNT(*)'=> 'numberOfPlayers');
 		if(Config('players_aging')=='birthday')$ageColumn='TIMESTAMPDIFF(YEAR,geburtstag,CURDATE())';
 		else $ageColumn='age';
@@ -6032,7 +5831,7 @@ class TeamDetailsModel extends Model {
 		if($playerfacts['numberOfPlayers'])$playerfacts['avgMarketValue']=$playerfacts['sumMarketValue'] / $playerfacts['numberOfPlayers'];
 		else $playerfacts['avgMarketValue']=0;
 		return$playerfacts;}
-	function computeMarketValue($strength,$technique,$freshness,$satisfaction,$stamina){
+			function computeMarketValue($strength,$technique,$freshness,$satisfaction,$stamina){
 		$weightStrength=Config('sim_weight_strength');
 		$weightTech=Config('sim_weight_strengthTech');
 		$weightStamina=Config('sim_weight_strengthStamina');
@@ -6046,7 +5845,7 @@ class TeamDetailsModel extends Model {
 		$totalStrength /= $weightStrength + $weightTech + $weightStamina + $weightFreshness + $weightSatisfaction;
 		return$totalStrength *Config('transfermarket_value_per_strength');}}
 class TeamHistoryModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$columns=array('U.id'=> 'user_id', 'U.nick'=> 'user_name', 'L.name'=> 'league_name', 'SEASON.name'=> 'season_name', 'A.rank'=> 'season_rank', 'A.id'=> 'achievement_id', 'A.date_recorded'=> 'achievement_date', 'CUP.name'=> 'cup_name',
 			'CUPROUND.name'=> 'cup_round_name');
 		$tablePrefix=Config('db_prefix');
@@ -6061,11 +5860,11 @@ class TeamHistoryModel extends Model {
 			elseif(!isset($cups[$achievement['cup_name']]))$cups[$achievement['cup_name']]=$achievement;
 			else $this->_db->queryDelete($tablePrefix.'_achievement', 'id=%d',$achievement['achievement_id']);}
 		return array("leagues"=>$leagues,"cups"=>$cups);}
-	function renderView(){
+			function renderView(){
 		$this->_teamId=(int)Request("teamid");
 		return$this->_teamId>0;}}
 class TeamOfTheDayModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$players=[];
 		$positions;
 		$leagues=LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db);
@@ -6099,7 +5898,7 @@ class TeamOfTheDayModel extends Model {
 				if($openmatches && $openmatches["hits"])$openMatchesExist=TRUE;
 				else $this->getTeamOfTheDay($seasonId,$matchday,$players);}}
 		return array("leagues"=>$leagues,"leagueId"=>$leagueId,"seasons"=>$seasons,"seasonId"=>$seasonId,"maxMatchDay"=>$maxMatchDay,"matchday"=>$matchday,"openMatchesExist"=>$openMatchesExist,"players"=>$players);}
-	function getTeamOfTheDay($seasonId,$matchday, &$players){
+			function getTeamOfTheDay($seasonId,$matchday, &$players){
 		$seasonId=(int)$seasonId;
 		if($matchday==-1){
 			$this->findPlayersForTeamOfSeason($seasonId,array("T"), 1,$players);
@@ -6126,7 +5925,7 @@ class TeamOfTheDayModel extends Model {
 			$this->findPlayers($columns,$seasonId,$matchday,array("DM","ZM","OM"), 2,$players);
 			$this->findPlayers($columns,$seasonId,$matchday,array("RM"), 1,$players);
 			$this->findPlayers($columns,$seasonId,$matchday,array("LS","MS","RS"), 2,$players);}}
-	function findPlayers($columns,$seasonId,$matchday,$mainPositions,$limit, &$players){
+			function findPlayers($columns,$seasonId,$matchday,$mainPositions,$limit, &$players){
 		$fromTable=Config("db_prefix")."_spiel_berechnung AS S INNER JOIN ".Config("db_prefix")."_spiel AS M ON M.id=S.spiel_id INNER JOIN ".Config("db_prefix").
 			"_verein AS T ON T.id=S.team_id LEFT JOIN ".Config("db_prefix")."_spieler AS P ON P.id=S.spieler_id";
 		$whereCondition="M.saison_id=%d AND M.spieltag=%d AND (S.position_main='";
@@ -6136,7 +5935,7 @@ class TeamOfTheDayModel extends Model {
 		while($player=$result->fetch_array()){
 			$players[]=$player;
 			$this->_db->queryInsert(array("season_id"=>$seasonId,"matchday"=>$matchday,"position_main"=>$player["position_main"],"statistic_id"=>$player["statistic_id"],"player_id"=>$player["player_id"]),Config("db_prefix")."_teamoftheday");}}
-	function findPlayersForTeamOfSeason($seasonId,$mainPositions,$limit, &$players){
+			function findPlayersForTeamOfSeason($seasonId,$mainPositions,$limit, &$players){
 		$columns=array( "P.id"=>"player_id","P.vorname"=>"firstname","P.nachname"=>"lastname","P.kunstname"=>"pseudonym","P.picture"=>"picture","P.position"=>"position","C.position_main"=>"position_main","T.name"=>"team_name",
 			"T.bild"=>"team_picture","(SELECT COUNT(*)FROM ".Config("db_prefix")."_teamoftheday AS STAT WHERE STAT.season_id=$seasonId AND STAT.player_id=P.id)"=>"memberoftopteam");
 		$fromTable=Config("db_prefix")."_teamoftheday AS C INNER JOIN ".Config("db_prefix")."_spieler AS P ON P.id=C.player_id LEFT JOIN ".Config("db_prefix").
@@ -6148,30 +5947,30 @@ class TeamOfTheDayModel extends Model {
 		$whereCondition.=" GROUP BY P.id ORDER BY memberoftopteam DESC";
 		$result=$this->_db->querySelect($columns,$fromTable,$whereCondition,$seasonId,$limit);
 		while($player=$result->fetch_array()){
-			$player["player_name"]=(strlen($player["pseudonym"]))? $player["pseudonym"] : $player["firstname"]." ".$player["lastname"];
+			$player["player_name"]=(strlen($player["pseudonym"]))? $player["pseudonym"]:$player["firstname"]." ".$player["lastname"];
 			$players[]=$player;}}}
 class TeamPlayersModel extends Model {
 	function getTemplateParameters(){
 		$isNationalTeam=(Request("nationalteam"))? TRUE : FALSE;
 		$players=PlayersDataService::getPlayersOfTeamById($this->_websoccer,$this->_db,$this->_teamid,$isNationalTeam);
 		return array("players"=>$players);}
-	function renderView(){
+			function renderView(){
 		$this->_teamid=(int)Request("teamid");
 		return($this->_teamid);}}
 class TeamResultsModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$matches=MatchesDataService::getLatestMatchesByTeam($this->_websoccer,$this->_db,$this->_teamId);
 		return array("matches"=>$matches);}
-	function renderView(){
+			function renderView(){
 		$this->_teamId=(int)Request("teamid");
 		return$this->_teamId>0;}}
 class TeamTransfersModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$teamId=Request("teamid");
 		if($teamId)$transfers=TransfermarketDataService::getCompletedTransfersOfTeam($this->_websoccer,$this->_db,$teamId);
 		return array("completedtransfers"=>$transfers);}}
 class TermsAndConditionsModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$termsFile=$_SERVER['DOCUMENT_ROOT']."/admin/config/termsandconditions.xml";
 		if(!file_exists($termsFile))throw new Exception("File does not exist: ".$termsFile);
 		$xml=simplexml_load_file($termsFile);
@@ -6180,7 +5979,7 @@ class TermsAndConditionsModel extends Model {
 		$terms=(string)$termsConfig[0];
 		return array("terms"=> nl2br($terms));}}
 class TicketsModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		if($teamId<1)throw new Exception(Message("feature_requires_team"));
 		$columns["T.preis_stehen"]="p_stands";
@@ -6210,17 +6009,16 @@ class TicketsModel extends Model {
 		if(Request("p_vip"))$tickets["p_vip"]=Request("p_vip");
 		return array("tickets"=>$tickets);}}
 class TodaysMatchesModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$matches=[];
 		$paginator=null;
 		$count=MatchesDataService::countTodaysMatches($this->_websoccer,$this->_db);
 		if($count){
-			$eps=Config("entries_per_page");
-			$paginator=new Paginator($count,$eps,$this->_websoccer);
-			$matches=MatchesDataService::getTodaysMatches($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);}
+			$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
+			$matches=MatchesDataService::getTodaysMatches($this->_websoccer,$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'));}
 		return array("matches"=>$matches,"paginator"=>$paginator);}}
 class TopNewsListModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$fromTable=Config("db_prefix")."_news";
 		$columns="id, titel, datum";
 		$whereCondition="status=1 ORDER BY datum DESC";
@@ -6228,26 +6026,24 @@ class TopNewsListModel extends Model {
 		$articles=[];
 		while($article=$result->fetch_array())$articles[]=array("id"=>$article["id"],"title"=>$article["titel"],"date"=>FormattedDate($article["datum"]));
 		return array("topnews"=>$articles);}}
-class TopScorersModel extends Model {
-	function getTemplateParameters(){
-		return array('players'=> PlayersDataService::getTopScorers($this->_websoccer,$this->_db, config('NUMBER_OF_PLAYERS'),Request('leagueid')), 'leagues'=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
-class TopStrikersModel extends Model {
-	function getTemplateParameters(){
-		return array("players"=> PlayersDataService::getTopStrikers($this->_websoccer,$this->_db, config('NUMBER_OF_PLAYERS'),Request("leagueid")),"leagues"=> LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db));}}
+class TopScorersModel extends Model{
+			function getTemplateParameters(){return['players'=>PlayersDataService::getTopScorers($this->_websoccer,$this->_db,config('NUMBER_OF_PLAYERS'),Request('leagueid')),'leagues'=>LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db)];}}
+class TopStrikersModel extends Model{
+			function getTemplateParameters(){return['players'=>PlayersDataService::getTopStrikers($this->_websoccer,$this->_db,config('NUMBER_OF_PLAYERS'),Request("leagueid")),'leagues'=>LeagueDataService::getLeaguesSortedByCountry($this->_websoccer,$this->_db)];}}
 class TrainerDetailsModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$trainerId=Request("id");
 		$trainer=TrainingDataService::getTrainerById($this->_websoccer,$this->_db,$trainerId);
 		if(!isset($trainer["id"]))throw new Exception('error_page_not_found');
 		return array("trainer"=>$trainer);}}
 class TrainingCampsDetailsModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$camp=TrainingcampsDataService::getCampById($this->_websoccer,$this->_db,Request("id"));
 		if(!$camp)throw new Exception(Message('error_page_not_found'));
 		$defaultDate=Timestamp()+ 24*3600;
 		return array("camp"=>$camp,"defaultDate"=>$defaultDate);}}
 class TrainingCampsModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$user=$this->_websoccer->getUser();
 		$teamId=$user->getClubId($this->_websoccer,$this->_db);
 		if($teamId<1)throw new Exception(Message("feature_requires_team"));
@@ -6264,7 +6060,7 @@ class TrainingCampsModel extends Model {
 		if($listCamps)$camps=TrainingcampsDataService::getCamps($this->_websoccer,$this->_db);
 		return array("bookedCamp"=>$bookedCamp,"camps"=>$camps);}}
 class TrainingModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$lastExecution=TrainingDataService::getLatestTrainingExecutionTime($this->_websoccer,$this->_db,$teamId);
 		$unitsCount=TrainingDataService::countRemainingTrainingUnits($this->_websoccer,$this->_db,$teamId);
@@ -6273,25 +6069,24 @@ class TrainingModel extends Model {
 		$training_unit=TrainingDataService::getValidTrainingUnit($this->_websoccer,$this->_db,$teamId);
 		if(!isset($training_unit["id"])){
 			$count=TrainingDataService::countTrainers($this->_websoccer,$this->_db);
-			$eps=Config("entries_per_page");
-			$paginator=new Paginator($count,$eps,$this->_websoccer);
-			if($count)$trainers=TrainingDataService::getTrainers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);}
+			$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
+			if($count)$trainers=TrainingDataService::getTrainers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'));}
 		else $training_unit["trainer"]=TrainingDataService::getTrainerById($this->_websoccer,$this->_db,$training_unit["trainer_id"]);
 		$trainingEffects=[];
 		$contextParameters=$this->_websoccer->getContextParameters();
 		if(isset($contextParameters["trainingEffects"]))$trainingEffects=$contextParameters["trainingEffects"];
 		return array("unitsCount"=>$unitsCount,"lastExecution"=>$lastExecution,"training_unit"=>$training_unit,"trainers"=>$trainers,"paginator"=>$paginator,"trainingEffects"=>$trainingEffects);}}
 class TransferBidModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$highestBid=TransfermarketDataService::getHighestBidForPlayer($this->_websoccer,$this->_db,$this->_player["player_id"],$this->_player["transfer_start"],$this->_player["transfer_end"]);
 		return array("player"=>$this->_player,"highestbid"=>$highestBid);}
-	function renderView(){
+			function renderView(){
 		$playerId=(int)Request("id");
 		if($playerId<1)throw new Exception(Message('error_page_not_found'));
 		$this->_player=PlayersDataService::getPlayerById($this->_websoccer,$this->_db,$playerId);
 		return($this->_player["transfer_end"]>Timestamp());}}
 class TransfermarketOverviewModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$teamId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		if($teamId<1)throw new Exception(Message("feature_requires_team"));
 		$positionInput=Request("position");
@@ -6301,48 +6096,42 @@ class TransfermarketOverviewModel extends Model {
 		elseif($positionInput=="midfield")$positionFilter="Mittelfeld";
 		elseif($positionInput=="striker")$positionFilter="Sturm";
 		$count=PlayersDataService::countPlayersOnTransferList($this->_websoccer,$this->_db,$positionFilter);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
+		$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
 		if($positionFilter!=null)$paginator->addParameter("position",$positionInput);
-		if($count)$players=PlayersDataService::getPlayersOnTransferList($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps,$positionFilter);
+		if($count)$players=PlayersDataService::getPlayersOnTransferList($this->_websoccer,$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'),$positionFilter);
 		else $players=[];
 		return array("transferplayers"=>$players,"playerscount"=>$count,"paginator"=>$paginator);}
-	function renderView(){ return (Config("transfermarket_enabled")==1);}}
+			function renderView(){return(Config('transfermarket_enabled')==1);}}
 class TransferOffersModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$offers=[];
 		$count=DirectTransfersDataService::countReceivedOffers($this->_websoccer,$this->_db,$clubId);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count)$offers=DirectTransfersDataService::getReceivedOffers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps,$clubId);
+		$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
+		if($count)$offers=DirectTransfersDataService::getReceivedOffers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'),$clubId);
 		else $offers=[];
 		return array("offers"=>$offers,"paginator"=>$paginator);}
-	function renderView(){ return (Config("transferoffers_enabled")==1);}}
+			function renderView(){return(Config('transferoffers_enabled')==1);}}
 class TransferOffersSentModel extends Model {
-	function getTemplateParameters(){
+	  		function getTemplateParameters(){
 		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$userId=$this->_websoccer->getUser()->id;
 		$offers=[];
 		$count=DirectTransfersDataService::countSentOffers($this->_websoccer,$this->_db,$clubId,$userId);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
+		$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
 		$paginator->addParameter("block","directtransfer-sentoffers");
-		if($count)$offers=DirectTransfersDataService::getSentOffers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps,$clubId,$userId);
+		if($count)$offers=DirectTransfersDataService::getSentOffers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'),$clubId,$userId);
 		else $offers=[];
 		return array("offers"=>$offers,"paginator"=>$paginator);}
-	function renderView(){ return (Config("transferoffers_enabled")==1);}}
-class UserActivitiesModel extends Model { function getTemplateParameters(){ return array("activities"=> ActionLogDataService::getActionLogsOfUser($this->_websoccer,$this->_db,Request('userid')));}}
-class UserClubsSelectionModel extends Model {
-	function getTemplateParameters(){
-		$whereCondition="id=%d";
-		$result=$this->_db->querySelect("id,name",Config("db_prefix")."_verein","user_id=%d AND status='1' AND nationalteam!='1' ORDER BY name ASC",$this->_websoccer->getUser()->id);
-		$teams=[];
-		while($team=$result->fetch_array())$teams[]=$team;
-		return array("userteams"=>$teams);}
-	function renderView(){ return (strlen($this->_websoccer->getUser()->username))? TRUE : FALSE;}}
+			function renderView(){return(Config('transferoffers_enabled')==1);}}
+class UserActivitiesModel extends Model{
+			function getTemplateParameters(){return['activities'=>ActionLogDataService::getActionLogsOfUser($this->_websoccer,$this->_db,Request('userid'))];}}
+class UserClubsSelectionModel extends Model{
+			function getTemplateParameters(){$whereCondition='id=%d';$result=$this->_db->querySelect('id,name',Config('db_prefix').'_verein',"user_id=%d AND status='1'AND nationalteam!='1'ORDER BY name ASC",$this->_websoccer->getUser()->id);$teams=[];
+							while($team=$result->fetch_array())$teams[]=$team;return['userteams'=>$teams];}
+			function renderView(){return(strlen($this->_websoccer->getUser()->username))?TRUE:FALSE;}}
 class UserDetailsModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$userId=(int)Request('id');
 		if($userId<1)$userId=$this->_websoccer->getUser()->id;
 		$user=UsersDataService::getUserById($this->_websoccer,$this->_db,$userId);
@@ -6366,7 +6155,7 @@ class UserDetailsModel extends Model {
 			if(!isset($badges[$badge['event']]))$badges[$badge['event']]=$badge;}
 		return array('user'=>$user, 'userteams'=>$teams, 'absence'=> AbsencesDataService::getCurrentAbsenceOfUser($this->_websoccer,$this->_db,$userId), 'badges'=>$badges);}}
 class UserHistoryModel extends Model {
-	function getTemplateParameters(){
+			function getTemplateParameters(){
 		$columns=array('TEAM.id'=> 'team_id', 'TEAM.name'=> 'team_name', 'L.name'=> 'league_name', 'SEASON.name'=> 'season_name', 'A.rank'=> 'season_rank', 'A.id'=> 'achievement_id', 'A.date_recorded'=> 'achievement_date', 'CUP.name'=> 'cup_name',
 			'CUPROUND.name'=> 'cup_round_name');
 		$tablePrefix=Config('db_prefix');
@@ -6381,54 +6170,27 @@ class UserHistoryModel extends Model {
 			elseif(!isset($cups[$achievement['cup_name']]))$cups[$achievement['cup_name']]=$achievement;
 			else $this->_db->queryDelete($tablePrefix.'_achievement', 'id=%d',$achievement['achievement_id']);}
 		return array("leagues"=>$leagues,"cups"=>$cups);}
-	function renderView(){
-		$this->_userId=(int)Request("userid");
-		return$this->_userId>0;}}
-class UserNickSearchModel extends Model {
-	function getTemplateParameters(){
-		$query=Request("query");
-		$users=UsersDataService::findUsernames($this->_websoccer,$this->_db,$query);
-		return array("items"=>$users);}}
-class UserResultsModel extends Model {
-	function getTemplateParameters(){
-		$matches=MatchesDataService::getLatestMatchesByUser($this->_websoccer,$this->_db,$this->_userId);
-		return array("matches"=>$matches);}
-	function renderView(){
-		$this->_userId=(int)Request("userid");
-		return$this->_userId>0;}}
-class UserTransfersModel extends Model {
-	function getTemplateParameters(){
-		$userId=Request("userid");
-		if($userId)$transfers=TransfermarketDataService::getCompletedTransfersOfUser($this->_websoccer,$this->_db,$userId);
-		return array("completedtransfers"=>$transfers);}}
-class WhoIsOnlineModel extends Model {
-	function getTemplateParameters(){
-		$count=UsersDataService::countOnlineUsers($this->_websoccer,$this->_db);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($count)$users=UsersDataService::getOnlineUsers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
-		else $users=[];
-		return array("users"=>$users,"paginator"=>$paginator);}}
-class YouthMarketplaceModel extends Model {
-	function getTemplateParameters(){
-		$positionFilter=Request("position");
-		$count=YouthPlayersDataService::countTransferableYouthPlayers($this->_websoccer,$this->_db,$positionFilter);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		if($positionFilter!=null)$paginator->addParameter("position",$positionFilter);
-		$players=YouthPlayersDataService::getTransferableYouthPlayers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps,  $positionFilter);
-		return array("players"=>$players,"paginator"=>$paginator);}
-	function renderView(){ return Config("youth_enabled");}}
-class YouthMatchesModel extends Model {
-	function getTemplateParameters(){
-		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
-		$count=YouthMatchesDataService::countMatchesOfTeam($this->_websoccer,$this->_db,$clubId);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		$matches=YouthMatchesDataService::getMatchesOfTeam($this->_websoccer,$this->_db,$clubId,$paginator->getFirstIndex(),$eps);
-		return array("matches"=>$matches,"paginator"=>$paginator);}
-	function renderView(){ return Config("youth_enabled");}}
-class YouthMatchFormationModel extends Model {
+			function renderView(){$this->_userId=(int)Request('userid');return$this->_userId>0;}}
+class UserNickSearchModel extends Model{
+			function getTemplateParameters(){$query=Request('query');$users=UsersDataService::findUsernames($this->_websoccer,$this->_db,$query);return['items'=>$users];}}
+class UserResultsModel extends Model{
+	  		function getTemplateParameters(){$matches=MatchesDataService::getLatestMatchesByUser($this->_websoccer,$this->_db,$this->_userId);return['matches'=>$matches];}
+			function renderView(){$this->_userId=(int)Request('userid');return$this->_userId>0;}}
+class UserTransfersModel extends Model{
+			function getTemplateParameters(){$userId=Request('userid');if($userId)$transfers=TransfermarketDataService::getCompletedTransfersOfUser($this->_websoccer,$this->_db,$userId);return['completedtransfers'=>$transfers];}}
+class WhoIsOnlineModel extends Model{
+			function getTemplateParameters(){$count=UsersDataService::countOnlineUsers($this->_websoccer,$this->_db);$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);if($count)$users=UsersDataService::getOnlineUsers($this->_websoccer,
+							$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'));else$users=[];return['users'=>$users,'paginator'=>$paginator];}}
+class YouthMarketplaceModel extends Model{
+			function getTemplateParameters(){$positionFilter=Request('position');$count=YouthPlayersDataService::countTransferableYouthPlayers($this->_websoccer,$this->_db,$positionFilter);$paginator=new Paginator($count,Config('entries_per_page'),$this->_websoccer);
+							if($positionFilter!=null)$paginator->addParameter('position',$positionFilter);$players=YouthPlayersDataService::getTransferableYouthPlayers($this->_websoccer,$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'),$positionFilter);
+							return['players'=>$players,'paginator'=>$paginator];}
+			function renderView(){return Config('youth_enabled');}}
+class YouthMatchesModel extends Model{
+			function getTemplateParameters(){$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);$count=YouthMatchesDataService::countMatchesOfTeam($this->_websoccer,$this->_db,$clubId);$paginator=new Paginator($count,Config('entries_per_page'),
+							$this->_websoccer);$matches=YouthMatchesDataService::getMatchesOfTeam($this->_websoccer,$this->_db,$clubId,$paginator->getFirstIndex(),Config('entries_per_page'));return['matches'=>$matches,'paginator'=>$paginator];}
+			function renderView(){return Config('youth_enabled');}}
+class YouthMatchFormationModel extends Model{
 	function getTemplateParameters(){
 		$clubId=$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db);
 		$matchinfo=YouthMatchesDataService::getYouthMatchinfoById($this->_websoccer,$this->_db,$this->_i18n,Request("matchid"));
@@ -6439,12 +6201,12 @@ class YouthMatchFormationModel extends Model {
 		$players=null;
 		if($clubId)$players=YouthPlayersDataService::getYouthPlayersOfTeamByPosition($this->_websoccer,$this->_db,$clubId,"DESC");
 		$formation=$this->_getFormation($teamPrefix,$matchinfo);
-		for($benchNo=1; $benchNo <= 5; $benchNo++){
+		for($benchNo=1; $benchNo <= 5;++$benchNo){
 			if(Request("bench".$benchNo))$formation["bench".$benchNo]=Request("bench".$benchNo);
 			elseif(!isset($formation["bench".$benchNo])){
 				$formation["bench".$benchNo]="";}}
 		$setup=$this->getFormationSetup($formation);
-		for($playerNo=1; $playerNo <= 11; $playerNo++){
+		for($playerNo=1; $playerNo <= 11;++$playerNo){
 			if(Request("player".$playerNo)){
 				$formation["player".$playerNo]=Request("player".$playerNo);
 				$formation["player".$playerNo."_pos"]=Request("player".$playerNo."_pos");}
@@ -6493,7 +6255,7 @@ class YouthMatchFormationModel extends Model {
 		return$setup;}
 	function _getFormation($teamPrefix,$matchinfo){
 		$formation=[];
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($subNo=1; $subNo <= 3;++$subNo){
 			if(Request("sub".$subNo ."_out")){
 				$formation["sub".$subNo ."_out"]=Request("sub".$subNo ."_out");
 				$formation["sub".$subNo ."_in"]=Request("sub".$subNo ."_in");
@@ -6561,194 +6323,67 @@ class YouthMatchReportModel extends Model {
 		$reportMessages=YouthMatchesDataService::getMatchReportItems($this->_websoccer,$this->_db,$this->_i18n,$match["id"]);
 		return array("match"=>$match,"players"=>$players,"statistics"=>$statistics,"reportMessages"=>$reportMessages);}
 	function renderView(){ return Config("youth_enabled");}}
-class YouthMatchRequestsCreateModel extends Model {
-	function getTemplateParameters(){
-		$timeOptions=[];
-		$maxDays=Config("youth_matchrequest_max_futuredays");
-		$times=explode(",",Config("youth_matchrequest_allowedtimes"));
-		$validTimes=[];
-		foreach($times as$time)$validTimes[]=explode(":",$time);
-		$dateOptions=[];
-		$dateObj=new DateTime();
-		$dateFormat=Config("datetime_format");
-		for($day=1; $day <= $maxDays; $day++){
-			$dateObj->add(new DateInterval('P1D'));
-			foreach($validTimes as$validTime){
-				$hour=$validTime[0];
-				$minute=$validTime[1];
-				$dateObj->setTime($hour,$minute);
-				$dateOptions[$dateObj->Timestamp()]=$dateObj->format($dateFormat);}}
-		return array("dateOptions"=>$dateOptions);}
-	function renderView(){ return Config("youth_enabled");}}
+class YouthMatchRequestsCreateModel extends Model{
+			function getTemplateParameters(){$timeOptions=[];$maxDays=Config('youth_matchrequest_max_futuredays');$times=explode(',',Config('youth_matchrequest_allowedtimes'));$validTimes=[];foreach($times as$time)$validTimes[]=explode(':',$time);$dateOptions=[];
+							$dateObj=new DateTime();$dateFormat=Config('datetime_format');for($day=1;$day<=$maxDays;++$day){$dateObj->add(new DateInterval('P1D'));foreach($validTimes as$validTime){$hour=$validTime[0];$minute=$validTime[1];
+							$dateObj->setTime($hour,$minute);$dateOptions[$dateObj->Timestamp()]=$dateObj->format($dateFormat);}}return['dateOptions'=>$dateOptions];}
+			function renderView(){return Config('youth_enabled');}}
 class YouthMatchRequestsModel extends Model {
-	function getTemplateParameters(){
-		YouthPlayersDataService::deleteInvalidOpenMatchRequests($this->_websoccer,$this->_db);
-		$count=YouthPlayersDataService::countMatchRequests($this->_websoccer,$this->_db);
-		$eps=Config("entries_per_page");
-		$paginator=new Paginator($count,$eps,$this->_websoccer);
-		$requests=YouthPlayersDataService::getMatchRequests($this->_websoccer,$this->_db,$paginator->getFirstIndex(),$eps);
-		return array("requests"=>$requests,"paginator"=>$paginator);}
-	function renderView(){ return Config("youth_enabled")&&Config("youth_matchrequests_enabled");}}
-class YouthPlayerDetailsModel extends Model {
-	function getTemplateParameters(){
-		$playerId=(int)Request("id");
-		if($playerId<1)throw new Exception(Message('error_page_not_found'));
-		$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$playerId);
-		return array("player"=>$player);}
-	function renderView(){ return Config("youth_enabled");}}
+			function getTemplateParameters(){YouthPlayersDataService::deleteInvalidOpenMatchRequests($this->_websoccer,$this->_db);$count=YouthPlayersDataService::countMatchRequests($this->_websoccer,$this->_db);$paginator=new Paginator($count,Config('entries_per_page'),
+							$this->_websoccer);$requests=YouthPlayersDataService::getMatchRequests($this->_websoccer,$this->_db,$paginator->getFirstIndex(),Config('entries_per_page'));return['requests'=>$requests,'paginator'=>$paginator];}
+			function renderView(){return Config('youth_enabled')&&Config('youth_matchrequests_enabled');}}
+class YouthPlayerDetailsModel extends Model{
+			function getTemplateParameters(){$playerId=(int)Request('id');if($playerId<1)throw new Exception(Message('error_page_not_found'));$player=YouthPlayersDataService::getYouthPlayerById($this->_websoccer,$this->_db,$this->_i18n,$playerId);
+							return['player'=>$player];}
+			function renderView(){return Config('youth_enabled');}}
 class YouthPlayersOfTeamModel extends Model{
 			function getTemplateParameters(){$teamId=Request('teamid');$players=[];if($teamId)$players=YouthPlayersDataService::getYouthPlayersOfTeam($this->_websoccer,$this->_db,$teamId);return['players'=>$players];}
 			function renderView(){return Config('youth_enabled');}}
-class YouthScoutingModel extends Model {
-	function getTemplateParameters(){
-		$lastExecutionTimestamp=YouthPlayersDataService::getLastScoutingExecutionTime($this->_websoccer,$this->_db,$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db));
-		$nextPossibleExecutionTimestamp=$lastExecutionTimestamp +Config("youth_scouting_break_hours")* 3600;
-		$now=Timestamp();
-		$scouts=[];
-		$countries=[];
-		$scoutingPossible=($nextPossibleExecutionTimestamp <= $now);
-		if($scoutingPossible){
-			$scoutId=(int)Request("scoutid");
-			if($scoutId)$countries=YouthPlayersDataService::getPossibleScoutingCountries();
-			else $scouts=YouthPlayersDataService::getScouts($this->_websoccer,$this->_db);}
-		return array("lastExecutionTimestamp"=>$lastExecutionTimestamp,"nextPossibleExecutionTimestamp"=>$nextPossibleExecutionTimestamp,"scoutingPossible"=>$scoutingPossible,"scouts"=>$scouts,"countries"=>$countries);}
-	function renderView(){ return Config("youth_enabled")&&Config("youth_scouting_enabled");}}
-class AbsencesDataService {
-	static function getCurrentAbsenceOfUser($websoccer,$db,$userId){
-		$result=$db->querySelect('*',Config('db_prefix').'_userabsence', 'user_id=%d ORDER BY from_date DESC',$userId, 1);
-		$absence=$result->fetch_array();
-		return$absence;}
-	static function makeUserAbsent($websoccer,$db,$userId,$deputyId,$days){
-		$fromDate=Timestamp();
-		$toDate=$fromDate + 24*3600*$days;
-		$db->queryInsert(array('user_id'=>$userId, 'deputy_id'=>$deputyId, 'from_date'=>$fromDate, 'to_date'=>$toDate),Config('db_prefix').'_userabsence');
-		$db->queryUpdate(array('user_id'=>$deputyId, 'user_id_actual'=>$userId),Config('db_prefix').'_verein', 'user_id=%d',$userId);
-		$user=UsersDataService::getUserById($websoccer,$db,$userId);
-		NotificationsDataService::createNotification($websoccer,$db,$deputyId, 'absence_notification',array('until'=>$toDate, 'user'=>$user['nick']), 'absence', 'user');}
-	static function confirmComeback($websoccer,$db,$userId){
-		$absence=self::getCurrentAbsenceOfUser($websoccer,$db,$userId);
-		if(!$absence)return;
-		$db->queryUpdate(array('user_id'=>$userId,'user_id_actual'=> NULL),Config('db_prefix').'_verein', 'user_id_actual=%d',$userId);
-		$db->queryDelete(Config('db_prefix').'_userabsence', 'user_id',$userId);
-		if($absence['deputy_id']){
-			$user=UsersDataService::getUserById($websoccer,$db,$userId);
-			NotificationsDataService::createNotification($websoccer,$db,$absence['deputy_id'],'absence_comeback_notification',array('user'=>$user['nick']), 'absence', 'user');}}}
-class ActionLogDataService {
-	static function getActionLogsOfUser($websoccer,$db,$userId,$limit=10){
-		$fromTable=Config('db_prefix').'_useractionlog AS L INNER JOIN '.Config('db_prefix').'_user AS U ON U.id=L.user_id';
-		$columns=array('L.id'=> 'log_id', 'L.action_id'=> 'action_id', 'L.user_id'=> 'user_id', 'L.created_date'=> 'created_date', 'U.nick'=> 'user_name');
-		$result=$db->querySelect($columns,$fromTable, 'L.user_id=%d ORDER BY L.created_date DESC',$userId,$limit);
-		$logs=[];
-		while($log=$result->fetch_array())$logs[]=$log;
-		return$logs;}
-	static function getLatestActionLogs($websoccer,$db,$limit=10){
-		$fromTable=Config('db_prefix').'_useractionlog AS L INNER JOIN '.Config('db_prefix').'_user AS U ON U.id=L.user_id';
-		$columns=array('L.id'=> 'log_id', 'L.action_id'=> 'action_id', 'L.user_id'=> 'user_id', 'L.created_date'=> 'created_date', 'U.nick'=> 'user_name');
-		$result=$db->querySelect($columns,$fromTable, '1 ORDER BY L.id DESC', null,$limit);
-		$logs=[];
-		while($log=$result->fetch_array())$logs[]=$log;
-		return$logs;}
-	static function createOrUpdateActionLog($websoccer,$db,$userId,$actionId){
-		$fromTable=Config('db_prefix').'_useractionlog';
-		$deleteTimeThreshold=Timestamp()- 24*3600*20;
-		$db->queryDelete($fromTable, 'user_id=%d AND created_date<%d',array($userId,$deleteTimeThreshold));
-		$timeThreshold=Timestamp()- 30*60;
-		$result=$db->querySelect('id',$fromTable, 'user_id=%d AND action_id=\'%s\' AND created_date >= %d ORDER BY created_date DESC',array($userId,$actionId,$timeThreshold), 1);
-		$lastLog=$result->fetch_array();
-		if($lastLog)$db->queryUpdate(array('created_date'=>Timestamp()),$fromTable, 'id=%d',$lastLog['id']);
-		else $db->queryInsert(array('user_id'=>$userId, 'action_id'=>$actionId, 'created_date'=>Timestamp()),$fromTable);}}
-class BadgesDataService {
-	static function awardBadgeIfApplicable($websoccer,$db,$userId,$badgeEvent,$benchmark=NULL){
-		$badgeTable=Config('db_prefix').'_badge';
-		$badgeUserTable=Config('db_prefix').'_badge_user';
-		$parameters=array($badgeEvent);
-		$whereCondition='event=\'%s\'';
-		if($benchmark !==NULL){
-			$whereCondition .= ' AND event_benchmark <= %d';
-			$parameters[]=$benchmark;}
-		$whereCondition .= ' ORDER BY level DESC';
-		$result=$db->querySelect('id, name, level',$badgeTable,$whereCondition,$parameters, 1);
-		$badge=$result->fetch_array();
-		if(!$badge)return;
-		$fromTable=$badgeTable.' INNER JOIN '.$badgeUserTable.' ON id=badge_id';
-		$whereCondition='user_id=%d AND event=\'%s\' AND level >= \'%s\'';
-		$result=$db->querySelect('COUNT(*)AS hits',$fromTable,$whereCondition,array($userId,$badgeEvent,$badge['level']), 1);
-		$userBadges=$result->fetch_array();
-		if($userBadges && $userBadges['hits'])return;
-		self::awardBadge($websoccer,$db,$userId,$badge['id']);}
-	static function awardBadge($websoccer,$db,$userId,$badgeId){
-		$badgeUserTable=Config('db_prefix').'_badge_user';
-		$db->queryInsert(array('user_id'=>$userId, 'badge_id'=>$badgeId, 'date_rewarded'=>Timestamp()),$badgeUserTable);
-		NotificationsDataService::createNotification($websoccer,$db,$userId, 'badge_notification', null, 'badge', 'user', 'id='.$userId);}}
-class BankAccountDataService {
-	static function countAccountStatementsOfTeam(WebSoccer $websoccer, DbConnection $db,$teamId){
-		$columns="COUNT(*)AS hits";
-		$fromTable=Config("db_prefix")."_konto";
-		$whereCondition="verein_id=%d";
-		$parameters=$teamId;
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
-		$statements=$result->fetch_array();
-		if(isset($statements["hits"]))return$statements["hits"];
-		return 0;}
-	static function getAccountStatementsOfTeam(WebSoccer $websoccer, DbConnection $db,$teamId,$startIndex,$entries_per_page){
-		$columns=["absender"=>"sender","betrag"=>"amount","datum"=>"date",
-		"verwendung"=>"subject"];
-		$limit=$startIndex .",".$entries_per_page;
-		$fromTable=Config("db_prefix")."_konto";
-		$whereCondition="verein_id=%d ORDER BY datum DESC";
-		$parameters=$teamId;
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
-		$statements=[];
-		while($statement=$result->fetch_array())$statements[]=$statement;
-		return$statements;}
-	static function creditAmount(WebSoccer $websoccer, DbConnection $db,$teamId,$amount,$subject,$sender){
-		if($amount==0)return;
-		$team=TeamsDataService::getTeamSummaryById($websoccer,$db,$teamId);
-		if(!isset($team["team_id"]))throw new Exception("team not found: ".$teamId);
-		if($amount<0)throw new Exception("amount illegal: ".$amount);
-		else self::createTransaction($websoccer,$db,$team,$teamId,$amount,$subject,$sender);}
-	static function debitAmount(WebSoccer $websoccer, DbConnection $db,$teamId,$amount,$subject,$sender){
-		if($amount==0)return;
-		$team=TeamsDataService::getTeamSummaryById($websoccer,$db,$teamId);
-		if(!isset($team["team_id"]))throw new Exception("team not found: ".$teamId);
-		if($amount<0)throw new Exception("amount illegal: ".$amount);
-		$amount=0 - $amount;
-		self::createTransaction($websoccer,$db,$team,$teamId,$amount,$subject,$sender);}
-	static function createTransaction(WebSoccer $websoccer, DbConnection $db,$team,$teamId,$amount,$subject,$sender){
-		if(!$team["user_id"] &&Config("no_transactions_for_teams_without_user"))return;
-		$fromTable=Config("db_prefix")."_konto";
-		$columns["verein_id"]=$teamId;
-		$columns["absender"]=$sender;
-		$columns["betrag"]=$amount;
-		$columns["datum"]=Timestamp();
-		$columns["verwendung"]=$subject;
-		$db->queryInsert($columns,$fromTable);
-		$newBudget=$team["team_budget"] + $amount;
-		$updateColumns["finanz_budget"]=$newBudget;
-		$fromTable=Config("db_prefix")."_verein";
-		$whereCondition="id=%d";
-		$parameters=$teamId;
-		$db->queryUpdate($updateColumns,$fromTable,$whereCondition,$parameters);}}
+class YouthScoutingModel extends Model{
+			function getTemplateParameters(){$lastExecutionTimestamp=YouthPlayersDataService::getLastScoutingExecutionTime($this->_websoccer,$this->_db,$this->_websoccer->getUser()->getClubId($this->_websoccer,$this->_db));$nextPossibleExecutionTimestamp=
+							$lastExecutionTimestamp+Config('youth_scouting_break_hours')*3600;$now=Timestamp();$scouts=[];$countries=[];$scoutingPossible=($nextPossibleExecutionTimestamp<=$now);if($scoutingPossible){$scoutId=(int)Request('scoutid');
+							if($scoutId)$countries=YouthPlayersDataService::getPossibleScoutingCountries();else$scouts=YouthPlayersDataService::getScouts($this->_websoccer,$this->_db);}return['lastExecutionTimestamp'=>$lastExecutionTimestamp,
+							'nextPossibleExecutionTimestamp'=>$nextPossibleExecutionTimestamp,'scoutingPossible'=>$scoutingPossible,'scouts'=>$scouts,'countries'=>$countries];}
+			function renderView(){return Config('youth_enabled')&&Config('youth_scouting_enabled');}}
+class AbsencesDataService{
+	 static function getCurrentAbsenceOfUser($websoccer,$db,$userId){$result=$db->querySelect('*',Config('db_prefix').'_userabsence','user_id=%d ORDER BY from_date DESC',$userId,1);$absence=$result->fetch_array();return$absence;}
+	 static function makeUserAbsent($websoccer,$db,$userId,$deputyId,$days){$toDate=Timestamp()+24*3600*$days;$db->queryInsert(['user_id'=>$userId,'deputy_id'=>$deputyId,'from_date'=>$fromDate,'to_date'=>$toDate],Config('db_prefix').'_userabsence');
+							$db->queryUpdate(['user_id'=>$deputyId,'user_id_actual'=>$userId],Config('db_prefix').'_verein','user_id=%d',$userId);$user=UsersDataService::getUserById($websoccer,$db,$userId);
+							NotificationsDataService::createNotification($websoccer,$db,$deputyId,'absence_notification',['until'=>$toDate,'user'=>$user['nick']],'absence','user');}
+	 static function confirmComeback($websoccer,$db,$userId){$absence=self::getCurrentAbsenceOfUser($websoccer,$db,$userId);if(!$absence)return;$db->queryUpdate(['user_id'=>$userId,'user_id_actual'=>NULL],Config('db_prefix').'_verein','user_id_actual=%d',$userId);
+							$db->queryDelete(Config('db_prefix').'_userabsence','user_id',$userId);if($absence['deputy_id']){$user=UsersDataService::getUserById($websoccer,$db,$userId);
+							NotificationsDataService::createNotification($websoccer,$db,$absence['deputy_id'],'absence_comeback_notification',['user'=>$user['nick']],'absence','user');}}}
+class ActionLogDataService{
+	 static function getActionLogsOfUser($websoccer,$db,$userId,$limit=10){$result=$db->querySelect(['L.id'=>'log_id','L.action_id'=>'action_id','L.user_id'=>'user_id','L.created_date'=>'created_date','U.nick'=>'user_name'],Config('db_prefix').
+	 						'_useractionlog AS L INNER JOIN '.Config('db_prefix').'_user AS U ON U.id=L.user_id','L.user_id=%d ORDER BY L.created_date DESC',$userId,$limit);$logs=[];while($log=$result->fetch_array())$logs[]=$log;return$logs;}
+	 static function getLatestActionLogs($websoccer,$db,$limit=10){$result=$db->querySelect(['L.id'=>'log_id','L.action_id'=>'action_id','L.user_id'=>'user_id','L.created_date'=>'created_date','U.nick'=>'user_name'],Config('db_prefix').
+	 						'_useractionlog AS L INNER JOIN '.Config('db_prefix').'_user AS U ON U.id=L.user_id','1 ORDER BY L.id DESC',null,$limit);$logs=[];while($log=$result->fetch_array())$logs[]=$log;return$logs;}
+	 static function createOrUpdateActionLog($websoccer,$db,$userId,$actionId){$db->queryDelete(Config('db_prefix').'_useractionlog','user_id=%d AND created_date<%d',[$userId,Timestamp()-24*3600*20]);$result=$db->querySelect('id',Config('db_prefix').'_useractionlog',
+	 						'user_id=%d AND action_id=\'%s\'AND created_date>=%d ORDER BY created_date DESC',[$userId,$actionId,Timestamp()-30*60],1);$lastLog=$result->fetch_array();if($lastLog)$db->queryUpdate(array('created_date'=>Timestamp()),Config('db_prefix').
+	 						'_useractionlog','id=%d',$lastLog['id']);else$db->queryInsert(['user_id'=>$userId,'action_id'=>$actionId,'created_date'=>Timestamp()],Config('db_prefix').'_useractionlog');}}
+class BadgesDataService{
+	 static function awardBadgeIfApplicable($websoccer,$db,$userId,$badgeEvent,$benchmark=NULL){$parameters=array($badgeEvent);$whereCondition='event=\'%s\'';if($benchmark!==NULL){$whereCondition.=' AND event_benchmark <= %d';$parameters[]=$benchmark;}
+							$whereCondition.=' ORDER BY level DESC';$result=$db->querySelect('id, name, level',Config('db_prefix').'_badge',$whereCondition,$parameters,1);$badge=$result->fetch_array();if(!$badge)return;$whereCondition=
+							'user_id=%d AND event=\'%s\'AND level>=\'%s\'';$result=$db->querySelect('COUNT(*)AS hits',Config('db_prefix').'_badge'.' INNER JOIN '.Config('db_prefix').'_badge_user'.' ON id=badge_id',$whereCondition,[$userId,$badgeEvent,$badge['level']],1);
+							$userBadges=$result->fetch_array();if($userBadges&&$userBadges['hits'])return;self::awardBadge($websoccer,$db,$userId,$badge['id']);}
+	 static function awardBadge($websoccer,$db,$userId,$badgeId){$db->queryInsert(['user_id'=>$userId,'badge_id'=>$badgeId,'date_rewarded'=>Timestamp()],Config('db_prefix').'_badge_user');NotificationsDataService::createNotification($websoccer,$db,$userId,
+	 						'badge_notification',null,'badge','user','id='.$userId);}}
+class BankAccountDataService{
+	 static function countAccountStatementsOfTeam(WebSoccer$websoccer,DbConnection$db,$teamId){$result=$db->querySelect('COUNT(*)AS hits',Config('db_prefix').'_konto','verein_id=%d',$teamId);$statements=$result->fetch_array();if(isset($statements['hits']))
+							return$statements['hits'];return 0;}
+	 static function getAccountStatementsOfTeam(WebSoccer$websoccer,DbConnection$db,$teamId,$startIndex,$entries_per_page){$result=$db->querySelect(['absender'=>'sender','betrag'=>'amount','datum'=>'date','verwendung'=>'subject'],Config('db_prefix').'_konto',
+	 						'verein_id=%d ORDER BY datum DESC',$teamId,$startIndex.','.$entries_per_page);$statements=[];while($statement=$result->fetch_array())$statements[]=$statement;return$statements;}
+	 static function creditAmount(WebSoccer$websoccer,DbConnection$db,$teamId,$amount,$subject,$sender){if($amount==0)return;$team=TeamsDataService::getTeamSummaryById($websoccer,$db,$teamId);if(!isset($team['team_id']))throw new Exception('team not found: '.$teamId);
+							if($amount<0)throw new Exception('amount illegal: '.$amount);else self::createTransaction($websoccer,$db,$team,$teamId,$amount,$subject,$sender);}
+	 static function debitAmount(WebSoccer$websoccer,DbConnection$db,$teamId,$amount,$subject,$sender){if($amount==0)return;$team=TeamsDataService::getTeamSummaryById($websoccer,$db,$teamId);if(!isset($team['team_id']))throw new Exception('team not found: '.$teamId);
+							if($amount<0)throw new Exception('amount illegal: '.$amount);$amount=0-$amount;self::createTransaction($websoccer,$db,$team,$teamId,$amount,$subject,$sender);}
+	 static function createTransaction(WebSoccer$websoccer,DbConnection$db,$team,$teamId,$amount,$subject,$sender){if(!$team['user_id']&&Config('no_transactions_for_teams_without_user'))return;$db->queryInsert(['verein_id'=>$teamId,'absender'=>$sender,
+	 						'betrag'=>$amount,'datum'=>Timestamp(),'verwendung'=>$subject],Config('db_prefix').'_konto');$updateColumns['finanz_budget']=$team['team_budget']+$amount;$db->queryUpdate($updateColumns,Config('db_prefix').'_verein','id=%d',$teamId);}}
 class CupsDataService {
-	static function getTeamsOfCupGroupInRankingOrder($websoccer,$db,$roundId,$groupName){
-		$fromTable=Config("db_prefix")."_cup_round_group AS G INNER JOIN ".Config("db_prefix")."_verein AS T ON T.id=G.team_id LEFT JOIN ".Config("db_prefix")."_user AS U ON U.id=T.user_id";
-		$whereCondition="G.cup_round_id=%d AND G.name='%s'";
-		$whereCondition.="ORDER BY G.tab_points DESC, (G.tab_goals - G.tab_goalsreceived)DESC, G.tab_wins DESC, T.st_punkte DESC";
-		$parameters=array($roundId,$groupName);
-		$columns["T.id"]="id";
-		$columns["T.name"]="name";
-		$columns["T.user_id"]="user_id";
-		$columns["U.nick"]="user_name";
-		$columns["G.tab_points"]="score";
-		$columns["G.tab_goals"]="goals";
-		$columns["G.tab_goalsreceived"]="goals_received";
-		$columns["G.tab_wins"]="wins";
-		$columns["G.tab_draws"]="draws";
-		$columns["G.tab_losses"]="defeats";
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
-		$teams=[];
-		while($team=$result->fetch_array())$teams[]=$team;
-		return$teams;}}
+	 static function getTeamsOfCupGroupInRankingOrder($websoccer,$db,$roundId,$groupName){$result=$db->querySelect(['T.id'=>'id','T.name'=>'name','T.user_id'=>'user_id','U.nick'=>'user_name','G.tab_points'=>'score','G.tab_goals'=>'goals',
+	 						'G.tab_goalsreceived'=>'goals_received','G.tab_wins'=>'wins','G.tab_draws'=>'draws','G.tab_losses'=>'defeats'],Config('db_prefix').'_cup_round_group AS G INNER JOIN '.Config('db_prefix').'_verein AS T ON T.id=G.team_id LEFT JOIN '.
+	 						Config('db_prefix').'_user AS U ON U.id=T.user_id',"G.cup_round_id=%d AND G.name='%s'ORDER BY G.tab_points DESC,(G.tab_goals-G.tab_goalsreceived)DESC,G.tab_wins DESC,T.st_punkte DESC",[$roundId,$groupName]);$teams=[];
+							while($team=$result->fetch_array())$teams[]=$team;return$teams;}}
 class DataGeneratorService {
 	static function generateTeams($websoccer,$db,$numberOfTeams,$leagueId,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip){
 		$result=$db->querySelect('*',Config('db_prefix').'_liga', 'id=%d',$leagueId);
@@ -6760,7 +6395,7 @@ class DataGeneratorService {
 		$suffixes=[];
 		try {$suffixes=self::_getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/clubsuffix.txt',$country);}
 		catch(Exception $e){}
-		for($teamNo=1; $teamNo <= $numberOfTeams; $teamNo++){
+		for($teamNo=1; $teamNo <= $numberOfTeams;++$teamNo){
 			$cityName=self::_getItemFromArray($cities);
 			self::_createTeam($websoccer,$db,$league,$country,$cityName,$prefixes,$suffixes,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip);}}
 	static function generatePlayers($websoccer,$db,$teamId,$age,$ageDeviation,$salary,$contractDuration,$strengths,$positions,$maxDeviation,$nationality=NULL){
@@ -6786,7 +6421,7 @@ class DataGeneratorService {
 		$mainPositions['MS']='Sturm';
 		$mainPositions['RS']='Sturm';
 		foreach($positions as$mainPosition=>$numberOfPlayers){
-			for($playerNo=1; $playerNo <= $numberOfPlayers; $playerNo++){
+			for($playerNo=1; $playerNo <= $numberOfPlayers;++$playerNo){
 				$playerAge=$age + self::_getRandomDeviationValue($ageDeviation);
 				$time=strtotime('-'.$playerAge.' years',Timestamp());
 				$birthday=date('Y-m-d',$time);
@@ -6810,7 +6445,7 @@ class DataGeneratorService {
 	static function _createTeam($websoccer,$db,$league,$country,$cityName,$prefixes,$suffixes,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip){
 		$teamName=$cityName;
 		$shortName=strtoupper(substr($cityName, 0, 3));
-		if(rand(0, 1)&& count($suffixes))$teamName .= ' ' . self::_getItemFromArray($suffixes);
+		if(rand(0, 1)&& count($suffixes))$teamName.=' ' . self::_getItemFromArray($suffixes);
 		else $teamName=self::_getItemFromArray($prefixes).' '.$teamName;
 		$stadiumId=0;
 		if($generateStadium){
@@ -6956,11 +6591,11 @@ class FormationDataService {
 		$columns['longpasses']='longpasses';
 		$columns['counterattacks']='counterattacks';
 		$columns['freekickplayer']='freekickplayer';
-		for($playerNo=1; $playerNo <= 11; $playerNo++){
+		for($playerNo=1; $playerNo <= 11;++$playerNo){
 			$columns['spieler'.$playerNo]='player'.$playerNo;
 			$columns['spieler'.$playerNo.'_position']='player'.$playerNo.'_pos';}
-		for($playerNo=1; $playerNo <= 5; $playerNo++)$columns['ersatz'.$playerNo]='bench'.$playerNo;
-		for($subNo=1; $subNo <= 3; $subNo++){
+		for($playerNo=1; $playerNo <= 5;++$playerNo)$columns['ersatz'.$playerNo]='bench'.$playerNo;
+		for($subNo=1; $subNo <= 3;++$subNo){
 			$columns['w'.$subNo.'_raus']='sub'.$subNo.'_out';
 			$columns['w'.$subNo.'_rein']='sub'.$subNo.'_in';
 			$columns['w'.$subNo.'_minute']='sub'.$subNo.'_minute';
@@ -6976,8 +6611,8 @@ class FormationDataService {
 		if(!$isNationalteam){
 			$fromTable=Config('db_prefix').'_spieler';
 			$whereCondition='verein_id=%d AND gesperrt';
-			if($isCupMatch)$whereCondition .= '_cups';
-			$whereCondition .= '=0 AND verletzt=0 AND status=1';}
+			if($isCupMatch)$whereCondition.='_cups';
+			$whereCondition.='=0 AND verletzt=0 AND status=1';}
 		else{
 			$fromTable=Config('db_prefix').'_spieler AS P INNER JOIN '.Config('db_prefix').'_nationalplayer AS NP ON NP.player_id=P.id';
 			$whereCondition='NP.team_id=%d AND gesperrt_nationalteam=0 AND verletzt=0 AND status=1';}
@@ -7040,7 +6675,7 @@ class FormationDataService {
 			if(!$added && strlen($player['position_second']))$unusedPlayers[]=$player;}
 		foreach($openPositions as $position=>$requiredPlayers){
 			for($i=0; $i<$requiredPlayers;++$i){
-				for($playerIndex=0; $playerIndex<count($unusedPlayers); $playerIndex++){
+				for($playerIndex=0; $playerIndex<count($unusedPlayers);++$playerIndex){
 					if($unusedPlayer[$playerIndex]['position_second']==$position){
 						$players[]=array('id'=>$unusedPlayer[$playerIndex]['id'],'position'=>$unusedPlayer[$playerIndex]['position_second']);
 						unset($unusedPlayer[$playerIndex]);
@@ -7071,374 +6706,6 @@ class LeagueDataService {
 		$leagues=$result->fetch_array();
 		if(isset($leagues["hits"]))return$leagues["hits"];
 		return 0;}}
-class MatchesDataService {
-	static function getNextMatches($websoccer,$db,$clubId,$maxNumber){
-		$fromTable=self::_getFromPart($websoccer);
-		$whereCondition='M.berechnet!=\'1\' AND (HOME.id=%d OR GUEST.id=%d)AND M.datum>%d ORDER BY M.datum ASC';
-		$parameters=array($clubId,$clubId,Timestamp());
-		$columns['M.id']='match_id';
-		$columns['M.datum']='match_date';
-		$columns['M.spieltyp']='match_type';
-		$columns['HOME.id']='match_home_id';
-		$columns['HOME.name']='match_home_name';
-		$columns['GUEST.id']='match_guest_id';
-		$columns['GUEST.name']='match_guest_name';
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$maxNumber);
-		$matches=[];
-		while($match=$result->fetch_array()){
-			$match['match_type']=self::_convertLeagueType($match['match_type']);
-			$matches[]=$match;}
-	return$matches;}
-	static function getNextMatch($websoccer,$db,$clubId){
-		$fromTable=self::_getFromPart($websoccer);
-		$formationTable=Config('db_prefix').'_aufstellung';
-		$fromTable .= ' LEFT JOIN '.$formationTable.' AS HOME_F ON HOME_F.verein_id=HOME.id AND HOME_F.match_id=M.id LEFT JOIN '.$formationTable.' AS GUEST_F ON GUEST_F.verein_id=GUEST.id AND GUEST_F.match_id=M.id';
-		$whereCondition='M.berechnet!=\'1\' AND (HOME.id=%d OR GUEST.id=%d)AND M.datum>%d ORDER BY M.datum ASC';
-		$parameters=array($clubId,$clubId,Timestamp());
-		$columns['M.id']='match_id';
-		$columns['M.datum']='match_date';
-		$columns['M.spieltyp']='match_type';
-		$columns['HOME.id']='match_home_id';
-		$columns['HOME.name']='match_home_name';
-		$columns['HOME_F.id']='match_home_formation_id';
-		$columns['GUEST.id']='match_guest_id';
-		$columns['GUEST.name']='match_guest_name';
-		$columns['GUEST_F.id']='match_guest_formation_id';
-		$matchinfos=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters, 1);
-		if(!count($matchinfos))$matchinfo=[];
-		else{
-			$matchinfo=$matchinfos[0];
-			$matchinfo['match_type']=self::_convertLeagueType($matchinfo['match_type']);}
-		return$matchinfo;}
-	static function getLiveMatch($websoccer,$db){
-		$fromTable=self::_getFromPart($websoccer);
-		$whereCondition='M.berechnet!=\'1\' AND M.minutes>0 AND (HOME.user_id=%d OR GUEST.user_id=%d)AND M.datum<%d ORDER BY M.datum DESC';
-		$parameters=array($websoccer->getUser()->id,$websoccer->getUser()->id,Timestamp());
-		$columns['M.id']='match_id';
-		$columns['M.datum']='match_date';
-		$columns['M.spieltyp']='match_type';
-		$columns['HOME.id']='match_home_id';
-		$columns['HOME.name']='match_home_name';
-		$columns['GUEST.id']='match_guest_id';
-		$columns['GUEST.name']='match_guest_name';
-		$matchinfos=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters, 1);
-		if(!count($matchinfos))$matchinfo=[];
-		else{
-			$matchinfo=$matchinfos[0];
-			$matchinfo['match_type']=self::_convertLeagueType($matchinfo['match_type']);}
-		return$matchinfo;}
-	static function getMatchById($websoccer,$db,$matchId,$loadStadiumInfo=TRUE,$loadSeasonInfo=FALSE){
-		$fromTable=self::_getFromPart($websoccer);
-		if($loadStadiumInfo){
-			$fromTable .= ' LEFT JOIN '.Config('db_prefix').'_stadion AS S ON  S.id=IF(M.stadion_id IS NOT NULL, M.stadion_id, HOME.stadion_id)';
-			$columns['S.name']='match_stadium_name';}
-		if($loadSeasonInfo){
-			$fromTable .= ' LEFT JOIN '.Config('db_prefix').'_saison AS SEASON ON SEASON.id=M.saison_id';
-			$columns['SEASON.name']='match_season_name';
-			$columns['SEASON.liga_id']='match_league_id';}
-		$whereCondition='M.id=%d';
-		$parameters=$matchId;
-		$columns['M.id']='match_id';
-		$columns['M.datum']='match_date';
-		$columns['M.spieltyp']='match_type';
-		$columns['HOME.id']='match_home_id';
-		$columns['HOME.name']='match_home_name';
-		$columns['HOME.nationalteam']='match_home_nationalteam';
-		$columns['HOME.bild']='match_home_picture';
-		$columns['GUEST.id']='match_guest_id';
-		$columns['GUEST.name']='match_guest_name';
-		$columns['GUEST.nationalteam']='match_guest_nationalteam';
-		$columns['GUEST.bild']='match_guest_picture';
-		$columns['M.pokalname']='match_cup_name';
-		$columns['M.pokalrunde']='match_cup_round';
-		$columns['M.spieltag']='match_matchday';
-		$columns['M.saison_id']='match_season_id';
-		$columns['M.berechnet']='match_simulated';
-		$columns['M.home_tore']='match_goals_home';
-		$columns['M.gast_tore']='match_goals_guest';
-		$columns['M.bericht']='match_deprecated_report';
-		$columns['M.minutes']='match_minutes';
-		$columns['M.home_noformation']='match_home_noformation';
-		$columns['M.guest_noformation']='match_guest_noformation';
-		$columns['M.zuschauer']='match_audience';
-		$columns['M.soldout']='match_soldout';
-		$columns['M.elfmeter']='match_penalty_enabled';
-		$columns['M.home_offensive']='match_home_offensive';
-		$columns['M.gast_offensive']='match_guest_offensive';
-		$columns['M.home_longpasses']='match_home_longpasses';
-		$columns['M.gast_longpasses']='match_guest_longpasses';
-		$columns['M.home_counterattacks']='match_home_counterattacks';
-		$columns['M.gast_counterattacks']='match_guest_counterattacks';
-		for($subNo=1; $subNo <= 3; $subNo++){
-			$columns['M.home_w'.$subNo.'_raus']='match_home_sub'.$subNo.'_out';
-			$columns['M.home_w'.$subNo.'_rein']='match_home_sub'.$subNo.'_in';
-			$columns['M.home_w'.$subNo.'_minute']='match_home_sub'.$subNo.'_minute';
-			$columns['M.home_w'.$subNo.'_condition']='match_home_sub'.$subNo.'_condition';
-			$columns['M.gast_w'.$subNo.'_raus']='match_guest_sub'.$subNo.'_out';
-			$columns['M.gast_w'.$subNo.'_rein']='match_guest_sub'.$subNo.'_in';
-			$columns['M.gast_w'.$subNo.'_minute']='match_guest_sub'.$subNo.'_minute';
-			$columns['M.gast_w'.$subNo.'_condition']='match_guest_sub'.$subNo.'_condition';}
-		$matchinfos=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters, 1);
-		$match=(isset($matchinfos[0]))? $matchinfos[0] : array();
-		if(isset($match['match_type']))$match['match_type']=self::_convertLeagueType($match['match_type']);
-		return$match;}
-	static function getMatchSubstitutionsById($websoccer,$db,$matchId){
-		$fromTable=Config('db_prefix').'_spiel AS M';
-		$whereCondition='M.id=%d';
-		$parameters=$matchId;
-		$columns['M.id']='match_id';
-		$columns['M.home_verein']='match_home_id';
-		$columns['M.gast_verein']='match_guest_id';
-		$columns['M.berechnet']='match_simulated';
-		$columns['M.minutes']='match_minutes';
-		$columns['M.home_offensive']='match_home_offensive';
-		$columns['M.home_offensive_changed']='match_home_offensive_changed';
-		$columns['M.home_longpasses']='match_home_longpasses';
-		$columns['M.home_counterattacks']='match_home_counterattacks';
-		$columns['M.home_freekickplayer']='match_home_freekickplayer';
-		$columns['M.gast_offensive_changed']='match_guest_offensive_changed';
-		$columns['M.gast_offensive']='match_guest_offensive';
-		$columns['M.gast_longpasses']='match_guest_longpasses';
-		$columns['M.gast_counterattacks']='match_guest_counterattacks';
-		$columns['M.gast_freekickplayer']='match_guest_freekickplayer';
-		for($subNo=1; $subNo <= 3; $subNo++){
-			$columns['M.home_w'.$subNo.'_raus']='home_sub'.$subNo.'_out';
-			$columns['M.home_w'.$subNo.'_rein']='home_sub'.$subNo.'_in';
-			$columns['M.home_w'.$subNo.'_minute']='home_sub'.$subNo.'_minute';
-			$columns['M.home_w'.$subNo.'_condition']='home_sub'.$subNo.'_condition';
-			$columns['M.home_w'.$subNo.'_position']='home_sub'.$subNo.'_position';
-			$columns['M.gast_w'.$subNo.'_raus']='guest_sub'.$subNo.'_out';
-			$columns['M.gast_w'.$subNo.'_rein']='guest_sub'.$subNo.'_in';
-			$columns['M.gast_w'.$subNo.'_minute']='guest_sub'.$subNo.'_minute';
-			$columns['M.gast_w'.$subNo.'_condition']='guest_sub'.$subNo.'_condition';
-			$columns['M.gast_w'.$subNo.'_position']='guest_sub'.$subNo.'_position';}
-		$matchinfos=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters, 1);
-		$match=(isset($matchinfos[0]))? $matchinfos[0] : array();
-		return$match;}
-	static function getLastMatch($websoccer,$db){
-		$whereCondition='M.berechnet=1 AND (HOME.user_id=%d OR GUEST.user_id=%d)AND M.datum<%d ORDER BY M.datum DESC';
-		$parameters=array($websoccer->getUser()->id,$websoccer->getUser()->id,Timestamp());
-		return self::_getMatchSummaryByCondition($websoccer,$db,$whereCondition,$parameters);}
-	static function getLiveMatchByTeam($websoccer,$db,$teamId){
-		$whereCondition='M.berechnet!=1 AND (HOME.id=%d OR GUEST.id=%d)AND M.minutes>0 ORDER BY M.datum DESC';
-		$parameters=array($teamId,$teamId);
-		return self::_getMatchSummaryByCondition($websoccer,$db,$whereCondition,$parameters);}
-	static function _getMatchSummaryByCondition($websoccer,$db,$whereCondition,$parameters){
-		$fromTable=self::_getFromPart($websoccer);
-		$columns['M.id']='match_id';
-		$columns['M.datum']='match_date';
-		$columns['M.spieltyp']='match_type';
-		$columns['HOME.id']='match_home_id';
-		$columns['HOME.name']='match_home_name';
-		$columns['GUEST.id']='match_guest_id';
-		$columns['GUEST.name']='match_guest_name';
-		$columns['M.home_tore']='match_goals_home';
-		$columns['M.gast_tore']='match_goals_guest';
-		$matchinfos=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters, 1);
-		if(!count($matchinfos))$matchinfo=[];
-		else{
-			$matchinfo=$matchinfos[0];
-			$matchinfo['match_type']=self::_convertLeagueType($matchinfo['match_type']);}
-		return$matchinfo;}
-	static function getPreviousMatches($matchinfo,$websoccer,$db){
-		$fromTable=self::_getFromPart($websoccer);
-		$whereCondition='M.berechnet=1 AND (HOME.id=%d AND GUEST.id=%d OR HOME.id=%d AND GUEST.id=%d)ORDER BY M.datum DESC';
-		$parameters=array($matchinfo['match_home_id'],$matchinfo['match_guest_id'],$matchinfo['match_guest_id'],$matchinfo['match_home_id']);
-		$columns['M.id']='id';
-		$columns['HOME.name']='home_team';
-		$columns['GUEST.name']='guest_team';
-		$columns['M.home_tore']='home_goals';
-		$columns['M.gast_tore']='guest_goals';
-		$matches=[];
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters, 4);
-		while($matchinfo=$result->fetch_array())$matches[]=$matchinfo;
-		return$matches;}
-	static function getCupRoundsByCupname($websoccer,$db){
-		$columns['C.name']='cup';
-		$columns['R.name']='round';
-		$columns['R.firstround_date']='round_date';
-		$fromTable=Config('db_prefix').'_cup_round AS R INNER JOIN '.Config('db_prefix').'_cup AS C ON C.id=R.cup_id';
-		$result=$db->querySelect($columns,$fromTable, 'archived!=\'1\' ORDER BY cup ASC, round_date ASC');
-		$cuprounds=[];
-		while($cup=$result->fetch_array())$cuprounds[$cup['cup']][]=$cup['round'];
-		return$cuprounds;}
-	static function getMatchesByMatchday($websoccer,$db,$seasonId,$matchDay){
-		$whereCondition='M.saison_id=%d AND M.spieltag=%d  ORDER BY M.datum ASC';
-		$parameters=array($seasonId,$matchDay);
-		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 50);}
-	static function getMatchesByCupRound($websoccer,$db,$cupName,$cupRound){
-		$whereCondition='M.pokalname=\'%s\' AND M.pokalrunde=\'%s\'  ORDER BY M.datum ASC';
-		$parameters=array($cupName,$cupRound);
-		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 50);}
-	static function getMatchesByCupRoundAndGroup($websoccer,$db,$cupName,$cupRound,$cupGroup){
-		$whereCondition='M.pokalname=\'%s\' AND M.pokalrunde=\'%s\' AND M.pokalgruppe=\'%s\' ORDER BY M.datum ASC';
-		$parameters=array($cupName,$cupRound,$cupGroup);
-		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 50);}
-	static function getLatestMatches($websoccer,$db,$limit=20,$ignoreFriendlies=FALSE){
-		$whereCondition='M.berechnet=1';
-		if($ignoreFriendlies)$whereCondition .= ' AND M.spieltyp!=\'Freundschaft\'';
-		$whereCondition .= ' ORDER BY M.datum DESC';
-		$parameters=[];
-		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters,$limit);}
-	static function getLatestMatchesByUser($websoccer,$db,$userId){
-		$whereCondition='M.berechnet=1 AND (M.home_user_id=%d OR M.gast_user_id=%d)ORDER BY M.datum DESC';
-		$parameters=array($userId,$userId);
-		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 20);}
-	static function getLatestMatchesByTeam($websoccer,$db,$teamId){
-		$whereCondition='M.berechnet=1 AND (HOME.id=%d OR GUEST.id=%d)ORDER BY M.datum DESC';
-		$parameters=array($teamId,$teamId);
-		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 20);}
-	static function getTodaysMatches($websoccer,$db,$startIndex,$entries_per_page){
-		$startTs=mktime (0, 0, 1, date('n'), date('j'), date('Y'));
-		$endTs=$startTs + 3600*24;
-		$whereCondition='M.datum >= %d AND M.datum<%d ORDER BY M.datum ASC';
-		$parameters=array($startTs,$endTs);
-		$limit=$startIndex.','.$entries_per_page;
-		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters,$limit);}
-	static function countTodaysMatches($websoccer,$db){
-		$startTs=mktime (0, 0, 1, date('n'), date('j'), date('Y'));
-		$endTs=$startTs + 3600*24;
-		$whereCondition='M.datum >= %d AND M.datum<%d';
-		$parameters=array($startTs,$endTs);
-		$result=$db->querySelect('COUNT(*)AS hits',Config('db_prefix').'_spiel AS M',$whereCondition,$parameters);
-		$matches=$result->fetch_array();
-		if($matches)return$matches['hits'];
-		return 0;}
-	static function getMatchesByTeamAndTimeframe($websoccer,$db,$teamId,$dateStart,$dateEnd){
-		$whereCondition='(HOME.id=%d OR GUEST.id=%d)AND datum >= %d AND datum <= %d ORDER BY M.datum DESC';
-		$parameters=array($teamId,$teamId,$dateStart,$dateEnd);
-		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 20);}
-	static function getMatchdayNumberOfTeam($websoccer,$db,$teamId){
-		$columns='spieltag AS matchday';
-		$fromTable=Config('db_prefix').'_spiel';
-		$whereCondition='spieltyp=\'Ligaspiel\' AND berechnet=1 AND (home_verein=%d OR gast_verein=%d)ORDER BY datum DESC';
-		$parameters=array($teamId,$teamId);
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters, 1);
-		$matches=$result->fetch_array();
-		if($matches)return (int)$matches['matchday'];
-		return 0;}
-	static function getMatchReportPlayerRecords($websoccer,$db,$matchId,$teamId){
-		$fromTable=Config('db_prefix').'_spiel_berechnung AS M INNER JOIN '.Config('db_prefix').'_spieler AS P ON P.id=M.spieler_id';
-		$columns['P.id']='id';
-		$columns['P.vorname']='firstName';
-		$columns['P.nachname']='lastName';
-		$columns['P.kunstname']='pseudonym';
-		$columns['P.position']='position';
-		$columns['M.position_main']='position_main';
-		$columns['M.note']='grade';
-		$columns['M.tore']='goals';
-		$columns['M.verletzt']='injured';
-		$columns['M.gesperrt']='blocked';
-		$columns['M.karte_gelb']='yellowCards';
-		$columns['M.karte_rot']='redCard';
-		$columns['M.feld']='playstatus';
-		$columns['M.minuten_gespielt']='minutesPlayed';
-		$columns['M.assists']='assists';
-		$columns['M.ballcontacts']='ballcontacts';
-		$columns['M.wontackles']='wontackles';
-		$columns['M.losttackles']='losttackles';
-		$columns['M.shoots']='shoots';
-		$columns['M.passes_successed']='passes_successed';
-		$columns['M.passes_failed']='passes_failed';
-		$columns['M.age']='age';
-		$columns['M.w_staerke']='strength';
-		$order='field(M.position_main, \'T\', \'LV\', \'IV\', \'RV\', \'DM\', \'LM\', \'ZM\', \'RM\', \'OM\', \'LS\', \'MS\', \'RS\')';
-		$whereCondition='M.spiel_id=%d AND M.team_id=%d AND M.feld!=\'Ersatzbank\' ORDER BY '.$order.', M.id ASC';
-		$parameters=array($matchId,$teamId);
-		$players=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters);
-		return$players;}
-	static function getMatchPlayerRecordsByField($websoccer,$db,$matchId,$teamId){
-		$fromTable=Config('db_prefix').'_spiel_berechnung AS M INNER JOIN '.Config('db_prefix').'_spieler AS P ON P.id=M.spieler_id';
-		$columns=array('P.id'=> 'id', 'P.vorname'=> 'firstname', 'P.nachname'=> 'lastname', 'P.kunstname'=> 'pseudonym', 'P.verletzt'=> 'matches_injured', 'P.position'=> 'position', 'P.position_main'=> 'position_main', 'P.position_second'=> 'position_second',
-			'P.w_staerke'=> 'strength', 'P.w_technik'=> 'strength_technique', 'P.w_kondition'=> 'strength_stamina', 'P.w_frische'=> 'strength_freshness', 'P.w_zufriedenheit'=> 'strength_satisfaction', 'P.nation'=> 'player_nationality', 'P.picture'=> 'picture',
-			'P.sa_tore'=> 'st_goals', 'P.sa_spiele'=> 'st_matches', 'P.sa_karten_gelb'=> 'st_cards_yellow', 'P.sa_karten_gelb_rot'=> 'st_cards_yellow_red', 'P.sa_karten_rot'=> 'st_cards_red', 'M.id'=> 'match_record_id', 'M.position'=> 'match_position',
-			'M.position_main'=> 'match_position_main', 'M.feld'=> 'field', 'M.note'=> 'grade');
-		if(Config('players_aging')=='birthday')$ageColumn='TIMESTAMPDIFF(YEAR,P.geburtstag,CURDATE())';
-		else $ageColumn='P.age';
-		$columns[$ageColumn]='age';
-		$whereCondition='M.spiel_id=%d AND M.team_id=%d AND M.feld!=\'Ausgewechselt\' ORDER BY field(M.position_main, \'T\', \'LV\', \'IV\', \'RV\', \'DM\', \'LM\', \'ZM\', \'RM\', \'OM\', \'LS\', \'MS\', \'RS\'), M.id ASC';
-		$parameters=array($matchId,$teamId);
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
-		$players=[];
-		while($player=$result->fetch_array()){
-			$field=($player['field']==='1')? 'field' : 'bench';
-			$player['position']=PlayersDataService::_convertPosition($player['position']);
-			$players[$field][]=$player;}
-		return$players;}
-	static function getMatchReportMessages($websoccer,$db,$i18n,$matchId){
-		$fromTable=Config('db_prefix').'_matchreport AS R INNER JOIN '.Config('db_prefix').'_spiel_text AS T ON R.message_id=T.id';
-		$columns['R.id']='report_id';
-		$columns['R.minute']='minute';
-		$columns['R.playernames']='playerNames';
-		$columns['R.goals']='goals';
-		$columns['T.nachricht']='message';
-		$columns['T.aktion']='type';
-		$columns['R.active_home']='active_home';
-		$whereCondition='R.match_id=%d ORDER BY R.minute DESC, R.id DESC';
-		$parameters=$matchId;
-		$reportmessages=[];
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
-		$match=null;
-		while($reportmessage=$result->fetch_array()){
-			$players=explode(';',$reportmessage['playerNames']);
-			$rmsg=$reportmessage['message'];
-			$msgKey=strip_tags($rmsg);
-			if(Message($msgKey))$rmsg=Message($msgKey);
-			for($playerIndex=1; $playerIndex <= count($players); $playerIndex++)$rmsg=str_replace('{sp'.$playerIndex.'}',$players[$playerIndex - 1],$rmsg);
-			if(strpos($rmsg, '{ma1}')|| strpos($rmsg, '{ma2}')){
-				if($match==null)$match=self::getMatchById($websoccer,$db,$matchId, FALSE);
-				if($reportmessage['active_home']){
-					$rmsg=str_replace('{ma1}',$match['match_home_name'],$rmsg);
-					$rmsg=str_replace('{ma2}',$match['match_guest_name'],$rmsg);}
-				else{
-					$rmsg=str_replace('{ma1}',$match['match_guest_name'],$rmsg);
-					$rmsg=str_replace('{ma2}',$match['match_home_name'],$rmsg);}}
-			$reportmessage['message']=$rmsg;
-			$reportmessages[]=$reportmessage;}
-		return$reportmessages;}
-	static function getMatchesByCondition($websoccer,$db,$whereCondition,$parameters,$limit){
-		$fromTable=self::_getFromPart($websoccer);
-		$columns['M.id']='id';
-		$columns['M.spieltyp']='type';
-		$columns['M.pokalname']='cup_name';
-		$columns['M.pokalrunde']='cup_round';
-		$columns['M.home_noformation']='home_noformation';
-		$columns['M.guest_noformation']='guest_noformation';
-		$columns['HOME.name']='home_team';
-		$columns['HOME.bild']='home_team_picture';
-		$columns['HOME.id']='home_id';
-		$columns['HOMEUSER.id']='home_user_id';
-		$columns['HOMEUSER.nick']='home_user_nick';
-		$columns['HOMEUSER.email']='home_user_email';
-		$columns['HOMEUSER.picture']='home_user_picture';
-		$columns['GUEST.name']='guest_team';
-		$columns['GUEST.bild']='guest_team_picture';
-		$columns['GUEST.id']='guest_id';
-		$columns['GUESTUSER.id']='guest_user_id';
-		$columns['GUESTUSER.nick']='guest_user_nick';
-		$columns['GUESTUSER.email']='guest_user_email';
-		$columns['GUESTUSER.picture']='guest_user_picture';
-		$columns['M.home_tore']='home_goals';
-		$columns['M.gast_tore']='guest_goals';
-		$columns['M.berechnet']='simulated';
-		$columns['M.minutes']='minutes';
-		$columns['M.datum']='date';
-		$matches=[];
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
-		while($matchinfo=$result->fetch_array()){
-			$matchinfo['home_user_picture']=UsersDataService::getUserProfilePicture($websoccer,$matchinfo['home_user_picture'],$matchinfo['home_user_email']);
-			$matchinfo['guest_user_picture']=UsersDataService::getUserProfilePicture($websoccer,$matchinfo['guest_user_picture'],$matchinfo['guest_user_email']);
-			$matches[]=$matchinfo;}
-		return$matches;}
-	static function _getFromPart($websoccer){
-		$tablePrefix=Config('db_prefix');
-		$fromTable=$tablePrefix.'_spiel AS M INNER JOIN '.$tablePrefix.'_verein AS HOME ON M.home_verein=HOME.id INNER JOIN '.$tablePrefix.'_verein AS GUEST ON M.gast_verein=GUEST.id LEFT JOIN '.$tablePrefix.'_user AS HOMEUSER ON M.home_user_id=HOMEUSER.id LEFT JOIN '.$tablePrefix.'_user AS GUESTUSER ON M.gast_user_id=GUESTUSER.id';
-		return$fromTable;}
-	static function _convertLeagueType($dbValue){
-		switch($dbValue){
-			case 'Ligaspiel': return 'league';
-			case 'Pokalspiel': return 'cup';
-			case 'Freundschaft': return 'friendly';}}}
 class MessagesDataService {
 	static function getInboxMessages($websoccer,$db,$startIndex,$entries_per_page){
 		$whereCondition="L.empfaenger_id=%d AND L.typ='eingang' ORDER BY L.datum DESC";
@@ -7632,297 +6899,6 @@ class NotificationsDataService {
 			$notification['link']=$link;
 			$notifications[]=$notification;}
 		return$notifications;}}
-class PlayersDataService {
-	static function getPlayersOfTeamByPosition($websoccer,$db,$clubId,$positionSort='ASC',$considerBlocksForCups=FALSE,$considerBlocks=TRUE){
-		$columns=array('id'=> 'id', 'vorname'=> 'firstname', 'nachname'=> 'lastname', 'kunstname'=> 'pseudonym', 'verletzt'=> 'matches_injured', 'position'=> 'position', 'position_main'=> 'position_main', 'position_second'=> 'position_second',
-			'w_staerke'=> 'strength', 'w_technik'=> 'strength_technique', 'w_kondition'=> 'strength_stamina', 'w_frische'=> 'strength_freshness', 'w_zufriedenheit'=> 'strength_satisfaction', 'transfermarkt'=> 'transfermarket', 'nation'=> 'player_nationality',
-			'picture'=> 'picture', 'sa_tore'=> 'st_goals', 'sa_spiele'=> 'st_matches', 'sa_karten_gelb'=> 'st_cards_yellow', 'sa_karten_gelb_rot'=> 'st_cards_yellow_red', 'sa_karten_rot'=> 'st_cards_red', 'marktwert'=> 'marketvalue');
-		if(Config('players_aging')=='birthday')$ageColumn='TIMESTAMPDIFF(YEAR,geburtstag,CURDATE())';
-		else $ageColumn='age';
-		$columns[$ageColumn]='age';
-		if($considerBlocksForCups)$columns['gesperrt_cups']='matches_blocked';
-		elseif($considerBlocks)$columns['gesperrt']='matches_blocked';
-		$fromTable=Config('db_prefix').'_spieler';
-		$whereCondition='status=1 AND verein_id=%d ORDER BY position '.$positionSort.', position_main ASC, nachname ASC, vorname ASC';
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$clubId, 50);
-		$players=[];
-		while($player=$result->fetch_array()){
-			$player['position']=self::_convertPosition($player['position']);
-			$player['player_nationality_filename']=self::getFlagFilename($player['player_nationality']);
-			$player['marketvalue']=self::getMarketValue($websoccer,$player, '');
-			$players[$player['position']][]=$player;}
-		return$players;}
-	static function getPlayersOfTeamById($websoccer,$db,$clubId,$nationalteam=FALSE,$considerBlocksForCups=FALSE,$considerBlocks=TRUE){
-		$columns=array('id'=> 'id', 'vorname'=> 'firstname', 'nachname'=> 'lastname', 'kunstname'=> 'pseudonym', 'verletzt'=> 'matches_injured', 'position'=> 'position', 'position_main'=> 'position_main', 'position_second'=> 'position_second',
-			'w_staerke'=> 'strength', 'w_technik'=> 'strength_technic', 'w_kondition'=> 'strength_stamina', 'w_frische'=> 'strength_freshness', 'w_zufriedenheit'=> 'strength_satisfaction', 'transfermarkt'=> 'transfermarket', 'nation'=> 'player_nationality',
-			'picture'=> 'picture', 'sa_tore'=> 'st_goals', 'sa_spiele'=> 'st_matches', 'sa_karten_gelb'=> 'st_cards_yellow', 'sa_karten_gelb_rot'=> 'st_cards_yellow_red', 'sa_karten_rot'=> 'st_cards_red', 'marktwert'=> 'marketvalue',
-			'vertrag_spiele'=> 'contract_matches', 'vertrag_gehalt'=> 'contract_salary', 'unsellable'=> 'unsellable', 'lending_matches'=> 'lending_matches', 'lending_fee'=> 'lending_fee','lending_owner_id'=> 'lending_owner_id','transfermarkt'=> 'transfermarket');
-		if(Config('players_aging')=='birthday')$ageColumn='TIMESTAMPDIFF(YEAR,geburtstag,CURDATE())';
-		else $ageColumn='age';
-		$columns[$ageColumn]='age';
-		if(!$nationalteam){
-			if($considerBlocksForCups)$columns['gesperrt_cups']='matches_blocked';
-			elseif($considerBlocks)$columns['gesperrt']='matches_blocked';
-			else $columns['\'0\'']='matches_blocked';
-			$fromTable=Config('db_prefix').'_spieler';
-			$whereCondition='status=1 AND verein_id=%d';}
-		else{
-			$columns['gesperrt_nationalteam']='matches_blocked';
-			$fromTable=Config('db_prefix').'_spieler AS P INNER JOIN '.Config('db_prefix').'_nationalplayer AS NP ON NP.player_id=P.id';
-			$whereCondition='status=1 AND NP.team_id=%d';}
-		$whereCondition .= ' ORDER BY position ASC, position_main ASC, nachname ASC, vorname ASC';
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$clubId, 50);
-		$players=[];
-		while($player=$result->fetch_array()){
-			$player['position']=self::_convertPosition($player['position']);
-			$players[$player['id']]=$player;}
-		return$players;}
-	static function getPlayersOnTransferList($websoccer,$db,$startIndex,$entries_per_page,$positionFilter=null){
-		$columns['P.id']='id';
-		$columns['P.vorname']='firstname';
-		$columns['P.nachname']='lastname';
-		$columns['P.kunstname']='pseudonym';
-		$columns['P.position']='position';
-		$columns['P.position_main']='position_main';
-		$columns['P.vertrag_gehalt']='contract_salary';
-		$columns['P.vertrag_torpraemie']='contract_goalbonus';
-		$columns['P.w_staerke']='strength';
-		$columns['P.w_technik']='strength_technique';
-		$columns['P.w_kondition']='strength_stamina';
-		$columns['P.w_frische']='strength_freshness';
-		$columns['P.w_zufriedenheit']='strength_satisfaction';
-		$columns['P.transfermarkt']='transfermarket';
-		$columns['P.marktwert']='marketvalue';
-		$columns['P.transfer_start']='transfer_start';
-		$columns['P.transfer_ende']='transfer_deadline';
-		$columns['P.transfer_mindestgebot']='min_bid';
-		$columns['C.id']='team_id';
-		$columns['C.name']='team_name';
-		$fromTable=Config('db_prefix').'_spieler AS P LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.verein_id';
-		$whereCondition='P.status=1 AND P.transfermarkt=1 AND P.transfer_ende>%d';
-		$parameters[]=Timestamp();
-		if($positionFilter!=null){
-			$whereCondition .= ' AND P.position=\'%s\'';
-			$parameters[]=$positionFilter;}
-		$whereCondition .= ' ORDER BY P.transfer_ende ASC, P.nachname ASC, P.vorname ASC';
-		$limit=$startIndex.','.$entries_per_page;
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
-		$players=[];
-		while($player=$result->fetch_array()){
-			$player['position']=self::_convertPosition($player['position']);
-			$player['highestbid']=TransfermarketDataService::getHighestBidForPlayer($websoccer,$db,$player['id'],$player['transfer_start'],$player['transfer_deadline']);
-			$players[]=$player;}
-		return$players;}
-	static function countPlayersOnTransferList($websoccer,$db,$positionFilter=null){
-		$columns='COUNT(*)AS hits';
-		$fromTable=Config('db_prefix').'_spieler AS P';
-		$whereCondition='P.status=1 AND P.transfermarkt=1 AND P.transfer_ende>%d';
-		$parameters[]=Timestamp();
-		if($positionFilter!=null){
-			$whereCondition .= ' AND P.position=\'%s\'';
-			$parameters[]=$positionFilter;}
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
-		$players=$result->fetch_array();
-		if(isset($players['hits']))return$players['hits'];
-		return 0;}
-	static function getPlayerById($websoccer,$db,$playerId){
-		$columns['P.id']='player_id';
-		$columns['P.vorname']='player_firstname';
-		$columns['P.nachname']='player_lastname';
-		$columns['P.kunstname']='player_pseudonym';
-		$columns['P.position']='player_position';
-		$columns['P.position_main']='player_position_main';
-		$columns['P.position_second']='player_position_second';
-		$columns['P.geburtstag']='player_birthday';
-		$columns['P.nation']='player_nationality';
-		$columns['P.picture']='player_picture';
-		if(Config('players_aging')=='birthday')$ageColumn='TIMESTAMPDIFF(YEAR,P.geburtstag,CURDATE())';
-		else $ageColumn='P.age';
-		$columns[$ageColumn]='player_age';
-		$columns['P.verletzt']='player_matches_injured';
-		$columns['P.gesperrt']='player_matches_blocked';
-		$columns['P.gesperrt_cups']='player_matches_blocked_cups';
-		$columns['P.gesperrt_nationalteam']='player_matches_blocked_nationalteam';
-		$columns['P.vertrag_gehalt']='player_contract_salary';
-		$columns['P.vertrag_spiele']='player_contract_matches';
-		$columns['P.vertrag_torpraemie']='player_contract_goalbonus';
-		$columns['P.w_staerke']='player_strength';
-		$columns['P.w_technik']='player_strength_technique';
-		$columns['P.w_kondition']='player_strength_stamina';
-		$columns['P.w_frische']='player_strength_freshness';
-		$columns['P.w_zufriedenheit']='player_strength_satisfaction';
-		$columns['P.sa_tore']='player_season_goals';
-		$columns['P.sa_assists']='player_season_assists';
-		$columns['P.sa_spiele']='player_season_matches';
-		$columns['P.sa_karten_gelb']='player_season_yellow';
-		$columns['P.sa_karten_gelb_rot']='player_season_yellow_red';
-		$columns['P.sa_karten_rot']='player_season_red';
-		$columns['P.st_tore']='player_total_goals';
-		$columns['P.st_assists']='player_total_assists';
-		$columns['P.st_spiele']='player_total_matches';
-		$columns['P.st_karten_gelb']='player_total_yellow';
-		$columns['P.st_karten_gelb_rot']='player_total_yellow_red';
-		$columns['P.st_karten_rot']='player_total_red';
-		$columns['P.transfermarkt']='player_transfermarket';
-		$columns['P.marktwert']='player_marketvalue';
-		$columns['P.transfer_start']='transfer_start';
-		$columns['P.transfer_ende']='transfer_end';
-		$columns['P.transfer_mindestgebot']='transfer_min_bid';
-		$columns['P.history']='player_history';
-		$columns['P.unsellable']='player_unsellable';
-		$columns['P.lending_owner_id']='lending_owner_id';
-		$columns['L.name']='lending_owner_name';
-		$columns['P.lending_fee']='lending_fee';
-		$columns['P.lending_matches']='lending_matches';
-		$columns['C.id']='team_id';
-		$columns['C.name']='team_name';
-		$columns['C.finanz_budget']='team_budget';
-		$columns['C.user_id']='team_user_id';
-		$columns['(SELECT CONCAT(AVG(S.note), \';\', SUM(S.assists))FROM '.Config('db_prefix').'_spiel_berechnung AS S WHERE S.spieler_id=P.id AND S.minuten_gespielt>0 AND S.note>0)']='matches_info';
-		$fromTable=Config('db_prefix').'_spieler AS P LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.verein_id LEFT JOIN '.Config('db_prefix').'_verein AS L ON L.id=P.lending_owner_id';
-		$whereCondition='P.status=1 AND P.id=%d';
-		$players=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$playerId, 1);
-		if(count($players)){
-			$player=$players[0];
-			$player['player_position']=self::_convertPosition($player['player_position']);
-			$player['player_marketvalue']=self::getMarketValue($websoccer,$player);
-			$player['player_nationality_filename']=self::getFlagFilename($player['player_nationality']);
-			$matchesInfo=explode(';',$player['matches_info']);
-			$player['player_avg_grade']=round((int)$matchesInfo[0],2);
-			if(isset($matchesInfo[1]))$player['player_assists']=$matchesInfo[1];
-			else $player['player_assists']=0;}
-		else $player=[];
-		return$player;}
-	static function getTopStrikers($websoccer,$db,$limit=20,$leagueId=null){
-		$parameters=[];
-		$columns['P.id']='id';
-		$columns['P.vorname']='firstname';
-		$columns['P.nachname']='lastname';
-		$columns['P.kunstname']='pseudonym';
-		$columns['P.sa_tore']='goals';
-		$columns['P.sa_spiele']='matches';
-		$columns['P.transfermarkt']='transfermarket';
-		$columns['C.id']='team_id';
-		$columns['C.name']='team_name';
-		$fromTable=Config('db_prefix').'_spieler AS P LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.verein_id';
-		$whereCondition='P.status=1 AND P.sa_tore>0';
-		if($leagueId!=null){
-			$whereCondition .= ' AND liga_id=%d';
-			$parameters[]=(int)$leagueId;}
-		$whereCondition .= ' ORDER BY P.sa_tore DESC, P.sa_spiele ASC';
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
-		$players=[];
-		while($player=$result->fetch_array())$players[]=$player;
-		return$players;}
-	static function getTopScorers($websoccer,$db,$limit=20,$leagueId=null){
-		$parameters=[];
-		$columns['P.id']='id';
-		$columns['P.vorname']='firstname';
-		$columns['P.nachname']='lastname';
-		$columns['P.kunstname']='pseudonym';
-		$columns['P.sa_tore']='goals';
-		$columns['P.sa_assists']='assists';
-		$columns['P.sa_spiele']='matches';
-		$columns['(P.sa_tore + P.sa_assists)']='score';
-		$columns['P.transfermarkt']='transfermarket';
-		$columns['C.id']='team_id';
-		$columns['C.name']='team_name';
-		$fromTable=Config('db_prefix').'_spieler AS P LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.verein_id';
-		$whereCondition='P.status=\'1\' AND (P.sa_tore + P.sa_assists)>0';
-		if($leagueId!=null){
-			$whereCondition .= ' AND liga_id=%d';
-			$parameters[]=(int)$leagueId;}
-		$whereCondition .= ' ORDER BY score DESC, P.sa_assists DESC, P.sa_tore DESC, P.sa_spiele ASC, P.id ASC';
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
-		$players=[];
-		while($player=$result->fetch_array())$players[]=$player;
-		return$players;}
-	static function findPlayers($websoccer,$db,$firstName,$lastName,$clubName,$position,$strengthMax,$lendableOnly,$startIndex,$entries_per_page){
-		$columns['P.id']='id';
-		$columns['P.vorname']='firstname';
-		$columns['P.nachname']='lastname';
-		$columns['P.kunstname']='pseudonym';
-		$columns['P.position']='position';
-		$columns['P.position_main']='position_main';
-		$columns['P.position_second']='position_second';
-		$columns['P.transfermarkt']='transfermarket';
-		$columns['P.unsellable']='unsellable';
-		$columns['P.w_staerke']='strength';
-		$columns['P.w_technik']='strength_technique';
-		$columns['P.w_kondition']='strength_stamina';
-		$columns['P.w_frische']='strength_freshness';
-		$columns['P.w_zufriedenheit']='strength_satisfaction';
-		$columns['P.vertrag_gehalt']='contract_salary';
-		$columns['P.vertrag_spiele']='contract_matches';
-		$columns['P.lending_owner_id']='lending_owner_id';
-		$columns['P.lending_fee']='lending_fee';
-		$columns['P.lending_matches']='lending_matches';
-		$columns['C.id']='team_id';
-		$columns['C.name']='team_name';
-		$limit=$startIndex.','.$entries_per_page;
-		$result=self::executeFindQuery($websoccer,$db,$columns,$limit,$firstName,$lastName,$clubName,$position,$strengthMax,$lendableOnly);
-		$players=[];
-		while($player=$result->fetch_array()){
-			$player['position']=self::_convertPosition($player['position']);
-			$players[]=$player;}
-		return$players;}
-	static function findPlayersCount($websoccer,$db,$firstName,$lastName,$clubName,$position,$strengthMax,$lendableOnly){
-		$columns='COUNT(*)AS hits';
-		$result=self::executeFindQuery($websoccer,$db,$columns, 1,$firstName,$lastName,$clubName,$position,$strengthMax,$lendableOnly);
-		$players=$result->fetch_array();
-		if(isset($players['hits']))return$players['hits'];
-		return 0;}
-	static function executeFindQuery($websoccer,$db,$columns,$limit,$firstName,$lastName,$clubName,$position,$strengthMax,$lendableOnly){
-		$whereCondition='P.status=1';
-		$parameters=[];
-		if($firstName!=null){
-			$firstName=ucfirst($firstName);
-			$whereCondition .= ' AND P.vorname LIKE \'%s%%\'';
-			$parameters[]=$firstName;}
-		if($lastName!=null){
-			$lastName=ucfirst($lastName);
-			$whereCondition .= ' AND (P.nachname LIKE \'%s%%\' OR P.kunstname LIKE \'%s%%\')';
-			$parameters[]=$lastName;
-			$parameters[]=$lastName;}
-		if($clubName!=null){
-			$whereCondition .= ' AND C.name=\'%s\'';
-			$parameters[]=$clubName;}
-		if($position!=null){
-			$whereCondition .= ' AND P.position=\'%s\'';
-			$parameters[]=$position;}
-		if($strengthMax!=null &&Config('hide_strength_attributes')!=='1'){
-			$strengthMinValue=$strengthMax - 20;
-			$strengthMaxValue=$strengthMax;
-			$whereCondition .= ' AND P.w_staerke>%d AND P.w_staerke <= %d';
-			$parameters[]=$strengthMinValue;
-			$parameters[]=$strengthMaxValue;}
-		if($lendableOnly)$whereCondition .= ' AND P.lending_fee>0 AND (P.lending_owner_id IS NULL OR P.lending_owner_id=0)';
-		$fromTable=Config('db_prefix').'_spieler AS P LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.verein_id';
-		return$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);}
-	static function _convertPosition($dbPosition){
-		switch($dbPosition){
-			case 'Torwart': return 'goaly';
-			case 'Abwehr': return 'defense';
-			case 'Mittelfeld': return 'midfield';
-			default: return 'striker';}}
-	static function getMarketValue($websoccer,$player,$columnPrefix='player_'){
-		if(!Config('transfermarket_computed_marketvalue'))return$player[$columnPrefix.'marketvalue'];
-		$totalStrength=Config('sim_weight_strength')* $player[$columnPrefix.'strength'];
-		$totalStrength += Config('sim_weight_strengthTech')* $player[$columnPrefix.'strength_technique'];
-		$totalStrength += Config('sim_weight_strengthStamina')* $player[$columnPrefix.'strength_stamina'];
-		$totalStrength += Config('sim_weight_strengthFreshness')* $player[$columnPrefix.'strength_freshness'];
-		$totalStrength += Config('sim_weight_strengthSatisfaction')* $player[$columnPrefix.'strength_satisfaction'];
-		$totalStrength /= Config('sim_weight_strength')+Config('sim_weight_strengthTech')+Config('sim_weight_strengthStamina')+Config('sim_weight_strengthFreshness')+Config('sim_weight_strengthSatisfaction');
-		return$totalStrength *Config('transfermarket_value_per_strength');}
-	static function getFlagFilename($nationality){
-		if(!strlen($nationality))return$nationality;
-		$filename=str_replace('??', 'Ae',$nationality);
-		$filename=str_replace('??', 'Oe',$filename);
-		$filename=str_replace('??', 'Ue',$filename);
-		$filename=str_replace('??', 'ae',$filename);
-		$filename=str_replace('??', 'oe',$filename);
-		$filename=str_replace('??', 'ue',$filename);
-		return$filename;}}
 class PremiumDataService {
 	static function countAccountStatementsOfUser($websoccer,$db,$userId){
 		$columns='COUNT(*)AS hits';
@@ -8046,7 +7022,7 @@ class RandomEventsDataService {
 					break;}
 			if(!isset($columns))return;
 			$db->queryUpdate($columns,Config('db_prefix').'_spieler', 'id=%d',$player['id']);
-			$playerName=(strlen($player['kunstname']))? $player['kunstname'] : $player['vorname'].' '.$player['nachname'];
+			$playerName=(strlen($player['kunstname']))? $player['kunstname']:$player['vorname'].' '.$player['nachname'];
 			NotificationsDataService::createNotification($websoccer,$db,$userId,$subject,array('playername'=>$playerName),$notificationType, 'player', 'id='.$player['id'],$clubId);}}}
 class SponsorsDataService {
 	static function getSponsorinfoByTeamId($websoccer,$db,$clubId){
@@ -8205,8 +7181,8 @@ class TeamsDataService {
 		$result=$db->querySelect('id',Config('db_prefix').'_saison', 'liga_id=%d AND beendet=\'0\' ORDER BY name DESC',$leagueId, 1);
 		$season=$result->fetch_array();
 		$fromTable=Config('db_prefix').'_verein AS C LEFT JOIN '.Config('db_prefix').'_user AS U ON C.user_id=U.id LEFT JOIN ' .Config('db_prefix').'_leaguehistory AS PREVDAY ON (PREVDAY.team_id=C.id AND PREVDAY.matchday=(C.sa_spiele - 1)';
-		if($season)$fromTable .= ' AND PREVDAY.season_id='.$season['id'];
-		$fromTable .= ')';
+		if($season)$fromTable.=' AND PREVDAY.season_id='.$season['id'];
+		$fromTable.=')';
 		$columns=[];
 		$columns['C.id']='id';
 		$columns['C.name']='name';
@@ -8233,8 +7209,8 @@ class TeamsDataService {
 			$_SESSION['leaguehist']=$now;
 			$updateHistory=TRUE;
 			$queryTemplate='REPLACE INTO '.Config('db_prefix').'_leaguehistory ';
-			$queryTemplate .= '(team_id, season_id, user_id, matchday, rank)';
-			$queryTemplate .= 'VALUES (%d, '.$season['id'].', %s, %d, %d);';}
+			$queryTemplate.='(team_id, season_id, user_id, matchday, rank)';
+			$queryTemplate.='VALUES (%d, '.$season['id'].', %s, %d, %d);';}
 		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
 		$rank=0;
 		while($team=$result->fetch_array()){
@@ -8269,7 +7245,7 @@ class TeamsDataService {
 		$columns['U.email']='user_email';
 		$columns['U.picture']='user_picture';
 		$teams=[];
-		$whereCondition .= ' ORDER BY score DESC, goals_diff DESC, wins DESC, draws DESC, goals DESC, name ASC';
+		$whereCondition.=' ORDER BY score DESC, goals_diff DESC, wins DESC, draws DESC, goals DESC, name ASC';
 		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
 		while($team=$result->fetch_array()){
 			$team['user_picture']=UsersDataService::getUserProfilePicture($websoccer,$team['user_picture'],$team['user_email'],20);
@@ -8299,7 +7275,7 @@ class TeamsDataService {
 		$columns['U.email']='user_email';
 		$columns['U.picture']='user_picture';
 		$teams=[];
-		$whereCondition .= ' GROUP BY C.id ORDER BY score DESC, goals_diff DESC, wins DESC, draws DESC, goals DESC, name ASC';
+		$whereCondition.=' GROUP BY C.id ORDER BY score DESC, goals_diff DESC, wins DESC, draws DESC, goals DESC, name ASC';
 		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
 		while($team=$result->fetch_array()){
 			$team['user_picture']=UsersDataService::getUserProfilePicture($websoccer,$team['user_picture'],$team['user_email'],20);
@@ -8332,7 +7308,7 @@ class TeamsDataService {
 		$columns['S.p_haupt_steh']='stadium_p_haupt_steh';
 		$columns['S.p_haupt_sitz']='stadium_p_haupt_sitz';
 		$columns['S.p_vip']='stadium_p_vip';
-		$whereCondition .= ' ORDER BY league_country ASC, league_name ASC, team_name ASC';
+		$whereCondition.=' ORDER BY league_country ASC, league_name ASC, team_name ASC';
 		$teams=[];
 		$result=$db->querySelect($columns,$fromTable,$whereCondition,array(), 300);
 		while($team=$result->fetch_array())$teams[$team['league_country']][]=$team;
@@ -8440,63 +7416,17 @@ class TrainingcampsDataService {
 		$columns['p_frische']='effect_strength_freshness';
 		$columns['p_zufriedenheit']='effect_strength_satisfaction';
 		return$columns;}}
-class TrainingDataService {
-	static function countTrainers($websoccer,$db){
-		$fromTable=Config('db_prefix').'_trainer';
-		$whereCondition='1=1';
-		$columns='COUNT(*)AS hits';
-		$result=$db->querySelect($columns,$fromTable,$whereCondition);
-		$trainers=$result->fetch_array();
-		return$trainers['hits'];}
-	static function getTrainers($websoccer,$db,$startIndex,$entries_per_page){
-		$fromTable=Config('db_prefix').'_trainer';
-		$whereCondition='1=1 ORDER BY salary DESC';
-		$columns='*';
-		$limit=$startIndex .','.$entries_per_page;
-		$trainers=[];
-		$result=$db->querySelect($columns,$fromTable,$whereCondition, null,$limit);
-		while($trainer=$result->fetch_array())$trainers[]=$trainer;
-		return$trainers;}
-	static function getTrainerById($websoccer,$db,$trainerId){
-		$fromTable=Config('db_prefix').'_trainer';
-		$whereCondition='id=%d';
-		$columns='*';
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$trainerId);
-		$trainer=$result->fetch_array();
-		return$trainer;}
-	static function countRemainingTrainingUnits($websoccer,$db,$teamId){
-		$columns='COUNT(*)AS hits';
-		$fromTable=Config('db_prefix').'_training_unit';
-		$whereCondition='team_id=%d AND date_executed=0 OR date_executed IS NULL';
-		$parameters=$teamId;
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
-		$units=$result->fetch_array();
-		return$units['hits'];}
-	static function getLatestTrainingExecutionTime($websoccer,$db,$teamId){
-		$columns='date_executed';
-		$fromTable=Config('db_prefix').'_training_unit';
-		$whereCondition='team_id=%d AND date_executed>0 ORDER BY date_executed DESC';
-		$parameters=$teamId;
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters, 1);
-		$unit=$result->fetch_array();
-		if(isset($unit['date_executed']))return$unit['date_executed'];
-		else return 0;}
-	static function getValidTrainingUnit($websoccer,$db,$teamId){
-		$columns='id,trainer_id';
-		$fromTable=Config('db_prefix').'_training_unit';
-		$whereCondition='team_id=%d AND date_executed=0 OR date_executed IS NULL ORDER BY id ASC';
-		$parameters=$teamId;
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters, 1);
-		$unit=$result->fetch_array();
-		return$unit;}
-	static function getTrainingUnitById($websoccer,$db,$teamId,$unitId){
-		$columns='*';
-		$fromTable=Config('db_prefix').'_training_unit';
-		$whereCondition='id=%d AND team_id=%d';
-		$parameters=array($unitId,$teamId);
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters, 1);
-		$unit=$result->fetch_array();
-		return$unit;}}
+class TrainingDataService{
+	 static function countTrainers($websoccer,$db){$result=$db->querySelect('COUNT(*)AS hits',Config('db_prefix').'_trainer','1=1');$trainers=$result->fetch_array();return$trainers['hits'];}
+	 static function getTrainers($websoccer,$db,$startIndex,$entries_per_page){$trainers=[];$result=$db->querySelect('*',Config('db_prefix').'_trainer','1=1 ORDER BY salary DESC',null,$startIndex.','.$entries_per_page);
+	 						while($trainer=$result->fetch_array())$trainers[]=$trainer;return$trainers;}
+	 static function getTrainerById($websoccer,$db,$trainerId){$result=$db->querySelect('*',Config('db_prefix').'_trainer','id=%d',$trainerId);$trainer=$result->fetch_array();return$trainer;}
+	 static function countRemainingTrainingUnits($websoccer,$db,$teamId){$result=$db->querySelect('COUNT(*)AS hits',Config('db_prefix').'_training_unit','team_id=%d AND date_executed=0 OR date_executed IS NULL',$teamId);$units=$result->fetch_array();
+	 						return$units['hits'];}
+	 static function getLatestTrainingExecutionTime($websoccer,$db,$teamId){$result=$db->querySelect('date_executed',Config('db_prefix').'_training_unit','team_id=%d AND date_executed>0 ORDER BY date_executed DESC',$teamId,1);$unit=$result->fetch_array();
+							if(isset($unit['date_executed']))return$unit['date_executed'];else return 0;}
+	 static function getValidTrainingUnit($websoccer,$db,$teamId){$result=$db->querySelect('id,trainer_id',Config('db_prefix').'_training_unit','team_id=%d AND date_executed=0 OR date_executed IS NULL ORDER BY id ASC',$teamId,1);$unit=$result->fetch_array();return$unit;}
+	 static function getTrainingUnitById($websoccer,$db,$teamId,$unitId){$result=$db->querySelect('*',Config('db_prefix').'_training_unit','id=%d AND team_id=%d',[$unitId,$teamId],1);$unit=$result->fetch_array();return$unit;}}
 class TransfermarketDataService {
 	static function getHighestBidForPlayer($websoccer,$db,$playerId,$transferStart,$transferEnd){
 		$columns['B.id']='bid_id';
@@ -8660,7 +7590,7 @@ class TransfermarketDataService {
 		$whereCondition='id=%d';
 		$db->queryUpdate($columns,$fromTable,$whereCondition,$playerId);}
 	function transferPlayer($websoccer,$db,$player,$bid){
-		$playerName=(strlen($player['pseudonym']))? $player['pseudonym'] : $player['first_name'].' '.$player['last_name'];
+		$playerName=(strlen($player['pseudonym']))? $player['pseudonym']:$player['first_name'].' '.$player['last_name'];
 		if($player['team_id']<1){
 			if($bid['hand_money'])BankAccountDataService::debitAmount($websoccer,$db,$bid['team_id'],$bid['hand_money'],'transfer_transaction_subject_handmoney',$playerName);}
 		else{
@@ -8883,6 +7813,374 @@ class UsersDataService {
 		$users=$result->fetch_array();
 		if(isset($users['hits']))return$users['hits'];
 		return 0;}}
+class MatchesDataService {
+	static function getNextMatches($websoccer,$db,$clubId,$maxNumber){
+		$fromTable=self::_getFromPart($websoccer);
+		$whereCondition='M.berechnet!=\'1\' AND (HOME.id=%d OR GUEST.id=%d)AND M.datum>%d ORDER BY M.datum ASC';
+		$parameters=array($clubId,$clubId,Timestamp());
+		$columns['M.id']='match_id';
+		$columns['M.datum']='match_date';
+		$columns['M.spieltyp']='match_type';
+		$columns['HOME.id']='match_home_id';
+		$columns['HOME.name']='match_home_name';
+		$columns['GUEST.id']='match_guest_id';
+		$columns['GUEST.name']='match_guest_name';
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$maxNumber);
+		$matches=[];
+		while($match=$result->fetch_array()){
+			$match['match_type']=self::_convertLeagueType($match['match_type']);
+			$matches[]=$match;}
+	return$matches;}
+	static function getNextMatch($websoccer,$db,$clubId){
+		$fromTable=self::_getFromPart($websoccer);
+		$formationTable=Config('db_prefix').'_aufstellung';
+		$fromTable.=' LEFT JOIN '.$formationTable.' AS HOME_F ON HOME_F.verein_id=HOME.id AND HOME_F.match_id=M.id LEFT JOIN '.$formationTable.' AS GUEST_F ON GUEST_F.verein_id=GUEST.id AND GUEST_F.match_id=M.id';
+		$whereCondition='M.berechnet!=\'1\' AND (HOME.id=%d OR GUEST.id=%d)AND M.datum>%d ORDER BY M.datum ASC';
+		$parameters=array($clubId,$clubId,Timestamp());
+		$columns['M.id']='match_id';
+		$columns['M.datum']='match_date';
+		$columns['M.spieltyp']='match_type';
+		$columns['HOME.id']='match_home_id';
+		$columns['HOME.name']='match_home_name';
+		$columns['HOME_F.id']='match_home_formation_id';
+		$columns['GUEST.id']='match_guest_id';
+		$columns['GUEST.name']='match_guest_name';
+		$columns['GUEST_F.id']='match_guest_formation_id';
+		$matchinfos=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters, 1);
+		if(!count($matchinfos))$matchinfo=[];
+		else{
+			$matchinfo=$matchinfos[0];
+			$matchinfo['match_type']=self::_convertLeagueType($matchinfo['match_type']);}
+		return$matchinfo;}
+	static function getLiveMatch($websoccer,$db){
+		$fromTable=self::_getFromPart($websoccer);
+		$whereCondition='M.berechnet!=\'1\' AND M.minutes>0 AND (HOME.user_id=%d OR GUEST.user_id=%d)AND M.datum<%d ORDER BY M.datum DESC';
+		$parameters=array($websoccer->getUser()->id,$websoccer->getUser()->id,Timestamp());
+		$columns['M.id']='match_id';
+		$columns['M.datum']='match_date';
+		$columns['M.spieltyp']='match_type';
+		$columns['HOME.id']='match_home_id';
+		$columns['HOME.name']='match_home_name';
+		$columns['GUEST.id']='match_guest_id';
+		$columns['GUEST.name']='match_guest_name';
+		$matchinfos=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters, 1);
+		if(!count($matchinfos))$matchinfo=[];
+		else{
+			$matchinfo=$matchinfos[0];
+			$matchinfo['match_type']=self::_convertLeagueType($matchinfo['match_type']);}
+		return$matchinfo;}
+	static function getMatchById($websoccer,$db,$matchId,$loadStadiumInfo=TRUE,$loadSeasonInfo=FALSE){
+		$fromTable=self::_getFromPart($websoccer);
+		if($loadStadiumInfo){
+			$fromTable.=' LEFT JOIN '.Config('db_prefix').'_stadion AS S ON  S.id=IF(M.stadion_id IS NOT NULL, M.stadion_id, HOME.stadion_id)';
+			$columns['S.name']='match_stadium_name';}
+		if($loadSeasonInfo){
+			$fromTable.=' LEFT JOIN '.Config('db_prefix').'_saison AS SEASON ON SEASON.id=M.saison_id';
+			$columns['SEASON.name']='match_season_name';
+			$columns['SEASON.liga_id']='match_league_id';}
+		$whereCondition='M.id=%d';
+		$parameters=$matchId;
+		$columns['M.id']='match_id';
+		$columns['M.datum']='match_date';
+		$columns['M.spieltyp']='match_type';
+		$columns['HOME.id']='match_home_id';
+		$columns['HOME.name']='match_home_name';
+		$columns['HOME.nationalteam']='match_home_nationalteam';
+		$columns['HOME.bild']='match_home_picture';
+		$columns['GUEST.id']='match_guest_id';
+		$columns['GUEST.name']='match_guest_name';
+		$columns['GUEST.nationalteam']='match_guest_nationalteam';
+		$columns['GUEST.bild']='match_guest_picture';
+		$columns['M.pokalname']='match_cup_name';
+		$columns['M.pokalrunde']='match_cup_round';
+		$columns['M.spieltag']='match_matchday';
+		$columns['M.saison_id']='match_season_id';
+		$columns['M.berechnet']='match_simulated';
+		$columns['M.home_tore']='match_goals_home';
+		$columns['M.gast_tore']='match_goals_guest';
+		$columns['M.bericht']='match_deprecated_report';
+		$columns['M.minutes']='match_minutes';
+		$columns['M.home_noformation']='match_home_noformation';
+		$columns['M.guest_noformation']='match_guest_noformation';
+		$columns['M.zuschauer']='match_audience';
+		$columns['M.soldout']='match_soldout';
+		$columns['M.elfmeter']='match_penalty_enabled';
+		$columns['M.home_offensive']='match_home_offensive';
+		$columns['M.gast_offensive']='match_guest_offensive';
+		$columns['M.home_longpasses']='match_home_longpasses';
+		$columns['M.gast_longpasses']='match_guest_longpasses';
+		$columns['M.home_counterattacks']='match_home_counterattacks';
+		$columns['M.gast_counterattacks']='match_guest_counterattacks';
+		for($subNo=1; $subNo <= 3;++$subNo){
+			$columns['M.home_w'.$subNo.'_raus']='match_home_sub'.$subNo.'_out';
+			$columns['M.home_w'.$subNo.'_rein']='match_home_sub'.$subNo.'_in';
+			$columns['M.home_w'.$subNo.'_minute']='match_home_sub'.$subNo.'_minute';
+			$columns['M.home_w'.$subNo.'_condition']='match_home_sub'.$subNo.'_condition';
+			$columns['M.gast_w'.$subNo.'_raus']='match_guest_sub'.$subNo.'_out';
+			$columns['M.gast_w'.$subNo.'_rein']='match_guest_sub'.$subNo.'_in';
+			$columns['M.gast_w'.$subNo.'_minute']='match_guest_sub'.$subNo.'_minute';
+			$columns['M.gast_w'.$subNo.'_condition']='match_guest_sub'.$subNo.'_condition';}
+		$matchinfos=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters, 1);
+		$match=(isset($matchinfos[0]))? $matchinfos[0] : array();
+		if(isset($match['match_type']))$match['match_type']=self::_convertLeagueType($match['match_type']);
+		return$match;}
+	static function getMatchSubstitutionsById($websoccer,$db,$matchId){
+		$fromTable=Config('db_prefix').'_spiel AS M';
+		$whereCondition='M.id=%d';
+		$parameters=$matchId;
+		$columns['M.id']='match_id';
+		$columns['M.home_verein']='match_home_id';
+		$columns['M.gast_verein']='match_guest_id';
+		$columns['M.berechnet']='match_simulated';
+		$columns['M.minutes']='match_minutes';
+		$columns['M.home_offensive']='match_home_offensive';
+		$columns['M.home_offensive_changed']='match_home_offensive_changed';
+		$columns['M.home_longpasses']='match_home_longpasses';
+		$columns['M.home_counterattacks']='match_home_counterattacks';
+		$columns['M.home_freekickplayer']='match_home_freekickplayer';
+		$columns['M.gast_offensive_changed']='match_guest_offensive_changed';
+		$columns['M.gast_offensive']='match_guest_offensive';
+		$columns['M.gast_longpasses']='match_guest_longpasses';
+		$columns['M.gast_counterattacks']='match_guest_counterattacks';
+		$columns['M.gast_freekickplayer']='match_guest_freekickplayer';
+		for($subNo=1; $subNo <= 3;++$subNo){
+			$columns['M.home_w'.$subNo.'_raus']='home_sub'.$subNo.'_out';
+			$columns['M.home_w'.$subNo.'_rein']='home_sub'.$subNo.'_in';
+			$columns['M.home_w'.$subNo.'_minute']='home_sub'.$subNo.'_minute';
+			$columns['M.home_w'.$subNo.'_condition']='home_sub'.$subNo.'_condition';
+			$columns['M.home_w'.$subNo.'_position']='home_sub'.$subNo.'_position';
+			$columns['M.gast_w'.$subNo.'_raus']='guest_sub'.$subNo.'_out';
+			$columns['M.gast_w'.$subNo.'_rein']='guest_sub'.$subNo.'_in';
+			$columns['M.gast_w'.$subNo.'_minute']='guest_sub'.$subNo.'_minute';
+			$columns['M.gast_w'.$subNo.'_condition']='guest_sub'.$subNo.'_condition';
+			$columns['M.gast_w'.$subNo.'_position']='guest_sub'.$subNo.'_position';}
+		$matchinfos=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters, 1);
+		$match=(isset($matchinfos[0]))? $matchinfos[0] : array();
+		return$match;}
+	static function getLastMatch($websoccer,$db){
+		$whereCondition='M.berechnet=1 AND (HOME.user_id=%d OR GUEST.user_id=%d)AND M.datum<%d ORDER BY M.datum DESC';
+		$parameters=array($websoccer->getUser()->id,$websoccer->getUser()->id,Timestamp());
+		return self::_getMatchSummaryByCondition($websoccer,$db,$whereCondition,$parameters);}
+	static function getLiveMatchByTeam($websoccer,$db,$teamId){
+		$whereCondition='M.berechnet!=1 AND (HOME.id=%d OR GUEST.id=%d)AND M.minutes>0 ORDER BY M.datum DESC';
+		$parameters=array($teamId,$teamId);
+		return self::_getMatchSummaryByCondition($websoccer,$db,$whereCondition,$parameters);}
+	static function _getMatchSummaryByCondition($websoccer,$db,$whereCondition,$parameters){
+		$fromTable=self::_getFromPart($websoccer);
+		$columns['M.id']='match_id';
+		$columns['M.datum']='match_date';
+		$columns['M.spieltyp']='match_type';
+		$columns['HOME.id']='match_home_id';
+		$columns['HOME.name']='match_home_name';
+		$columns['GUEST.id']='match_guest_id';
+		$columns['GUEST.name']='match_guest_name';
+		$columns['M.home_tore']='match_goals_home';
+		$columns['M.gast_tore']='match_goals_guest';
+		$matchinfos=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters, 1);
+		if(!count($matchinfos))$matchinfo=[];
+		else{
+			$matchinfo=$matchinfos[0];
+			$matchinfo['match_type']=self::_convertLeagueType($matchinfo['match_type']);}
+		return$matchinfo;}
+	static function getPreviousMatches($matchinfo,$websoccer,$db){
+		$fromTable=self::_getFromPart($websoccer);
+		$whereCondition='M.berechnet=1 AND (HOME.id=%d AND GUEST.id=%d OR HOME.id=%d AND GUEST.id=%d)ORDER BY M.datum DESC';
+		$parameters=array($matchinfo['match_home_id'],$matchinfo['match_guest_id'],$matchinfo['match_guest_id'],$matchinfo['match_home_id']);
+		$columns['M.id']='id';
+		$columns['HOME.name']='home_team';
+		$columns['GUEST.name']='guest_team';
+		$columns['M.home_tore']='home_goals';
+		$columns['M.gast_tore']='guest_goals';
+		$matches=[];
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters, 4);
+		while($matchinfo=$result->fetch_array())$matches[]=$matchinfo;
+		return$matches;}
+	static function getCupRoundsByCupname($websoccer,$db){
+		$columns['C.name']='cup';
+		$columns['R.name']='round';
+		$columns['R.firstround_date']='round_date';
+		$fromTable=Config('db_prefix').'_cup_round AS R INNER JOIN '.Config('db_prefix').'_cup AS C ON C.id=R.cup_id';
+		$result=$db->querySelect($columns,$fromTable, 'archived!=\'1\' ORDER BY cup ASC, round_date ASC');
+		$cuprounds=[];
+		while($cup=$result->fetch_array())$cuprounds[$cup['cup']][]=$cup['round'];
+		return$cuprounds;}
+	static function getMatchesByMatchday($websoccer,$db,$seasonId,$matchDay){
+		$whereCondition='M.saison_id=%d AND M.spieltag=%d  ORDER BY M.datum ASC';
+		$parameters=array($seasonId,$matchDay);
+		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 50);}
+	static function getMatchesByCupRound($websoccer,$db,$cupName,$cupRound){
+		$whereCondition='M.pokalname=\'%s\' AND M.pokalrunde=\'%s\'  ORDER BY M.datum ASC';
+		$parameters=array($cupName,$cupRound);
+		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 50);}
+	static function getMatchesByCupRoundAndGroup($websoccer,$db,$cupName,$cupRound,$cupGroup){
+		$whereCondition='M.pokalname=\'%s\' AND M.pokalrunde=\'%s\' AND M.pokalgruppe=\'%s\' ORDER BY M.datum ASC';
+		$parameters=array($cupName,$cupRound,$cupGroup);
+		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 50);}
+	static function getLatestMatches($websoccer,$db,$limit=20,$ignoreFriendlies=FALSE){
+		$whereCondition='M.berechnet=1';
+		if($ignoreFriendlies)$whereCondition.=' AND M.spieltyp!=\'Freundschaft\'';
+		$whereCondition.=' ORDER BY M.datum DESC';
+		$parameters=[];
+		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters,$limit);}
+	static function getLatestMatchesByUser($websoccer,$db,$userId){
+		$whereCondition='M.berechnet=1 AND (M.home_user_id=%d OR M.gast_user_id=%d)ORDER BY M.datum DESC';
+		$parameters=array($userId,$userId);
+		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 20);}
+	static function getLatestMatchesByTeam($websoccer,$db,$teamId){
+		$whereCondition='M.berechnet=1 AND (HOME.id=%d OR GUEST.id=%d)ORDER BY M.datum DESC';
+		$parameters=array($teamId,$teamId);
+		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 20);}
+	static function getTodaysMatches($websoccer,$db,$startIndex,$entries_per_page){
+		$startTs=mktime (0, 0, 1, date('n'), date('j'), date('Y'));
+		$endTs=$startTs + 3600*24;
+		$whereCondition='M.datum >= %d AND M.datum<%d ORDER BY M.datum ASC';
+		$parameters=array($startTs,$endTs);
+		$limit=$startIndex.','.$entries_per_page;
+		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters,$limit);}
+	static function countTodaysMatches($websoccer,$db){
+		$startTs=mktime (0, 0, 1, date('n'), date('j'), date('Y'));
+		$endTs=$startTs + 3600*24;
+		$whereCondition='M.datum >= %d AND M.datum<%d';
+		$parameters=array($startTs,$endTs);
+		$result=$db->querySelect('COUNT(*)AS hits',Config('db_prefix').'_spiel AS M',$whereCondition,$parameters);
+		$matches=$result->fetch_array();
+		if($matches)return$matches['hits'];
+		return 0;}
+	static function getMatchesByTeamAndTimeframe($websoccer,$db,$teamId,$dateStart,$dateEnd){
+		$whereCondition='(HOME.id=%d OR GUEST.id=%d)AND datum >= %d AND datum <= %d ORDER BY M.datum DESC';
+		$parameters=array($teamId,$teamId,$dateStart,$dateEnd);
+		return self::getMatchesByCondition($websoccer,$db,$whereCondition,$parameters, 20);}
+	static function getMatchdayNumberOfTeam($websoccer,$db,$teamId){
+		$columns='spieltag AS matchday';
+		$fromTable=Config('db_prefix').'_spiel';
+		$whereCondition='spieltyp=\'Ligaspiel\' AND berechnet=1 AND (home_verein=%d OR gast_verein=%d)ORDER BY datum DESC';
+		$parameters=array($teamId,$teamId);
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters, 1);
+		$matches=$result->fetch_array();
+		if($matches)return (int)$matches['matchday'];
+		return 0;}
+	static function getMatchReportPlayerRecords($websoccer,$db,$matchId,$teamId){
+		$fromTable=Config('db_prefix').'_spiel_berechnung AS M INNER JOIN '.Config('db_prefix').'_spieler AS P ON P.id=M.spieler_id';
+		$columns['P.id']='id';
+		$columns['P.vorname']='firstName';
+		$columns['P.nachname']='lastName';
+		$columns['P.kunstname']='pseudonym';
+		$columns['P.position']='position';
+		$columns['M.position_main']='position_main';
+		$columns['M.note']='grade';
+		$columns['M.tore']='goals';
+		$columns['M.verletzt']='injured';
+		$columns['M.gesperrt']='blocked';
+		$columns['M.karte_gelb']='yellowCards';
+		$columns['M.karte_rot']='redCard';
+		$columns['M.feld']='playstatus';
+		$columns['M.minuten_gespielt']='minutesPlayed';
+		$columns['M.assists']='assists';
+		$columns['M.ballcontacts']='ballcontacts';
+		$columns['M.wontackles']='wontackles';
+		$columns['M.losttackles']='losttackles';
+		$columns['M.shoots']='shoots';
+		$columns['M.passes_successed']='passes_successed';
+		$columns['M.passes_failed']='passes_failed';
+		$columns['M.age']='age';
+		$columns['M.w_staerke']='strength';
+		$order='field(M.position_main, \'T\', \'LV\', \'IV\', \'RV\', \'DM\', \'LM\', \'ZM\', \'RM\', \'OM\', \'LS\', \'MS\', \'RS\')';
+		$whereCondition='M.spiel_id=%d AND M.team_id=%d AND M.feld!=\'Ersatzbank\' ORDER BY '.$order.', M.id ASC';
+		$parameters=array($matchId,$teamId);
+		$players=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$parameters);
+		return$players;}
+	static function getMatchPlayerRecordsByField($websoccer,$db,$matchId,$teamId){
+		$fromTable=Config('db_prefix').'_spiel_berechnung AS M INNER JOIN '.Config('db_prefix').'_spieler AS P ON P.id=M.spieler_id';
+		$columns=array('P.id'=> 'id', 'P.vorname'=> 'firstname', 'P.nachname'=> 'lastname', 'P.kunstname'=> 'pseudonym', 'P.verletzt'=> 'matches_injured', 'P.position'=> 'position', 'P.position_main'=> 'position_main', 'P.position_second'=> 'position_second',
+			'P.w_staerke'=> 'strength', 'P.w_technik'=> 'strength_technique', 'P.w_kondition'=> 'strength_stamina', 'P.w_frische'=> 'strength_freshness', 'P.w_zufriedenheit'=> 'strength_satisfaction', 'P.nation'=> 'player_nationality', 'P.picture'=> 'picture',
+			'P.sa_tore'=> 'st_goals', 'P.sa_spiele'=> 'st_matches', 'P.sa_karten_gelb'=> 'st_cards_yellow', 'P.sa_karten_gelb_rot'=> 'st_cards_yellow_red', 'P.sa_karten_rot'=> 'st_cards_red', 'M.id'=> 'match_record_id', 'M.position'=> 'match_position',
+			'M.position_main'=> 'match_position_main', 'M.feld'=> 'field', 'M.note'=> 'grade');
+		if(Config('players_aging')=='birthday')$ageColumn='TIMESTAMPDIFF(YEAR,P.geburtstag,CURDATE())';
+		else $ageColumn='P.age';
+		$columns[$ageColumn]='age';
+		$whereCondition='M.spiel_id=%d AND M.team_id=%d AND M.feld!=\'Ausgewechselt\' ORDER BY field(M.position_main, \'T\', \'LV\', \'IV\', \'RV\', \'DM\', \'LM\', \'ZM\', \'RM\', \'OM\', \'LS\', \'MS\', \'RS\'), M.id ASC';
+		$parameters=array($matchId,$teamId);
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
+		$players=[];
+		while($player=$result->fetch_array()){
+			$field=($player['field']==='1')? 'field' : 'bench';
+			$player['position']=PlayersDataService::_convertPosition($player['position']);
+			$players[$field][]=$player;}
+		return$players;}
+	static function getMatchReportMessages($websoccer,$db,$i18n,$matchId){
+		$fromTable=Config('db_prefix').'_matchreport AS R INNER JOIN '.Config('db_prefix').'_spiel_text AS T ON R.message_id=T.id';
+		$columns['R.id']='report_id';
+		$columns['R.minute']='minute';
+		$columns['R.playernames']='playerNames';
+		$columns['R.goals']='goals';
+		$columns['T.nachricht']='message';
+		$columns['T.aktion']='type';
+		$columns['R.active_home']='active_home';
+		$whereCondition='R.match_id=%d ORDER BY R.minute DESC, R.id DESC';
+		$parameters=$matchId;
+		$reportmessages=[];
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
+		$match=null;
+		while($reportmessage=$result->fetch_array()){
+			$players=explode(';',$reportmessage['playerNames']);
+			$rmsg=$reportmessage['message'];
+			$msgKey=strip_tags($rmsg);
+			if(Message($msgKey))$rmsg=Message($msgKey);
+			for($playerIndex=1; $playerIndex <= count($players);++$playerIndex)$rmsg=str_replace('{sp'.$playerIndex.'}',$players[$playerIndex - 1],$rmsg);
+			if(strpos($rmsg, '{ma1}')|| strpos($rmsg, '{ma2}')){
+				if($match==null)$match=self::getMatchById($websoccer,$db,$matchId, FALSE);
+				if($reportmessage['active_home']){
+					$rmsg=str_replace('{ma1}',$match['match_home_name'],$rmsg);
+					$rmsg=str_replace('{ma2}',$match['match_guest_name'],$rmsg);}
+				else{
+					$rmsg=str_replace('{ma1}',$match['match_guest_name'],$rmsg);
+					$rmsg=str_replace('{ma2}',$match['match_home_name'],$rmsg);}}
+			$reportmessage['message']=$rmsg;
+			$reportmessages[]=$reportmessage;}
+		return$reportmessages;}
+	static function getMatchesByCondition($websoccer,$db,$whereCondition,$parameters,$limit){
+		$fromTable=self::_getFromPart($websoccer);
+		$columns['M.id']='id';
+		$columns['M.spieltyp']='type';
+		$columns['M.pokalname']='cup_name';
+		$columns['M.pokalrunde']='cup_round';
+		$columns['M.home_noformation']='home_noformation';
+		$columns['M.guest_noformation']='guest_noformation';
+		$columns['HOME.name']='home_team';
+		$columns['HOME.bild']='home_team_picture';
+		$columns['HOME.id']='home_id';
+		$columns['HOMEUSER.id']='home_user_id';
+		$columns['HOMEUSER.nick']='home_user_nick';
+		$columns['HOMEUSER.email']='home_user_email';
+		$columns['HOMEUSER.picture']='home_user_picture';
+		$columns['GUEST.name']='guest_team';
+		$columns['GUEST.bild']='guest_team_picture';
+		$columns['GUEST.id']='guest_id';
+		$columns['GUESTUSER.id']='guest_user_id';
+		$columns['GUESTUSER.nick']='guest_user_nick';
+		$columns['GUESTUSER.email']='guest_user_email';
+		$columns['GUESTUSER.picture']='guest_user_picture';
+		$columns['M.home_tore']='home_goals';
+		$columns['M.gast_tore']='guest_goals';
+		$columns['M.berechnet']='simulated';
+		$columns['M.minutes']='minutes';
+		$columns['M.datum']='date';
+		$matches=[];
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
+		while($matchinfo=$result->fetch_array()){
+			$matchinfo['home_user_picture']=UsersDataService::getUserProfilePicture($websoccer,$matchinfo['home_user_picture'],$matchinfo['home_user_email']);
+			$matchinfo['guest_user_picture']=UsersDataService::getUserProfilePicture($websoccer,$matchinfo['guest_user_picture'],$matchinfo['guest_user_email']);
+			$matches[]=$matchinfo;}
+		return$matches;}
+	static function _getFromPart($websoccer){
+		$tablePrefix=Config('db_prefix');
+		$fromTable=$tablePrefix.'_spiel AS M INNER JOIN '.$tablePrefix.'_verein AS HOME ON M.home_verein=HOME.id INNER JOIN '.$tablePrefix.'_verein AS GUEST ON M.gast_verein=GUEST.id LEFT JOIN '.$tablePrefix.'_user AS HOMEUSER ON M.home_user_id=HOMEUSER.id LEFT JOIN '.$tablePrefix.'_user AS GUESTUSER ON M.gast_user_id=GUESTUSER.id';
+		return$fromTable;}
+	static function _convertLeagueType($dbValue){
+		switch($dbValue){
+			case 'Ligaspiel': return 'league';
+			case 'Pokalspiel': return 'cup';
+			case 'Freundschaft': return 'friendly';}}}
 class YouthMatchesDataService {
 	static function getYouthMatchinfoById($websoccer,$db,$i18n,$matchId){
 		$columns='M.*, HOME.name AS home_team_name, GUEST.name AS guest_team_name';
@@ -8956,113 +8254,325 @@ class YouthMatchesDataService {
 					foreach($messageData as$placeholderName=>$placeholderValue)$message=str_replace('{'.$placeholderName.'}',escapeOutput($placeholderValue, ENT_COMPAT,'UTF-8'),$message);}}
 			$items[]=array('minute'=>$item['minute'],'active_home'=>$item['home_on_ball'],'message_key'=>$item['message_key'],'message'=>$message);}
 		return$items;}}
-class YouthPlayersDataService {
-	static function getYouthPlayerById($websoccer,$db,$i18n,$playerId){
-		$fromTable=Config('db_prefix').'_youthplayer';
-		$players=$db->queryCachedSelect('*',$fromTable,'id=%d',$playerId);
-		if(!count($players))throw new Exception(Message('error_page_not_found'));
-		return$players[0];}
-	static function getYouthPlayersOfTeam($websoccer,$db,$teamId){
-		$fromTable=Config('db_prefix').'_youthplayer';
-		$whereCondition='team_id=%d ORDER BY position ASC,lastname ASC,firstname ASC';
-		$players=$db->queryCachedSelect('*',$fromTable,$whereCondition,$teamId);
-		return$players;}
-	static function countYouthPlayersOfTeam($websoccer,$db,$teamId){
-		$fromTable=Config('db_prefix').'_youthplayer';
-		$result=$db->querySelect('COUNT(*)AS hits',$fromTable,'team_id=%d',$teamId);
-		$players=$result->fetch_array();
-		if($players)return$players['hits'];
-		return 0;}
-	static function computeSalarySumOfYouthPlayersOfTeam($websoccer,$db,$teamId){
-		$fromTable=Config('db_prefix').'_youthplayer';
-		$result=$db->querySelect('SUM(strength)AS strengthsum',$fromTable,'team_id=%d',$teamId);
-		$players=$result->fetch_array();
-		if($players)return$players['strengthsum'] *Config('youth_salary_per_strength');
-		return 0;}
-	static function getYouthPlayersOfTeamByPosition($websoccer,$db,$clubId,$positionSort='ASC'){
-		$columns='*';
-		$fromTable=Config('db_prefix').'_youthplayer';
-		$whereCondition='team_id=%d ORDER BY position '.$positionSort.',lastname ASC,firstname ASC';
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$clubId,50);
+class PlayersDataService {
+	static function getPlayersOfTeamByPosition($websoccer,$db,$clubId,$positionSort='ASC',$considerBlocksForCups=FALSE,$considerBlocks=TRUE){
+		$columns=array('id'=> 'id', 'vorname'=> 'firstname', 'nachname'=> 'lastname', 'kunstname'=> 'pseudonym', 'verletzt'=> 'matches_injured', 'position'=> 'position', 'position_main'=> 'position_main', 'position_second'=> 'position_second',
+			'w_staerke'=> 'strength', 'w_technik'=> 'strength_technique', 'w_kondition'=> 'strength_stamina', 'w_frische'=> 'strength_freshness', 'w_zufriedenheit'=> 'strength_satisfaction', 'transfermarkt'=> 'transfermarket', 'nation'=> 'player_nationality',
+			'picture'=> 'picture', 'sa_tore'=> 'st_goals', 'sa_spiele'=> 'st_matches', 'sa_karten_gelb'=> 'st_cards_yellow', 'sa_karten_gelb_rot'=> 'st_cards_yellow_red', 'sa_karten_rot'=> 'st_cards_red', 'marktwert'=> 'marketvalue');
+		if(Config('players_aging')=='birthday')$ageColumn='TIMESTAMPDIFF(YEAR,geburtstag,CURDATE())';
+		else $ageColumn='age';
+		$columns[$ageColumn]='age';
+		if($considerBlocksForCups)$columns['gesperrt_cups']='matches_blocked';
+		elseif($considerBlocks)$columns['gesperrt']='matches_blocked';
+		$fromTable=Config('db_prefix').'_spieler';
+		$whereCondition='status=1 AND verein_id=%d ORDER BY position '.$positionSort.', position_main ASC, nachname ASC, vorname ASC';
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$clubId, 50);
 		$players=[];
 		while($player=$result->fetch_array()){
-			$player['position']=PlayersDataService::_convertPosition($player['position']);
-			$player['player_nationality']=$player['nation'];
-			$player['player_nationality_filename']=PlayersDataService::getFlagFilename($player['nation']);
+			$player['position']=self::_convertPosition($player['position']);
+			$player['player_nationality_filename']=self::getFlagFilename($player['player_nationality']);
+			$player['marketvalue']=self::getMarketValue($websoccer,$player, '');
 			$players[$player['position']][]=$player;}
 		return$players;}
-	static function countTransferableYouthPlayers($websoccer,$db,$positionFilter=NULL){
-		$fromTable=Config('db_prefix').'_youthplayer';
-		$parameters='';
-		$whereCondition='transfer_fee>0';
-		if($positionFilter!=NULL){
-			$whereCondition.=' AND position="%s"';
-			$parameters=$positionFilter;}
-		$result=$db->querySelect('COUNT(*)AS hits',$fromTable,$whereCondition,$parameters);
-		$players=$result->fetch_array();
-		if($players)return$players['hits'];
-		return 0;}
-	static function getTransferableYouthPlayers($websoccer,$db,$startIndex,$entries_per_page,$positionFilter=NULL){
-		$columns=array( 'P.id'=>'player_id','P.firstname'=>'firstname','P.lastname'=>'lastname','P.position'=>'position','P.nation'=>'nation','P.transfer_fee'=>'transfer_fee','P.age'=>'age','P.strength'=>'strength',
-			'P.st_matches'=>'st_matches','P.st_goals'=>'st_goals','P.st_assists'=>'st_assists','P.st_cards_yellow'=>'st_cards_yellow','P.st_cards_yellow_red'=>'st_cards_yellow_red','P.st_cards_red'=>'st_cards_red','P.team_id'=>'team_id',
-			'C.name'=>'team_name','C.bild'=>'team_picture','C.user_id'=>'user_id','U.nick'=>'user_nick','U.email'=>'user_email','U.picture'=>'user_picture');
-		$fromTable=Config('db_prefix').'_youthplayer AS P INNER JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.team_id LEFT JOIN '.Config('db_prefix').'_user AS U ON U.id=C.user_id';
-		$parameters='';
-		$whereCondition='P.transfer_fee>0';
-		if($positionFilter!=NULL){
-			$whereCondition.=' AND P.position="%s"';
-			$parameters=$positionFilter;}
-		$whereCondition.=' ORDER BY P.strength DESC';
+	static function getPlayersOfTeamById($websoccer,$db,$clubId,$nationalteam=FALSE,$considerBlocksForCups=FALSE,$considerBlocks=TRUE){
+		$columns=array('id'=> 'id', 'vorname'=> 'firstname', 'nachname'=> 'lastname', 'kunstname'=> 'pseudonym', 'verletzt'=> 'matches_injured', 'position'=> 'position', 'position_main'=> 'position_main', 'position_second'=> 'position_second',
+			'w_staerke'=> 'strength', 'w_technik'=> 'strength_technic', 'w_kondition'=> 'strength_stamina', 'w_frische'=> 'strength_freshness', 'w_zufriedenheit'=> 'strength_satisfaction', 'transfermarkt'=> 'transfermarket', 'nation'=> 'player_nationality',
+			'picture'=> 'picture', 'sa_tore'=> 'st_goals', 'sa_spiele'=> 'st_matches', 'sa_karten_gelb'=> 'st_cards_yellow', 'sa_karten_gelb_rot'=> 'st_cards_yellow_red', 'sa_karten_rot'=> 'st_cards_red', 'marktwert'=> 'marketvalue',
+			'vertrag_spiele'=> 'contract_matches', 'vertrag_gehalt'=> 'contract_salary', 'unsellable'=> 'unsellable', 'lending_matches'=> 'lending_matches', 'lending_fee'=> 'lending_fee','lending_owner_id'=> 'lending_owner_id','transfermarkt'=> 'transfermarket');
+		if(Config('players_aging')=='birthday')$ageColumn='TIMESTAMPDIFF(YEAR,geburtstag,CURDATE())';
+		else $ageColumn='age';
+		$columns[$ageColumn]='age';
+		if(!$nationalteam){
+			if($considerBlocksForCups)$columns['gesperrt_cups']='matches_blocked';
+			elseif($considerBlocks)$columns['gesperrt']='matches_blocked';
+			else $columns['\'0\'']='matches_blocked';
+			$fromTable=Config('db_prefix').'_spieler';
+			$whereCondition='status=1 AND verein_id=%d';}
+		else{
+			$columns['gesperrt_nationalteam']='matches_blocked';
+			$fromTable=Config('db_prefix').'_spieler AS P INNER JOIN '.Config('db_prefix').'_nationalplayer AS NP ON NP.player_id=P.id';
+			$whereCondition='status=1 AND NP.team_id=%d';}
+		$whereCondition.=' ORDER BY position ASC, position_main ASC, nachname ASC, vorname ASC';
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$clubId, 50);
 		$players=[];
-		$limit=$startIndex .','.$entries_per_page;
-		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
 		while($player=$result->fetch_array()){
-			$player['user_picture']=UsersDataService::getUserProfilePicture($websoccer,$player['user_picture'],$player['user_email'],20);
-			$player['nation_flagfile']=PlayersDataService::getFlagFilename($player['nation']);
+			$player['position']=self::_convertPosition($player['position']);
+			$players[$player['id']]=$player;}
+		return$players;}
+	static function getPlayersOnTransferList($websoccer,$db,$startIndex,$entries_per_page,$positionFilter=null){
+		$columns['P.id']='id';
+		$columns['P.vorname']='firstname';
+		$columns['P.nachname']='lastname';
+		$columns['P.kunstname']='pseudonym';
+		$columns['P.position']='position';
+		$columns['P.position_main']='position_main';
+		$columns['P.vertrag_gehalt']='contract_salary';
+		$columns['P.vertrag_torpraemie']='contract_goalbonus';
+		$columns['P.w_staerke']='strength';
+		$columns['P.w_technik']='strength_technique';
+		$columns['P.w_kondition']='strength_stamina';
+		$columns['P.w_frische']='strength_freshness';
+		$columns['P.w_zufriedenheit']='strength_satisfaction';
+		$columns['P.transfermarkt']='transfermarket';
+		$columns['P.marktwert']='marketvalue';
+		$columns['P.transfer_start']='transfer_start';
+		$columns['P.transfer_ende']='transfer_deadline';
+		$columns['P.transfer_mindestgebot']='min_bid';
+		$columns['C.id']='team_id';
+		$columns['C.name']='team_name';
+		$fromTable=Config('db_prefix').'_spieler AS P LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.verein_id';
+		$whereCondition='P.status=1 AND P.transfermarkt=1 AND P.transfer_ende>%d';
+		$parameters[]=Timestamp();
+		if($positionFilter!=null){
+			$whereCondition.=' AND P.position=\'%s\'';
+			$parameters[]=$positionFilter;}
+		$whereCondition.=' ORDER BY P.transfer_ende ASC, P.nachname ASC, P.vorname ASC';
+		$limit=$startIndex.','.$entries_per_page;
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
+		$players=[];
+		while($player=$result->fetch_array()){
+			$player['position']=self::_convertPosition($player['position']);
+			$player['highestbid']=TransfermarketDataService::getHighestBidForPlayer($websoccer,$db,$player['id'],$player['transfer_start'],$player['transfer_deadline']);
 			$players[]=$player;}
 		return$players;}
-	static function getScouts($websoccer,$db,$sortColumns='expertise DESC, name ASC'){
-		$result=$db->querySelect('*',Config('db_prefix').'_youthscout','1=1 ORDER BY '.$sortColumns);
-		$scouts=[];
-		while($scout=$result->fetch_array())$scouts[]=$scout;
-		return$scouts;}
-	static function getScoutById($websoccer,$db,$i18n,$scoutId){
-		$result=$db->querySelect('*',Config('db_prefix').'_youthscout','id=%d',$scoutId);
-		$scout=$result->fetch_array();
-		if(!$scout)throw new Exception(Message('youthteam_scouting_err_invalidscout'));
-		return$scout;}
-	static function getLastScoutingExecutionTime($websoccer,$db,$teamId){
-		$result=$db->querySelect('scouting_last_execution',Config('db_prefix').'_verein','id=%d',$teamId);
-		$scouted=$result->fetch_array();
-		if(!$scouted)return 0;
-		return$scouted['scouting_last_execution'];}
-	static function getPossibleScoutingCountries(){
-		$iterator=new DirectoryIterator($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/');
-		$countries=[];
-		while($iterator->valid()){
-			if($iterator->isDir()&&!$iterator->isDot())$countries[]=$iterator->getFilename();
-			$iterator->next();}
-		return$countries;}
-	static function countMatchRequests($websoccer,$db){
-		$fromTable=Config('db_prefix').'_youthmatch_request';
-		$result=$db->querySelect('COUNT(*)AS hits',$fromTable,'1=1');
-		$requests=$result->fetch_array();
-		if($requests)return$requests['hits'];
+	static function countPlayersOnTransferList($websoccer,$db,$positionFilter=null){
+		$columns='COUNT(*)AS hits';
+		$fromTable=Config('db_prefix').'_spieler AS P';
+		$whereCondition='P.status=1 AND P.transfermarkt=1 AND P.transfer_ende>%d';
+		$parameters[]=Timestamp();
+		if($positionFilter!=null){
+			$whereCondition.=' AND P.position=\'%s\'';
+			$parameters[]=$positionFilter;}
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);
+		$players=$result->fetch_array();
+		if(isset($players['hits']))return$players['hits'];
 		return 0;}
-	static function getMatchRequests($websoccer,$db,$startIndex,$entries_per_page){
-		$columns=array('R.id'=>'request_id','R.matchdate'=>'matchdate','R.reward'=>'reward','C.name'=>'team_name','C.id'=>'team_id','U.id'=>'user_id','U.nick'=>'user_nick','U.email'=>'user_email','U.picture'=>'user_picture');
-		$fromTable=Config('db_prefix').'_youthmatch_request AS R INNER JOIN '.Config('db_prefix').'_verein AS C ON C.id=R.team_id INNER JOIN '.Config('db_prefix').'_user AS U ON U.id=C.user_id';
-		$whereCondition='1=1 ORDER BY R.matchdate ASC';
-		$requests=[];
-		$limit=$startIndex .','.$entries_per_page;
-		$result=$db->querySelect($columns,$fromTable,$whereCondition, null,$limit);
-		while($request=$result->fetch_array()){
-			$request['user_picture']=UsersDataService::getUserProfilePicture($websoccer,$request['user_picture'],$request['user_email']);
-			$requests[]=$request;}
-		return$requests;}
-	static function deleteInvalidOpenMatchRequests($websoccer,$db){
-		$timeBoundary=Timestamp()+Config('youth_matchrequest_accept_hours_in_advance');
-		$db->queryDelete(Config('db_prefix').'_youthmatch_request','matchdate <= %d',$timeBoundary);}}
+	static function getPlayerById($websoccer,$db,$playerId){
+		$columns['P.id']='player_id';
+		$columns['P.vorname']='player_firstname';
+		$columns['P.nachname']='player_lastname';
+		$columns['P.kunstname']='player_pseudonym';
+		$columns['P.position']='player_position';
+		$columns['P.position_main']='player_position_main';
+		$columns['P.position_second']='player_position_second';
+		$columns['P.geburtstag']='player_birthday';
+		$columns['P.nation']='player_nationality';
+		$columns['P.picture']='player_picture';
+		if(Config('players_aging')=='birthday')$ageColumn='TIMESTAMPDIFF(YEAR,P.geburtstag,CURDATE())';
+		else $ageColumn='P.age';
+		$columns[$ageColumn]='player_age';
+		$columns['P.verletzt']='player_matches_injured';
+		$columns['P.gesperrt']='player_matches_blocked';
+		$columns['P.gesperrt_cups']='player_matches_blocked_cups';
+		$columns['P.gesperrt_nationalteam']='player_matches_blocked_nationalteam';
+		$columns['P.vertrag_gehalt']='player_contract_salary';
+		$columns['P.vertrag_spiele']='player_contract_matches';
+		$columns['P.vertrag_torpraemie']='player_contract_goalbonus';
+		$columns['P.w_staerke']='player_strength';
+		$columns['P.w_technik']='player_strength_technique';
+		$columns['P.w_kondition']='player_strength_stamina';
+		$columns['P.w_frische']='player_strength_freshness';
+		$columns['P.w_zufriedenheit']='player_strength_satisfaction';
+		$columns['P.sa_tore']='player_season_goals';
+		$columns['P.sa_assists']='player_season_assists';
+		$columns['P.sa_spiele']='player_season_matches';
+		$columns['P.sa_karten_gelb']='player_season_yellow';
+		$columns['P.sa_karten_gelb_rot']='player_season_yellow_red';
+		$columns['P.sa_karten_rot']='player_season_red';
+		$columns['P.st_tore']='player_total_goals';
+		$columns['P.st_assists']='player_total_assists';
+		$columns['P.st_spiele']='player_total_matches';
+		$columns['P.st_karten_gelb']='player_total_yellow';
+		$columns['P.st_karten_gelb_rot']='player_total_yellow_red';
+		$columns['P.st_karten_rot']='player_total_red';
+		$columns['P.transfermarkt']='player_transfermarket';
+		$columns['P.marktwert']='player_marketvalue';
+		$columns['P.transfer_start']='transfer_start';
+		$columns['P.transfer_ende']='transfer_end';
+		$columns['P.transfer_mindestgebot']='transfer_min_bid';
+		$columns['P.history']='player_history';
+		$columns['P.unsellable']='player_unsellable';
+		$columns['P.lending_owner_id']='lending_owner_id';
+		$columns['L.name']='lending_owner_name';
+		$columns['P.lending_fee']='lending_fee';
+		$columns['P.lending_matches']='lending_matches';
+		$columns['C.id']='team_id';
+		$columns['C.name']='team_name';
+		$columns['C.finanz_budget']='team_budget';
+		$columns['C.user_id']='team_user_id';
+		$columns['(SELECT CONCAT(AVG(S.note), \';\', SUM(S.assists))FROM '.Config('db_prefix').'_spiel_berechnung AS S WHERE S.spieler_id=P.id AND S.minuten_gespielt>0 AND S.note>0)']='matches_info';
+		$fromTable=Config('db_prefix').'_spieler AS P LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.verein_id LEFT JOIN '.Config('db_prefix').'_verein AS L ON L.id=P.lending_owner_id';
+		$whereCondition='P.status=1 AND P.id=%d';
+		$players=$db->queryCachedSelect($columns,$fromTable,$whereCondition,$playerId, 1);
+		if(count($players)){
+			$player=$players[0];
+			$player['player_position']=self::_convertPosition($player['player_position']);
+			$player['player_marketvalue']=self::getMarketValue($websoccer,$player);
+			$player['player_nationality_filename']=self::getFlagFilename($player['player_nationality']);
+			$matchesInfo=explode(';',$player['matches_info']);
+			$player['player_avg_grade']=round((int)$matchesInfo[0],2);
+			if(isset($matchesInfo[1]))$player['player_assists']=$matchesInfo[1];
+			else $player['player_assists']=0;}
+		else $player=[];
+		return$player;}
+	static function getTopStrikers($websoccer,$db,$limit=20,$leagueId=null){
+		$parameters=[];
+		$columns['P.id']='id';
+		$columns['P.vorname']='firstname';
+		$columns['P.nachname']='lastname';
+		$columns['P.kunstname']='pseudonym';
+		$columns['P.sa_tore']='goals';
+		$columns['P.sa_spiele']='matches';
+		$columns['P.transfermarkt']='transfermarket';
+		$columns['C.id']='team_id';
+		$columns['C.name']='team_name';
+		$fromTable=Config('db_prefix').'_spieler AS P LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.verein_id';
+		$whereCondition='P.status=1 AND P.sa_tore>0';
+		if($leagueId!=null){
+			$whereCondition.=' AND liga_id=%d';
+			$parameters[]=(int)$leagueId;}
+		$whereCondition.=' ORDER BY P.sa_tore DESC, P.sa_spiele ASC';
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
+		$players=[];
+		while($player=$result->fetch_array())$players[]=$player;
+		return$players;}
+	static function getTopScorers($websoccer,$db,$limit=20,$leagueId=null){
+		$parameters=[];
+		$columns['P.id']='id';
+		$columns['P.vorname']='firstname';
+		$columns['P.nachname']='lastname';
+		$columns['P.kunstname']='pseudonym';
+		$columns['P.sa_tore']='goals';
+		$columns['P.sa_assists']='assists';
+		$columns['P.sa_spiele']='matches';
+		$columns['(P.sa_tore + P.sa_assists)']='score';
+		$columns['P.transfermarkt']='transfermarket';
+		$columns['C.id']='team_id';
+		$columns['C.name']='team_name';
+		$fromTable=Config('db_prefix').'_spieler AS P LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.verein_id';
+		$whereCondition='P.status=\'1\' AND (P.sa_tore + P.sa_assists)>0';
+		if($leagueId!=null){
+			$whereCondition.=' AND liga_id=%d';
+			$parameters[]=(int)$leagueId;}
+		$whereCondition.=' ORDER BY score DESC, P.sa_assists DESC, P.sa_tore DESC, P.sa_spiele ASC, P.id ASC';
+		$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);
+		$players=[];
+		while($player=$result->fetch_array())$players[]=$player;
+		return$players;}
+	static function findPlayers($websoccer,$db,$firstName,$lastName,$clubName,$position,$strengthMax,$lendableOnly,$startIndex,$entries_per_page){
+		$columns['P.id']='id';
+		$columns['P.vorname']='firstname';
+		$columns['P.nachname']='lastname';
+		$columns['P.kunstname']='pseudonym';
+		$columns['P.position']='position';
+		$columns['P.position_main']='position_main';
+		$columns['P.position_second']='position_second';
+		$columns['P.transfermarkt']='transfermarket';
+		$columns['P.unsellable']='unsellable';
+		$columns['P.w_staerke']='strength';
+		$columns['P.w_technik']='strength_technique';
+		$columns['P.w_kondition']='strength_stamina';
+		$columns['P.w_frische']='strength_freshness';
+		$columns['P.w_zufriedenheit']='strength_satisfaction';
+		$columns['P.vertrag_gehalt']='contract_salary';
+		$columns['P.vertrag_spiele']='contract_matches';
+		$columns['P.lending_owner_id']='lending_owner_id';
+		$columns['P.lending_fee']='lending_fee';
+		$columns['P.lending_matches']='lending_matches';
+		$columns['C.id']='team_id';
+		$columns['C.name']='team_name';
+		$limit=$startIndex.','.$entries_per_page;
+		$result=self::executeFindQuery($websoccer,$db,$columns,$limit,$firstName,$lastName,$clubName,$position,$strengthMax,$lendableOnly);
+		$players=[];
+		while($player=$result->fetch_array()){
+			$player['position']=self::_convertPosition($player['position']);
+			$players[]=$player;}
+		return$players;}
+	static function findPlayersCount($websoccer,$db,$firstName,$lastName,$clubName,$position,$strengthMax,$lendableOnly){
+		$columns='COUNT(*)AS hits';
+		$result=self::executeFindQuery($websoccer,$db,$columns, 1,$firstName,$lastName,$clubName,$position,$strengthMax,$lendableOnly);
+		$players=$result->fetch_array();
+		if(isset($players['hits']))return$players['hits'];
+		return 0;}
+	static function executeFindQuery($websoccer,$db,$columns,$limit,$firstName,$lastName,$clubName,$position,$strengthMax,$lendableOnly){
+		$whereCondition='P.status=1';
+		$parameters=[];
+		if($firstName!=null){
+			$firstName=ucfirst($firstName);
+			$whereCondition.=' AND P.vorname LIKE \'%s%%\'';
+			$parameters[]=$firstName;}
+		if($lastName!=null){
+			$lastName=ucfirst($lastName);
+			$whereCondition.=' AND (P.nachname LIKE \'%s%%\' OR P.kunstname LIKE \'%s%%\')';
+			$parameters[]=$lastName;
+			$parameters[]=$lastName;}
+		if($clubName!=null){
+			$whereCondition.=' AND C.name=\'%s\'';
+			$parameters[]=$clubName;}
+		if($position!=null){
+			$whereCondition.=' AND P.position=\'%s\'';
+			$parameters[]=$position;}
+		if($strengthMax!=null &&Config('hide_strength_attributes')!=='1'){
+			$strengthMinValue=$strengthMax - 20;
+			$strengthMaxValue=$strengthMax;
+			$whereCondition.=' AND P.w_staerke>%d AND P.w_staerke <= %d';
+			$parameters[]=$strengthMinValue;
+			$parameters[]=$strengthMaxValue;}
+		if($lendableOnly)$whereCondition.=' AND P.lending_fee>0 AND (P.lending_owner_id IS NULL OR P.lending_owner_id=0)';
+		$fromTable=Config('db_prefix').'_spieler AS P LEFT JOIN '.Config('db_prefix').'_verein AS C ON C.id=P.verein_id';
+		return$db->querySelect($columns,$fromTable,$whereCondition,$parameters,$limit);}
+	static function _convertPosition($dbPosition){
+		switch($dbPosition){
+			case 'Torwart': return 'goaly';
+			case 'Abwehr': return 'defense';
+			case 'Mittelfeld': return 'midfield';
+			default: return 'striker';}}
+	static function getMarketValue($websoccer,$player,$columnPrefix='player_'){
+		if(!Config('transfermarket_computed_marketvalue'))return$player[$columnPrefix.'marketvalue'];
+		$totalStrength=Config('sim_weight_strength')* $player[$columnPrefix.'strength'];
+		$totalStrength += Config('sim_weight_strengthTech')* $player[$columnPrefix.'strength_technique'];
+		$totalStrength += Config('sim_weight_strengthStamina')* $player[$columnPrefix.'strength_stamina'];
+		$totalStrength += Config('sim_weight_strengthFreshness')* $player[$columnPrefix.'strength_freshness'];
+		$totalStrength += Config('sim_weight_strengthSatisfaction')* $player[$columnPrefix.'strength_satisfaction'];
+		$totalStrength /= Config('sim_weight_strength')+Config('sim_weight_strengthTech')+Config('sim_weight_strengthStamina')+Config('sim_weight_strengthFreshness')+Config('sim_weight_strengthSatisfaction');
+		return$totalStrength *Config('transfermarket_value_per_strength');}
+	static function getFlagFilename($nationality){
+		if(!strlen($nationality))return$nationality;
+		$filename=str_replace('??', 'Ae',$nationality);
+		$filename=str_replace('??', 'Oe',$filename);
+		$filename=str_replace('??', 'Ue',$filename);
+		$filename=str_replace('??', 'ae',$filename);
+		$filename=str_replace('??', 'oe',$filename);
+		$filename=str_replace('??', 'ue',$filename);
+		return$filename;}}
+class YouthPlayersDataService {
+	 static function getYouthPlayerById($websoccer,$db,$i18n,$playerId){$players=$db->queryCachedSelect('*',Config('db_prefix').'_youthplayer','id=%d',$playerId);if(!count($players))throw new Exception(Message('error_page_not_found'));return$players[0];}
+	 static function getYouthPlayersOfTeam($websoccer,$db,$teamId){$players=$db->queryCachedSelect('*',Config('db_prefix').'_youthplayer','team_id=%d ORDER BY position ASC,lastname ASC,firstname ASC',$teamId);return$players;}
+	 static function countYouthPlayersOfTeam($websoccer,$db,$teamId){$result=$db->querySelect('COUNT(*)AS hits',Config('db_prefix').'_youthplayer','team_id=%d',$teamId);$players=$result->fetch_array();if($players)return$players['hits'];return 0;}
+	 static function computeSalarySumOfYouthPlayersOfTeam($websoccer,$db,$teamId){$result=$db->querySelect('SUM(strength)AS strengthsum',Config('db_prefix').'_youthplayer','team_id=%d',$teamId);$players=$result->fetch_array();if($players)return$players['strengthsum']*
+							Config('youth_salary_per_strength');return 0;}
+	 static function getYouthPlayersOfTeamByPosition($websoccer,$db,$clubId,$positionSort='ASC'){$result=$db->querySelect('*',Config('db_prefix').'_youthplayer','team_id=%d ORDER BY position '.$positionSort.',lastname ASC,firstname ASC',$clubId,50);$players=[];
+							while($player=$result->fetch_array()){$player['position']=PlayersDataService::_convertPosition($player['position']);$player['player_nationality']=$player['nation'];$player['player_nationality_filename']=PlayersDataService::getFlagFilename(
+							$player['nation']);$players[$player['position']][]=$player;}return$players;}
+	 static function countTransferableYouthPlayers($websoccer,$db,$positionFilter=NULL){$parameters='';$whereCondition='transfer_fee>0';if($positionFilter!=NULL){$whereCondition.=' AND position="%s"';$parameters=$positionFilter;}$result=$db->querySelect(
+	 						'COUNT(*)AS hits',Config('db_prefix').'_youthplayer',$whereCondition,$parameters);$players=$result->fetch_array();if($players)return$players['hits'];return 0;}
+	 static function getTransferableYouthPlayers($websoccer,$db,$startIndex,$entries_per_page,$positionFilter=NULL){$parameters='';$whereCondition='P.transfer_fee>0';if($positionFilter!=NULL){$whereCondition.=' AND P.position="%s"';$parameters=$positionFilter;}
+							$whereCondition.=' ORDER BY P.strength DESC';$players=[];$result=$db->querySelect(['P.id'=>'player_id','P.firstname'=>'firstname','P.lastname'=>'lastname','P.position'=>'position','P.nation'=>'nation','P.transfer_fee'=>'transfer_fee',
+							'P.age'=>'age','P.strength'=>'strength','P.st_matches'=>'st_matches','P.st_goals'=>'st_goals','P.st_assists'=>'st_assists','P.st_cards_yellow'=>'st_cards_yellow','P.st_cards_yellow_red'=>'st_cards_yellow_red','P.st_cards_red'=>'st_cards_red',
+							'P.team_id'=>'team_id','C.name'=>'team_name','C.bild'=>'team_picture','C.user_id'=>'user_id','U.nick'=>'user_nick','U.email'=>'user_email','U.picture'=>'user_picture'],Config('db_prefix').'_youthplayer AS P INNER JOIN '.Config('db_prefix').
+							'_verein AS C ON C.id=P.team_id LEFT JOIN '.Config('db_prefix').'_user AS U ON U.id=C.user_id',$whereCondition,$parameters,$startIndex.','.$entries_per_page);while($player=$result->fetch_array()){$player['user_picture']=
+							UsersDataService::getUserProfilePicture($websoccer,$player['user_picture'],$player['user_email'],20);$player['nation_flagfile']=PlayersDataService::getFlagFilename($player['nation']);$players[]=$player;}return$players;}
+	 static function getScouts($websoccer,$db,$sortColumns='expertise DESC,name ASC'){$result=$db->querySelect('*',Config('db_prefix').'_youthscout','1=1 ORDER BY '.$sortColumns);$scouts=[];while($scout=$result->fetch_array())$scouts[]=$scout;return$scouts;}
+	 static function getScoutById($websoccer,$db,$i18n,$scoutId){$result=$db->querySelect('*',Config('db_prefix').'_youthscout','id=%d',$scoutId);$scout=$result->fetch_array();if(!$scout)throw new Exception(Message('youthteam_scouting_err_invalidscout'));return$scout;}
+	 static function getLastScoutingExecutionTime($websoccer,$db,$teamId){$result=$db->querySelect('scouting_last_execution',Config('db_prefix').'_verein','id=%d',$teamId);$scouted=$result->fetch_array();if(!$scouted)return 0;return$scouted['scouting_last_execution'];}
+	 static function getPossibleScoutingCountries(){$iterator=new DirectoryIterator($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/');$countries=[];while($iterator->valid()){if($iterator->isDir()&&!$iterator->isDot())$countries[]=$iterator->getFilename();
+	 						$iterator->next();}return$countries;}
+	 static function countMatchRequests($websoccer,$db){$result=$db->querySelect('COUNT(*)AS hits',Config('db_prefix').'_youthmatch_request','1=1');$requests=$result->fetch_array();if($requests)return$requests['hits'];return 0;}
+	 static function getMatchRequests($websoccer,$db,$startIndex,$entries_per_page){$requests=[];$result=$db->querySelect(['R.id'=>'request_id','R.matchdate'=>'matchdate','R.reward'=>'reward','C.name'=>'team_name','C.id'=>'team_id','U.id'=>'user_id','U.nick'=>
+	 						'user_nick','U.email'=>'user_email','U.picture'=>'user_picture'],Config('db_prefix').'_youthmatch_request AS R INNER JOIN '.Config('db_prefix').'_verein AS C ON C.id=R.team_id INNER JOIN '.Config('db_prefix').'_user AS U ON U.id=C.user_id',
+	 						'1=1 ORDER BY R.matchdate ASC',null,$startIndex.','.$entries_per_page);while($request=$result->fetch_array()){$request['user_picture']=UsersDataService::getUserProfilePicture($websoccer,$request['user_picture'],$request['user_email']);
+							$requests[]=$request;}return$requests;}
+	 static function deleteInvalidOpenMatchRequests($websoccer,$db){$timeBoundary=Timestamp()+Config('youth_matchrequest_accept_hours_in_advance');$db->queryDelete(Config('db_prefix').'_youthmatch_request','matchdate<=%d',$timeBoundary);}}
 function Bootstrap_css(){?><style>
 /*!
  * Bootstrap v2.3.2
@@ -9073,68 +8583,66 @@ function Bootstrap_css(){?><style>
  *
  * Designed and built with all the love in the world by @mdo and @fat.
  */.clearfix{*zoom:1}.clearfix:before,.clearfix:after{display:table;line-height:0;content:""}.clearfix:after{clear:both}.hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0}.input-block-level{display:block;width:100%;min-height:30px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}article,aside,details,figcaption,figure,footer,header,hgroup,nav,section{display:block}audio,canvas,video{display:inline-block;*display:inline;*zoom:1}audio:not([controls]){display:none}html{font-size:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}a:focus{outline:thin dotted #333;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px}a:hover,a:active{outline:0}sub,sup{position:relative;font-size:75%;line-height:0;vertical-align:baseline}sup{top:-0.5em}sub{bottom:-0.25em}img{width:auto\9;height:auto;max-width:100%;vertical-align:middle;border:0;-ms-interpolation-mode:bicubic}#map_canvas img,.google-maps img{max-width:none}button,input,select,textarea{margin:0;font-size:100%;vertical-align:middle}button,input{*overflow:visible;line-height:normal}button::-moz-focus-inner,input::-moz-focus-inner{padding:0;border:0}button,html input[type="button"],input[type="reset"],input[type="submit"]{cursor:pointer;-webkit-appearance:button}label,select,button,input[type="button"],input[type="reset"],input[type="submit"],input[type="radio"],input[type="checkbox"]{cursor:pointer}input[type="search"]{-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;-webkit-appearance:textfield}input[type="search"]::-webkit-search-decoration,input[type="search"]::-webkit-search-cancel-button{-webkit-appearance:none}textarea{overflow:auto;vertical-align:top}@media print{*{color:#000!important;text-shadow:none!important;background:transparent!important;box-shadow:none!important}a,a:visited{text-decoration:underline}a[href]:after{content:" (" attr(href) ")"}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100%!important}@page{margin:.5cm}p,h2,h3{orphans:3;widows:3}h2,h3{page-break-after:avoid}}body{margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:14px;line-height:20px;color:#333;background-color:#fff}a{color:#08c;text-decoration:none}a:hover,a:focus{color:#005580;text-decoration:underline}.img-rounded{-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px}.img-polaroid{padding:4px;background-color:#fff;border:1px solid #ccc;border:1px solid rgba(0,0,0,0.2);-webkit-box-shadow:0 1px 3px rgba(0,0,0,0.1);-moz-box-shadow:0 1px 3px rgba(0,0,0,0.1);box-shadow:0 1px 3px rgba(0,0,0,0.1)}.img-circle{-webkit-border-radius:500px;-moz-border-radius:500px;border-radius:500px}.row{margin-left:-20px;*zoom:1}.row:before,.row:after{display:table;line-height:0;content:""}.row:after{clear:both}[class*="span"]{float:left;min-height:1px;margin-left:20px}.container,.navbar-static-top .container,.navbar-fixed-top .container,.navbar-fixed-bottom .container{width:940px}.span12{width:940px}.span11{width:860px}.span10{width:780px}.span9{width:700px}.span8{width:620px}.span7{width:540px}.span6{width:460px}.span5{width:380px}.span4{width:300px}.span3{width:220px}.span2{width:140px}.span1{width:60px}.offset12{margin-left:980px}.offset11{margin-left:900px}.offset10{margin-left:820px}.offset9{margin-left:740px}.offset8{margin-left:660px}.offset7{margin-left:580px}.offset6{margin-left:500px}.offset5{margin-left:420px}.offset4{margin-left:340px}.offset3{margin-left:260px}.offset2{margin-left:180px}.offset1{margin-left:100px}.row-fluid{width:100%;*zoom:1}.row-fluid:before,.row-fluid:after{display:table;line-height:0;content:""}.row-fluid:after{clear:both}.row-fluid [class*="span"]{display:block;float:left;width:100%;min-height:30px;margin-left:2.127659574468085%;*margin-left:2.074468085106383%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.row-fluid [class*="span"]:first-child{margin-left:0}.row-fluid .controls-row [class*="span"]+[class*="span"]{margin-left:2.127659574468085%}.row-fluid .span12{width:100%;*width:99.94680851063829%}.row-fluid .span11{width:91.48936170212765%;*width:91.43617021276594%}.row-fluid .span10{width:82.97872340425532%;*width:82.92553191489361%}.row-fluid .span9{width:74.46808510638297%;*width:74.41489361702126%}.row-fluid .span8{width:65.95744680851064%;*width:65.90425531914893%}.row-fluid .span7{width:57.44680851063829%;*width:57.39361702127659%}.row-fluid .span6{width:48.93617021276595%;*width:48.88297872340425%}.row-fluid .span5{width:40.42553191489362%;*width:40.37234042553192%}.row-fluid .span4{width:31.914893617021278%;*width:31.861702127659576%}.row-fluid .span3{width:23.404255319148934%;*width:23.351063829787233%}.row-fluid .span2{width:14.893617021276595%;*width:14.840425531914894%}.row-fluid .span1{width:6.382978723404255%;*width:6.329787234042553%}.row-fluid .offset12{margin-left:104.25531914893617%;*margin-left:104.14893617021275%}.row-fluid .offset12:first-child{margin-left:102.12765957446808%;*margin-left:102.02127659574467%}.row-fluid .offset11{margin-left:95.74468085106382%;*margin-left:95.6382978723404%}.row-fluid .offset11:first-child{margin-left:93.61702127659574%;*margin-left:93.51063829787232%}.row-fluid .offset10{margin-left:87.23404255319149%;*margin-left:87.12765957446807%}.row-fluid .offset10:first-child{margin-left:85.1063829787234%;*margin-left:84.99999999999999%}.row-fluid .offset9{margin-left:78.72340425531914%;*margin-left:78.61702127659572%}.row-fluid .offset9:first-child{margin-left:76.59574468085106%;*margin-left:76.48936170212764%}.row-fluid .offset8{margin-left:70.2127659574468%;*margin-left:70.10638297872339%}.row-fluid .offset8:first-child{margin-left:68.08510638297872%;*margin-left:67.9787234042553%}.row-fluid .offset7{margin-left:61.70212765957446%;*margin-left:61.59574468085106%}.row-fluid .offset7:first-child{margin-left:59.574468085106375%;*margin-left:59.46808510638297%}.row-fluid .offset6{margin-left:53.191489361702125%;*margin-left:53.085106382978715%}.row-fluid .offset6:first-child{margin-left:51.063829787234035%;*margin-left:50.95744680851063%}.row-fluid .offset5{margin-left:44.68085106382979%;*margin-left:44.57446808510638%}.row-fluid .offset5:first-child{margin-left:42.5531914893617%;*margin-left:42.4468085106383%}.row-fluid .offset4{margin-left:36.170212765957444%;*margin-left:36.06382978723405%}.row-fluid .offset4:first-child{margin-left:34.04255319148936%;*margin-left:33.93617021276596%}.row-fluid .offset3{margin-left:27.659574468085104%;*margin-left:27.5531914893617%}.row-fluid .offset3:first-child{margin-left:25.53191489361702%;*margin-left:25.425531914893618%}.row-fluid .offset2{margin-left:19.148936170212764%;*margin-left:19.04255319148936%}.row-fluid .offset2:first-child{margin-left:17.02127659574468%;*margin-left:16.914893617021278%}.row-fluid .offset1{margin-left:10.638297872340425%;*margin-left:10.53191489361702%}.row-fluid .offset1:first-child{margin-left:8.51063829787234%;*margin-left:8.404255319148938%}[class*="span"].hide,.row-fluid [class*="span"].hide{display:none}[class*="span"].pull-right,.row-fluid [class*="span"].pull-right{float:right}.container{margin-right:auto;margin-left:auto;*zoom:1}.container:before,.container:after{display:table;line-height:0;content:""}.container:after{clear:both}.container-fluid{padding-right:20px;padding-left:20px;*zoom:1}.container-fluid:before,.container-fluid:after{display:table;line-height:0;content:""}.container-fluid:after{clear:both}p{margin:0 0 10px}.lead{margin-bottom:20px;font-size:21px;font-weight:200;line-height:30px}small{font-size:85%}strong{font-weight:bold}em{font-style:italic}cite{font-style:normal}.muted{color:#999}a.muted:hover,a.muted:focus{color:#808080}.text-warning{color:#c09853}a.text-warning:hover,a.text-warning:focus{color:#a47e3c}.text-error{color:#b94a48}a.text-error:hover,a.text-error:focus{color:#953b39}.text-info{color:#3a87ad}a.text-info:hover,a.text-info:focus{color:#2d6987}.text-success{color:#468847}a.text-success:hover,a.text-success:focus{color:#356635}.text-left{text-align:left}.text-right{text-align:right}.text-center{text-align:center}h1,h2,h3,h4,h5,h6{margin:10px 0;font-family:inherit;font-weight:bold;line-height:20px;color:inherit;text-rendering:optimizelegibility}h1 small,h2 small,h3 small,h4 small,h5 small,h6 small{font-weight:normal;line-height:1;color:#999}h1,h2,h3{line-height:40px}h1{font-size:38.5px}h2{font-size:31.5px}h3{font-size:24.5px}h4{font-size:17.5px}h5{font-size:14px}h6{font-size:11.9px}h1 small{font-size:24.5px}h2 small{font-size:17.5px}h3 small{font-size:14px}h4 small{font-size:14px}.page-header{padding-bottom:9px;margin:20px 0 30px;border-bottom:1px solid #eee}ul,ol{padding:0;margin:0 0 10px 25px}ul ul,ul ol,ol ol,ol ul{margin-bottom:0}li{line-height:20px}ul.unstyled,ol.unstyled{margin-left:0;list-style:none}ul.inline,ol.inline{margin-left:0;list-style:none}ul.inline>li,ol.inline>li{display:inline-block;*display:inline;padding-right:5px;padding-left:5px;*zoom:1}dl{margin-bottom:20px}dt,dd{line-height:20px}dt{font-weight:bold}dd{margin-left:10px}.dl-horizontal{*zoom:1}.dl-horizontal:before,.dl-horizontal:after{display:table;line-height:0;content:""}.dl-horizontal:after{clear:both}.dl-horizontal dt{float:left;width:160px;overflow:hidden;clear:left;text-align:right;text-overflow:ellipsis;white-space:nowrap}.dl-horizontal dd{margin-left:180px}hr{margin:20px 0;border:0;border-top:1px solid #eee;border-bottom:1px solid #fff}abbr[title],abbr[data-original-title]{cursor:help;border-bottom:1px dotted #999}abbr.initialism{font-size:90%;text-transform:uppercase}blockquote{padding:0 0 0 15px;margin:0 0 20px;border-left:5px solid #eee}blockquote p{margin-bottom:0;font-size:17.5px;font-weight:300;line-height:1.25}blockquote small{display:block;line-height:20px;color:#999}blockquote small:before{content:'\2014 \00A0'}blockquote.pull-right{float:right;padding-right:15px;padding-left:0;border-right:5px solid #eee;border-left:0}blockquote.pull-right p,blockquote.pull-right small{text-align:right}blockquote.pull-right small:before{content:''}blockquote.pull-right small:after{content:'\00A0 \2014'}q:before,q:after,blockquote:before,blockquote:after{content:""}address{display:block;margin-bottom:20px;font-style:normal;line-height:20px}code,pre{padding:0 3px 2px;font-family:Monaco,Menlo,Consolas,"Courier New",monospace;font-size:12px;color:#333;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px}code{padding:2px 4px;color:#d14;white-space:nowrap;background-color:#f7f7f9;border:1px solid #e1e1e8}pre{display:block;padding:9.5px;margin:0 0 10px;font-size:13px;line-height:20px;word-break:break-all;word-wrap:break-word;white-space:pre;white-space:pre-wrap;background-color:#f5f5f5;border:1px solid #ccc;border:1px solid rgba(0,0,0,0.15);-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}pre.prettyprint{margin-bottom:20px}pre code{padding:0;color:inherit;white-space:pre;white-space:pre-wrap;background-color:transparent;border:0}.pre-scrollable{max-height:340px;overflow-y:scroll}form{margin:0 0 20px}fieldset{padding:0;margin:0;border:0}legend{display:block;width:100%;padding:0;margin-bottom:20px;font-size:21px;line-height:40px;color:#333;border:0;border-bottom:1px solid #e5e5e5}legend small{font-size:15px;color:#999}label,input,button,select,textarea{font-size:14px;font-weight:normal;line-height:20px}input,button,select,textarea{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}label{display:block;margin-bottom:5px}select,textarea,input[type="text"],input[type="password"],input[type="datetime"],input[type="datetime-local"],input[type="date"],input[type="month"],input[type="time"],input[type="week"],input[type="number"],input[type="email"],input[type="url"],input[type="search"],input[type="tel"],input[type="color"],.uneditable-input{display:inline-block;height:20px;padding:4px 6px;margin-bottom:10px;font-size:14px;line-height:20px;color:#555;vertical-align:middle;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}input,textarea,.uneditable-input{width:206px}textarea{height:auto}textarea,input[type="text"],input[type="password"],input[type="datetime"],input[type="datetime-local"],input[type="date"],input[type="month"],input[type="time"],input[type="week"],input[type="number"],input[type="email"],input[type="url"],input[type="search"],input[type="tel"],input[type="color"],.uneditable-input{background-color:#fff;border:1px solid #ccc;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);-webkit-transition:border linear .2s,box-shadow linear .2s;-moz-transition:border linear .2s,box-shadow linear .2s;-o-transition:border linear .2s,box-shadow linear .2s;transition:border linear .2s,box-shadow linear .2s}textarea:focus,input[type="text"]:focus,input[type="password"]:focus,input[type="datetime"]:focus,input[type="datetime-local"]:focus,input[type="date"]:focus,input[type="month"]:focus,input[type="time"]:focus,input[type="week"]:focus,input[type="number"]:focus,input[type="email"]:focus,input[type="url"]:focus,input[type="search"]:focus,input[type="tel"]:focus,input[type="color"]:focus,.uneditable-input:focus{border-color:rgba(82,168,236,0.8);outline:0;outline:thin dotted \9;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 8px rgba(82,168,236,0.6);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 8px rgba(82,168,236,0.6);box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 8px rgba(82,168,236,0.6)}input[type="radio"],input[type="checkbox"]{margin:4px 0 0;margin-top:1px \9;*margin-top:0;line-height:normal}input[type="file"],input[type="image"],input[type="submit"],input[type="reset"],input[type="button"],input[type="radio"],input[type="checkbox"]{width:auto}select,input[type="file"]{height:30px;*margin-top:4px;line-height:30px}select{width:220px;background-color:#fff;border:1px solid #ccc}select[multiple],select[size]{height:auto}select:focus,input[type="file"]:focus,input[type="radio"]:focus,input[type="checkbox"]:focus{outline:thin dotted #333;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px}.uneditable-input,.uneditable-textarea{color:#999;cursor:not-allowed;background-color:#fcfcfc;border-color:#ccc;-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.025);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.025);box-shadow:inset 0 1px 2px rgba(0,0,0,0.025)}.uneditable-input{overflow:hidden;white-space:nowrap}.uneditable-textarea{width:auto;height:auto}input:-moz-placeholder,textarea:-moz-placeholder{color:#999}input:-ms-input-placeholder,textarea:-ms-input-placeholder{color:#999}input::-webkit-input-placeholder,textarea::-webkit-input-placeholder{color:#999}.radio,.checkbox{min-height:20px;padding-left:20px}.radio input[type="radio"],.checkbox input[type="checkbox"]{float:left;margin-left:-20px}.controls>.radio:first-child,.controls>.checkbox:first-child{padding-top:5px}.radio.inline,.checkbox.inline{display:inline-block;padding-top:5px;margin-bottom:0;vertical-align:middle}.radio.inline+.radio.inline,.checkbox.inline+.checkbox.inline{margin-left:10px}.input-mini{width:60px}.input-small{width:90px}.input-medium{width:150px}.input-large{width:210px}.input-xlarge{width:270px}.input-xxlarge{width:530px}input[class*="span"],select[class*="span"],textarea[class*="span"],.uneditable-input[class*="span"],.row-fluid input[class*="span"],.row-fluid select[class*="span"],.row-fluid textarea[class*="span"],.row-fluid .uneditable-input[class*="span"]{float:none;margin-left:0}.input-append input[class*="span"],.input-append .uneditable-input[class*="span"],.input-prepend input[class*="span"],.input-prepend .uneditable-input[class*="span"],.row-fluid input[class*="span"],.row-fluid select[class*="span"],.row-fluid textarea[class*="span"],.row-fluid .uneditable-input[class*="span"],.row-fluid .input-prepend [class*="span"],.row-fluid .input-append [class*="span"]{display:inline-block}input,textarea,.uneditable-input{margin-left:0}.controls-row [class*="span"]+[class*="span"]{margin-left:20px}input.span12,textarea.span12,.uneditable-input.span12{width:926px}input.span11,textarea.span11,.uneditable-input.span11{width:846px}input.span10,textarea.span10,.uneditable-input.span10{width:766px}input.span9,textarea.span9,.uneditable-input.span9{width:686px}input.span8,textarea.span8,.uneditable-input.span8{width:606px}input.span7,textarea.span7,.uneditable-input.span7{width:526px}input.span6,textarea.span6,.uneditable-input.span6{width:446px}input.span5,textarea.span5,.uneditable-input.span5{width:366px}input.span4,textarea.span4,.uneditable-input.span4{width:286px}input.span3,textarea.span3,.uneditable-input.span3{width:206px}input.span2,textarea.span2,.uneditable-input.span2{width:126px}input.span1,textarea.span1,.uneditable-input.span1{width:46px}.controls-row{*zoom:1}.controls-row:before,.controls-row:after{display:table;line-height:0;content:""}.controls-row:after{clear:both}.controls-row [class*="span"],.row-fluid .controls-row [class*="span"]{float:left}.controls-row .checkbox[class*="span"],.controls-row .radio[class*="span"]{padding-top:5px}input[disabled],select[disabled],textarea[disabled],input[readonly],select[readonly],textarea[readonly]{cursor:not-allowed;background-color:#eee}input[type="radio"][disabled],input[type="checkbox"][disabled],input[type="radio"][readonly],input[type="checkbox"][readonly]{background-color:transparent}.control-group.warning .control-label,.control-group.warning .help-block,.control-group.warning .help-inline{color:#c09853}.control-group.warning .checkbox,.control-group.warning .radio,.control-group.warning input,.control-group.warning select,.control-group.warning textarea{color:#c09853}.control-group.warning input,.control-group.warning select,.control-group.warning textarea{border-color:#c09853;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);box-shadow:inset 0 1px 1px rgba(0,0,0,0.075)}.control-group.warning input:focus,.control-group.warning select:focus,.control-group.warning textarea:focus{border-color:#a47e3c;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #dbc59e;-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #dbc59e;box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #dbc59e}.control-group.warning .input-prepend .add-on,.control-group.warning .input-append .add-on{color:#c09853;background-color:#fcf8e3;border-color:#c09853}.control-group.error .control-label,.control-group.error .help-block,.control-group.error .help-inline{color:#b94a48}.control-group.error .checkbox,.control-group.error .radio,.control-group.error input,.control-group.error select,.control-group.error textarea{color:#b94a48}.control-group.error input,.control-group.error select,.control-group.error textarea{border-color:#b94a48;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);box-shadow:inset 0 1px 1px rgba(0,0,0,0.075)}.control-group.error input:focus,.control-group.error select:focus,.control-group.error textarea:focus{border-color:#953b39;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #d59392;-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #d59392;box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #d59392}.control-group.error .input-prepend .add-on,.control-group.error .input-append .add-on{color:#b94a48;background-color:#f2dede;border-color:#b94a48}.control-group.success .control-label,.control-group.success .help-block,.control-group.success .help-inline{color:#468847}.control-group.success .checkbox,.control-group.success .radio,.control-group.success input,.control-group.success select,.control-group.success textarea{color:#468847}.control-group.success input,.control-group.success select,.control-group.success textarea{border-color:#468847;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);box-shadow:inset 0 1px 1px rgba(0,0,0,0.075)}.control-group.success input:focus,.control-group.success select:focus,.control-group.success textarea:focus{border-color:#356635;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #7aba7b;-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #7aba7b;box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #7aba7b}.control-group.success .input-prepend .add-on,.control-group.success .input-append .add-on{color:#468847;background-color:#dff0d8;border-color:#468847}.control-group.info .control-label,.control-group.info .help-block,.control-group.info .help-inline{color:#3a87ad}.control-group.info .checkbox,.control-group.info .radio,.control-group.info input,.control-group.info select,.control-group.info textarea{color:#3a87ad}.control-group.info input,.control-group.info select,.control-group.info textarea{border-color:#3a87ad;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075);box-shadow:inset 0 1px 1px rgba(0,0,0,0.075)}.control-group.info input:focus,.control-group.info select:focus,.control-group.info textarea:focus{border-color:#2d6987;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #7ab5d3;-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #7ab5d3;box-shadow:inset 0 1px 1px rgba(0,0,0,0.075),0 0 6px #7ab5d3}.control-group.info .input-prepend .add-on,.control-group.info .input-append .add-on{color:#3a87ad;background-color:#d9edf7;border-color:#3a87ad}input:focus:invalid,textarea:focus:invalid,select:focus:invalid{color:#b94a48;border-color:#ee5f5b}input:focus:invalid:focus,textarea:focus:invalid:focus,select:focus:invalid:focus{border-color:#e9322d;-webkit-box-shadow:0 0 6px #f8b9b7;-moz-box-shadow:0 0 6px #f8b9b7;box-shadow:0 0 6px #f8b9b7}.form-actions{padding:19px 20px 20px;margin-top:20px;margin-bottom:20px;background-color:#f5f5f5;border-top:1px solid #e5e5e5;*zoom:1}.form-actions:before,.form-actions:after{display:table;line-height:0;content:""}.form-actions:after{clear:both}.help-block,.help-inline{color:#595959}.help-block{display:block;margin-bottom:10px}.help-inline{display:inline-block;*display:inline;padding-left:5px;vertical-align:middle;*zoom:1}.input-append,.input-prepend{display:inline-block;margin-bottom:10px;font-size:0;white-space:nowrap;vertical-align:middle}.input-append input,.input-prepend input,.input-append select,.input-prepend select,.input-append .uneditable-input,.input-prepend .uneditable-input,.input-append .dropdown-menu,.input-prepend .dropdown-menu,.input-append .popover,.input-prepend .popover{font-size:14px}.input-append input,.input-prepend input,.input-append select,.input-prepend select,.input-append .uneditable-input,.input-prepend .uneditable-input{position:relative;margin-bottom:0;*margin-left:0;vertical-align:top;-webkit-border-radius:0 4px 4px 0;-moz-border-radius:0 4px 4px 0;border-radius:0 4px 4px 0}.input-append input:focus,.input-prepend input:focus,.input-append select:focus,.input-prepend select:focus,.input-append .uneditable-input:focus,.input-prepend .uneditable-input:focus{z-index:2}.input-append .add-on,.input-prepend .add-on{display:inline-block;width:auto;height:20px;min-width:16px;padding:4px 5px;font-size:14px;font-weight:normal;line-height:20px;text-align:center;text-shadow:0 1px 0 #fff;background-color:#eee;border:1px solid #ccc}.input-append .add-on,.input-prepend .add-on,.input-append .btn,.input-prepend .btn,.input-append .btn-group>.dropdown-toggle,.input-prepend .btn-group>.dropdown-toggle{vertical-align:top;-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.input-append .active,.input-prepend .active{background-color:#a9dba9;border-color:#46a546}.input-prepend .add-on,.input-prepend .btn{margin-right:-1px}.input-prepend .add-on:first-child,.input-prepend .btn:first-child{-webkit-border-radius:4px 0 0 4px;-moz-border-radius:4px 0 0 4px;border-radius:4px 0 0 4px}.input-append input,.input-append select,.input-append .uneditable-input{-webkit-border-radius:4px 0 0 4px;-moz-border-radius:4px 0 0 4px;border-radius:4px 0 0 4px}.input-append input+.btn-group .btn:last-child,.input-append select+.btn-group .btn:last-child,.input-append .uneditable-input+.btn-group .btn:last-child{-webkit-border-radius:0 4px 4px 0;-moz-border-radius:0 4px 4px 0;border-radius:0 4px 4px 0}.input-append .add-on,.input-append .btn,.input-append .btn-group{margin-left:-1px}.input-append .add-on:last-child,.input-append .btn:last-child,.input-append .btn-group:last-child>.dropdown-toggle{-webkit-border-radius:0 4px 4px 0;-moz-border-radius:0 4px 4px 0;border-radius:0 4px 4px 0}.input-prepend.input-append input,.input-prepend.input-append select,.input-prepend.input-append .uneditable-input{-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.input-prepend.input-append input+.btn-group .btn,.input-prepend.input-append select+.btn-group .btn,.input-prepend.input-append .uneditable-input+.btn-group .btn{-webkit-border-radius:0 4px 4px 0;-moz-border-radius:0 4px 4px 0;border-radius:0 4px 4px 0}.input-prepend.input-append .add-on:first-child,.input-prepend.input-append .btn:first-child{margin-right:-1px;-webkit-border-radius:4px 0 0 4px;-moz-border-radius:4px 0 0 4px;border-radius:4px 0 0 4px}.input-prepend.input-append .add-on:last-child,.input-prepend.input-append .btn:last-child{margin-left:-1px;-webkit-border-radius:0 4px 4px 0;-moz-border-radius:0 4px 4px 0;border-radius:0 4px 4px 0}.input-prepend.input-append .btn-group:first-child{margin-left:0}input.search-query{padding-right:14px;padding-right:4px \9;padding-left:14px;padding-left:4px \9;margin-bottom:0;-webkit-border-radius:15px;-moz-border-radius:15px;border-radius:15px}.form-search .input-append .search-query,.form-search .input-prepend .search-query{-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.form-search .input-append .search-query{-webkit-border-radius:14px 0 0 14px;-moz-border-radius:14px 0 0 14px;border-radius:14px 0 0 14px}.form-search .input-append .btn{-webkit-border-radius:0 14px 14px 0;-moz-border-radius:0 14px 14px 0;border-radius:0 14px 14px 0}.form-search .input-prepend .search-query{-webkit-border-radius:0 14px 14px 0;-moz-border-radius:0 14px 14px 0;border-radius:0 14px 14px 0}.form-search .input-prepend .btn{-webkit-border-radius:14px 0 0 14px;-moz-border-radius:14px 0 0 14px;border-radius:14px 0 0 14px}.form-search input,.form-inline input,.form-horizontal input,.form-search textarea,.form-inline textarea,.form-horizontal textarea,.form-search select,.form-inline select,.form-horizontal select,.form-search .help-inline,.form-inline .help-inline,.form-horizontal .help-inline,.form-search .uneditable-input,.form-inline .uneditable-input,.form-horizontal .uneditable-input,.form-search .input-prepend,.form-inline .input-prepend,.form-horizontal .input-prepend,.form-search .input-append,.form-inline .input-append,.form-horizontal .input-append{display:inline-block;*display:inline;margin-bottom:0;vertical-align:middle;*zoom:1}.form-search .hide,.form-inline .hide,.form-horizontal .hide{display:none}.form-search label,.form-inline label,.form-search .btn-group,.form-inline .btn-group{display:inline-block}.form-search .input-append,.form-inline .input-append,.form-search .input-prepend,.form-inline .input-prepend{margin-bottom:0}.form-search .radio,.form-search .checkbox,.form-inline .radio,.form-inline .checkbox{padding-left:0;margin-bottom:0;vertical-align:middle}.form-search .radio input[type="radio"],.form-search .checkbox input[type="checkbox"],.form-inline .radio input[type="radio"],.form-inline .checkbox input[type="checkbox"]{float:left;margin-right:3px;margin-left:0}.control-group{margin-bottom:10px}legend+.control-group{margin-top:20px;-webkit-margin-top-collapse:separate}.form-horizontal .control-group{margin-bottom:20px;*zoom:1}.form-horizontal .control-group:before,.form-horizontal .control-group:after{display:table;line-height:0;content:""}.form-horizontal .control-group:after{clear:both}.form-horizontal .control-label{float:left;width:160px;padding-top:5px;text-align:right}.form-horizontal .controls{*display:inline-block;*padding-left:20px;margin-left:180px;*margin-left:0}.form-horizontal .controls:first-child{*padding-left:180px}.form-horizontal .help-block{margin-bottom:0}.form-horizontal input+.help-block,.form-horizontal select+.help-block,.form-horizontal textarea+.help-block,.form-horizontal .uneditable-input+.help-block,.form-horizontal .input-prepend+.help-block,.form-horizontal .input-append+.help-block{margin-top:10px}.form-horizontal .form-actions{padding-left:180px}table{max-width:100%;background-color:transparent;border-collapse:collapse;border-spacing:0}.table{width:100%;margin-bottom:20px}.table th,.table td{padding:8px;line-height:20px;text-align:left;vertical-align:top;border-top:1px solid #ddd}.table th{font-weight:bold}.table thead th{vertical-align:bottom}.table caption+thead tr:first-child th,.table caption+thead tr:first-child td,.table colgroup+thead tr:first-child th,.table colgroup+thead tr:first-child td,.table thead:first-child tr:first-child th,.table thead:first-child tr:first-child td{border-top:0}.table tbody+tbody{border-top:2px solid #ddd}.table .table{background-color:#fff}.table-condensed th,.table-condensed td{padding:4px 5px}.table-bordered{border:1px solid #ddd;border-collapse:separate;*border-collapse:collapse;border-left:0;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}.table-bordered th,.table-bordered td{border-left:1px solid #ddd}.table-bordered caption+thead tr:first-child th,.table-bordered caption+tbody tr:first-child th,.table-bordered caption+tbody tr:first-child td,.table-bordered colgroup+thead tr:first-child th,.table-bordered colgroup+tbody tr:first-child th,.table-bordered colgroup+tbody tr:first-child td,.table-bordered thead:first-child tr:first-child th,.table-bordered tbody:first-child tr:first-child th,.table-bordered tbody:first-child tr:first-child td{border-top:0}.table-bordered thead:first-child tr:first-child>th:first-child,.table-bordered tbody:first-child tr:first-child>td:first-child,.table-bordered tbody:first-child tr:first-child>th:first-child{-webkit-border-top-left-radius:4px;border-top-left-radius:4px;-moz-border-radius-topleft:4px}.table-bordered thead:first-child tr:first-child>th:last-child,.table-bordered tbody:first-child tr:first-child>td:last-child,.table-bordered tbody:first-child tr:first-child>th:last-child{-webkit-border-top-right-radius:4px;border-top-right-radius:4px;-moz-border-radius-topright:4px}.table-bordered thead:last-child tr:last-child>th:first-child,.table-bordered tbody:last-child tr:last-child>td:first-child,.table-bordered tbody:last-child tr:last-child>th:first-child,.table-bordered tfoot:last-child tr:last-child>td:first-child,.table-bordered tfoot:last-child tr:last-child>th:first-child{-webkit-border-bottom-left-radius:4px;border-bottom-left-radius:4px;-moz-border-radius-bottomleft:4px}.table-bordered thead:last-child tr:last-child>th:last-child,.table-bordered tbody:last-child tr:last-child>td:last-child,.table-bordered tbody:last-child tr:last-child>th:last-child,.table-bordered tfoot:last-child tr:last-child>td:last-child,.table-bordered tfoot:last-child tr:last-child>th:last-child{-webkit-border-bottom-right-radius:4px;border-bottom-right-radius:4px;-moz-border-radius-bottomright:4px}.table-bordered tfoot+tbody:last-child tr:last-child td:first-child{-webkit-border-bottom-left-radius:0;border-bottom-left-radius:0;-moz-border-radius-bottomleft:0}.table-bordered tfoot+tbody:last-child tr:last-child td:last-child{-webkit-border-bottom-right-radius:0;border-bottom-right-radius:0;-moz-border-radius-bottomright:0}.table-bordered caption+thead tr:first-child th:first-child,.table-bordered caption+tbody tr:first-child td:first-child,.table-bordered colgroup+thead tr:first-child th:first-child,.table-bordered colgroup+tbody tr:first-child td:first-child{-webkit-border-top-left-radius:4px;border-top-left-radius:4px;-moz-border-radius-topleft:4px}.table-bordered caption+thead tr:first-child th:last-child,.table-bordered caption+tbody tr:first-child td:last-child,.table-bordered colgroup+thead tr:first-child th:last-child,.table-bordered colgroup+tbody tr:first-child td:last-child{-webkit-border-top-right-radius:4px;border-top-right-radius:4px;-moz-border-radius-topright:4px}.table-striped tbody>tr:nth-child(odd)>td,.table-striped tbody>tr:nth-child(odd)>th{background-color:#f9f9f9}.table-hover tbody tr:hover>td,.table-hover tbody tr:hover>th{background-color:#f5f5f5}table td[class*="span"],table th[class*="span"],.row-fluid table td[class*="span"],.row-fluid table th[class*="span"]{display:table-cell;float:none;margin-left:0}.table td.span1,.table th.span1{float:none;width:44px;margin-left:0}.table td.span2,.table th.span2{float:none;width:124px;margin-left:0}.table td.span3,.table th.span3{float:none;width:204px;margin-left:0}.table td.span4,.table th.span4{float:none;width:284px;margin-left:0}.table td.span5,.table th.span5{float:none;width:364px;margin-left:0}.table td.span6,.table th.span6{float:none;width:444px;margin-left:0}.table td.span7,.table th.span7{float:none;width:524px;margin-left:0}.table td.span8,.table th.span8{float:none;width:604px;margin-left:0}.table td.span9,.table th.span9{float:none;width:684px;margin-left:0}.table td.span10,.table th.span10{float:none;width:764px;margin-left:0}.table td.span11,.table th.span11{float:none;width:844px;margin-left:0}.table td.span12,.table th.span12{float:none;width:924px;margin-left:0}.table tbody tr.success>td{background-color:#dff0d8}.table tbody tr.error>td{background-color:#f2dede}.table tbody tr.warning>td{background-color:#fcf8e3}.table tbody tr.info>td{background-color:#d9edf7}.table-hover tbody tr.success:hover>td{background-color:#d0e9c6}.table-hover tbody tr.error:hover>td{background-color:#ebcccc}.table-hover tbody tr.warning:hover>td{background-color:#faf2cc}.table-hover tbody tr.info:hover>td{background-color:#c4e3f3}[class^="icon-"],[class*=" icon-"]{display:inline-block;width:14px;height:14px;margin-top:1px;*margin-right:.3em;line-height:14px;vertical-align:text-top;background-image:url("../img/glyphicons-halflings.png");background-position:14px 14px;background-repeat:no-repeat}.icon-white,.nav-pills>.active>a>[class^="icon-"],.nav-pills>.active>a>[class*=" icon-"],.nav-list>.active>a>[class^="icon-"],.nav-list>.active>a>[class*=" icon-"],.navbar-inverse .nav>.active>a>[class^="icon-"],.navbar-inverse .nav>.active>a>[class*=" icon-"],.dropdown-menu>li>a:hover>[class^="icon-"],.dropdown-menu>li>a:focus>[class^="icon-"],.dropdown-menu>li>a:hover>[class*=" icon-"],.dropdown-menu>li>a:focus>[class*=" icon-"],.dropdown-menu>.active>a>[class^="icon-"],.dropdown-menu>.active>a>[class*=" icon-"],.dropdown-submenu:hover>a>[class^="icon-"],.dropdown-submenu:focus>a>[class^="icon-"],.dropdown-submenu:hover>a>[class*=" icon-"],.dropdown-submenu:focus>a>[class*=" icon-"]{background-image:url("../img/glyphicons-halflings-white.png")}.icon-glass{background-position:0 0}.icon-music{background-position:-24px 0}.icon-search{background-position:-48px 0}.icon-envelope{background-position:-72px 0}.icon-heart{background-position:-96px 0}.icon-star{background-position:-120px 0}.icon-star-empty{background-position:-144px 0}.icon-user{background-position:-168px 0}.icon-film{background-position:-192px 0}.icon-th-large{background-position:-216px 0}.icon-th{background-position:-240px 0}.icon-th-list{background-position:-264px 0}.icon-ok{background-position:-288px 0}.icon-remove{background-position:-312px 0}.icon-zoom-in{background-position:-336px 0}.icon-zoom-out{background-position:-360px 0}.icon-off{background-position:-384px 0}.icon-signal{background-position:-408px 0}.icon-cog{background-position:-432px 0}.icon-trash{background-position:-456px 0}.icon-home{background-position:0 -24px}.icon-file{background-position:-24px -24px}.icon-time{background-position:-48px -24px}.icon-road{background-position:-72px -24px}.icon-download-alt{background-position:-96px -24px}.icon-download{background-position:-120px -24px}.icon-upload{background-position:-144px -24px}.icon-inbox{background-position:-168px -24px}.icon-play-circle{background-position:-192px -24px}.icon-repeat{background-position:-216px -24px}.icon-refresh{background-position:-240px -24px}.icon-list-alt{background-position:-264px -24px}.icon-lock{background-position:-287px -24px}.icon-flag{background-position:-312px -24px}.icon-headphones{background-position:-336px -24px}.icon-volume-off{background-position:-360px -24px}.icon-volume-down{background-position:-384px -24px}.icon-volume-up{background-position:-408px -24px}.icon-qrcode{background-position:-432px -24px}.icon-barcode{background-position:-456px -24px}.icon-tag{background-position:0 -48px}.icon-tags{background-position:-25px -48px}.icon-book{background-position:-48px -48px}.icon-bookmark{background-position:-72px -48px}.icon-print{background-position:-96px -48px}.icon-camera{background-position:-120px -48px}.icon-font{background-position:-144px -48px}.icon-bold{background-position:-167px -48px}.icon-italic{background-position:-192px -48px}.icon-text-height{background-position:-216px -48px}.icon-text-width{background-position:-240px -48px}.icon-align-left{background-position:-264px -48px}.icon-align-center{background-position:-288px -48px}.icon-align-right{background-position:-312px -48px}.icon-align-justify{background-position:-336px -48px}.icon-list{background-position:-360px -48px}.icon-indent-left{background-position:-384px -48px}.icon-indent-right{background-position:-408px -48px}.icon-facetime-video{background-position:-432px -48px}.icon-picture{background-position:-456px -48px}.icon-pencil{background-position:0 -72px}.icon-map-marker{background-position:-24px -72px}.icon-adjust{background-position:-48px -72px}.icon-tint{background-position:-72px -72px}.icon-edit{background-position:-96px -72px}.icon-share{background-position:-120px -72px}.icon-check{background-position:-144px -72px}.icon-move{background-position:-168px -72px}.icon-step-backward{background-position:-192px -72px}.icon-fast-backward{background-position:-216px -72px}.icon-backward{background-position:-240px -72px}.icon-play{background-position:-264px -72px}.icon-pause{background-position:-288px -72px}.icon-stop{background-position:-312px -72px}.icon-forward{background-position:-336px -72px}.icon-fast-forward{background-position:-360px -72px}.icon-step-forward{background-position:-384px -72px}.icon-eject{background-position:-408px -72px}.icon-chevron-left{background-position:-432px -72px}.icon-chevron-right{background-position:-456px -72px}.icon-plus-sign{background-position:0 -96px}.icon-minus-sign{background-position:-24px -96px}.icon-remove-sign{background-position:-48px -96px}.icon-ok-sign{background-position:-72px -96px}.icon-question-sign{background-position:-96px -96px}.icon-info-sign{background-position:-120px -96px}.icon-screenshot{background-position:-144px -96px}.icon-remove-circle{background-position:-168px -96px}.icon-ok-circle{background-position:-192px -96px}.icon-ban-circle{background-position:-216px -96px}.icon-arrow-left{background-position:-240px -96px}.icon-arrow-right{background-position:-264px -96px}.icon-arrow-up{background-position:-289px -96px}.icon-arrow-down{background-position:-312px -96px}.icon-share-alt{background-position:-336px -96px}.icon-resize-full{background-position:-360px -96px}.icon-resize-small{background-position:-384px -96px}.icon-plus{background-position:-408px -96px}.icon-minus{background-position:-433px -96px}.icon-asterisk{background-position:-456px -96px}.icon-exclamation-sign{background-position:0 -120px}.icon-gift{background-position:-24px -120px}.icon-leaf{background-position:-48px -120px}.icon-fire{background-position:-72px -120px}.icon-eye-open{background-position:-96px -120px}.icon-eye-close{background-position:-120px -120px}.icon-warning-sign{background-position:-144px -120px}.icon-plane{background-position:-168px -120px}.icon-calendar{background-position:-192px -120px}.icon-random{width:16px;background-position:-216px -120px}.icon-comment{background-position:-240px -120px}.icon-magnet{background-position:-264px -120px}.icon-chevron-up{background-position:-288px -120px}.icon-chevron-down{background-position:-313px -119px}.icon-retweet{background-position:-336px -120px}.icon-shopping-cart{background-position:-360px -120px}.icon-folder-close{width:16px;background-position:-384px -120px}.icon-folder-open{width:16px;background-position:-408px -120px}.icon-resize-vertical{background-position:-432px -119px}.icon-resize-horizontal{background-position:-456px -118px}.icon-hdd{background-position:0 -144px}.icon-bullhorn{background-position:-24px -144px}.icon-bell{background-position:-48px -144px}.icon-certificate{background-position:-72px -144px}.icon-thumbs-up{background-position:-96px -144px}.icon-thumbs-down{background-position:-120px -144px}.icon-hand-right{background-position:-144px -144px}.icon-hand-left{background-position:-168px -144px}.icon-hand-up{background-position:-192px -144px}.icon-hand-down{background-position:-216px -144px}.icon-circle-arrow-right{background-position:-240px -144px}.icon-circle-arrow-left{background-position:-264px -144px}.icon-circle-arrow-up{background-position:-288px -144px}.icon-circle-arrow-down{background-position:-312px -144px}.icon-globe{background-position:-336px -144px}.icon-wrench{background-position:-360px -144px}.icon-tasks{background-position:-384px -144px}.icon-filter{background-position:-408px -144px}.icon-briefcase{background-position:-432px -144px}.icon-fullscreen{background-position:-456px -144px}.dropup,.dropdown{position:relative}.dropdown-toggle{*margin-bottom:-3px}.dropdown-toggle:active,.open .dropdown-toggle{outline:0}.caret{display:inline-block;width:0;height:0;vertical-align:top;border-top:4px solid #000;border-right:4px solid transparent;border-left:4px solid transparent;content:""}.dropdown .caret{margin-top:8px;margin-left:2px}.dropdown-menu{position:absolute;top:100%;left:0;z-index:1000;display:none;float:left;min-width:160px;padding:5px 0;margin:2px 0 0;list-style:none;background-color:#fff;border:1px solid #ccc;border:1px solid rgba(0,0,0,0.2);*border-right-width:2px;*border-bottom-width:2px;-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px;-webkit-box-shadow:0 5px 10px rgba(0,0,0,0.2);-moz-box-shadow:0 5px 10px rgba(0,0,0,0.2);box-shadow:0 5px 10px rgba(0,0,0,0.2);-webkit-background-clip:padding-box;-moz-background-clip:padding;background-clip:padding-box}.dropdown-menu.pull-right{right:0;left:auto}.dropdown-menu .divider{*width:100%;height:1px;margin:9px 1px;*margin:-5px 0 5px;overflow:hidden;background-color:#e5e5e5;border-bottom:1px solid #fff}.dropdown-menu>li>a{display:block;padding:3px 20px;clear:both;font-weight:normal;line-height:20px;color:#333;white-space:nowrap}.dropdown-menu>li>a:hover,.dropdown-menu>li>a:focus,.dropdown-submenu:hover>a,.dropdown-submenu:focus>a{color:#fff;text-decoration:none;background-color:#0081c2;background-image:-moz-linear-gradient(top,#08c,#0077b3);background-image:-webkit-gradient(linear,0 0,0 100%,from(#08c),to(#0077b3));background-image:-webkit-linear-gradient(top,#08c,#0077b3);background-image:-o-linear-gradient(top,#08c,#0077b3);background-image:linear-gradient(to bottom,#08c,#0077b3);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc',endColorstr='#ff0077b3',GradientType=0)}.dropdown-menu>.active>a,.dropdown-menu>.active>a:hover,.dropdown-menu>.active>a:focus{color:#fff;text-decoration:none;background-color:#0081c2;background-image:-moz-linear-gradient(top,#08c,#0077b3);background-image:-webkit-gradient(linear,0 0,0 100%,from(#08c),to(#0077b3));background-image:-webkit-linear-gradient(top,#08c,#0077b3);background-image:-o-linear-gradient(top,#08c,#0077b3);background-image:linear-gradient(to bottom,#08c,#0077b3);background-repeat:repeat-x;outline:0;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc',endColorstr='#ff0077b3',GradientType=0)}.dropdown-menu>.disabled>a,.dropdown-menu>.disabled>a:hover,.dropdown-menu>.disabled>a:focus{color:#999}.dropdown-menu>.disabled>a:hover,.dropdown-menu>.disabled>a:focus{text-decoration:none;cursor:default;background-color:transparent;background-image:none;filter:progid:DXImageTransform.Microsoft.gradient(enabled=false)}.open{*z-index:1000}.open>.dropdown-menu{display:block}.dropdown-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;z-index:990}.pull-right>.dropdown-menu{right:0;left:auto}.dropup .caret,.navbar-fixed-bottom .dropdown .caret{border-top:0;border-bottom:4px solid #000;content:""}.dropup .dropdown-menu,.navbar-fixed-bottom .dropdown .dropdown-menu{top:auto;bottom:100%;margin-bottom:1px}.dropdown-submenu{position:relative}.dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px}.dropdown-submenu:hover>.dropdown-menu{display:block}.dropup .dropdown-submenu>.dropdown-menu{top:auto;bottom:0;margin-top:0;margin-bottom:-2px;-webkit-border-radius:5px 5px 5px 0;-moz-border-radius:5px 5px 5px 0;border-radius:5px 5px 5px 0}.dropdown-submenu>a:after{display:block;float:right;width:0;height:0;margin-top:5px;margin-right:-10px;border-color:transparent;border-left-color:#ccc;border-style:solid;border-width:5px 0 5px 5px;content:" "}.dropdown-submenu:hover>a:after{border-left-color:#fff}.dropdown-submenu.pull-left{float:none}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px}.dropdown .dropdown-menu .nav-header{padding-right:20px;padding-left:20px}.typeahead{z-index:1051;margin-top:2px;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}.well{min-height:20px;padding:19px;margin-bottom:20px;background-color:#f5f5f5;border:1px solid #e3e3e3;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.05);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.05);box-shadow:inset 0 1px 1px rgba(0,0,0,0.05)}.well blockquote{border-color:#ddd;border-color:rgba(0,0,0,0.15)}.well-large{padding:24px;-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px}.well-small{padding:9px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px}.fade{opacity:0;-webkit-transition:opacity .15s linear;-moz-transition:opacity .15s linear;-o-transition:opacity .15s linear;transition:opacity .15s linear}.fade.in{opacity:1}.collapse{position:relative;height:0;overflow:hidden;-webkit-transition:height .35s ease;-moz-transition:height .35s ease;-o-transition:height .35s ease;transition:height .35s ease}.collapse.in{height:auto}.close{float:right;font-size:20px;font-weight:bold;line-height:20px;color:#000;text-shadow:0 1px 0 #fff;opacity:.2;filter:alpha(opacity=20)}.close:hover,.close:focus{color:#000;text-decoration:none;cursor:pointer;opacity:.4;filter:alpha(opacity=40)}button.close{padding:0;cursor:pointer;background:transparent;border:0;-webkit-appearance:none}.btn{display:inline-block;*display:inline;padding:4px 12px;margin-bottom:0;*margin-left:.3em;font-size:14px;line-height:20px;color:#333;text-align:center;text-shadow:0 1px 1px rgba(255,255,255,0.75);vertical-align:middle;cursor:pointer;background-color:#f5f5f5;*background-color:#e6e6e6;background-image:-moz-linear-gradient(top,#fff,#e6e6e6);background-image:-webkit-gradient(linear,0 0,0 100%,from(#fff),to(#e6e6e6));background-image:-webkit-linear-gradient(top,#fff,#e6e6e6);background-image:-o-linear-gradient(top,#fff,#e6e6e6);background-image:linear-gradient(to bottom,#fff,#e6e6e6);background-repeat:repeat-x;border:1px solid #ccc;*border:0;border-color:#e6e6e6 #e6e6e6 #bfbfbf;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);border-bottom-color:#b3b3b3;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff',endColorstr='#ffe6e6e6',GradientType=0);filter:progid:DXImageTransform.Microsoft.gradient(enabled=false);*zoom:1;-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);-moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05)}.btn:hover,.btn:focus,.btn:active,.btn.active,.btn.disabled,.btn[disabled]{color:#333;background-color:#e6e6e6;*background-color:#d9d9d9}.btn:active,.btn.active{background-color:#ccc \9}.btn:first-child{*margin-left:0}.btn:hover,.btn:focus{color:#333;text-decoration:none;background-position:0 -15px;-webkit-transition:background-position .1s linear;-moz-transition:background-position .1s linear;-o-transition:background-position .1s linear;transition:background-position .1s linear}.btn:focus{outline:thin dotted #333;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px}.btn.active,.btn:active{background-image:none;outline:0;-webkit-box-shadow:inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05);-moz-box-shadow:inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05);box-shadow:inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05)}.btn.disabled,.btn[disabled]{cursor:default;background-image:none;opacity:.65;filter:alpha(opacity=65);-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none}.btn-large{padding:11px 19px;font-size:17.5px;-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px}.btn-large [class^="icon-"],.btn-large [class*=" icon-"]{margin-top:4px}.btn-small{padding:2px 10px;font-size:11.9px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px}.btn-small [class^="icon-"],.btn-small [class*=" icon-"]{margin-top:0}.btn-mini [class^="icon-"],.btn-mini [class*=" icon-"]{margin-top:-1px}.btn-mini{padding:0 6px;font-size:10.5px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px}.btn-block{display:block;width:100%;padding-right:0;padding-left:0;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.btn-block+.btn-block{margin-top:5px}input[type="submit"].btn-block,input[type="reset"].btn-block,input[type="button"].btn-block{width:100%}.btn-primary.active,.btn-warning.active,.btn-danger.active,.btn-success.active,.btn-info.active,.btn-inverse.active{color:rgba(255,255,255,0.75)}.btn-primary{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-color:#006dcc;*background-color:#04c;background-image:-moz-linear-gradient(top,#08c,#04c);background-image:-webkit-gradient(linear,0 0,0 100%,from(#08c),to(#04c));background-image:-webkit-linear-gradient(top,#08c,#04c);background-image:-o-linear-gradient(top,#08c,#04c);background-image:linear-gradient(to bottom,#08c,#04c);background-repeat:repeat-x;border-color:#04c #04c #002a80;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc',endColorstr='#ff0044cc',GradientType=0);filter:progid:DXImageTransform.Microsoft.gradient(enabled=false)}.btn-primary:hover,.btn-primary:focus,.btn-primary:active,.btn-primary.active,.btn-primary.disabled,.btn-primary[disabled]{color:#fff;background-color:#04c;*background-color:#003bb3}.btn-primary:active,.btn-primary.active{background-color:#039 \9}.btn-warning{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-color:#faa732;*background-color:#f89406;background-image:-moz-linear-gradient(top,#fbb450,#f89406);background-image:-webkit-gradient(linear,0 0,0 100%,from(#fbb450),to(#f89406));background-image:-webkit-linear-gradient(top,#fbb450,#f89406);background-image:-o-linear-gradient(top,#fbb450,#f89406);background-image:linear-gradient(to bottom,#fbb450,#f89406);background-repeat:repeat-x;border-color:#f89406 #f89406 #ad6704;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffbb450',endColorstr='#fff89406',GradientType=0);filter:progid:DXImageTransform.Microsoft.gradient(enabled=false)}.btn-warning:hover,.btn-warning:focus,.btn-warning:active,.btn-warning.active,.btn-warning.disabled,.btn-warning[disabled]{color:#fff;background-color:#f89406;*background-color:#df8505}.btn-warning:active,.btn-warning.active{background-color:#c67605 \9}.btn-danger{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-color:#da4f49;*background-color:#bd362f;background-image:-moz-linear-gradient(top,#ee5f5b,#bd362f);background-image:-webkit-gradient(linear,0 0,0 100%,from(#ee5f5b),to(#bd362f));background-image:-webkit-linear-gradient(top,#ee5f5b,#bd362f);background-image:-o-linear-gradient(top,#ee5f5b,#bd362f);background-image:linear-gradient(to bottom,#ee5f5b,#bd362f);background-repeat:repeat-x;border-color:#bd362f #bd362f #802420;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffee5f5b',endColorstr='#ffbd362f',GradientType=0);filter:progid:DXImageTransform.Microsoft.gradient(enabled=false)}.btn-danger:hover,.btn-danger:focus,.btn-danger:active,.btn-danger.active,.btn-danger.disabled,.btn-danger[disabled]{color:#fff;background-color:#bd362f;*background-color:#a9302a}.btn-danger:active,.btn-danger.active{background-color:#942a25 \9}.btn-success{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-color:#5bb75b;*background-color:#51a351;background-image:-moz-linear-gradient(top,#62c462,#51a351);background-image:-webkit-gradient(linear,0 0,0 100%,from(#62c462),to(#51a351));background-image:-webkit-linear-gradient(top,#62c462,#51a351);background-image:-o-linear-gradient(top,#62c462,#51a351);background-image:linear-gradient(to bottom,#62c462,#51a351);background-repeat:repeat-x;border-color:#51a351 #51a351 #387038;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff62c462',endColorstr='#ff51a351',GradientType=0);filter:progid:DXImageTransform.Microsoft.gradient(enabled=false)}.btn-success:hover,.btn-success:focus,.btn-success:active,.btn-success.active,.btn-success.disabled,.btn-success[disabled]{color:#fff;background-color:#51a351;*background-color:#499249}.btn-success:active,.btn-success.active{background-color:#408140 \9}.btn-info{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-color:#49afcd;*background-color:#2f96b4;background-image:-moz-linear-gradient(top,#5bc0de,#2f96b4);background-image:-webkit-gradient(linear,0 0,0 100%,from(#5bc0de),to(#2f96b4));background-image:-webkit-linear-gradient(top,#5bc0de,#2f96b4);background-image:-o-linear-gradient(top,#5bc0de,#2f96b4);background-image:linear-gradient(to bottom,#5bc0de,#2f96b4);background-repeat:repeat-x;border-color:#2f96b4 #2f96b4 #1f6377;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff5bc0de',endColorstr='#ff2f96b4',GradientType=0);filter:progid:DXImageTransform.Microsoft.gradient(enabled=false)}.btn-info:hover,.btn-info:focus,.btn-info:active,.btn-info.active,.btn-info.disabled,.btn-info[disabled]{color:#fff;background-color:#2f96b4;*background-color:#2a85a0}.btn-info:active,.btn-info.active{background-color:#24748c \9}.btn-inverse{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-color:#363636;*background-color:#222;background-image:-moz-linear-gradient(top,#444,#222);background-image:-webkit-gradient(linear,0 0,0 100%,from(#444),to(#222));background-image:-webkit-linear-gradient(top,#444,#222);background-image:-o-linear-gradient(top,#444,#222);background-image:linear-gradient(to bottom,#444,#222);background-repeat:repeat-x;border-color:#222 #222 #000;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff444444',endColorstr='#ff222222',GradientType=0);filter:progid:DXImageTransform.Microsoft.gradient(enabled=false)}.btn-inverse:hover,.btn-inverse:focus,.btn-inverse:active,.btn-inverse.active,.btn-inverse.disabled,.btn-inverse[disabled]{color:#fff;background-color:#222;*background-color:#151515}.btn-inverse:active,.btn-inverse.active{background-color:#080808 \9}button.btn,input[type="submit"].btn{*padding-top:3px;*padding-bottom:3px}button.btn::-moz-focus-inner,input[type="submit"].btn::-moz-focus-inner{padding:0;border:0}button.btn.btn-large,input[type="submit"].btn.btn-large{*padding-top:7px;*padding-bottom:7px}button.btn.btn-small,input[type="submit"].btn.btn-small{*padding-top:3px;*padding-bottom:3px}button.btn.btn-mini,input[type="submit"].btn.btn-mini{*padding-top:1px;*padding-bottom:1px}.btn-link,.btn-link:active,.btn-link[disabled]{background-color:transparent;background-image:none;-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none}.btn-link{color:#08c;cursor:pointer;border-color:transparent;-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.btn-link:hover,.btn-link:focus{color:#005580;text-decoration:underline;background-color:transparent}.btn-link[disabled]:hover,.btn-link[disabled]:focus{color:#333;text-decoration:none}.btn-group{position:relative;display:inline-block;*display:inline;*margin-left:.3em;font-size:0;white-space:nowrap;vertical-align:middle;*zoom:1}.btn-group:first-child{*margin-left:0}.btn-group+.btn-group{margin-left:5px}.btn-toolbar{margin-top:10px;margin-bottom:10px;font-size:0}.btn-toolbar>.btn+.btn,.btn-toolbar>.btn-group+.btn,.btn-toolbar>.btn+.btn-group{margin-left:5px}.btn-group>.btn{position:relative;-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.btn-group>.btn+.btn{margin-left:-1px}.btn-group>.btn,.btn-group>.dropdown-menu,.btn-group>.popover{font-size:14px}.btn-group>.btn-mini{font-size:10.5px}.btn-group>.btn-small{font-size:11.9px}.btn-group>.btn-large{font-size:17.5px}.btn-group>.btn:first-child{margin-left:0;-webkit-border-bottom-left-radius:4px;border-bottom-left-radius:4px;-webkit-border-top-left-radius:4px;border-top-left-radius:4px;-moz-border-radius-bottomleft:4px;-moz-border-radius-topleft:4px}.btn-group>.btn:last-child,.btn-group>.dropdown-toggle{-webkit-border-top-right-radius:4px;border-top-right-radius:4px;-webkit-border-bottom-right-radius:4px;border-bottom-right-radius:4px;-moz-border-radius-topright:4px;-moz-border-radius-bottomright:4px}.btn-group>.btn.large:first-child{margin-left:0;-webkit-border-bottom-left-radius:6px;border-bottom-left-radius:6px;-webkit-border-top-left-radius:6px;border-top-left-radius:6px;-moz-border-radius-bottomleft:6px;-moz-border-radius-topleft:6px}.btn-group>.btn.large:last-child,.btn-group>.large.dropdown-toggle{-webkit-border-top-right-radius:6px;border-top-right-radius:6px;-webkit-border-bottom-right-radius:6px;border-bottom-right-radius:6px;-moz-border-radius-topright:6px;-moz-border-radius-bottomright:6px}.btn-group>.btn:hover,.btn-group>.btn:focus,.btn-group>.btn:active,.btn-group>.btn.active{z-index:2}.btn-group .dropdown-toggle:active,.btn-group.open .dropdown-toggle{outline:0}.btn-group>.btn+.dropdown-toggle{*padding-top:5px;padding-right:8px;*padding-bottom:5px;padding-left:8px;-webkit-box-shadow:inset 1px 0 0 rgba(255,255,255,0.125),inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);-moz-box-shadow:inset 1px 0 0 rgba(255,255,255,0.125),inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);box-shadow:inset 1px 0 0 rgba(255,255,255,0.125),inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05)}.btn-group>.btn-mini+.dropdown-toggle{*padding-top:2px;padding-right:5px;*padding-bottom:2px;padding-left:5px}.btn-group>.btn-small+.dropdown-toggle{*padding-top:5px;*padding-bottom:4px}.btn-group>.btn-large+.dropdown-toggle{*padding-top:7px;padding-right:12px;*padding-bottom:7px;padding-left:12px}.btn-group.open .dropdown-toggle{background-image:none;-webkit-box-shadow:inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05);-moz-box-shadow:inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05);box-shadow:inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05)}.btn-group.open .btn.dropdown-toggle{background-color:#e6e6e6}.btn-group.open .btn-primary.dropdown-toggle{background-color:#04c}.btn-group.open .btn-warning.dropdown-toggle{background-color:#f89406}.btn-group.open .btn-danger.dropdown-toggle{background-color:#bd362f}.btn-group.open .btn-success.dropdown-toggle{background-color:#51a351}.btn-group.open .btn-info.dropdown-toggle{background-color:#2f96b4}.btn-group.open .btn-inverse.dropdown-toggle{background-color:#222}.btn .caret{margin-top:8px;margin-left:0}.btn-large .caret{margin-top:6px}.btn-large .caret{border-top-width:5px;border-right-width:5px;border-left-width:5px}.btn-mini .caret,.btn-small .caret{margin-top:8px}.dropup .btn-large .caret{border-bottom-width:5px}.btn-primary .caret,.btn-warning .caret,.btn-danger .caret,.btn-info .caret,.btn-success .caret,.btn-inverse .caret{border-top-color:#fff;border-bottom-color:#fff}.btn-group-vertical{display:inline-block;*display:inline;*zoom:1}.btn-group-vertical>.btn{display:block;float:none;max-width:100%;-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.btn-group-vertical>.btn+.btn{margin-top:-1px;margin-left:0}.btn-group-vertical>.btn:first-child{-webkit-border-radius:4px 4px 0 0;-moz-border-radius:4px 4px 0 0;border-radius:4px 4px 0 0}.btn-group-vertical>.btn:last-child{-webkit-border-radius:0 0 4px 4px;-moz-border-radius:0 0 4px 4px;border-radius:0 0 4px 4px}.btn-group-vertical>.btn-large:first-child{-webkit-border-radius:6px 6px 0 0;-moz-border-radius:6px 6px 0 0;border-radius:6px 6px 0 0}.btn-group-vertical>.btn-large:last-child{-webkit-border-radius:0 0 6px 6px;-moz-border-radius:0 0 6px 6px;border-radius:0 0 6px 6px}.alert{padding:8px 35px 8px 14px;margin-bottom:20px;text-shadow:0 1px 0 rgba(255,255,255,0.5);background-color:#fcf8e3;border:1px solid #fbeed5;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}.alert,.alert h4{color:#c09853}.alert h4{margin:0}.alert .close{position:relative;top:-2px;right:-21px;line-height:20px}.alert-success{color:#468847;background-color:#dff0d8;border-color:#d6e9c6}.alert-success h4{color:#468847}.alert-danger,.alert-error{color:#b94a48;background-color:#f2dede;border-color:#eed3d7}.alert-danger h4,.alert-error h4{color:#b94a48}.alert-info{color:#3a87ad;background-color:#d9edf7;border-color:#bce8f1}.alert-info h4{color:#3a87ad}.alert-block{padding-top:14px;padding-bottom:14px}.alert-block>p,.alert-block>ul{margin-bottom:0}.alert-block p+p{margin-top:5px}.nav{margin-bottom:20px;margin-left:0;list-style:none}.nav>li>a{display:block}.nav>li>a:hover,.nav>li>a:focus{text-decoration:none;background-color:#eee}.nav>li>a>img{max-width:none}.nav>.pull-right{float:right}.nav-header{display:block;padding:3px 15px;font-size:11px;font-weight:bold;line-height:20px;color:#999;text-shadow:0 1px 0 rgba(255,255,255,0.5);text-transform:uppercase}.nav li+.nav-header{margin-top:9px}.nav-list{padding-right:15px;padding-left:15px;margin-bottom:0}.nav-list>li>a,.nav-list .nav-header{margin-right:-15px;margin-left:-15px;text-shadow:0 1px 0 rgba(255,255,255,0.5)}.nav-list>li>a{padding:3px 15px}.nav-list>.active>a,.nav-list>.active>a:hover,.nav-list>.active>a:focus{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.2);background-color:#08c}.nav-list [class^="icon-"],.nav-list [class*=" icon-"]{margin-right:2px}.nav-list .divider{*width:100%;height:1px;margin:9px 1px;*margin:-5px 0 5px;overflow:hidden;background-color:#e5e5e5;border-bottom:1px solid #fff}.nav-tabs,.nav-pills{*zoom:1}.nav-tabs:before,.nav-pills:before,.nav-tabs:after,.nav-pills:after{display:table;line-height:0;content:""}.nav-tabs:after,.nav-pills:after{clear:both}.nav-tabs>li,.nav-pills>li{float:left}.nav-tabs>li>a,.nav-pills>li>a{padding-right:12px;padding-left:12px;margin-right:2px;line-height:14px}.nav-tabs{border-bottom:1px solid #ddd}.nav-tabs>li{margin-bottom:-1px}.nav-tabs>li>a{padding-top:8px;padding-bottom:8px;line-height:20px;border:1px solid transparent;-webkit-border-radius:4px 4px 0 0;-moz-border-radius:4px 4px 0 0;border-radius:4px 4px 0 0}.nav-tabs>li>a:hover,.nav-tabs>li>a:focus{border-color:#eee #eee #ddd}.nav-tabs>.active>a,.nav-tabs>.active>a:hover,.nav-tabs>.active>a:focus{color:#555;cursor:default;background-color:#fff;border:1px solid #ddd;border-bottom-color:transparent}.nav-pills>li>a{padding-top:8px;padding-bottom:8px;margin-top:2px;margin-bottom:2px;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px}.nav-pills>.active>a,.nav-pills>.active>a:hover,.nav-pills>.active>a:focus{color:#fff;background-color:#08c}.nav-stacked>li{float:none}.nav-stacked>li>a{margin-right:0}.nav-tabs.nav-stacked{border-bottom:0}.nav-tabs.nav-stacked>li>a{border:1px solid #ddd;-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.nav-tabs.nav-stacked>li:first-child>a{-webkit-border-top-right-radius:4px;border-top-right-radius:4px;-webkit-border-top-left-radius:4px;border-top-left-radius:4px;-moz-border-radius-topright:4px;-moz-border-radius-topleft:4px}.nav-tabs.nav-stacked>li:last-child>a{-webkit-border-bottom-right-radius:4px;border-bottom-right-radius:4px;-webkit-border-bottom-left-radius:4px;border-bottom-left-radius:4px;-moz-border-radius-bottomright:4px;-moz-border-radius-bottomleft:4px}.nav-tabs.nav-stacked>li>a:hover,.nav-tabs.nav-stacked>li>a:focus{z-index:2;border-color:#ddd}.nav-pills.nav-stacked>li>a{margin-bottom:3px}.nav-pills.nav-stacked>li:last-child>a{margin-bottom:1px}.nav-tabs .dropdown-menu{-webkit-border-radius:0 0 6px 6px;-moz-border-radius:0 0 6px 6px;border-radius:0 0 6px 6px}.nav-pills .dropdown-menu{-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px}.nav .dropdown-toggle .caret{margin-top:6px;border-top-color:#08c;border-bottom-color:#08c}.nav .dropdown-toggle:hover .caret,.nav .dropdown-toggle:focus .caret{border-top-color:#005580;border-bottom-color:#005580}.nav-tabs .dropdown-toggle .caret{margin-top:8px}.nav .active .dropdown-toggle .caret{border-top-color:#fff;border-bottom-color:#fff}.nav-tabs .active .dropdown-toggle .caret{border-top-color:#555;border-bottom-color:#555}.nav>.dropdown.active>a:hover,.nav>.dropdown.active>a:focus{cursor:pointer}.nav-tabs .open .dropdown-toggle,.nav-pills .open .dropdown-toggle,.nav>li.dropdown.open.active>a:hover,.nav>li.dropdown.open.active>a:focus{color:#fff;background-color:#999;border-color:#999}.nav li.dropdown.open .caret,.nav li.dropdown.open.active .caret,.nav li.dropdown.open a:hover .caret,.nav li.dropdown.open a:focus .caret{border-top-color:#fff;border-bottom-color:#fff;opacity:1;filter:alpha(opacity=100)}.tabs-stacked .open>a:hover,.tabs-stacked .open>a:focus{border-color:#999}.tabbable{*zoom:1}.tabbable:before,.tabbable:after{display:table;line-height:0;content:""}.tabbable:after{clear:both}.tab-content{overflow:auto}.tabs-below>.nav-tabs,.tabs-right>.nav-tabs,.tabs-left>.nav-tabs{border-bottom:0}.tab-content>.tab-pane,.pill-content>.pill-pane{display:none}.tab-content>.active,.pill-content>.active{display:block}.tabs-below>.nav-tabs{border-top:1px solid #ddd}.tabs-below>.nav-tabs>li{margin-top:-1px;margin-bottom:0}.tabs-below>.nav-tabs>li>a{-webkit-border-radius:0 0 4px 4px;-moz-border-radius:0 0 4px 4px;border-radius:0 0 4px 4px}.tabs-below>.nav-tabs>li>a:hover,.tabs-below>.nav-tabs>li>a:focus{border-top-color:#ddd;border-bottom-color:transparent}.tabs-below>.nav-tabs>.active>a,.tabs-below>.nav-tabs>.active>a:hover,.tabs-below>.nav-tabs>.active>a:focus{border-color:transparent #ddd #ddd #ddd}.tabs-left>.nav-tabs>li,.tabs-right>.nav-tabs>li{float:none}.tabs-left>.nav-tabs>li>a,.tabs-right>.nav-tabs>li>a{min-width:74px;margin-right:0;margin-bottom:3px}.tabs-left>.nav-tabs{float:left;margin-right:19px;border-right:1px solid #ddd}.tabs-left>.nav-tabs>li>a{margin-right:-1px;-webkit-border-radius:4px 0 0 4px;-moz-border-radius:4px 0 0 4px;border-radius:4px 0 0 4px}.tabs-left>.nav-tabs>li>a:hover,.tabs-left>.nav-tabs>li>a:focus{border-color:#eee #ddd #eee #eee}.tabs-left>.nav-tabs .active>a,.tabs-left>.nav-tabs .active>a:hover,.tabs-left>.nav-tabs .active>a:focus{border-color:#ddd transparent #ddd #ddd;*border-right-color:#fff}.tabs-right>.nav-tabs{float:right;margin-left:19px;border-left:1px solid #ddd}.tabs-right>.nav-tabs>li>a{margin-left:-1px;-webkit-border-radius:0 4px 4px 0;-moz-border-radius:0 4px 4px 0;border-radius:0 4px 4px 0}.tabs-right>.nav-tabs>li>a:hover,.tabs-right>.nav-tabs>li>a:focus{border-color:#eee #eee #eee #ddd}.tabs-right>.nav-tabs .active>a,.tabs-right>.nav-tabs .active>a:hover,.tabs-right>.nav-tabs .active>a:focus{border-color:#ddd #ddd #ddd transparent;*border-left-color:#fff}.nav>.disabled>a{color:#999}.nav>.disabled>a:hover,.nav>.disabled>a:focus{text-decoration:none;cursor:default;background-color:transparent}.navbar{*position:relative;*z-index:2;margin-bottom:20px;overflow:visible}.navbar-inner{min-height:40px;padding-right:20px;padding-left:20px;background-color:#fafafa;background-image:-moz-linear-gradient(top,#fff,#f2f2f2);background-image:-webkit-gradient(linear,0 0,0 100%,from(#fff),to(#f2f2f2));background-image:-webkit-linear-gradient(top,#fff,#f2f2f2);background-image:-o-linear-gradient(top,#fff,#f2f2f2);background-image:linear-gradient(to bottom,#fff,#f2f2f2);background-repeat:repeat-x;border:1px solid #d4d4d4;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff',endColorstr='#fff2f2f2',GradientType=0);*zoom:1;-webkit-box-shadow:0 1px 4px rgba(0,0,0,0.065);-moz-box-shadow:0 1px 4px rgba(0,0,0,0.065);box-shadow:0 1px 4px rgba(0,0,0,0.065)}.navbar-inner:before,.navbar-inner:after{display:table;line-height:0;content:""}.navbar-inner:after{clear:both}.navbar .container{width:auto}.nav-collapse.collapse{height:auto;overflow:visible}.navbar .brand{display:block;float:left;padding:10px 20px 10px;margin-left:-20px;font-size:20px;font-weight:200;color:#777;text-shadow:0 1px 0 #fff}.navbar .brand:hover,.navbar .brand:focus{text-decoration:none}.navbar-text{margin-bottom:0;line-height:40px;color:#777}.navbar-link{color:#777}.navbar-link:hover,.navbar-link:focus{color:#333}.navbar .divider-vertical{height:40px;margin:0 9px;border-right:1px solid #fff;border-left:1px solid #f2f2f2}.navbar .btn,.navbar .btn-group{margin-top:5px}.navbar .btn-group .btn,.navbar .input-prepend .btn,.navbar .input-append .btn,.navbar .input-prepend .btn-group,.navbar .input-append .btn-group{margin-top:0}.navbar-form{margin-bottom:0;*zoom:1}.navbar-form:before,.navbar-form:after{display:table;line-height:0;content:""}.navbar-form:after{clear:both}.navbar-form input,.navbar-form select,.navbar-form .radio,.navbar-form .checkbox{margin-top:5px}.navbar-form input,.navbar-form select,.navbar-form .btn{display:inline-block;margin-bottom:0}.navbar-form input[type="image"],.navbar-form input[type="checkbox"],.navbar-form input[type="radio"]{margin-top:3px}.navbar-form .input-append,.navbar-form .input-prepend{margin-top:5px;white-space:nowrap}.navbar-form .input-append input,.navbar-form .input-prepend input{margin-top:0}.navbar-search{position:relative;float:left;margin-top:5px;margin-bottom:0}.navbar-search .search-query{padding:4px 14px;margin-bottom:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:13px;font-weight:normal;line-height:1;-webkit-border-radius:15px;-moz-border-radius:15px;border-radius:15px}.navbar-static-top{position:static;margin-bottom:0}.navbar-static-top .navbar-inner{-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.navbar-fixed-top,.navbar-fixed-bottom{position:fixed;right:0;left:0;z-index:1030;margin-bottom:0}.navbar-fixed-top .navbar-inner,.navbar-static-top .navbar-inner{border-width:0 0 1px}.navbar-fixed-bottom .navbar-inner{border-width:1px 0 0}.navbar-fixed-top .navbar-inner,.navbar-fixed-bottom .navbar-inner{padding-right:0;padding-left:0;-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.navbar-static-top .container,.navbar-fixed-top .container,.navbar-fixed-bottom .container{width:940px}.navbar-fixed-top{top:0}.navbar-fixed-top .navbar-inner,.navbar-static-top .navbar-inner{-webkit-box-shadow:0 1px 10px rgba(0,0,0,0.1);-moz-box-shadow:0 1px 10px rgba(0,0,0,0.1);box-shadow:0 1px 10px rgba(0,0,0,0.1)}.navbar-fixed-bottom{bottom:0}.navbar-fixed-bottom .navbar-inner{-webkit-box-shadow:0 -1px 10px rgba(0,0,0,0.1);-moz-box-shadow:0 -1px 10px rgba(0,0,0,0.1);box-shadow:0 -1px 10px rgba(0,0,0,0.1)}.navbar .nav{position:relative;left:0;display:block;float:left;margin:0 10px 0 0}.navbar .nav.pull-right{float:right;margin-right:0}.navbar .nav>li{float:left}.navbar .nav>li>a{float:none;padding:10px 15px 10px;color:#777;text-decoration:none;text-shadow:0 1px 0 #fff}.navbar .nav .dropdown-toggle .caret{margin-top:8px}.navbar .nav>li>a:focus,.navbar .nav>li>a:hover{color:#333;text-decoration:none;background-color:transparent}.navbar .nav>.active>a,.navbar .nav>.active>a:hover,.navbar .nav>.active>a:focus{color:#555;text-decoration:none;background-color:#e5e5e5;-webkit-box-shadow:inset 0 3px 8px rgba(0,0,0,0.125);-moz-box-shadow:inset 0 3px 8px rgba(0,0,0,0.125);box-shadow:inset 0 3px 8px rgba(0,0,0,0.125)}.navbar .btn-navbar{display:none;float:right;padding:7px 10px;margin-right:5px;margin-left:5px;color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-color:#ededed;*background-color:#e5e5e5;background-image:-moz-linear-gradient(top,#f2f2f2,#e5e5e5);background-image:-webkit-gradient(linear,0 0,0 100%,from(#f2f2f2),to(#e5e5e5));background-image:-webkit-linear-gradient(top,#f2f2f2,#e5e5e5);background-image:-o-linear-gradient(top,#f2f2f2,#e5e5e5);background-image:linear-gradient(to bottom,#f2f2f2,#e5e5e5);background-repeat:repeat-x;border-color:#e5e5e5 #e5e5e5 #bfbfbf;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff2f2f2',endColorstr='#ffe5e5e5',GradientType=0);filter:progid:DXImageTransform.Microsoft.gradient(enabled=false);-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 1px 0 rgba(255,255,255,0.075);-moz-box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 1px 0 rgba(255,255,255,0.075);box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 1px 0 rgba(255,255,255,0.075)}.navbar .btn-navbar:hover,.navbar .btn-navbar:focus,.navbar .btn-navbar:active,.navbar .btn-navbar.active,.navbar .btn-navbar.disabled,.navbar .btn-navbar[disabled]{color:#fff;background-color:#e5e5e5;*background-color:#d9d9d9}.navbar .btn-navbar:active,.navbar .btn-navbar.active{background-color:#ccc \9}.navbar .btn-navbar .icon-bar{display:block;width:18px;height:2px;background-color:#f5f5f5;-webkit-border-radius:1px;-moz-border-radius:1px;border-radius:1px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,0.25);-moz-box-shadow:0 1px 0 rgba(0,0,0,0.25);box-shadow:0 1px 0 rgba(0,0,0,0.25)}.btn-navbar .icon-bar+.icon-bar{margin-top:3px}.navbar .nav>li>.dropdown-menu:before{position:absolute;top:-7px;left:9px;display:inline-block;border-right:7px solid transparent;border-bottom:7px solid #ccc;border-left:7px solid transparent;border-bottom-color:rgba(0,0,0,0.2);content:''}.navbar .nav>li>.dropdown-menu:after{position:absolute;top:-6px;left:10px;display:inline-block;border-right:6px solid transparent;border-bottom:6px solid #fff;border-left:6px solid transparent;content:''}.navbar-fixed-bottom .nav>li>.dropdown-menu:before{top:auto;bottom:-7px;border-top:7px solid #ccc;border-bottom:0;border-top-color:rgba(0,0,0,0.2)}.navbar-fixed-bottom .nav>li>.dropdown-menu:after{top:auto;bottom:-6px;border-top:6px solid #fff;border-bottom:0}.navbar .nav li.dropdown>a:hover .caret,.navbar .nav li.dropdown>a:focus .caret{border-top-color:#333;border-bottom-color:#333}.navbar .nav li.dropdown.open>.dropdown-toggle,.navbar .nav li.dropdown.active>.dropdown-toggle,.navbar .nav li.dropdown.open.active>.dropdown-toggle{color:#555;background-color:#e5e5e5}.navbar .nav li.dropdown>.dropdown-toggle .caret{border-top-color:#777;border-bottom-color:#777}.navbar .nav li.dropdown.open>.dropdown-toggle .caret,.navbar .nav li.dropdown.active>.dropdown-toggle .caret,.navbar .nav li.dropdown.open.active>.dropdown-toggle .caret{border-top-color:#555;border-bottom-color:#555}.navbar .pull-right>li>.dropdown-menu,.navbar .nav>li>.dropdown-menu.pull-right{right:0;left:auto}.navbar .pull-right>li>.dropdown-menu:before,.navbar .nav>li>.dropdown-menu.pull-right:before{right:12px;left:auto}.navbar .pull-right>li>.dropdown-menu:after,.navbar .nav>li>.dropdown-menu.pull-right:after{right:13px;left:auto}.navbar .pull-right>li>.dropdown-menu .dropdown-menu,.navbar .nav>li>.dropdown-menu.pull-right .dropdown-menu{right:100%;left:auto;margin-right:-1px;margin-left:0;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px}.navbar-inverse .navbar-inner{background-color:#1b1b1b;background-image:-moz-linear-gradient(top,#222,#111);background-image:-webkit-gradient(linear,0 0,0 100%,from(#222),to(#111));background-image:-webkit-linear-gradient(top,#222,#111);background-image:-o-linear-gradient(top,#222,#111);background-image:linear-gradient(to bottom,#222,#111);background-repeat:repeat-x;border-color:#252525;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff222222',endColorstr='#ff111111',GradientType=0)}.navbar-inverse .brand,.navbar-inverse .nav>li>a{color:#999;text-shadow:0 -1px 0 rgba(0,0,0,0.25)}.navbar-inverse .brand:hover,.navbar-inverse .nav>li>a:hover,.navbar-inverse .brand:focus,.navbar-inverse .nav>li>a:focus{color:#fff}.navbar-inverse .brand{color:#999}.navbar-inverse .navbar-text{color:#999}.navbar-inverse .nav>li>a:focus,.navbar-inverse .nav>li>a:hover{color:#fff;background-color:transparent}.navbar-inverse .nav .active>a,.navbar-inverse .nav .active>a:hover,.navbar-inverse .nav .active>a:focus{color:#fff;background-color:#111}.navbar-inverse .navbar-link{color:#999}.navbar-inverse .navbar-link:hover,.navbar-inverse .navbar-link:focus{color:#fff}.navbar-inverse .divider-vertical{border-right-color:#222;border-left-color:#111}.navbar-inverse .nav li.dropdown.open>.dropdown-toggle,.navbar-inverse .nav li.dropdown.active>.dropdown-toggle,.navbar-inverse .nav li.dropdown.open.active>.dropdown-toggle{color:#fff;background-color:#111}.navbar-inverse .nav li.dropdown>a:hover .caret,.navbar-inverse .nav li.dropdown>a:focus .caret{border-top-color:#fff;border-bottom-color:#fff}.navbar-inverse .nav li.dropdown>.dropdown-toggle .caret{border-top-color:#999;border-bottom-color:#999}.navbar-inverse .nav li.dropdown.open>.dropdown-toggle .caret,.navbar-inverse .nav li.dropdown.active>.dropdown-toggle .caret,.navbar-inverse .nav li.dropdown.open.active>.dropdown-toggle .caret{border-top-color:#fff;border-bottom-color:#fff}.navbar-inverse .navbar-search .search-query{color:#fff;background-color:#515151;border-color:#111;-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1),0 1px 0 rgba(255,255,255,0.15);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1),0 1px 0 rgba(255,255,255,0.15);box-shadow:inset 0 1px 2px rgba(0,0,0,0.1),0 1px 0 rgba(255,255,255,0.15);-webkit-transition:none;-moz-transition:none;-o-transition:none;transition:none}.navbar-inverse .navbar-search .search-query:-moz-placeholder{color:#ccc}.navbar-inverse .navbar-search .search-query:-ms-input-placeholder{color:#ccc}.navbar-inverse .navbar-search .search-query::-webkit-input-placeholder{color:#ccc}.navbar-inverse .navbar-search .search-query:focus,.navbar-inverse .navbar-search .search-query.focused{padding:5px 15px;color:#333;text-shadow:0 1px 0 #fff;background-color:#fff;border:0;outline:0;-webkit-box-shadow:0 0 3px rgba(0,0,0,0.15);-moz-box-shadow:0 0 3px rgba(0,0,0,0.15);box-shadow:0 0 3px rgba(0,0,0,0.15)}.navbar-inverse .btn-navbar{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-color:#0e0e0e;*background-color:#040404;background-image:-moz-linear-gradient(top,#151515,#040404);background-image:-webkit-gradient(linear,0 0,0 100%,from(#151515),to(#040404));background-image:-webkit-linear-gradient(top,#151515,#040404);background-image:-o-linear-gradient(top,#151515,#040404);background-image:linear-gradient(to bottom,#151515,#040404);background-repeat:repeat-x;border-color:#040404 #040404 #000;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff151515',endColorstr='#ff040404',GradientType=0);filter:progid:DXImageTransform.Microsoft.gradient(enabled=false)}.navbar-inverse .btn-navbar:hover,.navbar-inverse .btn-navbar:focus,.navbar-inverse .btn-navbar:active,.navbar-inverse .btn-navbar.active,.navbar-inverse .btn-navbar.disabled,.navbar-inverse .btn-navbar[disabled]{color:#fff;background-color:#040404;*background-color:#000}.navbar-inverse .btn-navbar:active,.navbar-inverse .btn-navbar.active{background-color:#000 \9}.breadcrumb{padding:8px 15px;margin:0 0 20px;list-style:none;background-color:#f5f5f5;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}.breadcrumb>li{display:inline-block;*display:inline;text-shadow:0 1px 0 #fff;*zoom:1}.breadcrumb>li>.divider{padding:0 5px;color:#ccc}.breadcrumb>.active{color:#999}.pagination{margin:20px 0}.pagination ul{display:inline-block;*display:inline;margin-bottom:0;margin-left:0;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;*zoom:1;-webkit-box-shadow:0 1px 2px rgba(0,0,0,0.05);-moz-box-shadow:0 1px 2px rgba(0,0,0,0.05);box-shadow:0 1px 2px rgba(0,0,0,0.05)}.pagination ul>li{display:inline}.pagination ul>li>a,.pagination ul>li>span{float:left;padding:4px 12px;line-height:20px;text-decoration:none;background-color:#fff;border:1px solid #ddd;border-left-width:0}.pagination ul>li>a:hover,.pagination ul>li>a:focus,.pagination ul>.active>a,.pagination ul>.active>span{background-color:#f5f5f5}.pagination ul>.active>a,.pagination ul>.active>span{color:#999;cursor:default}.pagination ul>.disabled>span,.pagination ul>.disabled>a,.pagination ul>.disabled>a:hover,.pagination ul>.disabled>a:focus{color:#999;cursor:default;background-color:transparent}.pagination ul>li:first-child>a,.pagination ul>li:first-child>span{border-left-width:1px;-webkit-border-bottom-left-radius:4px;border-bottom-left-radius:4px;-webkit-border-top-left-radius:4px;border-top-left-radius:4px;-moz-border-radius-bottomleft:4px;-moz-border-radius-topleft:4px}.pagination ul>li:last-child>a,.pagination ul>li:last-child>span{-webkit-border-top-right-radius:4px;border-top-right-radius:4px;-webkit-border-bottom-right-radius:4px;border-bottom-right-radius:4px;-moz-border-radius-topright:4px;-moz-border-radius-bottomright:4px}.pagination-centered{text-align:center}.pagination-right{text-align:right}.pagination-large ul>li>a,.pagination-large ul>li>span{padding:11px 19px;font-size:17.5px}.pagination-large ul>li:first-child>a,.pagination-large ul>li:first-child>span{-webkit-border-bottom-left-radius:6px;border-bottom-left-radius:6px;-webkit-border-top-left-radius:6px;border-top-left-radius:6px;-moz-border-radius-bottomleft:6px;-moz-border-radius-topleft:6px}.pagination-large ul>li:last-child>a,.pagination-large ul>li:last-child>span{-webkit-border-top-right-radius:6px;border-top-right-radius:6px;-webkit-border-bottom-right-radius:6px;border-bottom-right-radius:6px;-moz-border-radius-topright:6px;-moz-border-radius-bottomright:6px}.pagination-mini ul>li:first-child>a,.pagination-small ul>li:first-child>a,.pagination-mini ul>li:first-child>span,.pagination-small ul>li:first-child>span{-webkit-border-bottom-left-radius:3px;border-bottom-left-radius:3px;-webkit-border-top-left-radius:3px;border-top-left-radius:3px;-moz-border-radius-bottomleft:3px;-moz-border-radius-topleft:3px}.pagination-mini ul>li:last-child>a,.pagination-small ul>li:last-child>a,.pagination-mini ul>li:last-child>span,.pagination-small ul>li:last-child>span{-webkit-border-top-right-radius:3px;border-top-right-radius:3px;-webkit-border-bottom-right-radius:3px;border-bottom-right-radius:3px;-moz-border-radius-topright:3px;-moz-border-radius-bottomright:3px}.pagination-small ul>li>a,.pagination-small ul>li>span{padding:2px 10px;font-size:11.9px}.pagination-mini ul>li>a,.pagination-mini ul>li>span{padding:0 6px;font-size:10.5px}.pager{margin:20px 0;text-align:center;list-style:none;*zoom:1}.pager:before,.pager:after{display:table;line-height:0;content:""}.pager:after{clear:both}.pager li{display:inline}.pager li>a,.pager li>span{display:inline-block;padding:5px 14px;background-color:#fff;border:1px solid #ddd;-webkit-border-radius:15px;-moz-border-radius:15px;border-radius:15px}.pager li>a:hover,.pager li>a:focus{text-decoration:none;background-color:#f5f5f5}.pager .next>a,.pager .next>span{float:right}.pager .previous>a,.pager .previous>span{float:left}.pager .disabled>a,.pager .disabled>a:hover,.pager .disabled>a:focus,.pager .disabled>span{color:#999;cursor:default;background-color:#fff}.modal-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1040;background-color:#000}.modal-backdrop.fade{opacity:0}.modal-backdrop,.modal-backdrop.fade.in{opacity:.8;filter:alpha(opacity=80)}.modal{position:fixed;top:10%;left:50%;z-index:1050;width:560px;margin-left:-280px;background-color:#fff;border:1px solid #999;border:1px solid rgba(0,0,0,0.3);*border:1px solid #999;-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px;outline:0;-webkit-box-shadow:0 3px 7px rgba(0,0,0,0.3);-moz-box-shadow:0 3px 7px rgba(0,0,0,0.3);box-shadow:0 3px 7px rgba(0,0,0,0.3);-webkit-background-clip:padding-box;-moz-background-clip:padding-box;background-clip:padding-box}.modal.fade{top:-25%;-webkit-transition:opacity .3s linear,top .3s ease-out;-moz-transition:opacity .3s linear,top .3s ease-out;-o-transition:opacity .3s linear,top .3s ease-out;transition:opacity .3s linear,top .3s ease-out}.modal.fade.in{top:10%}.modal-header{padding:9px 15px;border-bottom:1px solid #eee}.modal-header .close{margin-top:2px}.modal-header h3{margin:0;line-height:30px}.modal-body{position:relative;max-height:400px;padding:15px;overflow-y:auto}.modal-form{margin-bottom:0}.modal-footer{padding:14px 15px 15px;margin-bottom:0;text-align:right;background-color:#f5f5f5;border-top:1px solid #ddd;-webkit-border-radius:0 0 6px 6px;-moz-border-radius:0 0 6px 6px;border-radius:0 0 6px 6px;*zoom:1;-webkit-box-shadow:inset 0 1px 0 #fff;-moz-box-shadow:inset 0 1px 0 #fff;box-shadow:inset 0 1px 0 #fff}.modal-footer:before,.modal-footer:after{display:table;line-height:0;content:""}.modal-footer:after{clear:both}.modal-footer .btn+.btn{margin-bottom:0;margin-left:5px}.modal-footer .btn-group .btn+.btn{margin-left:-1px}.modal-footer .btn-block+.btn-block{margin-left:0}.tooltip{position:absolute;z-index:1030;display:block;font-size:11px;line-height:1.4;opacity:0;filter:alpha(opacity=0);visibility:visible}.tooltip.in{opacity:.8;filter:alpha(opacity=80)}.tooltip.top{padding:5px 0;margin-top:-3px}.tooltip.right{padding:0 5px;margin-left:3px}.tooltip.bottom{padding:5px 0;margin-top:3px}.tooltip.left{padding:0 5px;margin-left:-3px}.tooltip-inner{max-width:200px;padding:8px;color:#fff;text-align:center;text-decoration:none;background-color:#000;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}.tooltip-arrow{position:absolute;width:0;height:0;border-color:transparent;border-style:solid}.tooltip.top .tooltip-arrow{bottom:0;left:50%;margin-left:-5px;border-top-color:#000;border-width:5px 5px 0}.tooltip.right .tooltip-arrow{top:50%;left:0;margin-top:-5px;border-right-color:#000;border-width:5px 5px 5px 0}.tooltip.left .tooltip-arrow{top:50%;right:0;margin-top:-5px;border-left-color:#000;border-width:5px 0 5px 5px}.tooltip.bottom .tooltip-arrow{top:0;left:50%;margin-left:-5px;border-bottom-color:#000;border-width:0 5px 5px}.popover{position:absolute;top:0;left:0;z-index:1010;display:none;max-width:276px;padding:1px;text-align:left;white-space:normal;background-color:#fff;border:1px solid #ccc;border:1px solid rgba(0,0,0,0.2);-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px;-webkit-box-shadow:0 5px 10px rgba(0,0,0,0.2);-moz-box-shadow:0 5px 10px rgba(0,0,0,0.2);box-shadow:0 5px 10px rgba(0,0,0,0.2);-webkit-background-clip:padding-box;-moz-background-clip:padding;background-clip:padding-box}.popover.top{margin-top:-10px}.popover.right{margin-left:10px}.popover.bottom{margin-top:10px}.popover.left{margin-left:-10px}.popover-title{padding:8px 14px;margin:0;font-size:14px;font-weight:normal;line-height:18px;background-color:#f7f7f7;border-bottom:1px solid #ebebeb;-webkit-border-radius:5px 5px 0 0;-moz-border-radius:5px 5px 0 0;border-radius:5px 5px 0 0}.popover-title:empty{display:none}.popover-content{padding:9px 14px}.popover .arrow,.popover .arrow:after{position:absolute;display:block;width:0;height:0;border-color:transparent;border-style:solid}.popover .arrow{border-width:11px}.popover .arrow:after{border-width:10px;content:""}.popover.top .arrow{bottom:-11px;left:50%;margin-left:-11px;border-top-color:#999;border-top-color:rgba(0,0,0,0.25);border-bottom-width:0}.popover.top .arrow:after{bottom:1px;margin-left:-10px;border-top-color:#fff;border-bottom-width:0}.popover.right .arrow{top:50%;left:-11px;margin-top:-11px;border-right-color:#999;border-right-color:rgba(0,0,0,0.25);border-left-width:0}.popover.right .arrow:after{bottom:-10px;left:1px;border-right-color:#fff;border-left-width:0}.popover.bottom .arrow{top:-11px;left:50%;margin-left:-11px;border-bottom-color:#999;border-bottom-color:rgba(0,0,0,0.25);border-top-width:0}.popover.bottom .arrow:after{top:1px;margin-left:-10px;border-bottom-color:#fff;border-top-width:0}.popover.left .arrow{top:50%;right:-11px;margin-top:-11px;border-left-color:#999;border-left-color:rgba(0,0,0,0.25);border-right-width:0}.popover.left .arrow:after{right:1px;bottom:-10px;border-left-color:#fff;border-right-width:0}.thumbnails{margin-left:-20px;list-style:none;*zoom:1}.thumbnails:before,.thumbnails:after{display:table;line-height:0;content:""}.thumbnails:after{clear:both}.row-fluid .thumbnails{margin-left:0}.thumbnails>li{float:left;margin-bottom:20px;margin-left:20px}.thumbnail{display:block;padding:4px;line-height:20px;border:1px solid #ddd;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;-webkit-box-shadow:0 1px 3px rgba(0,0,0,0.055);-moz-box-shadow:0 1px 3px rgba(0,0,0,0.055);box-shadow:0 1px 3px rgba(0,0,0,0.055);-webkit-transition:all .2s ease-in-out;-moz-transition:all .2s ease-in-out;-o-transition:all .2s ease-in-out;transition:all .2s ease-in-out}a.thumbnail:hover,a.thumbnail:focus{border-color:#08c;-webkit-box-shadow:0 1px 4px rgba(0,105,214,0.25);-moz-box-shadow:0 1px 4px rgba(0,105,214,0.25);box-shadow:0 1px 4px rgba(0,105,214,0.25)}.thumbnail>img{display:block;max-width:100%;margin-right:auto;margin-left:auto}.thumbnail .caption{padding:9px;color:#555}.media,.media-body{overflow:hidden;*overflow:visible;zoom:1}.media,.media .media{margin-top:15px}.media:first-child{margin-top:0}.media-object{display:block}.media-heading{margin:0 0 5px}.media>.pull-left{margin-right:10px}.media>.pull-right{margin-left:10px}.media-list{margin-left:0;list-style:none}.label,.badge{display:inline-block;padding:2px 4px;font-size:11.844px;font-weight:bold;line-height:14px;color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,0.25);white-space:nowrap;vertical-align:baseline;background-color:#999}.label{-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px}.badge{padding-right:9px;padding-left:9px;-webkit-border-radius:9px;-moz-border-radius:9px;border-radius:9px}.label:empty,.badge:empty{display:none}a.label:hover,a.label:focus,a.badge:hover,a.badge:focus{color:#fff;text-decoration:none;cursor:pointer}.label-important,.badge-important{background-color:#b94a48}.label-important[href],.badge-important[href]{background-color:#953b39}.label-warning,.badge-warning{background-color:#f89406}.label-warning[href],.badge-warning[href]{background-color:#c67605}.label-success,.badge-success{background-color:#468847}.label-success[href],.badge-success[href]{background-color:#356635}.label-info,.badge-info{background-color:#3a87ad}.label-info[href],.badge-info[href]{background-color:#2d6987}.label-inverse,.badge-inverse{background-color:#333}.label-inverse[href],.badge-inverse[href]{background-color:#1a1a1a}.btn .label,.btn .badge{position:relative;top:-1px}.btn-mini .label,.btn-mini .badge{top:0}@-webkit-keyframes progress-bar-stripes{from{background-position:40px 0}to{background-position:0 0}}@-moz-keyframes progress-bar-stripes{from{background-position:40px 0}to{background-position:0 0}}@-ms-keyframes progress-bar-stripes{from{background-position:40px 0}to{background-position:0 0}}@-o-keyframes progress-bar-stripes{from{background-position:0 0}to{background-position:40px 0}}@keyframes progress-bar-stripes{from{background-position:40px 0}to{background-position:0 0}}.progress{height:20px;margin-bottom:20px;overflow:hidden;background-color:#f7f7f7;background-image:-moz-linear-gradient(top,#f5f5f5,#f9f9f9);background-image:-webkit-gradient(linear,0 0,0 100%,from(#f5f5f5),to(#f9f9f9));background-image:-webkit-linear-gradient(top,#f5f5f5,#f9f9f9);background-image:-o-linear-gradient(top,#f5f5f5,#f9f9f9);background-image:linear-gradient(to bottom,#f5f5f5,#f9f9f9);background-repeat:repeat-x;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff5f5f5',endColorstr='#fff9f9f9',GradientType=0);-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);box-shadow:inset 0 1px 2px rgba(0,0,0,0.1)}.progress .bar{float:left;width:0;height:100%;font-size:12px;color:#fff;text-align:center;text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-color:#0e90d2;background-image:-moz-linear-gradient(top,#149bdf,#0480be);background-image:-webkit-gradient(linear,0 0,0 100%,from(#149bdf),to(#0480be));background-image:-webkit-linear-gradient(top,#149bdf,#0480be);background-image:-o-linear-gradient(top,#149bdf,#0480be);background-image:linear-gradient(to bottom,#149bdf,#0480be);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff149bdf',endColorstr='#ff0480be',GradientType=0);-webkit-box-shadow:inset 0 -1px 0 rgba(0,0,0,0.15);-moz-box-shadow:inset 0 -1px 0 rgba(0,0,0,0.15);box-shadow:inset 0 -1px 0 rgba(0,0,0,0.15);-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;-webkit-transition:width .6s ease;-moz-transition:width .6s ease;-o-transition:width .6s ease;transition:width .6s ease}.progress .bar+.bar{-webkit-box-shadow:inset 1px 0 0 rgba(0,0,0,0.15),inset 0 -1px 0 rgba(0,0,0,0.15);-moz-box-shadow:inset 1px 0 0 rgba(0,0,0,0.15),inset 0 -1px 0 rgba(0,0,0,0.15);box-shadow:inset 1px 0 0 rgba(0,0,0,0.15),inset 0 -1px 0 rgba(0,0,0,0.15)}.progress-striped .bar{background-color:#149bdf;background-image:-webkit-gradient(linear,0 100%,100% 0,color-stop(0.25,rgba(255,255,255,0.15)),color-stop(0.25,transparent),color-stop(0.5,transparent),color-stop(0.5,rgba(255,255,255,0.15)),color-stop(0.75,rgba(255,255,255,0.15)),color-stop(0.75,transparent),to(transparent));background-image:-webkit-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:-moz-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:-o-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);-webkit-background-size:40px 40px;-moz-background-size:40px 40px;-o-background-size:40px 40px;background-size:40px 40px}.progress.active .bar{-webkit-animation:progress-bar-stripes 2s linear infinite;-moz-animation:progress-bar-stripes 2s linear infinite;-ms-animation:progress-bar-stripes 2s linear infinite;-o-animation:progress-bar-stripes 2s linear infinite;animation:progress-bar-stripes 2s linear infinite}.progress-danger .bar,.progress .bar-danger{background-color:#dd514c;background-image:-moz-linear-gradient(top,#ee5f5b,#c43c35);background-image:-webkit-gradient(linear,0 0,0 100%,from(#ee5f5b),to(#c43c35));background-image:-webkit-linear-gradient(top,#ee5f5b,#c43c35);background-image:-o-linear-gradient(top,#ee5f5b,#c43c35);background-image:linear-gradient(to bottom,#ee5f5b,#c43c35);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffee5f5b',endColorstr='#ffc43c35',GradientType=0)}.progress-danger.progress-striped .bar,.progress-striped .bar-danger{background-color:#ee5f5b;background-image:-webkit-gradient(linear,0 100%,100% 0,color-stop(0.25,rgba(255,255,255,0.15)),color-stop(0.25,transparent),color-stop(0.5,transparent),color-stop(0.5,rgba(255,255,255,0.15)),color-stop(0.75,rgba(255,255,255,0.15)),color-stop(0.75,transparent),to(transparent));background-image:-webkit-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:-moz-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:-o-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent)}.progress-success .bar,.progress .bar-success{background-color:#5eb95e;background-image:-moz-linear-gradient(top,#62c462,#57a957);background-image:-webkit-gradient(linear,0 0,0 100%,from(#62c462),to(#57a957));background-image:-webkit-linear-gradient(top,#62c462,#57a957);background-image:-o-linear-gradient(top,#62c462,#57a957);background-image:linear-gradient(to bottom,#62c462,#57a957);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff62c462',endColorstr='#ff57a957',GradientType=0)}.progress-success.progress-striped .bar,.progress-striped .bar-success{background-color:#62c462;background-image:-webkit-gradient(linear,0 100%,100% 0,color-stop(0.25,rgba(255,255,255,0.15)),color-stop(0.25,transparent),color-stop(0.5,transparent),color-stop(0.5,rgba(255,255,255,0.15)),color-stop(0.75,rgba(255,255,255,0.15)),color-stop(0.75,transparent),to(transparent));background-image:-webkit-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:-moz-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:-o-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent)}.progress-info .bar,.progress .bar-info{background-color:#4bb1cf;background-image:-moz-linear-gradient(top,#5bc0de,#339bb9);background-image:-webkit-gradient(linear,0 0,0 100%,from(#5bc0de),to(#339bb9));background-image:-webkit-linear-gradient(top,#5bc0de,#339bb9);background-image:-o-linear-gradient(top,#5bc0de,#339bb9);background-image:linear-gradient(to bottom,#5bc0de,#339bb9);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff5bc0de',endColorstr='#ff339bb9',GradientType=0)}.progress-info.progress-striped .bar,.progress-striped .bar-info{background-color:#5bc0de;background-image:-webkit-gradient(linear,0 100%,100% 0,color-stop(0.25,rgba(255,255,255,0.15)),color-stop(0.25,transparent),color-stop(0.5,transparent),color-stop(0.5,rgba(255,255,255,0.15)),color-stop(0.75,rgba(255,255,255,0.15)),color-stop(0.75,transparent),to(transparent));background-image:-webkit-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:-moz-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:-o-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent)}.progress-warning .bar,.progress .bar-warning{background-color:#faa732;background-image:-moz-linear-gradient(top,#fbb450,#f89406);background-image:-webkit-gradient(linear,0 0,0 100%,from(#fbb450),to(#f89406));background-image:-webkit-linear-gradient(top,#fbb450,#f89406);background-image:-o-linear-gradient(top,#fbb450,#f89406);background-image:linear-gradient(to bottom,#fbb450,#f89406);background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffbb450',endColorstr='#fff89406',GradientType=0)}.progress-warning.progress-striped .bar,.progress-striped .bar-warning{background-color:#fbb450;background-image:-webkit-gradient(linear,0 100%,100% 0,color-stop(0.25,rgba(255,255,255,0.15)),color-stop(0.25,transparent),color-stop(0.5,transparent),color-stop(0.5,rgba(255,255,255,0.15)),color-stop(0.75,rgba(255,255,255,0.15)),color-stop(0.75,transparent),to(transparent));background-image:-webkit-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:-moz-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:-o-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);background-image:linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent)}.accordion{margin-bottom:20px}.accordion-group{margin-bottom:2px;border:1px solid #e5e5e5;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}.accordion-heading{border-bottom:0}.accordion-heading .accordion-toggle{display:block;padding:8px 15px}.accordion-toggle{cursor:pointer}.accordion-inner{padding:9px 15px;border-top:1px solid #e5e5e5}.carousel{position:relative;margin-bottom:20px;line-height:1}.carousel-inner{position:relative;width:100%;overflow:hidden}.carousel-inner>.item{position:relative;display:none;-webkit-transition:.6s ease-in-out left;-moz-transition:.6s ease-in-out left;-o-transition:.6s ease-in-out left;transition:.6s ease-in-out left}.carousel-inner>.item>img,.carousel-inner>.item>a>img{display:block;line-height:1}.carousel-inner>.active,.carousel-inner>.next,.carousel-inner>.prev{display:block}.carousel-inner>.active{left:0}.carousel-inner>.next,.carousel-inner>.prev{position:absolute;top:0;width:100%}.carousel-inner>.next{left:100%}.carousel-inner>.prev{left:-100%}.carousel-inner>.next.left,.carousel-inner>.prev.right{left:0}.carousel-inner>.active.left{left:-100%}.carousel-inner>.active.right{left:100%}.carousel-control{position:absolute;top:40%;left:15px;width:40px;height:40px;margin-top:-20px;font-size:60px;font-weight:100;line-height:30px;color:#fff;text-align:center;background:#222;border:3px solid #fff;-webkit-border-radius:23px;-moz-border-radius:23px;border-radius:23px;opacity:.5;filter:alpha(opacity=50)}.carousel-control.right{right:15px;left:auto}.carousel-control:hover,.carousel-control:focus{color:#fff;text-decoration:none;opacity:.9;filter:alpha(opacity=90)}.carousel-indicators{position:absolute;top:15px;right:15px;z-index:5;margin:0;list-style:none}.carousel-indicators li{display:block;float:left;width:10px;height:10px;margin-left:5px;text-indent:-999px;background-color:#ccc;background-color:rgba(255,255,255,0.25);border-radius:5px}.carousel-indicators .active{background-color:#fff}.carousel-caption{position:absolute;right:0;bottom:0;left:0;padding:15px;background:#333;background:rgba(0,0,0,0.75)}.carousel-caption h4,.carousel-caption p{line-height:20px;color:#fff}.carousel-caption h4{margin:0 0 5px}.carousel-caption p{margin-bottom:0}.hero-unit{padding:60px;margin-bottom:30px;font-size:18px;font-weight:200;line-height:30px;color:inherit;background-color:#eee;-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px}.hero-unit h1{margin-bottom:0;font-size:60px;line-height:1;letter-spacing:-1px;color:inherit}.hero-unit li{line-height:30px}.pull-right{float:right}.pull-left{float:left}.hide{display:none}.show{display:block}.invisible{visibility:hidden}.affix{position:fixed}
-.af,.afghanistan::before{url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAACAAP8AAP///ywAAAAAIAAUAAACVYSPqZvhD6OcztCLn81c7g4GHyUEwlmW2EiaKWcM8kwPpy3g9R7vc45C2XyzHhGoQxIHRh/ypiQ2ncNhbskEYGXA6JKREACCY7D5jE6r1+y2+w2PgwsAOw==')]
-.al,.albania(url('data:image/gif;base64,R0lGODdhIAAUAPAAAAAAAP8AACwAAAAAIAAUAAACRISPqZvhD6OcztCLn81c7g4GX8iNngigYmZG1qFiLZTWayrjFKPv/dn4eYQuRYlIQ9lYyBNoRppAo0Xq0crE5njcLqAAADs='))
 </style><?php }
-function DBSave(){$db=new SQLDump(new mysqli(config('db_host'),config('db_user'),config('db_passwort'),config('db_name')));$db->save(date('Y-m-d_H-i-s').'_owsforallphp.sql.gz');}
+			function DBSave(){$db=new SQLDump(new mysqli(config('db_host'),config('db_user'),config('db_passwort'),config('db_name')));$db->save(date('Y-m-d_H-i-s').'_owsforallphp.sql.gz');}
 class SQLDump{const NONE=0,DROP=1,CREATE=2,DATA=4,TRIGGERS=8,ALL=15,MAX_SQL_SIZE=1e6;public$tables=['*'=>self::ALL,],$charset='utf8';private$connection;
-	function __construct(mysqli$connection){$this->connection=$connection;if($connection->connect_errno)throw new Exception($connection->connect_error);}
-	function save($file){$handle=strcasecmp(substr($file,-3),'.gz')?fopen($file,'wb'):gzopen($file,'wb');if(!$handle)throw new Exception("ERROR: Cannot write file '$file'.");$this->write($handle);}
-	function write($handle=null){if($handle===null)$handle=fopen('php://output','wb');elseif(!is_resource($handle)||get_resource_type($handle)!=='stream')throw new Exception('Argument must be stream resource.');$tables=$views=[];
-		$res=$this->connection->query('SHOW FULL TABLES');while($row=$res->fetch_row()){if($row[1]==='VIEW')$views[]=$row[0];else$tables[]=$row[0];}$res->close();$tables=array_merge($tables,$views);
-		$this->connection->query('LOCK TABLES `'.implode('` READ,`',$tables).'`READ');$db=$this->connection->query('SELECT DATABASE()')->fetch_row();foreach($tables as$table)$this->dumpTable($handle,$table);$this->connection->query('UNLOCK TABLES');}
-	function dumpTable($handle,$table){$mode=isset($this->tables[$table])?$this->tables[$table]:$this->tables['*'];if($mode===self::NONE)return;$delTable=$this->delimite($table);$res=$this->connection->query("SHOW CREATE TABLE $delTable");$row=$res->fetch_assoc();
-		$res->close();$view=isset($row['Create View']);if($mode&self::DROP)fwrite($handle,'DROP '.($view?'VIEW':'TABLE')." IF EXISTS $delTable;\n");if($mode&self::CREATE)fwrite($handle,$row[$view?'Create View':'Create Table'].";\n");
-		if(!$view&&($mode&self::DATA)){fwrite($handle,'ALTER '.($view?'VIEW':'TABLE').$delTable."DISABLE KEYS;\n");$numeric =[];$res=$this->connection->query("SHOW COLUMNS FROM$delTable");$cols=[];while($row=$res->fetch_assoc()){$col=$row['Field'];
-		$cols[]=$this->delimite($col);$numeric[$col]=(bool)preg_match('#^[^(]*(BYTE|COUNTER|SERIAL|INT|LONG$|CURRENCY|REAL|MONEY|FLOAT|DOUBLE|DECIMAL|NUMERIC|NUMBER)#i',$row['Type']);}$cols='('.implode(',',$cols).')';$res->close();$size=0;
-		$res=$this->connection->query("SELECT*FROM $delTable",MYSQLI_USE_RESULT);while($row=$res->fetch_assoc()){$s='(';foreach($row as$key=>$value){if($value===null)$s.="NULL,\t";elseif($numeric[$key])$s.=$value.",\t";
-		else$s.="'".$this->connection->real_escape_string($value)."',\t";}if($size==0)$s="INSERT INTO $delTable$cols VALUES\n$s";else$s=",\n$s";$len=strlen($s)-1;$s[$len-1]=')';fwrite($handle,$s,$len);$size+=$len;if($size>self::MAX_SQL_SIZE){fwrite($handle,";\n");
-		$size=0;}}$res->close();if($size)fwrite($handle,";\n");fwrite($handle,'ALTER '.($view?'VIEW':'TABLE').$delTable."ENABLE KEYS;\n");}}
-	function delimite($s){return'`'.str_replace('`','``',$s).'`';}}
+			function __construct(mysqli$connection){$this->connection=$connection;if($connection->connect_errno)throw new Exception($connection->connect_error);}
+			function save($file){$handle=strcasecmp(substr($file,-3),'.gz')?fopen($file,'wb'):gzopen($file,'wb');if(!$handle)throw new Exception("ERROR: Cannot write file '$file'.");$this->write($handle);}
+	  		function write($handle=null){if($handle===null)$handle=fopen('php://output','wb');elseif(!is_resource($handle)||get_resource_type($handle)!=='stream')throw new Exception('Argument must be stream resource.');$tables=$views=[];
+							$res=$this->connection->query('SHOW FULL TABLES');while($row=$res->fetch_row()){if($row[1]==='VIEW')$views[]=$row[0];else$tables[]=$row[0];}$res->close();$tables=array_merge($tables,$views);
+							$this->connection->query('LOCK TABLES `'.implode('` READ,`',$tables).'`READ');$db=$this->connection->query('SELECT DATABASE()')->fetch_row();foreach($tables as$table)$this->dumpTable($handle,$table);$this->connection->query('UNLOCK TABLES');}
+			function dumpTable($handle,$table){$mode=isset($this->tables[$table])?$this->tables[$table]:$this->tables['*'];if($mode===self::NONE)return;$delTable=$this->delimite($table);$res=$this->connection->query("SHOW CREATE TABLE $delTable");
+							$row=$res->fetch_assoc();$res->close();$view=isset($row['Create View']);if($mode&self::DROP)fwrite($handle,'DROP '.($view?'VIEW':'TABLE')." IF EXISTS $delTable;\n");if($mode&self::CREATE)fwrite($handle,$row[$view?'Create View':'Create Table'].
+							";\n");if(!$view&&($mode&self::DATA)){fwrite($handle,'ALTER '.($view?'VIEW':'TABLE').$delTable."DISABLE KEYS;\n");$numeric =[];$res=$this->connection->query("SHOW COLUMNS FROM$delTable");$cols=[];while($row=$res->fetch_assoc()){
+							$col=$row['Field'];$cols[]=$this->delimite($col);$numeric[$col]=(bool)preg_match('#^[^(]*(BYTE|COUNTER|SERIAL|INT|LONG$|CURRENCY|REAL|MONEY|FLOAT|DOUBLE|DECIMAL|NUMERIC|NUMBER)#i',$row['Type']);}$cols='('.implode(',',$cols).')';
+							$res->close();$size=0;$res=$this->connection->query("SELECT*FROM $delTable",MYSQLI_USE_RESULT);while($row=$res->fetch_assoc()){$s='(';foreach($row as$key=>$value){if($value===null)$s.="NULL,\t";elseif($numeric[$key])$s.=$value.",\t";
+							else$s.="'".$this->connection->real_escape_string($value)."',\t";}if($size==0)$s="INSERT INTO $delTable$cols VALUES\n$s";else$s=",\n$s";$len=strlen($s)-1;$s[$len-1]=')';fwrite($handle,$s,$len);$size+=$len;if($size>self::MAX_SQL_SIZE){
+							fwrite($handle,";\n");$size=0;}}$res->close();if($size)fwrite($handle,";\n");fwrite($handle,'ALTER '.($view?'VIEW':'TABLE').$delTable."ENABLE KEYS;\n");}}
+			function delimite($s){return'`'.str_replace('`','``',$s).'`';}}
 function Diagnosis(){
-	class benchmarkTimer{var $startTime,$totalTime=0;
-		function start(){list($usc,$string_ec)=explode(' ',microtime());$this->startTime=((float)$usc+(float)$string_ec);}
-		function stop($time_itle){list($usec,$string_ec)=explode(' ',microtime());$time=((float)$usec+(float)$string_ec)-$this->startTime;$this->totalTime+=$time;}}
-		function _getallheaders(){foreach($_SERVER as$name=>$value){if(substr($name,0,5)=='HTTP_'){$name=str_replace(' ','-',ucwords(strtolower(str_replace('_',' ',substr($name,5)))));$headers[$name]=$value;}elseif($name=='CONTENT_TYPE')$headers['Content-Type']=$value;
-        	elseif($name=='CONTENT_LENGTH')$headers['Content-Length']=$value;}return@$headers;}
-		function RequestTime(){$starttime=microtime(true);foreach(_getallheaders()as$name=>$value);$stoptime=microtime(true);$status=0;$status=($stoptime-$starttime)*1000000;$status=floor($status);return$status;}
-			if(function_exists('date_default_timezone_set'))date_default_timezone_set('UTC');$_SERVER['HTTPS']='on';$timer=new benchmarkTimer();
-		function simple(){$a=0;for($i=0;$i<900000;++$i)++$a;$thisisanotherlongname=0;for($thisisalongname=0;$thisisalongname<900000;++$thisisalongname)++$thisisanotherlongname;}
-	function simplecall(){for($i=0;$i<900000;++$i)strlen('hallo');}
-	function hallo($a){}
-	function simpleucall(){for($i=0;$i<900000;++$i)hallo('hallo');}
-	function simpleudcall(){for($i=0;$i<900000;++$i)hallo2('hallo');}
-	function hallo2($a){}
-	function mandel(){$w1=92;$h1=843;$recen=-.45;$imcen=0.0;$r=0.7;$s=0;$rec=0;$imc=0;$re=0;$im=0;$re2=0;$im2=0;$x=0;$y=0;$w2=0;$h2=0;$color=0;$s=2*$r/$w1;$w2=40;$h2=12;
-		for ($y=0;$y<=$w1;$y=$y+1){$imc=$s*($y-$h2)+$imcen;for($x=0;$x<=$h1;$x=$x+1){$rec=$s*($x-$w2)+$recen;$re=$rec;$im=$imc;$color=1000;$re2=$re*$re;$im2=$im*$im;while(((($re2+$im2)<900000)&&$color)){$im=$re*$im*2+$imc;$re=$re2-$im2+$rec;$re2=$re*$re;$im2=$im*$im;
-		$color=$color-1;}if($color==0)print'_';else print'#';}print'<br>';flush();}}
-	function mandel2(){$b=' .:,;!/>)|&IH%*#';for($y=30;printf('\n'),$C=$y*0.1-1.5,--$y;){for($x=0;$c=$x*0.04-2,$z=0,$Z=0,++$x<75;){for($r=$c,$i=$C,$k=0;$t=$z*$z-$Z*$Z+$r,$Z=2*$z*$Z+$i,$z=$t,$k<5000;++$k)if($z*$z+$Z*$Z>2000000)break;echo$b[$k%16];}}}
-	function Ack($m,$n){if($m==0)return$n+1;if($n==0)return Ack($m-1,1);return Ack($m-1,Ack($m,($n-1)));}
-	function ackermann($n){$r=Ack(3,$n);print'Ack(3,$n): $r\n';}
-	function ary($n){for($i=0;$i<$n;++$i)$X[$i]=$i;for($i=$n-1;$i>=0;--$i)$Y[$i]=$X[$i];$last=$n-1;print'$Y[$last]\n';}
-	function ary2($n){for($i=0;$i<$n;){$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;}for($i=$n-1;$i>=0;){$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];
-		--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;}$last=$n-1;print'$Y[$last]\n';}
-	function ary3($n){for($i=0;$i<$n;++$i){$X[$i]=$i+1;$Y[$i]=0;}for($k=0;$k<1000;++$k)for($i=$n-1;$i>=0;--$i)$Y[$i]+=$X[$i];$last=$n-1;print'$Y[0] $Y[$last]\n';}
-	function fibo_r($n){return(($n<2)?1:fibo_r($n-2)+fibo_r($n-1));}
-	function fibo($n){$r=fibo_r($n);print'$r\n';}
-	function hash1($n){for($i=1;$i<=$n;++$i)$X[dechex($i)]=$i;$c=0;for($i=$n;$i>0;--$i)if($X[dechex($i)]){++$c;}print'$c\n';}
-	function hash2($n){for($i=0;$i<$n;++$i){$hash1['foo_$i']=$i;$hash2['foo_$i']=0;}for($i=$n;$i>0;--$i)foreach($hash1 as$key=>$value)$hash2[$key]+=$value;$first='foo_0';$last='foo_'.($n-1);print'$hash1[$first]$hash1[$last]$hash2[$first]$hash2[$last]\n';}
-	function gen_random($n){global$LAST;return(($n*($LAST=($LAST*3877+29573)%139968))/139968);}
-	function heapsort_r($n,&$ra){$l=($n>>1)+1;$ir=$n;while(1){if($l>1)$rra=$ra[--$l];else{$rra=$ra[$ir];$ra[$ir]=$ra[1];if(--$ir==1){$ra[1]=$rra;return;}}$i=$l;$j=$l<<1;while($j<=$ir){if(($j<$ir)&&($ra[$j]<$ra[$j+1]))++$j;if($rra<$ra[$j]){$ra[$i]=$ra[$j];$j+=($i=$j);
-			}else$j=$ir+1;}$ra[$i]=$rra;}}
-	function heapsort($N){global$LAST;$LAST=42;for($i=1;$i<=$N;++$i)$ary[$i]=gen_random(1);heapsort_r($N,$ary);printf('%.10f\n',$ary[$N]);}
-	function mkmatrix($rows,$cols){$count=1;$mx=[];for($i=0;$i<$rows;++$i)for($j=0;$j<$cols;++$j)$mx[$i][$j]=++$count;return($mx);}
-	function mmult($rows,$cols,$m1,$m2){$m3=[];for($i=0;$i<$rows;++$i){for($j=0;$j<$cols;++$j){$x=0;for($k=0;$k<$cols;++$k)$x+=$m1[$i][$k]*$m2[$k][$j];$m3[$i][$j]=$x;}}return($m3);}
-	function matrix($n){$SIZE=30;$m1=mkmatrix($SIZE,$SIZE);$m2=mkmatrix($SIZE,$SIZE);while(--$n)$mm=mmult($SIZE,$SIZE,$m1,$m2);print'{$mm[0][0]} {$mm[2][3]} {$mm[3][2]} {$mm[4][4]}\n';}
-	function nestedloop($n){$x=0;for($a=0;$a<$n;++$a)for($b=0;$b<$n;++$b)for($c=0;$c<$n;++$c)for($d=0;$d<$n;++$d)for($e=0;$e<$n;++$e)for($f=0;$f<$n;++$f)++$x;print'$x\n';}
-	function sieve($n){$count=0;while(--$n){$count=0;$flags=range(0,8192);for($i=2;$i<8193;++$i){if($flags[$i]){for($k=$i+$i;$k<=8192;$k+=$i)$flags[$k]=0;++$count;}}}print'Count: $count\n';}
-	function strcat($n){$str='';while(--$n)$str.='hello\n';$len=strlen($str);print'$len\n';}
-	function getmicrotime(){$t=gettimeofday();return($t['sec']+$t['usec']/1000000);}
-	function start_test(){ob_start();return getmicrotime();}
-	function end_test($start,$name){global$total;$end=getmicrotime();ob_end_clean();$total+=$end-$start;$num=number_format($end-$start,1);ob_start();return getmicrotime();}
-	function total(){global$total;$num=number_format($total,1);echo'<br>Rating Note = '.(round($num*1.668));}$t0=$t=start_test();simple();$t=end_test($t,'simple');simplecall();$t=end_test($t,'simplecall');simpleucall();$t=end_test($t,'simpleucall');simpleudcall();			  $t=end_test($t,'simpleudcall');mandel();$t=end_test($t,'mandel');mandel2();$t=end_test($t,'mandel2');ackermann(7);$t=end_test($t,'ackermann(7)');ary(50000);$t=end_test($t,'ary(50000)');ary2(50000);$t=end_test($t,'ary2(50000)');
-		ary3(2000);$t=end_test($t,'ary3(2000)');	fibo(30);$t=end_test($t,'fibo(30)');hash1(50000);$t=end_test($t,'hash1(50000)');hash2(500);$t=end_test($t,'hash2(500)');heapsort(20000);$t=end_test($t,'heapsort(20000)');matrix(20);
-		$t=end_test($t,'matrix(20)');nestedloop(12);$t=end_test($t,'nestedloop(12)');sieve(30);$t=end_test($t,'sieve(30)');strcat(200000);$t=end_test($t,'strcat(200000)');total();
+class benchmarkTimer{var $startTime,$totalTime=0;
+			function start(){list($usc,$string_ec)=explode(' ',microtime());$this->startTime=((float)$usc+(float)$string_ec);}
+			function stop($time_itle){list($usec,$string_ec)=explode(' ',microtime());$time=((float)$usec+(float)$string_ec)-$this->startTime;$this->totalTime+=$time;}}
+			function _getallheaders(){foreach($_SERVER as$name=>$value){if(substr($name,0,5)=='HTTP_'){$name=str_replace(' ','-',ucwords(strtolower(str_replace('_',' ',substr($name,5)))));$headers[$name]=$value;}elseif($name=='CONTENT_TYPE')$headers['Content-Type']=
+							$value;elseif($name=='CONTENT_LENGTH')$headers['Content-Length']=$value;}return@$headers;}
+			function RequestTime(){$starttime=microtime(true);foreach(_getallheaders()as$name=>$value);$stoptime=microtime(true);$status=0;$status=($stoptime-$starttime)*1000000;$status=floor($status);return$status;}
+							if(function_exists('date_default_timezone_set'))date_default_timezone_set('UTC');$_SERVER['HTTPS']='on';$timer=new benchmarkTimer();
+			function simple(){$a=0;for($i=0;$i<900000;++$i)++$a;$thisisanotherlongname=0;for($thisisalongname=0;$thisisalongname<900000;++$thisisalongname)++$thisisanotherlongname;}
+			function simplecall(){for($i=0;$i<900000;++$i)strlen('hallo');}
+			function hallo($a){}
+			function simpleucall(){for($i=0;$i<900000;++$i)hallo('hallo');}
+			function simpleudcall(){for($i=0;$i<900000;++$i)hallo2('hallo');}
+			function hallo2($a){}
+			function mandel(){$w1=92;$h1=843;$recen=-.45;$imcen=0.0;$r=0.7;$s=0;$rec=0;$imc=0;$re=0;$im=0;$re2=0;$im2=0;$x=0;$y=0;$w2=0;$h2=0;$color=0;$s=2*$r/$w1;$w2=40;$h2=12;for($y=0;$y<=$w1;$y=$y+1){$imc=$s*($y-$h2)+$imcen;for($x=0;$x<=$h1;$x=$x+1){$rec=$s*($x-$w2)+
+							$recen;$re=$rec;$im=$imc;$color=1000;$re2=$re*$re;$im2=$im*$im;while(((($re2+$im2)<900000)&&$color)){$im=$re*$im*2+$imc;$re=$re2-$im2+$rec;$re2=$re*$re;$im2=$im*$im;$color=$color-1;}if($color==0)print'_';else print'#';}print'<br>';flush();}}
+			function mandel2(){$b=' .:,;!/>)|&IH%*#';for($y=30;printf('\n'),$C=$y*0.1-1.5,--$y;){for($x=0;$c=$x*0.04-2,$z=0,$Z=0,++$x<75;){for($r=$c,$i=$C,$k=0;$t=$z*$z-$Z*$Z+$r,$Z=2*$z*$Z+$i,$z=$t,$k<5000;++$k)if($z*$z+$Z*$Z>2000000)break;echo$b[$k%16];}}}
+			function Ack($m,$n){if($m==0)return$n+1;if($n==0)return Ack($m-1,1);return Ack($m-1,Ack($m,($n-1)));}
+			function ackermann($n){$r=Ack(3,$n);print'Ack(3,$n): $r\n';}
+			function ary($n){for($i=0;$i<$n;++$i)$X[$i]=$i;for($i=$n-1;$i>=0;--$i)$Y[$i]=$X[$i];$last=$n-1;print'$Y[$last]\n';}
+			function ary2($n){for($i=0;$i<$n;){$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;$X[$i]=$i;++$i;}for($i=$n-1;$i>=0;){$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];
+							--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;$Y[$i]=$X[$i];--$i;}$last=$n-1;print'$Y[$last]\n';}
+			function ary3($n){for($i=0;$i<$n;++$i){$X[$i]=$i+1;$Y[$i]=0;}for($k=0;$k<1000;++$k)for($i=$n-1;$i>=0;--$i)$Y[$i]+=$X[$i];$last=$n-1;print'$Y[0] $Y[$last]\n';}
+			function fibo_r($n){return(($n<2)?1:fibo_r($n-2)+fibo_r($n-1));}
+			function fibo($n){$r=fibo_r($n);print'$r\n';}
+			function hash1($n){for($i=1;$i<=$n;++$i)$X[dechex($i)]=$i;$c=0;for($i=$n;$i>0;--$i)if($X[dechex($i)]){++$c;}print'$c\n';}
+			function hash2($n){for($i=0;$i<$n;++$i){$hash1['foo_$i']=$i;$hash2['foo_$i']=0;}for($i=$n;$i>0;--$i)foreach($hash1 as$key=>$value)$hash2[$key]+=$value;$first='foo_0';$last='foo_'.($n-1);print'$hash1[$first]$hash1[$last]$hash2[$first]$hash2[$last]\n';}
+			function gen_random($n){global$LAST;return(($n*($LAST=($LAST*3877+29573)%139968))/139968);}
+			function heapsort_r($n,&$ra){$l=($n>>1)+1;$ir=$n;while(1){if($l>1)$rra=$ra[--$l];else{$rra=$ra[$ir];$ra[$ir]=$ra[1];if(--$ir==1){$ra[1]=$rra;return;}}$i=$l;$j=$l<<1;while($j<=$ir){if(($j<$ir)&&($ra[$j]<$ra[$j+1]))++$j;if($rra<$ra[$j]){$ra[$i]=$ra[$j];
+							$j+=($i=$j);}else$j=$ir+1;}$ra[$i]=$rra;}}
+			function heapsort($N){global$LAST;$LAST=42;for($i=1;$i<=$N;++$i)$ary[$i]=gen_random(1);heapsort_r($N,$ary);printf('%.10f\n',$ary[$N]);}
+			function mkmatrix($rows,$cols){$count=1;$mx=[];for($i=0;$i<$rows;++$i)for($j=0;$j<$cols;++$j)$mx[$i][$j]=++$count;return($mx);}
+			function mmult($rows,$cols,$m1,$m2){$m3=[];for($i=0;$i<$rows;++$i){for($j=0;$j<$cols;++$j){$x=0;for($k=0;$k<$cols;++$k)$x+=$m1[$i][$k]*$m2[$k][$j];$m3[$i][$j]=$x;}}return($m3);}
+			function matrix($n){$SIZE=30;$m1=mkmatrix($SIZE,$SIZE);$m2=mkmatrix($SIZE,$SIZE);while(--$n)$mm=mmult($SIZE,$SIZE,$m1,$m2);print'{$mm[0][0]} {$mm[2][3]} {$mm[3][2]} {$mm[4][4]}\n';}
+			function nestedloop($n){$x=0;for($a=0;$a<$n;++$a)for($b=0;$b<$n;++$b)for($c=0;$c<$n;++$c)for($d=0;$d<$n;++$d)for($e=0;$e<$n;++$e)for($f=0;$f<$n;++$f)++$x;print'$x\n';}
+			function sieve($n){$count=0;while(--$n){$count=0;$flags=range(0,8192);for($i=2;$i<8193;++$i){if($flags[$i]){for($k=$i+$i;$k<=8192;$k+=$i)$flags[$k]=0;++$count;}}}print'Count: $count\n';}
+			function strcat($n){$str='';while(--$n)$str.='hello\n';$len=strlen($str);print'$len\n';}
+			function getmicrotime(){$t=gettimeofday();return($t['sec']+$t['usec']/1000000);}
+			function start_test(){ob_start();return getmicrotime();}
+			function end_test($start,$name){global$total;$end=getmicrotime();ob_end_clean();$total+=$end-$start;$num=number_format($end-$start,1);ob_start();return getmicrotime();}
+			function total(){global$total;$num=number_format($total,1);echo'<br>Rating Note = '.(round($num*1.668));}$t0=$t=start_test();simple();$t=end_test($t,'simple');simplecall();$t=end_test($t,'simplecall');simpleucall();$t=end_test($t,'simpleucall');
+							simpleudcall();$t=end_test($t,'simpleudcall');mandel();$t=end_test($t,'mandel');mandel2();$t=end_test($t,'mandel2');ackermann(7);$t=end_test($t,'ackermann(7)');ary(50000);$t=end_test($t,'ary(50000)');ary2(50000);$t=end_test($t,'ary2(50000)');
+							ary3(2000);$t=end_test($t,'ary3(2000)');	fibo(30);$t=end_test($t,'fibo(30)');hash1(50000);$t=end_test($t,'hash1(50000)');hash2(500);$t=end_test($t,'hash2(500)');heapsort(20000);$t=end_test($t,'heapsort(20000)');matrix(20);
+							$t=end_test($t,'matrix(20)');nestedloop(12);$t=end_test($t,'nestedloop(12)');sieve(30);$t=end_test($t,'sieve(30)');strcat(200000);$t=end_test($t,'strcat(200000)');total();
 echo"<pre>
 Diagnosis from  : ".date('m/d/Y H:i:s')."
 Eigene-Adresse  : $_SERVER[REMOTE_ADDR]
@@ -9161,54 +8669,48 @@ for($i=NULL;$i<$runs;++$i){is_int($f1);is_int($string_4);}for($i=NULL;$i<$runs;+
 for($i=NULL;$i<$runs_slow;++$i)date('%B %e,%Y,%l:%M %P',$now);for($i=NULL;$i<$runs_slow;++$i)strtotime($time_1);for($i=NULL;$i<$runs;++$i)strtolower($string_3);for($i=NULL;$i<$runs;++$i)strtoupper($string_1);for($i=NULL;$i<$runs;++$i)hash('sha256',$string_1);
 for($i=NULL;$i<$runs;++$i){unset($array_1['j']);$array_1['j']=NULL;}for($i=NULL;$i<$runs;++$i)list($drink,$runsolor,$power)=$array_2;for($i=NULL;$i<$runs;++$i)urlencode($string_1);$string_1e=urlencode($string_1);for($i=NULL;$i<$runs;++$i)urldecode($string_1e);
 for($i=NULL;$i<$runs;++$i)addslashes($string_9);$string_9e=addslashes($string_9);for($i=NULL;$i<$runs;++$i)stripslashes($string_9e);$timer->stop('');echo'<br>PHP Benchmark   : Referenztime PHP 8.2.8 : 1.0 Sec.';
-echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).' : '.number_format($timer->totalTime,1).' Sec.</pre>';if(function_exists(phpinfo())){phpinfo();$phpinfo=ob_get_contents();
-$phpinfo=preg_replace('/<\/div><\/body><\/html>/','',$phpinfo);$hr='<div style="width:100%;background:#000;height:10px;margin-bottom:1em;"></div>'.PHP_EOL;ob_start();echo'<table border="0" cellpadding="3" width="600">'.PHP_EOL;
-echo'<tr class="h"><td><a href="http://www.php.net/">';echo'<img border="0"src="http://static.php.net/www.php.net/images/php.gif"alt="PHP Logo"/>';echo'</a><h1 class="p">PHP Extensions</h1>'.PHP_EOL;echo'</td></tr>'.PHP_EOL;echo'</table>'.PHP_EOL;
-echo'<h2>geladene Erweiterungen</h2>'.PHP_EOL;echo'<table border="0"cellpadding="3"width="600">'.PHP_EOL;echo'<tr><td class="e">Extensions</td><td class="v">'.PHP_EOL;foreach(get_loaded_extensions()as$ext)$exts[]=$ext;echo implode(',',$exts).PHP_EOL;
-echo'</td></tr></table><br />'.PHP_EOL;echo'<h2>enthaltene Funktionen</h2>'.PHP_EOL;echo'<table border="0"cellpadding="3"width="600">'.PHP_EOL;foreach($exts as$ext)$extensions=get_loaded_extensions();foreach($extensions as$extension){
-echo'<tr><td class="e">'.$extension.'</td><td class="v">';echo implode(',',(array)get_extension_funcs($extension)),'<br/>';}echo'</td></tr>'.PHP_EOL;echo'</table>'.PHP_EOL;echo'</div></body></html>'.PHP_EOL;$extinfo=ob_get_contents();ob_end_clean();
-echo $phpinfo.$hr.$extinfo;}}
-function printWelcomeScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><form method=\'post\'>';foreach($supportedLanguages as$langId=>$langLabel){
-	echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/><input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}
-	echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"action\"value=\"actionSetLanguage\"></form>";}
-function actionSetLanguage(){if(!isset($_POST['lang'])){global$errors;$errors[]='Please select a language.';return'printWelcomeScreen';}global$supportedLanguages;$lang=$_POST['lang'];if(key_exists($lang,$supportedLanguages)){$_SESSION['lang']=$lang;
-	if(!file_exists($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php'))return'printSystemCheck';else{echo'<b>There is already a configuration. Please delete or rename the config.inc.php file in the "generated" directory.';exit();$db=DbConnection::getInstance();
-	connectDB();if($db->executeQuery("SHOW TABLES LIKE '`_session`'"))return'setAdminForm';}return'printWelcomeScreen';}}
-function printSystemCheck($messages){echo'<h2>'.$messages['check_title'].'</h2>';$requirments[]=['requirement'=>$messages['check_req_php'],'min'=>'5.5.0','actual'=>PHP_VERSION,'status'=>(version_compare(PHP_VERSION,'5.5.0')>-1)?'success':'error'];
-	$requirments[]=['requirement'=>$messages['check_req_json'],'min'=>$messages['check_req_yes'],'actual'=>(function_exists('json_encode'))?$messages['check_req_yes']:$messages['check_req_no'],'status'=>(function_exists('json_encode'))?'success':'error'];
-	$requirments[]=['requirement'=>$messages['check_req_gd'],'min'=>$messages['check_req_yes'],'actual'=>(function_exists('getimagesize'))?$messages['check_req_yes']:$messages['check_req_no'],'status'=>(function_exists('getimagesize'))?'success':'error'];
-	$requirments[]=['requirement'=>$messages['check_req_safemode'],'min'=>$messages['check_req_off'],'actual'=>(!ini_get('safe_mode'))?$messages['check_req_off']:$messages['check_req_on'],'status'=>(!ini_get('safe_mode'))?'success':'error'];
-	$writableFiles=explode(',',"generated/,uploads/club/,uploads/cup/,uploads/player/,uploads/sponsor/,uploads/stadium/,uploads/stadiumbuilder/,uploads/stadiumbuilding/,uploads/users/,admin/config/jobs.xml,admin/config/termsandconditions.xml");
-	foreach($writableFiles as$writableFile){$file=$_SERVER['DOCUMENT_ROOT'].'/'.$writableFile;
-	$requirments[]=['requirement'=>$messages['check_req_writable'].'<i>'.$writableFile.'</i>','min'=>$messages['check_req_yes'],'actual'=>(is__writable($file))?$messages['check_req_yes']:$messages['check_req_no'],'status'=>(is__writable($file))?'success':'error'];}?>
-	<table class='table'><thead><tr><th><?php echo$messages['check_head_requirement']?></th><th><?php echo$messages['check_head_required_value']?></th><th><?php echo$messages['check_head_actual_value']?></th></tr></thead><tbody><?php $valid=TRUE;
-	foreach($requirments as$requirement){echo"<tr class=\"".$requirement["status"]."\"><td>".$requirement["requirement"]."</td><td>".$requirement["min"]."</td><td>".$requirement["actual"]."</td></tr>";
-	if($requirement['status']=='error')$valid=FALSE;}?></tbody></table><?php if($valid)echo"<form method=\"post\"><button type=\"submit\"class=\"btn\">".$messages["button_next"]."</button><input type=\"hidden\"name=\"action\"value=\"actionGotoConfig\"></form>";
-	else echo'<p>'.$messages['check_req_error'].'</p>';}
-function actionGotoConfig(){return "printConfigForm";}
-function printConfigForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['config_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
-	<div class='controls'><input type='text'id='db_host'name='db_host'required value='<?php echo htmlentities((isset($_POST['db_host']))?$_POST['db_host']:'localhost');?>'><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div>
-	<div class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label>
-	<div class='controls'><input type='text'id='db_name'name='db_name'required value='<?php echo htmlentities((isset($_POST['db_name']))?$_POST['db_name']:'');?>'></div></div>
-	<div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label>
-	<div class='controls'><input type='text'id='db_user'name='db_user'required value='<?php echo htmlentities((isset($_POST['db_user']))?$_POST['db_user']:'');?>'></div></div>
-	<div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label>
-	<div class='controls'><input type='text'id='db_password'name='db_password'required value='<?php echo htmlentities((isset($_POST['db_password']))?$_POST['db_password']:'');?>'></div></div><hr>
-	<div class='control-group'><label class='control-label'for='projectname'><?php echo$messages['label_projectname']?></label>
-	<div class='controls'><input type='text'id='projectname'name='projectname'required value='<?php echo htmlentities((isset($_POST['projectname']))?$_POST['projectname']:'');?>'>
-	<span class='help-inline'><?php echo$messages['label_projectname_help']?></span></div></div><div class='control-group'><label class='control-label'for='projectname'><?php echo$messages['label_systememail']?></label>
-	<div class='controls'><input type='email'id='systememail'name='systememail'required value='<?php echo htmlentities((isset($_POST['systememail']))?$_POST['systememail']:'');?>'><span class='help-inline'><?php
-	echo$messages['label_systememail_help']?></span></div></div>
-	<?php $defaultUrl='http://'.$_SERVER['HTTP_HOST'];?><div class='control-group'><label class='control-label'for='url'><?php echo$messages['label_url']?></label>
-	<div class='controls'><input type='url'id='url'name='url'required value='<?php echo htmlentities((isset($_POST['url']))?$_POST['url']:$defaultUrl);?>'><span class='help-inline'><?php echo $messages['label_url_help']?></span></div></div>
-	<?php $defaultRoot=substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/install'));?></fieldset>
-	<div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveConfig'></form><?php }
-function actionSaveConfig(){
-	global$errors;global$messages;$requiredFields=['db_host','db_name','db_user','db_password','projectname','systememail','url'];
-	foreach($requiredFields as$requiredField){if(!isset($_POST[$requiredField])||!strlen($_POST[$requiredField]))$errors[]=$messages['requires_value'].': '.$messages['label_'.$requiredField];}
-	if(count($errors))return'printConfigForm';if(isset($conf)&&count($conf))$errors[]=$messages['err_already_installed'];
-	else{try{$db=DbConnection::getInstance();$db->connect($_POST['db_host'],$_POST['db_user'],$_POST['db_password'],$_POST['db_name']);$db->close();}catch(Exception$e){$errors[]=$messages['invalid_db_credentials'];}}if(count($errors))return'printConfigForm';
-	$filecontent='<?php'.PHP_EOL."\$conf['db_host']=\"".$_POST['db_host']."\";".PHP_EOL."\$conf['db_user']=\"".$_POST['db_user']."\";".PHP_EOL."\$conf['db_passwort']=\"".$_POST['db_password']."\";".PHP_EOL."\$conf['db_name']=\"".$_POST['db_name']."\";".PHP_EOL
+echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).' : '.number_format($timer->totalTime,1).' Sec.</pre>';
+							if(function_exists(phpinfo())){phpinfo();$phpinfo=ob_get_contents();$phpinfo=preg_replace('/<\/div><\/body><\/html>/','',$phpinfo);$hr='<div style="width:100%;background:#000;height:10px;margin-bottom:1em;"></div>'.PHP_EOL;ob_start();
+							echo'<table border="0" cellpadding="3" width="600">'.PHP_EOL;echo'<tr class="h"><td><a href="http://www.php.net/">';echo'<img border="0"src="http://static.php.net/www.php.net/images/php.gif"alt="PHP Logo"/>';echo'</a>
+							<h1 class="p">PHP Extensions</h1>'.PHP_EOL;echo'</td></tr>'.PHP_EOL;echo'</table>'.PHP_EOL;echo'<h2>geladene Erweiterungen</h2>'.PHP_EOL;echo'<table border="0"cellpadding="3"width="600">'.PHP_EOL;echo'<tr><td class="e">Extensions</td>
+							<td class="v">'.PHP_EOL;foreach(get_loaded_extensions()as$ext)$exts[]=$ext;echo implode(',',$exts).PHP_EOL;echo'</td></tr></table><br />'.PHP_EOL;echo'<h2>enthaltene Funktionen</h2>'.PHP_EOL;echo'<table border="0"cellpadding="3"width="600">'.
+							PHP_EOL;foreach($exts as$ext)$extensions=get_loaded_extensions();foreach($extensions as$extension){echo'<tr><td class="e">'.$extension.'</td><td class="v">';echo implode(',',(array)get_extension_funcs($extension)),'<br/>';}echo'</td></tr>'.
+							PHP_EOL;echo'</table>'.PHP_EOL;echo'</div></body></html>'.PHP_EOL;$extinfo=ob_get_contents();ob_end_clean();echo $phpinfo.$hr.$extinfo;}}
+			function printWelcomeScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><form method=\'post\'>';foreach($supportedLanguages as$langId=>$langLabel){echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/>
+							<input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"
+							action\"value=\"actionSetLanguage\"></form>";}
+			function actionSetLanguage(){if(!isset($_POST['lang'])){global$errors;$errors[]='Please select a language.';return'printWelcomeScreen';}global$supportedLanguages;$lang=$_POST['lang'];if(key_exists($lang,$supportedLanguages)){$_SESSION['lang']=$lang;
+							if(!file_exists($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php'))return'printSystemCheck';else{echo'<b>There is already a configuration. Please delete or rename the config.inc.php file in the "generated" directory.';exit();
+							$db=DbConnection::getInstance();connectDB();if($db->executeQuery("SHOW TABLES LIKE '`_session`'"))return'setAdminForm';}return'printWelcomeScreen';}}
+			function printSystemCheck($messages){echo'<h2>'.$messages['check_title'].'</h2>';$requirments[]=['requirement'=>$messages['check_req_php'],'min'=>'5.5.0','actual'=>PHP_VERSION,'status'=>(version_compare(PHP_VERSION,'5.5.0')>-1)?'success':'error'];
+							$requirments[]=['requirement'=>$messages['check_req_json'],'min'=>$messages['check_req_yes'],'actual'=>(function_exists('json_encode'))?$messages['check_req_yes']:$messages['check_req_no'],'status'=>(function_exists('json_encode'))?
+							'success':'error'];$requirments[]=['requirement'=>$messages['check_req_gd'],'min'=>$messages['check_req_yes'],'actual'=>(function_exists('getimagesize'))?$messages['check_req_yes']:$messages['check_req_no'],'status'=>
+							(function_exists('getimagesize'))?'success':'error'];$requirments[]=['requirement'=>$messages['check_req_safemode'],'min'=>$messages['check_req_off'],'actual'=>(!ini_get('safe_mode'))?$messages['check_req_off']:$messages['check_req_on'],
+							'status'=>(!ini_get('safe_mode'))?'success':'error'];$writableFiles=explode(',',"generated/,uploads/club/,uploads/cup/,uploads/player/,uploads/sponsor/,uploads/stadium/,uploads/stadiumbuilder/,uploads/stadiumbuilding/,uploads/users/,
+							admin/config/jobs.xml,admin/config/termsandconditions.xml");foreach($writableFiles as$writableFile){$file=$_SERVER['DOCUMENT_ROOT'].'/'.$writableFile;$requirments[]=['requirement'=>$messages['check_req_writable'].'<i>'.$writableFile.'</i>',
+							'min'=>$messages['check_req_yes'],'actual'=>(is__writable($file))?$messages['check_req_yes']:$messages['check_req_no'],'status'=>(is__writable($file))?'success':'error'];}?><table class='table'><thead><tr><th><?php 			
+							echo$messages['check_head_requirement']?></th><th><?php echo$messages['check_head_required_value']?></th><th><?php echo$messages['check_head_actual_value']?></th></tr></thead><tbody><?php $valid=TRUE;foreach($requirments as$requirement){
+							echo"<tr class=\"".$requirement["status"]."\"><td>".$requirement["requirement"]."</td><td>".$requirement["min"]."</td><td>".$requirement["actual"]."</td></tr>";if($requirement['status']=='error')$valid=FALSE;}?></tbody></table>
+							<?php if($valid)echo"<form method=\"post\"><button type=\"submit\"class=\"btn\">".$messages["button_next"]."</button><input type=\"hidden\"name=\"action\"value=\"actionGotoConfig\"></form>";else echo'<p>'.$messages['check_req_error'].'</p>';}
+			function actionGotoConfig(){return'printConfigForm';}
+			function printConfigForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['config_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?>
+							</label><div class='controls'><input type='text'id='db_host'name='db_host'required value='<?php echo htmlentities((isset($_POST['db_host']))?$_POST['db_host']:'localhost');?>'><span class='help-inline'><?php echo$messages['label_db_host_help']
+							?></span></div></div><div class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value='<?php echo 
+							htmlentities((isset($_POST['db_name']))?$_POST['db_name']:'');?>'></div></div><div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'
+							id='db_user'name='db_user'required value='<?php echo htmlentities((isset($_POST['db_user']))?$_POST['db_user']:'');?>'></div></div><div class='control-group'><label class='control-label'for='db_password'><?php 
+							echo$messages['label_db_password']?></label><div class='controls'><input type='text'id='db_password'name='db_password'required value='<?php echo htmlentities((isset($_POST['db_password']))?$_POST['db_password']:'');?>'></div></div><hr>
+							<div class='control-group'><label class='control-label'for='projectname'><?php echo$messages['label_projectname']?></label><div class='controls'><input type='text'id='projectname'name='projectname'required value='<?php echo 
+							htmlentities((isset($_POST['projectname']))?$_POST['projectname']:'');?>'><span class='help-inline'><?php echo$messages['label_projectname_help']?></span></div></div><div class='control-group'><label class='control-label'for='projectname'>
+							<?php echo$messages['label_systememail']?></label><div class='controls'><input type='email'id='systememail'name='systememail'required value='<?php echo htmlentities((isset($_POST['systememail']))?$_POST['systememail']:'');?>'><span 
+							class='help-inline'><?php echo$messages['label_systememail_help']?></span></div></div><?php $defaultUrl='http://'.$_SERVER['HTTP_HOST'];?><div class='control-group'><label class='control-label'for='url'><?php echo$messages['label_url']?>
+							</label><div class='controls'><input type='url'id='url'name='url'required value='<?php echo htmlentities((isset($_POST['url']))?$_POST['url']:$defaultUrl);?>'><span class='help-inline'><?php echo $messages['label_url_help']?></span></div>
+							</div><?php $defaultRoot=substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/install'));?></fieldset><div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div>
+							<input type='hidden'name='action'value='actionSaveConfig'></form><?php }
+			function actionSaveConfig(){global$errors;global$messages;$requiredFields=['db_host','db_name','db_user','db_password','projectname','systememail','url'];
+							foreach($requiredFields as$requiredField){if(!isset($_POST[$requiredField])||!strlen($_POST[$requiredField]))$errors[]=$messages['requires_value'].': '.$messages['label_'.$requiredField];}if(count($errors))return'printConfigForm';
+							if(isset($conf)&&count($conf))$errors[]=$messages['err_already_installed'];else{try{$db=DbConnection::getInstance();$db->connect($_POST['db_host'],$_POST['db_user'],$_POST['db_password'],$_POST['db_name']);$db->close();}catch(Exception$e)
+							{$errors[]=$messages['invalid_db_credentials'];}}if(count($errors))return'printConfigForm';$filecontent='<?php'.PHP_EOL."\$conf['db_host']=\"".$_POST['db_host']."\";".PHP_EOL."\$conf['db_user']=\"".$_POST['db_user']."\";".PHP_EOL.
+							"\$conf['db_passwort']=\"".$_POST['db_password']."\";".PHP_EOL."\$conf['db_name']=\"".$_POST['db_name']."\";".PHP_EOL
 	."\$conf['db_prefix']=\"".''."\";".PHP_EOL."\$conf['context_root']=\"".''."\";".PHP_EOL."\$conf['supported_languages']='de,en,es,dk,ee,fi,fr,id,it,lv,lt,nl,pl,pt,br,ro,se,sk,si,cz,tr,hu,jp';".PHP_EOL."\$conf['homepage']=\"".$_POST['url']."\";".PHP_EOL
 	."\$conf['projectname']=\"".$_POST['projectname']."\";".PHP_EOL."\$conf['systememail']=\"".$_POST['systememail']."\";".PHP_EOL."\$conf['NUMBER_OF_PLAYERS']=\"".'20'."\";".PHP_EOL."\$conf['upload_clublogo_max_size']=\"".'0'."\";".PHP_EOL
 	."\$conf['rename_club_enabled']=\"".''."\";".PHP_EOL."\$conf['session_lifetime']=\"".'7200'."\";".PHP_EOL."\$conf['time_zone']=\"".'Europe/Berlin'."\";".PHP_EOL."\$conf['time_offset']=\"".'0'."\";".PHP_EOL."\$conf['date_format']=\"".'d.m.Y'."\";".PHP_EOL
@@ -9272,147 +8774,149 @@ function actionSaveConfig(){
 	."\$conf['YOUTH_STRENGTH_FRESHNESS']=\"".'100'."\";".PHP_EOL."\$conf['YOUTH_STRENGTH_SATISFACTION']=\"".'100'."\";".PHP_EOL
 	."\$conf['WRITABLE_FOLDERS']=\"".'generated/,uploads/club/,uploads/cup/,uploads/player/,uploads/sponsor/,uploads/stadium/,uploads/stadiumbuilder/,uploads/stadiumbuilding/,uploads/users/,admin/config/jobs.xml,admin/config/termsandconditions.xml'."\";".PHP_EOL;
 	$fp=fopen($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php','w+');fwrite($fp,$filecontent);fclose($fp);if(file_exists($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php'))return"printPreDbCreate";}
-function printPreDbCreate($messages){?><h2><?php echo$messages['predb_title'];?></h2><form method='post'><label class='radio'><input type='radio'name='install'value='new'checked><?php echo$messages['predb_label_new'];?></label>
-	<button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button><input type='hidden'name='action'value='actionCreateDb'></form><p><i class='icon-warning-sign'></i><?php echo$messages['predb_label_warning'];?></p><?php }
-function actionCreateDb(){include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');$db=DbConnection::getInstance();$db->connect($conf['db_host'],$conf['db_user'],$conf['db_passwort'],$conf['db_name']);
-	try{if($_POST['install']=='new')loadAndExecuteDdl('owsPro.sql',$db);}catch(Exception$e){global$errors;$errors[]=$e->getMessage();return'printPreDbCreate';}$db->close();return'printCreateUserForm';}
-function loadAndExecuteDdl($file,DbConnection$db){$script=file_get_contents($file);$queryResult=$db->connection->multi_query($script);while($db->connection->more_results()&&$db->connection->next_result());
-	if(!$queryResult)throw new Exception('Database Query Error: '.$db->connection->error);}
-function printCreateUserForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='name'><?php echo$messages['label_name']?></label>
-	<div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div><div class='control-group'><label class='control-label'for='password'>
-	<?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo htmlspecialchars(isset($_POST['password'])?$_POST['password']:'');?>'></div></div><br><div class='control-group'>
-	<label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities((isset($_POST['email']))?$_POST['email']:'');?>'</div></div></fieldset>
-	<div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
-function actionSaveUser(){global$errors;global$messages;$requiredFields=['name','password','email'];
-	foreach($requiredFields as$requiredField){if(!isset($_POST[$requiredField])||!strlen($_POST[$requiredField]))$errors[]=$messages['requires_value'].': '.$messages['label_'.$requiredField];}if(count($errors))return'printCreateUserForm';
-	$salt=SecurityUtil::generatePasswordSalt();$password=SecurityUtil::hashPassword($_POST['password'],$salt);$columns=['name'=>$_POST['name'],'passwort'=>$password,'passwort_salt'=>$salt,'email'=>$_POST['email'],'r_admin'=>'1'];
-	include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');$db=DbConnection::getInstance();$db->connect($conf['db_host'],$conf['db_user'],$conf['db_passwort'],$conf['db_name']);
-	$db->queryInsert($columns,'admin');$db->queryInsert($columns,'_admin');$db->queryInsert($columns,'ws3_admin');return'printFinalPage';}
-function printFinalPage($messages){include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');?><div class='alert alert-success'><strong><?php echo$messages['final_success_alert'];?></strong></div>
-	<div class='alert'><strong><?php echo$messages['final_success_note'];?></strong></div><p><i class='icon-arrow-right'></i><a href='<?php echo$conf['context_root'];?>/admin'><?php echo$messages['final_link'];?></a></p><?php }
-function is__writable($path){if($path[strlen($path)-1]=='/')return is__writable($path.uniqid(mt_rand()).'.tmp');elseif(is_dir($path))return is__writable($path.'/'.uniqid(mt_rand()).'.tmp');$rm=file_exists($path);$f=@fopen($path,'a');if($f===false)return
-	false;fclose($f);if(!$rm)unlink($path);return true;}
-function setAdminScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><form method=\'post\'>';foreach($supportedLanguages as$langId=>$langLabel){
-	echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/><input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}
-	echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"action\"value=\"actionSetLanguage\"></form>";}
-function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
-	<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo escapeOutput(isset($_POST['db_host'])?$_POST['db_host']:'localhost');?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span></div></div>
-	<div class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo
-	escapeOutput(isset($_POST['db_name'])?$_POST['db_name']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'>
-	<input type='text'id='db_user'name='db_user'required value="<?php echo escapeOutput(isset($_POST['db_user'])?$_POST['db_user']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?>
-	</label><div class='controls'><input type=text'id='db_password'name='db_password'required value="<?php echo escapeOutput(isset($_POST['db_password'])?$_POST['db_password']:'');?>"></div></div><div class='control-group'><label class='control-label'for='name'>
-	<?php echo$messages['label_name']?></label><div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div><div class='control-group'>
-	<label class='control-label'for='password'><?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo htmlspecialchars(isset($_POST['password'])?$_POST['password']:'');?>'>
-	</div></div><div class='control-group'><label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities(isset($_POST['email'])
-	?$_POST['email']:'');?>'></div></div></fieldset><div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
-
-function flags($site){?>
-	<a href=<?php echo$site?>de><span class="ad"></span></a>
-	<a href=<?php echo$site?>de><img src='/img/flags/de.png'width='24'height='24'alt='deutsch'title='deutsch'/></a>
-	<a href=<?php echo$site?>en><img src='/img/flags/en.png'width='24'height='24'alt='english'title='english'/></a><a href=<?php
-	echo$site?>es><img src='/img/flags/es.png'width='24'height='24'alt='español'title='español'/></a><a href=<?php echo$site?>pt><img src='/img/flags/pt.png'width='24'height='24'alt='português'title='português'/></a><a href=<?php echo$site?>dk>
-	<img src='/img/flags/dk.png'width='24'height='24'alt='dansk'title='dansk'/></a><a href=<?php echo$site?>ee><img src='/img/flags/ee.png'width='24'height='24'alt='eesti'title='eesti'/></a><a href=<?php echo$site?>fi><img src='/img/flags/fi.png'width='24'height='24'
-	alt='suomalainen'title='suomalainen'/></a><a href=<?php echo$site?>fr><img src='/img/flags/fr.png'width='24'height='24'alt='français'title='français'/></a><a href=<?php echo$site?>id><img src='/img/flags/id.png'width='24'height='24'alt='indonesia'
-	title='indonesia'/></a><a href=<?php echo$site?>it><img src='/img/flags/it.png'width='24'height='24'alt='italiano'title='italiano'/></a><a href=<?php echo$site?>lv><img src='/img/flags/lv.png'width='24'height='24'alt='latvieši'title='latvieši'/></a><a href=<?php
-	echo$site?>lt><img src='/img/flags/lt.png'width='24'height='24'alt='lietuviškas'title='lietuviškas'/></a><a href=<?php echo$site?>nl><img src='/img/flags/nl.png'width='24'height='24'alt='nederlands'title='nederlands'/></a><a href=<?php echo$site?>pl><img
-	src='/img/flags/pl.png'width='24'height='24'alt='polska'title='polska'/></a><a href=<?php echo$site?>br><img src='/img/flags/br.png'width='24'height='24'alt='???lang_label_br???'title='???lang_label_br???'/></a><a href=<?php echo$site?>ro><img src=
-	'/img/flags/ro.png'width='24'height='24'alt='???lang_label_ro???'title='???lang_label_ro???'/></a><a href=<?php echo$site?>se><img src='/img/flags/se.png'width='24'height='24'alt='???lang_label_se???'title='???lang_label_se???'/></a><a href=<?php echo$site?>sk>
-	<img src='/img/flags/sk.png'width='24'height='24'alt='???lang_label_sk???'title='???lang_label_sk???'/></a><a href=<?php echo$site?>si><img src='/img/flags/si.png'width='24'height='24'alt='???lang_label_si???'title='???lang_label_si???'/></a><a href=<?php
-	echo$site?>cz><img src='/img/flags/cz.png'width='24'height='24'alt='???lang_label_cz???'title='???lang_label_cz???'/></a><a href=<?php echo$site?>tr><img src='/img/flags/tr.png'width='24'height='24'alt='???lang_label_tr???'title='???lang_label_tr???'/></a>
-	<a href=<?php echo$site?>hu><img src='/img/flags/hu.png'width='24'height='24'alt='???lang_label_hu???'title='???lang_label_hu???'/></a><a href=<?php echo$site?>jp><img src='/img/flags/jp.png'width='24'height='24'alt='???lang_label_jp???'title='???lang_label_jp???'/>
-	</a><br><br><?php }
-function classes_autoloader($class){$subforder='';if(substr($class,-9)==='Converter')$subforder='converters/';elseif(substr($class,-4)==='Skin')$subforder='skins/';elseif(substr($class,-5)==='Model')$subforder='models/';elseif(substr($class,-9)==='Validator')$subforder=
-	'validators/';elseif(substr($class,-10)==='Controller')$subforder='actions/';elseif(substr($class,-7)==='Service')$subforder='services/';elseif(substr($class,-3)==='Job')$subforder='jobs/';elseif(substr($class,-11)==='LoginMethod')$subforder='loginmethods/';
-	elseif(substr($class,-5)==='Event')$subforder='events/';elseif(substr($class,-6)==='Plugin')$subforder='plugins/';@include($_SERVER['DOCUMENT_ROOT'].'/classes/'.$subforder.$class.'.class.php');}
-function sendEmail($email,$password,$website,$i18n){$tplparameters['newpassword']=$password;EmailHelper::sendSystemEmailFromTemplate($website,$i18n,$email,Message('sendpassword_admin_email_subject'),'sendpassword_admin',$tplparameters);}
-function escapeOutput($message){return htmlspecialchars((string)$message,ENT_COMPAT,'UTF-8');}
-function createWarningMessage($title,$message){return createMessage('warning',$title,$message);}
-function createInfoMessage($title,$message){return createMessage('info',$title,$message);}
-function createErrorMessage($title,$message){return createMessage('error',$title,$message);}
-function createSuccessMessage($title,$message){return createMessage('success',$title,$message);}
-function createMessage($severity,$title,$message){$html='<div class=\'alert alert-'.$severity.'\'>'.'<button type=\'button\'class=\'close\'data-dismiss=\'alert\'>&times;</button>'.'<h4>'.$title.'</h4>'.$message.'</div>';return $html;}
-function logAdminAction(WebSoccer $websoccer,$type,$username,$entity,$entityValue){$userIp=getenv('REMOTE_ADDR');$message=Datetime(Timestamp()).';'.$username.';'.$userIp.';'.$type.';'.$entity.';'.$entityValue;
-					$file=$_SERVER['DOCUMENT_ROOT'].'/generated/entitylog.php';$fw=new FileWriter($file,FALSE);$fw->writeLine($message);$fw->close();}
-function renderErrorPage($website,$i18n,$viewHandler,$message,$parameters){$parameters['title']=$message;$parameters['message']='';print_r($website->getTemplateEngine($i18n,$viewHandler)->loadTemplate('error')->render($parameters));}
-function printNavItem($currentSite,$pageId,$navLabel,$entity=''){$url='?site='.$pageId;$active=($currentSite==$pageId);if(strlen($entity)){$url.='&entity='.escapeOutput($entity);$active=(isset($_REQUEST['entity'])&&$_REQUEST['entity']==$entity);}echo'<li';
-					if($active)echo'class=\'active\'';echo'><a href=\''.$url.'\'>'.$navLabel.'</a></li>';}
-function prepareFielfValueForSaving($fieldValue){$preparedValue=trim($fieldValue);$preparedValue=stripslashes($fieldValue);return$preparedValue;}
-function renderRound($roundNode){global$i18n,$website,$hierarchy,$site,$cupid,$cup,$action,$db;echo'<div class=\'cupround\'>';$showEditForm=FALSE;if($action=='edit'&&$_REQUEST['id']==$roundNode['round']['id']){$showEditForm=TRUE;}elseif($action=='edit-save'&&
-					$_REQUEST['id']==$roundNode['round']['id']){if(isset($admin['r_demo'])&&$admin['r_demo'])throw new Exception(Message('validationerror_no_changes_as_demo'));$showEditForm=TRUE;$columns=[];$columns['name']=$_POST['name'];$columns['finalround']=
-					(isset($_POST['finalround'])&&$_POST['finalround']=='1')?1:0;$columns['groupmatches']=(isset($_POST['groupmatches'])&&$_POST['groupmatches']=='1')?1:0;$firstDateObj=DateTime::createFromFormat(Config('date_format').', H:i',
-					$_POST['firstround_date_date'].', '.$_POST['firstround_date_time']);$columns['firstround_date']=$firstDateObj->getTimestamp();if(isset($_POST['secondround_date_date'])){$secondDateObj=DateTime::createFromFormat(Config('date_format').', H:i',
-					$_POST['secondround_date_date'].', '.$_POST['secondround_date_time']);$columns['secondround_date']=$secondDateObj->getTimestamp();}$db->queryUpdate($columns,Config('db_prefix').'_cup_round','id=%d',$roundNode['round']['id']);
-					if($roundNode['round']['name']!==$_POST['name'])$db->queryUpdate(['pokalrunde'=>$_POST['name']],Config('db_prefix').'_spiel',"pokalname='%s'AND pokalrunde='%s'",[$cup['name'],$roundNode['round']['name']]);$result=$db->querySelect('*',
-					Config('db_prefix').'_cup_round','id=%d',$roundNode['round']['id']);$roundNode['round']=$result->fetch_array();$result->free();$showEditForm=FALSE;}if($showEditForm){?><form action='<?php echo escapeOutput($_SERVER['PHP_SELF']);?>'method='post'
-					class='form-horizontal'><input type='hidden'name='action'value='edit-save'><input type='hidden'name='site'value='<?php echo$site; ?>'><input type='hidden'name='cup'value='<?php echoescapeOutput($cupid);?>'><input type='hidden'name='id'value='<?php
-					echo$roundNode['round']['id'];?>'><?php $formFields=[];$formFields['name']=['type'=>'text','value'=>$roundNode['round']['name'],'required'=>'true'];$formFields['firstround_date']=['type'=>'timestamp','value'=>$roundNode['round']['firstround_date'],
-					'required'=>'true'];if($roundNode['round']['secondround_date'])$formFields['secondround_date']=['type'=>'timestamp','value'=>$roundNode['round']['secondround_date'],'required'=>'false'];$formFields['finalround']=['type'=>'boolean',
-					'value'=>$roundNode['round']['finalround']];$formFields['groupmatches']=['type'=>'boolean','value'=>$roundNode['round']['groupmatches']];foreach($formFields as$fieldId=>$fieldInfo)echo FormBuilder::createFormGroup($i18n,$fieldId,$fieldInfo,
-					$fieldInfo['value'],'managecuprounds_label_');?><div class='control-group'><div class='controls'><input type='submit'class='btn btn-primary'accesskey='s'title='Alt + s'value='<?php echo Message('button_save');?>'><a href="<?php echo'?site='.
-					escapeOutput($site).'&cup='.escapeOutput($cupid);?>'class='btn'><?php echo Message('button_cancel');?></a></div></div></form><?php }else{echo'<p><strong>';if($roundNode['round']['finalround']=='1')echo'<em>';echo escapeOutput(
-					$roundNode['round']['name']);if($roundNode['round']['finalround']=='1')echo'</em></strong><a href=\'?site='.escapeOutput($site).'&cup='.escapeOutput($cupid).'&action=edit&id='.$roundNode['round']['id'].'\'title=\''.Message('manage_edit').'\'>
-					<i class=\'icon-pencil\'></i></a><a class=\'deleteLink\'href=\'?site='.escapeOutput($site).'&cup='.escapeOutput($cupid).'&action=delete&id='.$roundNode['round']['id'].'\'title=\''.Message('manage_delete').'\'><i class=\'icon-trash\'></i></a></p><ul>
-					<li><em>'.Message('managecuprounds_label_firstround_date').':</em>'.date(FormattedDatetime($roundNode['round']['firstround_date'])).'</li>';if($roundNode['round']['secondround_date'])echo'<li><em>'.Message('managecuprounds_label_secondround_date').
-					':</em>'.date(FormattedDatetime($roundNode['round']['secondround_date'])).'</li>';$matchesUrl='?site=manage&entity=match&'.http_build_query(['entity_match_pokalname'=>escapeOutput($cup['name']),'entity_match_pokalrunde'=>escapeOutput(
-					$roundNode['round']['name'])]);echo'<li><a href=\'$matchesUrl\'>'.Message('managecuprounds_show_matches').'</a></li></ul>';$addMatchUrl='?site=manage&entity=match&show=add&'.http_build_query(['pokalname'=>escapeOutput($cup['name']),'pokalrunde'=>
-					escapeOutput($roundNode['round']['name']),'spieltyp'=>'Pokalspiel']);if(!$roundNode['round']['groupmatches']){echo'<p><a href=\'$addMatchUrl\'class=\'btn btn-mini\'><i class=\'icon-plus-sign\'></i>'.Message('managecuprounds_add_match').'</a>
-					<a href=\'?site=managecuprounds-generate&round='.$roundNode['round']['id'].'\'class=\'btn btn-mini\'><i class=\'icon-random\'></i>'.Message('managecuprounds_generate_matches').'</a></p>';}else{echo'<p><a href=\'?site=managecuprounds-groups&round='.
-					$roundNode['round']['id'].'\'class=\'btn btn-mini\'><i class=\'icon-list\'></i>'.Message('managecuprounds_manage_groups').'</a></p>';}if(isset($roundNode['winnerround'])){echo'<p><em>'.Message('managecuprounds_next_round_winners').':</em></p>\n';
-					renderRound($hierarchy[$roundNode['winnerround']]);}if(isset($roundNode['looserround'])){echo'<p><em>'.Message('managecuprounds_next_round_loosers').':</em></p>\n';renderRound($hierarchy[$roundNode['looserround']]);}}echo'</div>';}
-function flags_css(){?><style>	span.af,.Afghanistan::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAACAAP8AAP///ywAAAAAIAAUAAACVYSPqZvhD6OcztCLn81c7g4GHyUEwlmW2EiaKWcM8kwPpy3g9R7vc45C2XyzHhGoQxIHRh/ypiQ2ncNhbskEYGXA6JKREACCY7D5jE6r1+y2+w2PgwsAOw==');}span.al,.Albania,.Albanien::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPAAAAAAAP8AACwAAAAAIAAUAAACRISPqZvhD6OcztCLn81c7g4GX8iNngigYmZG1qFiLZTWayrjFKPv/dn4eYQuRYlIQ9lYyBNoRppAo0Xq0crE5njcLqAAADs=');}span.dz,.Algeria,.Algerien::before{height:17px;content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAACAAGBgAKBgAMBAAP8AAP+ggP///ywAAAAAIAAUAAADhwi63P4tyEnpuTjro2oVoGBs5NV5AUgUbFtq57eyxGDcxYvFkzATAkkmp+OlBrSgUAcDyFgDy+hAfBkFrcqlYKiWrlnLocsqOilYlnbbmm7AajHZ+z73ZtHJdkxvfpAFQHpufRlGKT9KQ0yHiC01N11MHHYfPi0uk409IW6alSh6kzsQpaYNCQA7'width='16'height='10'alt='andorra'title='andorra');}span.ad,.Andorra::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAAAAgICAAMDAAP8AAP+AAP/AAP//ACwAAAAAIAAUAAADigi63P4tyDmPvfgUwntXVJiNm+eBYTVipcmhabCy7gfE0jXs+9W6sNRBsCMSBwJN7XXDHZCCqHSgXAZFSIJBUNhSf6Yr5ckddonVmlglbVvAp2aMbCgICMPvkrDOIQd2Bn9pQHJCRW09cDY4Mk9FPG97fY46GYtMjTM+k4Yim4RhnmOgmHwQqKkNCQA7');}span.ao,.Angola::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAIAAAICAAP8AAP+AAP/AAP//AAAAACwAAAAAIAAUAAADXQi63P5tyEmrvVLhzafuE0GAw0cShjFyJlgM6Yq1nQrbM0DeNn7RlxTsddsoAsikEilIKZ3LJOTRNCwMgqlW0eSmAN/tNpWtYsVic+qM3greb3J7Xp3b7/i8fi9OAAA7');}span.ag,.Antigua_und_Barbuda::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAAAA/6CgAP8AAP//AP///wAAAAAAACwAAAAAIAAUAAADZQi63P4wSjmmAPfOCgZ3GUBgJOQp3tcIRNtqT4rKjMC6ru2kHK+KONyONyNibsEXzNdjBp7QqDTAbDqn2Kr1ioVqt9zst6gtmM/m76mjHqDTbfIX3V7XPfC6/K5n8/l7f2MThBEJADs=');}span.ar,.Argentina,.Argentinien::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAAAA/6CgAP//AP///wAAAAAAAAAAACwAAAAAIAAUAAADTwi63P4tyEmrvVLhzafuoPWFZDCW4IlyCuG+8CsMc2y77Q0PNC/osByQMPMNhjgAktDzLYXAYvGpXPZ+1FVIpb1wu5Uv2AMYb8RmiHrtSAAAOw==');}span.am,.armenia,.Armenien::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAAAA//8AAP+AQCwAAAAAIAAUAAACSISPqZviD6OcztCLn81c7g4KX8iNJGYE6sq27qum8EzHQI2/cs4He4/7AWmGgfGITCqXxiLzCW0CotSls4odXLPULRfKCIsVBQA7');}span.au,.australia,.Australien::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAAAA/2Bg/8DA//8AAP9gQP///wAAACwAAAAAIAAUAAADegi63P6NmEANkTTYzDtXwTVZGOmdHzCsYkusAxp7ymXf+DkYc1r8wAsQKDspYC4SDJXpBUAiTdTUce56tUkluuVcvSmm2EkDiM8ZbQbUEaC9ZHZGYHC/UfIA3VC/G80cdHZoZBR5FINnXx2HfhSFT4COaI2TfxCYmQwJADs=');}span.at,.austria,.�sterreich::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAP8AAP///wAAACwAAAAAIAAUAAACQISPqZvhD6OcztCLn81c7g4GX8iNJGYI6sq27qum8EzHQI2/cs4Le4/7AWmmE6Vo9ACSGSRTs3weo1Il44pFFAAAOw==');}span.az,.azerbaijan,.Aserbaidschan::before{content:url('data:image/gif;base64,R0lGODlhIAAUAPIAAAAAAAAA/wCAAP8AAP+AgP///wAAAAAAACH5BAAAAPcALAAAAAAgABQAAgNbCLrc/i3ISau9UuHNp+6g9YVkMJbgiXLK4L7wW8xx/bY2XBBukce432D3IviEwR/RZeT9kjmiUXgDUHu060Ah6Hq/4LC4yx2bz2QAei0us98CN3wtn58h+LwjAQA7');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
-								span::before{content:url('');}
+			function printPreDbCreate($messages){?><h2><?php echo$messages['predb_title'];?></h2><form method='post'><label class='radio'><input type='radio'name='install'value='new'checked><?php echo$messages['predb_label_new'];?></label><button type='submit'
+							class='btn btn-primary'><?php echo$messages['button_next'];?></button><input type='hidden'name='action'value='actionCreateDb'></form><p><i class='icon-warning-sign'></i><?php echo$messages['predb_label_warning'];?></p><?php }
+			function actionCreateDb(){include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');$db=DbConnection::getInstance();$db->connect($conf['db_host'],$conf['db_user'],$conf['db_passwort'],$conf['db_name']);
+							try{if($_POST['install']=='new')loadAndExecuteDdl('owsPro.sql',$db);}catch(Exception$e){global$errors;$errors[]=$e->getMessage();return'printPreDbCreate';}$db->close();return'printCreateUserForm';}
+			function loadAndExecuteDdl($file,DbConnection$db){$script=file_get_contents($file);$queryResult=$db->connection->multi_query($script);while($db->connection->more_results()&&$db->connection->next_result());
+							if(!$queryResult)throw new Exception('Database Query Error: '.$db->connection->error);}
+			function printCreateUserForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='name'><?php echo$messages['label_name']?>
+							</label><div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div><div class='control-group'><label class='control-label'for='password'>
+							<?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo htmlspecialchars(isset($_POST['password'])?$_POST['password']:'');?>'></div></div><br>
+							<div class='control-group'><label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'id='email'name='email'required value='<?php echo htmlentities((isset($_POST['email']))?
+							$_POST['email']:'');?>'</div></div></fieldset><div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?></button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
+			function actionSaveUser(){global$errors;global$messages;$requiredFields=['name','password','email'];
+							foreach($requiredFields as$requiredField){if(!isset($_POST[$requiredField])||!strlen($_POST[$requiredField]))$errors[]=$messages['requires_value'].': '.$messages['label_'.$requiredField];}if(count($errors))return'printCreateUserForm';$salt=
+							SecurityUtil::generatePasswordSalt();$password=SecurityUtil::hashPassword($_POST['password'],$salt);$columns=['name'=>$_POST['name'],'passwort'=>$password,'passwort_salt'=>$salt,'email'=>$_POST['email'],'r_admin'=>'1'];
+							include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');$db=DbConnection::getInstance();$db->connect($conf['db_host'],$conf['db_user'],$conf['db_passwort'],$conf['db_name']);$db->queryInsert($columns,'admin');
+							$db->queryInsert($columns,'_admin');$db->queryInsert($columns,'ws3_admin');return'printFinalPage';}
+			function printFinalPage($messages){include($_SERVER['DOCUMENT_ROOT'].'/generated/config.inc.php');?><div class='alert alert-success'><strong><?php echo$messages['final_success_alert'];?></strong></div><div class='alert'><strong><?php 
+							echo$messages['final_success_note'];?></strong></div><p><i class='icon-arrow-right'></i><a href='<?php echo$conf['context_root'];?>/admin'><?php echo$messages['final_link'];?></a></p><?php }
+			function is__writable($path){if($path[strlen($path)-1]=='/')return is__writable($path.uniqid(mt_rand()).'.tmp');elseif(is_dir($path))return is__writable($path.'/'.uniqid(mt_rand()).'.tmp');$rm=file_exists($path);$f=@fopen($path,'a');if($f===false)return
+							false;fclose($f);if(!$rm)unlink($path);return true;}
+			function setAdminScreen(){global$supportedLanguages;$first=TRUE;echo'<br><br><form method=\'post\'>';foreach($supportedLanguages as$langId=>$langLabel){echo"<label class=\"radio\"><img src='/img/flags/$langId.png'width='24'height='24'/>
+							<input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"action\"
+							value=\"actionSetLanguage\"></form>";}
+			function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
+							<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo escapeOutput(isset($_POST['db_host'])?$_POST['db_host']:'localhost');?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span>
+							</div></div><div class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo escapeOutput(isset(
+							$_POST['db_name'])?$_POST['db_name']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'
+							required value="<?php echo escapeOutput(isset($_POST['db_user'])?$_POST['db_user']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label>
+							<div class='controls'><input type=text'id='db_password'name='db_password'required value="<?php echo escapeOutput(isset($_POST['db_password'])?$_POST['db_password']:'');?>"></div></div><div class='control-group'><label 
+							class='control-label'for='name'><?php echo$messages['label_name']?></label><div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div>
+							<div class='control-group'><label class='control-label'for='password'><?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo 
+							htmlspecialchars(isset($_POST['password'])?$_POST['password']:'');?>'></div></div><div class='control-group'><label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'
+							id='email'name='email'required value='<?php echo htmlentities(isset($_POST['email'])?$_POST['email']:'');?>'></div></div></fieldset><div class='form-actions'><button type='submit'class='btn btn-primary'><?php echo$messages['button_next'];?>
+							</button></div><input type='hidden'name='action'value='actionSaveUser'></form><?php }
+			function flags($site){?><a href=<?php echo$site?>de><span class="ad"></span></a><a href=<?php echo$site?>de><img src='/img/flags/de.png'width='24'height='24'alt='deutsch'title='deutsch'/></a><a href=<?php echo$site?>en><img src='/img/flags/en.png'width='24'
+							height='24'alt='english'title='english'/></a><a href=<?php echo$site?>es><img src='/img/flags/es.png'width='24'height='24'alt='español'title='español'/></a><a href=<?php echo$site?>pt><img src='/img/flags/pt.png'width='24'height='24'
+							alt='português'title='português'/></a><a href=<?php echo$site?>dk><img src='/img/flags/dk.png'width='24'height='24'alt='dansk'title='dansk'/></a><a href=<?php echo$site?>ee><img src='/img/flags/ee.png'width='24'height='24'alt='eesti'
+							title='eesti'/></a><a href=<?php echo$site?>fi><img src='/img/flags/fi.png'width='24'height='24'alt='suomalainen'title='suomalainen'/></a><a href=<?php echo$site?>fr><img src='/img/flags/fr.png'width='24'height='24'alt='français'
+							title='français'/></a><a href=<?php echo$site?>id><img src='/img/flags/id.png'width='24'height='24'alt='indonesia'title='indonesia'/></a><a href=<?php echo$site?>it><img src='/img/flags/it.png'width='24'height='24'alt='italiano'
+							title='italiano'/></a><a href=<?php echo$site?>lv><img src='/img/flags/lv.png'width='24'height='24'alt='latvieši'title='latvieši'/></a><a href=<?php echo$site?>lt><img src='/img/flags/lt.png'width='24'height='24'alt='lietuviškas'
+							title='lietuviškas'/></a><a href=<?php echo$site?>nl><img src='/img/flags/nl.png'width='24'height='24'alt='nederlands'title='nederlands'/></a><a href=<?php echo$site?>pl><img src='/img/flags/pl.png'width='24'height='24'alt='polska'
+							title='polska'/></a><a href=<?php echo$site?>br><img src='/img/flags/br.png'width='24'height='24'alt='???lang_label_br???'title='???lang_label_br???'/></a><a href=<?php echo$site?>ro><img src='/img/flags/ro.png'width='24'height='24'
+							alt='???lang_label_ro???'title='???lang_label_ro???'/></a><a href=<?php echo$site?>se><img src='/img/flags/se.png'width='24'height='24'alt='???lang_label_se???'title='???lang_label_se???'/></a><a href=<?php echo$site?>sk>
+							<img src='/img/flags/sk.png'width='24'height='24'alt='???lang_label_sk???'title='???lang_label_sk???'/></a><a href=<?php echo$site?>si><img src='/img/flags/si.png'width='24'height='24'alt='???lang_label_si???'title='???lang_label_si???'/></a>
+							<a href=<?php echo$site?>cz><img src='/img/flags/cz.png'width='24'height='24'alt='???lang_label_cz???'title='???lang_label_cz???'/></a><a href=<?php echo$site?>tr><img src='/img/flags/tr.png'width='24'height='24'alt='???lang_label_tr???'
+							title='???lang_label_tr???'/></a><a href=<?php echo$site?>hu><img src='/img/flags/hu.png'width='24'height='24'alt='???lang_label_hu???'title='???lang_label_hu???'/></a><a href=<?php echo$site?>jp><img src='/img/flags/jp.png'width='24'
+							height='24'alt='???lang_label_jp???'title='???lang_label_jp???'/></a><br><br><?php }
+			function classes_autoloader($class){$subforder='';if(substr($class,-9)==='Converter')$subforder='converters/';elseif(substr($class,-4)==='Skin')$subforder='skins/';elseif(substr($class,-5)==='Model')$subforder='models/';elseif(substr($class,-9)==='Validator')
+							$subforder='validators/';elseif(substr($class,-10)==='Controller')$subforder='actions/';elseif(substr($class,-7)==='Service')$subforder='services/';elseif(substr($class,-3)==='Job')$subforder='jobs/';elseif(substr($class,-11)==='LoginMethod')
+							$subforder='loginmethods/';elseif(substr($class,-5)==='Event')$subforder='events/';elseif(substr($class,-6)==='Plugin')$subforder='plugins/';@include($_SERVER['DOCUMENT_ROOT'].'/classes/'.$subforder.$class.'.class.php');}
+			function sendEmail($email,$password,$website,$i18n){$tplparameters['newpassword']=$password;EmailHelper::sendSystemEmailFromTemplate($website,$i18n,$email,Message('sendpassword_admin_email_subject'),'sendpassword_admin',$tplparameters);}	
+			function escapeOutput($message){return htmlspecialchars((string)$message,ENT_COMPAT,'UTF-8');}
+			function createWarningMessage($title,$message){return createMessage('warning',$title,$message);}
+			function createInfoMessage($title,$message){return createMessage('info',$title,$message);}
+			function createErrorMessage($title,$message){return createMessage('error',$title,$message);}
+			function createSuccessMessage($title,$message){return createMessage('success',$title,$message);}
+			function createMessage($severity,$title,$message){$html='<div class=\'alert alert-'.$severity.'\'>'.'<button type=\'button\'class=\'close\'data-dismiss=\'alert\'>&times;</button>'.'<h4>'.$title.'</h4>'.$message.'</div>';return $html;}
+			function logAdminAction(WebSoccer $websoccer,$type,$username,$entity,$entityValue){$userIp=getenv('REMOTE_ADDR');$message=Datetime(Timestamp()).';'.$username.';'.$userIp.';'.$type.';'.$entity.';'.$entityValue;
+							$file=$_SERVER['DOCUMENT_ROOT'].'/generated/entitylog.php';$fw=new FileWriter($file,FALSE);$fw->writeLine($message);$fw->close();}
+			function renderErrorPage($website,$i18n,$viewHandler,$message,$parameters){$parameters['title']=$message;$parameters['message']='';print_r($website->getTemplateEngine($i18n,$viewHandler)->loadTemplate('error')->render($parameters));}
+			function printNavItem($currentSite,$pageId,$navLabel,$entity=''){$url='?site='.$pageId;$active=($currentSite==$pageId);if(strlen($entity)){$url.='&entity='.escapeOutput($entity);$active=(isset($_REQUEST['entity'])&&$_REQUEST['entity']==$entity);}echo'<li';
+							if($active)echo'class=\'active\'';echo'><a href=\''.$url.'\'>'.$navLabel.'</a></li>';}
+			function prepareFielfValueForSaving($fieldValue){$preparedValue=trim($fieldValue);$preparedValue=stripslashes($fieldValue);return$preparedValue;}
+			function renderRound($roundNode){global$i18n,$website,$hierarchy,$site,$cupid,$cup,$action,$db;echo'<div class=\'cupround\'>';$showEditForm=FALSE;if($action=='edit'&&$_REQUEST['id']==$roundNode['round']['id']){$showEditForm=TRUE;}elseif($action=='edit-save'&&
+							$_REQUEST['id']==$roundNode['round']['id']){if(isset($admin['r_demo'])&&$admin['r_demo'])throw new Exception(Message('validationerror_no_changes_as_demo'));$showEditForm=TRUE;$columns=[];$columns['name']=$_POST['name'];$columns['finalround']=
+							(isset($_POST['finalround'])&&$_POST['finalround']=='1')?1:0;$columns['groupmatches']=(isset($_POST['groupmatches'])&&$_POST['groupmatches']=='1')?1:0;$firstDateObj=DateTime::createFromFormat(Config('date_format').', H:i',
+							$_POST['firstround_date_date'].', '.$_POST['firstround_date_time']);$columns['firstround_date']=$firstDateObj->getTimestamp();if(isset($_POST['secondround_date_date'])){$secondDateObj=DateTime::createFromFormat(Config('date_format').', H:i',
+							$_POST['secondround_date_date'].', '.$_POST['secondround_date_time']);$columns['secondround_date']=$secondDateObj->getTimestamp();}$db->queryUpdate($columns,Config('db_prefix').'_cup_round','id=%d',$roundNode['round']['id']);
+							if($roundNode['round']['name']!==$_POST['name'])$db->queryUpdate(['pokalrunde'=>$_POST['name']],Config('db_prefix').'_spiel',"pokalname='%s'AND pokalrunde='%s'",[$cup['name'],$roundNode['round']['name']]);$result=$db->querySelect('*',
+							Config('db_prefix').'_cup_round','id=%d',$roundNode['round']['id']);$roundNode['round']=$result->fetch_array();$result->free();$showEditForm=FALSE;}if($showEditForm){?><form action='<?php echo escapeOutput($_SERVER['PHP_SELF']);?>'
+							method='post'class='form-horizontal'><input type='hidden'name='action'value='edit-save'><input type='hidden'name='site'value='<?php echo$site; ?>'><input type='hidden'name='cup'value='<?php echoescapeOutput($cupid);?>'><input type='hidden'
+							name='id'value='<?php echo$roundNode['round']['id'];?>'><?php $formFields=[];$formFields['name']=['type'=>'text','value'=>$roundNode['round']['name'],'required'=>'true'];$formFields['firstround_date']=['type'=>'timestamp','value'=>
+							$roundNode['round']['firstround_date'],'required'=>'true'];if($roundNode['round']['secondround_date'])$formFields['secondround_date']=['type'=>'timestamp','value'=>$roundNode['round']['secondround_date'],'required'=>'false'];
+							$formFields['finalround']=['type'=>'boolean','value'=>$roundNode['round']['finalround']];$formFields['groupmatches']=['type'=>'boolean','value'=>$roundNode['round']['groupmatches']];foreach($formFields as$fieldId=>$fieldInfo)echo 
+							FormBuilder::createFormGroup($i18n,$fieldId,$fieldInfo,$fieldInfo['value'],'managecuprounds_label_');?><div class='control-group'><div class='controls'><input type='submit'class='btn btn-primary'accesskey='s'title='Alt + s'value='<?php echo 
+							Message('button_save');?>'><a href="<?php echo'?site='.escapeOutput($site).'&cup='.escapeOutput($cupid);?>'class='btn'><?php echo Message('button_cancel');?></a></div></div></form><?php }else{echo'<p><strong>';
+							if($roundNode['round']['finalround']=='1')echo'<em>';echo escapeOutput($roundNode['round']['name']);if($roundNode['round']['finalround']=='1')echo'</em></strong><a href=\'?site='.escapeOutput($site).'&cup='.
+							escapeOutput($cupid).'&action=edit&id='.$roundNode['round']['id'].'\'title=\''.Message('manage_edit').'\'><i class=\'icon-pencil\'></i></a><a class=\'deleteLink\'href=\'?site='.escapeOutput($site).'&cup='.escapeOutput($cupid).
+							'&action=delete&id='.$roundNode['round']['id'].'\'title=\''.Message('manage_delete').'\'><i class=\'icon-trash\'></i></a></p><ul><li><em>'.Message('managecuprounds_label_firstround_date').':</em>'.
+							date(FormattedDatetime($roundNode['round']['firstround_date'])).'</li>';if($roundNode['round']['secondround_date'])echo'<li><em>'.Message('managecuprounds_label_secondround_date').':</em>'.date(FormattedDatetime(
+							$roundNode['round']['secondround_date'])).'</li>';$matchesUrl='?site=manage&entity=match&'.http_build_query(['entity_match_pokalname'=>escapeOutput($cup['name']),'entity_match_pokalrunde'=>escapeOutput($roundNode['round']['name'])]);
+							echo'<li><a href=\'$matchesUrl\'>'.Message('managecuprounds_show_matches').'</a></li></ul>';$addMatchUrl='?site=manage&entity=match&show=add&'.http_build_query(['pokalname'=>escapeOutput($cup['name']),'pokalrunde'=>
+							escapeOutput($roundNode['round']['name']),'spieltyp'=>'Pokalspiel']);if(!$roundNode['round']['groupmatches']){echo'<p><a href=\'$addMatchUrl\'class=\'btn btn-mini\'><i class=\'icon-plus-sign\'></i>'.Message('managecuprounds_add_match').'</a>
+							<a href=\'?site=managecuprounds-generate&round='.$roundNode['round']['id'].'\'class=\'btn btn-mini\'><i class=\'icon-random\'></i>'.Message('managecuprounds_generate_matches').'</a></p>';}else{echo'<p>
+							<a href=\'?site=managecuprounds-groups&round='.$roundNode['round']['id'].'\'class=\'btn btn-mini\'><i class=\'icon-list\'></i>'.Message('managecuprounds_manage_groups').'</a></p>';}if(isset($roundNode['winnerround'])){echo'<p><em>'.
+							Message('managecuprounds_next_round_winners').':</em></p>\n';renderRound($hierarchy[$roundNode['winnerround']]);}if(isset($roundNode['looserround'])){echo'<p><em>'.Message('managecuprounds_next_round_loosers').':</em></p>\n';
+							renderRound($hierarchy[$roundNode['looserround']]);}}echo'</div>';}
+function flags_css(){?><style>
+span.af,.Afghanistan::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAACAAP8AAP///ywAAAAAIAAUAAACVYSPqZvhD6OcztCLn81c7g4GHyUEwlmW2EiaKWcM8kwPpy3g9R7vc45C2XyzHhGoQxIHRh/ypiQ2ncNhbskEYGXA6JKREACCY7D5jE6r1+y2+w2PgwsAOw==');}
+span.al,.Albania,.Albanien::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPAAAAAAAP8AACwAAAAAIAAUAAACRISPqZvhD6OcztCLn81c7g4GX8iNngigYmZG1qFiLZTWayrjFKPv/dn4eYQuRYlIQ9lYyBNoRppAo0Xq0crE5njcLqAAADs=');}span.dz,.Algeria,.Algerien::before{height:17px;content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAACAAGBgAKBgAMBAAP8AAP+ggP///ywAAAAAIAAUAAADhwi63P4tyEnpuTjro2oVoGBs5NV5AUgUbFtq57eyxGDcxYvFkzATAkkmp+OlBrSgUAcDyFgDy+hAfBkFrcqlYKiWrlnLocsqOilYlnbbmm7AajHZ+z73ZtHJdkxvfpAFQHpufRlGKT9KQ0yHiC01N11MHHYfPi0uk409IW6alSh6kzsQpaYNCQA7'width='16'height='10'alt='andorra'title='andorra');}span.ad,.Andorra::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAAAAgICAAMDAAP8AAP+AAP/AAP//ACwAAAAAIAAUAAADigi63P4tyDmPvfgUwntXVJiNm+eBYTVipcmhabCy7gfE0jXs+9W6sNRBsCMSBwJN7XXDHZCCqHSgXAZFSIJBUNhSf6Yr5ckddonVmlglbVvAp2aMbCgICMPvkrDOIQd2Bn9pQHJCRW09cDY4Mk9FPG97fY46GYtMjTM+k4Yim4RhnmOgmHwQqKkNCQA7');}span.ao,.Angola::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAIAAAICAAP8AAP+AAP/AAP//AAAAACwAAAAAIAAUAAADXQi63P5tyEmrvVLhzafuE0GAw0cShjFyJlgM6Yq1nQrbM0DeNn7RlxTsddsoAsikEilIKZ3LJOTRNCwMgqlW0eSmAN/tNpWtYsVic+qM3greb3J7Xp3b7/i8fi9OAAA7');}span.ag,.Antigua_und_Barbuda::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAAAA/6CgAP8AAP//AP///wAAAAAAACwAAAAAIAAUAAADZQi63P4wSjmmAPfOCgZ3GUBgJOQp3tcIRNtqT4rKjMC6ru2kHK+KONyONyNibsEXzNdjBp7QqDTAbDqn2Kr1ioVqt9zst6gtmM/m76mjHqDTbfIX3V7XPfC6/K5n8/l7f2MThBEJADs=');}span.ar,.Argentina,.Argentinien::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAAAA/6CgAP//AP///wAAAAAAAAAAACwAAAAAIAAUAAADTwi63P4tyEmrvVLhzafuoPWFZDCW4IlyCuG+8CsMc2y77Q0PNC/osByQMPMNhjgAktDzLYXAYvGpXPZ+1FVIpb1wu5Uv2AMYb8RmiHrtSAAAOw==');}span.am,.armenia,.Armenien::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAAAA//8AAP+AQCwAAAAAIAAUAAACSISPqZviD6OcztCLn81c7g4KX8iNJGYE6sq27qum8EzHQI2/cs4He4/7AWmGgfGITCqXxiLzCW0CotSls4odXLPULRfKCIsVBQA7');}span.au,.australia,.Australien::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAAAA/2Bg/8DA//8AAP9gQP///wAAACwAAAAAIAAUAAADegi63P6NmEANkTTYzDtXwTVZGOmdHzCsYkusAxp7ymXf+DkYc1r8wAsQKDspYC4SDJXpBUAiTdTUce56tUkluuVcvSmm2EkDiM8ZbQbUEaC9ZHZGYHC/UfIA3VC/G80cdHZoZBR5FINnXx2HfhSFT4COaI2TfxCYmQwJADs=');}span.at,.austria,.�sterreich::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAP8AAP///wAAACwAAAAAIAAUAAACQISPqZvhD6OcztCLn81c7g4GX8iNJGYI6sq27qum8EzHQI2/cs4Le4/7AWmmE6Vo9ACSGSRTs3weo1Il44pFFAAAOw==');}span.az,.azerbaijan,.Aserbaidschan::before{content:url('data:image/gif;base64,R0lGODlhIAAUAPIAAAAAAAAA/wCAAP8AAP+AgP///wAAAAAAACH5BAAAAPcALAAAAAAgABQAAgNbCLrc/i3ISau9UuHNp+6g9YVkMJbgiXLK4L7wW8xx/bY2XBBukce432D3IviEwR/RZeT9kjmiUXgDUHu060Ah6Hq/4LC4yx2bz2QAei0us98CN3wtn58h+LwjAQA7');}
+span.bs,.Bahamas::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAAAA////AAAAACwAAAAAIAAUAAACPYSPqavhD6OcAdGLq838tc4tYMaMFwMI6sq2roqm7+zGMo3b+B7vPOP7fUwSEXEyPEYSSsqmWTRAnbYqqgAAOw==');}
+span.bh,.Bahrain::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAP8AAP+ggP///ywAAAAAIAAUAAACSISPqZvj70SYtNprYLy8z6xt3hiAoUR65oOmKhCKLgbH7VytMm7pLN+rnYA54Y9YjA1uQN+uaXwSnUvkJ3pE+phTrBTHCIsVBQA7');}
+span.bd,.bangladesh,.Bangladesch::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAACAAEBgAP8AACwAAAAAIAAUAAACT4SPqZvhD6OcztCLn81i+CFkwXZ95pCR03liasSy1/t0sRlOtHPLOkDptX5B4YeyCxiPxIlNmJMklcYZsNRzXbE+q+gJEk1FXrK5wkirEwUAOw==');}
+span.bb,.Barbados::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAAAAgIBAAP+AQCwAAAAAIAAUAAACYYSPqZvhD4ecdMBr7q1cv+w5XBUGYDhS5eml0wqUwQBMtVTDMl0fvBViaQaCm1EA9Ag3NGStKNGVbLRqNBib4qq3pGYZwSFe2B2le1VmUWdSWeuSsuPveUrecnkxjL4/UQAAOw==');}
+span.by,.Belarus::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAACAAP8AAP+AgP///wAAAAAAAAAAACwAAAAAIAAUAAADYwi63P5NDCLIqCLrzbtQWEZRXtmBU3WRZvsB2Bi6JmhJMl3D6c3qJ5gsBwziVLPixiaJKY2UVfL5OvqoS6HzR0WNVoGweEwuB2yXnnltZg7ZcLEXSYjHmaKKHT737dkQgYIOCQA7');}
+span.be,.belgium,.Belgien::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAP8AAP//AAAAACwAAAAAIAAUAAACQISPqcsrD2OYtLYTs6g8XKNJHfUBITSS3/mkU8luLsy63lrP+GnTvH6J9XahYTCX8hWBDSGT4UwSNcYmclTKMgoAOw==');}
+span.bz,.Belize::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAAAA/wCAAIAAAICA//8AAP//AP///ywAAAAAIAAUAAADbwi63P6tyEmrvVKFzbv/4KaFZCkCZkAc7EGkY7gKB027ZQzWvOCzOZSsBvDdaK+QzsMzGAcsGmnZaR4U0NtUuONdDVDelsQDuFbRw3h4U6STIGq1dqOr18PoD4cnoVlwfSmDAXKEWxiJihMQjY4OCQA7');}
+span.bj,.Benin::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPEAAAAAAACAAP8AAP//ACwAAAAAIAAUAAACTISPqZvhD4ectFYDc7CcY/104vSB2yiWIJoCpsN2qhZ77ltbc5ZftykICodE4g5STCaPD6VTyHQ8n9HA1Fm9KrPaIrc7/IKDjLJZUQAAOw==');}
+span.bt,.Bhutan::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAICAgMDA//8AAP+AQP///wAAAAAAACwAAAAAIAAUAAADhwi63P6NyEmrvWQozGUAnycNGtBhXxGoBEiWp5WudPDCcRXU343nnpWLBLhtYiaPyqYpFF/HE2PnBDhXxiRHoSo4VQuNL4qxCmkqX3br3ZF2oKf6Z1H05GKmmjxhLNNEAgVzdC1Wh096b4prHiA0A3CEk1GPcoeThEd4N26Ze5yfokQQpaYNCQA7');}
+span.blank::before{content:url('data:image/gif;base64,R0lGODlhIAAUAPAAAAAAAP///yH5BAUAAAAALAAAAAAgABQAQAIXhI+py+0Po5y02ouz3rz7D4biSJbm6RQAOw==');}
+span.bo,.bolivia,.Bolivien::before{content:url('data:image/gif;base64,R0lGODdhIAAUAPIAAAAAAACAAGBgAIAAAICAAP8AAP//AAAAACwAAAAAIAAUAAADWwi63P6tyEmrvVLhzafuoPWFZDGW4IlyiuG+8EvMRGy77Q0PxsDzulcu2BsEAj4iDqDsGY5O5TAoMCIFzWlza1Acv+CwePz1ks/ooznNDq/b8DecLZ+jIfi8IwEAOw=='');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
+span::before{content:url('');}
 
 
 
@@ -9423,3 +8927,247 @@ function flags_css(){?><style>	span.af,.Afghanistan::before{content:url('data:im
 
 
 </style><?php }
+function Responsive_css(){?><style>
+/*!
+ * Bootstrap Responsive v2.2.2
+ *
+ * Copyright 2012 Twitter, Inc
+ * Licensed under the Apache License v2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Designed and built with all the love in the world @twitter by @mdo and @fat.
+ */@-ms-viewport{width:device-width}.clearfix:after,.clearfix:before{display:table;line-height:0;content:""}.clearfix:after{clear:both}.hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0}.input-block-level{display:block;width:100%;min-height:30px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.hidden{display:none;visibility:hidden}.visible-phone{display:none!important}.visible-tablet{display:none!important}.hidden-desktop{display:none!important}.visible-desktop{display:inherit!important}@media(min-width:768px) and (max-width:979px){.hidden-desktop{display:inherit!important}.visible-desktop{display:none!important}.visible-tablet{display:inherit!important}.hidden-tablet{display:none!important}}@media(max-width:767px){.hidden-desktop{display:inherit!important}.visible-desktop{display:none!important}.visible-phone{display:inherit!important}.hidden-phone{display:none!important}}@media(min-width:1200px){.row{margin-left:-30px}.row:after,.row:before{display:table;line-height:0;content:""}.row:after{clear:both}[class*=span]{float:left;min-height:1px;margin-left:30px}.container,.navbar-fixed-bottom .container,.navbar-fixed-top .container,.navbar-static-top .container{width:1170px}.span12{width:1170px}.span11{width:1070px}.span10{width:970px}.span9{width:870px}.span8{width:770px}.span7{width:670px}.span6{width:570px}.span5{width:470px}.span4{width:370px}.span3{width:270px}.span2{width:170px}.span1{width:70px}.offset12{margin-left:1230px}.offset11{margin-left:1130px}.offset10{margin-left:1030px}.offset9{margin-left:930px}.offset8{margin-left:830px}.offset7{margin-left:730px}.offset6{margin-left:630px}.offset5{margin-left:530px}.offset4{margin-left:430px}.offset3{margin-left:330px}.offset2{margin-left:230px}.offset1{margin-left:130px}.row-fluid{width:100%}.row-fluid:after,.row-fluid:before{display:table;line-height:0;content:""}.row-fluid:after{clear:both}.row-fluid [class*=span]{display:block;float:left;width:100%;min-height:30px;margin-left:2.564102564102564%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.row-fluid [class*=span]:first-child{margin-left:0}.row-fluid .controls-row [class*=span]+[class*=span]{margin-left:2.564102564102564%}.row-fluid .span12{width:100%}.row-fluid .span11{width:91.45299145299145%}.row-fluid .span10{width:82.90598290598291%}.row-fluid .span9{width:74.35897435897436%}.row-fluid .span8{width:65.81196581196582%}.row-fluid .span7{width:57.26495726495726%}.row-fluid .span6{width:48.717948717948715%}.row-fluid .span5{width:40.17094017094017%}.row-fluid .span4{width:31.623931623931625%}.row-fluid .span3{width:23.076923076923077%}.row-fluid .span2{width:14.52991452991453%}.row-fluid .span1{width:5.982905982905983%}.row-fluid .offset12{margin-left:105.12820512820512%}.row-fluid .offset12:first-child{margin-left:102.56410256410257%}.row-fluid .offset11{margin-left:96.58119658119658%}.row-fluid .offset11:first-child{margin-left:94.01709401709402%}.row-fluid .offset10{margin-left:88.03418803418803%}.row-fluid .offset10:first-child{margin-left:85.47008547008548%}.row-fluid .offset9{margin-left:79.48717948717949%}.row-fluid .offset9:first-child{margin-left:76.92307692307693%}.row-fluid .offset8{margin-left:70.94017094017094%}.row-fluid .offset8:first-child{margin-left:68.37606837606839%}.row-fluid .offset7{margin-left:62.393162393162385%}.row-fluid .offset7:first-child{margin-left:59.82905982905982%}.row-fluid .offset6{margin-left:53.84615384615384%}.row-fluid .offset6:first-child{margin-left:51.28205128205128%}.row-fluid .offset5{margin-left:45.299145299145295%}.row-fluid .offset5:first-child{margin-left:42.73504273504273%}.row-fluid .offset4{margin-left:36.75213675213675%}.row-fluid .offset4:first-child{margin-left:34.18803418803419%}.row-fluid .offset3{margin-left:28.205128205128204%}.row-fluid .offset3:first-child{margin-left:25.641025641025642%}.row-fluid .offset2{margin-left:19.65811965811966%}.row-fluid .offset2:first-child{margin-left:17.094017094017094%}.row-fluid .offset1{margin-left:11.11111111111111%}.row-fluid .offset1:first-child{margin-left:8.547008547008547%}.uneditable-input,input,textarea{margin-left:0}.controls-row [class*=span]+[class*=span]{margin-left:30px}.uneditable-input.span12,input.span12,textarea.span12{width:1156px}.uneditable-input.span11,input.span11,textarea.span11{width:1056px}.uneditable-input.span10,input.span10,textarea.span10{width:956px}.uneditable-input.span9,input.span9,textarea.span9{width:856px}.uneditable-input.span8,input.span8,textarea.span8{width:756px}.uneditable-input.span7,input.span7,textarea.span7{width:656px}.uneditable-input.span6,input.span6,textarea.span6{width:556px}.uneditable-input.span5,input.span5,textarea.span5{width:456px}.uneditable-input.span4,input.span4,textarea.span4{width:356px}.uneditable-input.span3,input.span3,textarea.span3{width:256px}.uneditable-input.span2,input.span2,textarea.span2{width:156px}.uneditable-input.span1,input.span1,textarea.span1{width:56px}.thumbnails{margin-left:-30px}.thumbnails>li{margin-left:30px}.row-fluid .thumbnails{margin-left:0}}@media(min-width:768px) and (max-width:979px){.row{margin-left:-20px}.row:after,.row:before{display:table;line-height:0;content:""}.row:after{clear:both}[class*=span]{float:left;min-height:1px;margin-left:20px}.container,.navbar-fixed-bottom .container,.navbar-fixed-top .container,.navbar-static-top .container{width:724px}.span12{width:724px}.span11{width:662px}.span10{width:600px}.span9{width:538px}.span8{width:476px}.span7{width:414px}.span6{width:352px}.span5{width:290px}.span4{width:228px}.span3{width:166px}.span2{width:104px}.span1{width:42px}.offset12{margin-left:764px}.offset11{margin-left:702px}.offset10{margin-left:640px}.offset9{margin-left:578px}.offset8{margin-left:516px}.offset7{margin-left:454px}.offset6{margin-left:392px}.offset5{margin-left:330px}.offset4{margin-left:268px}.offset3{margin-left:206px}.offset2{margin-left:144px}.offset1{margin-left:82px}.row-fluid{width:100%}.row-fluid:after,.row-fluid:before{display:table;line-height:0;content:""}.row-fluid:after{clear:both}.row-fluid [class*=span]{display:block;float:left;width:100%;min-height:30px;margin-left:2.7624309392265194%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.row-fluid [class*=span]:first-child{margin-left:0}.row-fluid .controls-row [class*=span]+[class*=span]{margin-left:2.7624309392265194%}.row-fluid .span12{width:100%}.row-fluid .span11{width:91.43646408839778%}.row-fluid .span10{width:82.87292817679558%}.row-fluid .span9{width:74.30939226519337%}.row-fluid .span8{width:65.74585635359117%}.row-fluid .span7{width:57.18232044198895%}.row-fluid .span6{width:48.61878453038674%}.row-fluid .span5{width:40.05524861878453%}.row-fluid .span4{width:31.491712707182323%}.row-fluid .span3{width:22.92817679558011%}.row-fluid .span2{width:14.3646408839779%}.row-fluid .span1{width:5.801104972375691%}.row-fluid .offset12{margin-left:105.52486187845304%}.row-fluid .offset12:first-child{margin-left:102.76243093922652%}.row-fluid .offset11{margin-left:96.96132596685082%}.row-fluid .offset11:first-child{margin-left:94.1988950276243%}.row-fluid .offset10{margin-left:88.39779005524862%}.row-fluid .offset10:first-child{margin-left:85.6353591160221%}.row-fluid .offset9{margin-left:79.8342541436464%}.row-fluid .offset9:first-child{margin-left:77.07182320441989%}.row-fluid .offset8{margin-left:71.2707182320442%}.row-fluid .offset8:first-child{margin-left:68.50828729281768%}.row-fluid .offset7{margin-left:62.70718232044199%}.row-fluid .offset7:first-child{margin-left:59.94475138121547%}.row-fluid .offset6{margin-left:54.14364640883978%}.row-fluid .offset6:first-child{margin-left:51.38121546961326%}.row-fluid .offset5{margin-left:45.58011049723757%}.row-fluid .offset5:first-child{margin-left:42.81767955801105%}.row-fluid .offset4{margin-left:37.01657458563536%}.row-fluid .offset4:first-child{margin-left:34.25414364640884%}.row-fluid .offset3{margin-left:28.45303867403315%}.row-fluid .offset3:first-child{margin-left:25.69060773480663%}.row-fluid .offset2{margin-left:19.88950276243094%}.row-fluid .offset2:first-child{margin-left:17.12707182320442%}.row-fluid .offset1{margin-left:11.32596685082873%}.row-fluid .offset1:first-child{margin-left:8.56353591160221%}.uneditable-input,input,textarea{margin-left:0}.controls-row [class*=span]+[class*=span]{margin-left:20px}.uneditable-input.span12,input.span12,textarea.span12{width:710px}.uneditable-input.span11,input.span11,textarea.span11{width:648px}.uneditable-input.span10,input.span10,textarea.span10{width:586px}.uneditable-input.span9,input.span9,textarea.span9{width:524px}.uneditable-input.span8,input.span8,textarea.span8{width:462px}.uneditable-input.span7,input.span7,textarea.span7{width:400px}.uneditable-input.span6,input.span6,textarea.span6{width:338px}.uneditable-input.span5,input.span5,textarea.span5{width:276px}.uneditable-input.span4,input.span4,textarea.span4{width:214px}.uneditable-input.span3,input.span3,textarea.span3{width:152px}.uneditable-input.span2,input.span2,textarea.span2{width:90px}.uneditable-input.span1,input.span1,textarea.span1{width:28px}}@media(max-width:767px){body{padding-right:20px;padding-left:20px}.navbar-fixed-bottom,.navbar-fixed-top,.navbar-static-top{margin-right:-20px;margin-left:-20px}.container-fluid{padding:0}.dl-horizontal dt{float:none;width:auto;clear:none;text-align:left}.dl-horizontal dd{margin-left:0}.container{width:auto}.row-fluid{width:100%}.row,.thumbnails{margin-left:0}.thumbnails>li{float:none;margin-left:0}.row-fluid [class*=span],.uneditable-input[class*=span],[class*=span]{display:block;float:none;width:100%;margin-left:0;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.row-fluid .span12,.span12{width:100%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.row-fluid [class*=offset]:first-child{margin-left:0}.input-large,.input-xlarge,.input-xxlarge,.uneditable-input,input[class*=span],select[class*=span],textarea[class*=span]{display:block;width:100%;min-height:30px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}.input-append input,.input-append input[class*=span],.input-prepend input,.input-prepend input[class*=span]{display:inline-block;width:auto}.controls-row [class*=span]+[class*=span]{margin-left:0}.modal{position:fixed;top:20px;right:20px;left:20px;width:auto;margin:0}.modal.fade{top:-100px}.modal.fade.in{top:20px}}@media(max-width:480px){.nav-collapse{-webkit-transform:translate3d(0,0,0)}.page-header h1 small{display:block;line-height:20px}input[type=checkbox],input[type=radio]{border:1px solid #ccc}.form-horizontal .control-label{float:none;width:auto;padding-top:0;text-align:left}.form-horizontal .controls{margin-left:0}.form-horizontal .control-list{padding-top:0}.form-horizontal .form-actions{padding-right:10px;padding-left:10px}.media .pull-left,.media .pull-right{display:block;float:none;margin-bottom:10px}.media-object{margin-right:0;margin-left:0}.modal{top:10px;right:10px;left:10px}.modal-header .close{padding:10px;margin:-10px}.carousel-caption{position:static}}@media(max-width:979px){body{padding-top:0}.navbar-fixed-bottom,.navbar-fixed-top{position:static}.navbar-fixed-top{margin-bottom:20px}.navbar-fixed-bottom{margin-top:20px}.navbar-fixed-bottom .navbar-inner,.navbar-fixed-top .navbar-inner{padding:5px}.navbar .container{width:auto;padding:0}.navbar .brand{padding-right:10px;padding-left:10px;margin:0 0 0 -5px}.nav-collapse{clear:both}.nav-collapse .nav{float:none;margin:0 0 10px}.nav-collapse .nav>li{float:none}.nav-collapse .nav>li>a{margin-bottom:2px}.nav-collapse .nav>.divider-vertical{display:none}.nav-collapse .nav .nav-header{color:#777;text-shadow:none}.nav-collapse .dropdown-menu a,.nav-collapse .nav>li>a{padding:9px 15px;font-weight:700;color:#777;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px}.nav-collapse .btn{padding:4px 10px 4px;font-weight:400;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}.nav-collapse .dropdown-menu li+li a{margin-bottom:2px}.nav-collapse .dropdown-menu a:hover,.nav-collapse .nav>li>a:hover{background-color:#f2f2f2}.navbar-inverse .nav-collapse .dropdown-menu a,.navbar-inverse .nav-collapse .nav>li>a{color:#999}.navbar-inverse .nav-collapse .dropdown-menu a:hover,.navbar-inverse .nav-collapse .nav>li>a:hover{background-color:#111}.nav-collapse.in .btn-group{padding:0;margin-top:5px}.nav-collapse .dropdown-menu{position:static;top:auto;left:auto;display:none;float:none;max-width:none;padding:0;margin:0 15px;background-color:transparent;border:0;-webkit-border-radius:0;-moz-border-radius:0;border-radius:0;-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none}.nav-collapse .open>.dropdown-menu{display:block}.nav-collapse .dropdown-menu:after,.nav-collapse .dropdown-menu:before{display:none}.nav-collapse .dropdown-menu .divider{display:none}.nav-collapse .nav>li>.dropdown-menu:after,.nav-collapse .nav>li>.dropdown-menu:before{display:none}.nav-collapse .navbar-form,.nav-collapse .navbar-search{float:none;padding:10px 15px;margin:10px 0;border-top:1px solid #f2f2f2;border-bottom:1px solid #f2f2f2;-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 1px 0 rgba(255,255,255,.1);-moz-box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 1px 0 rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 1px 0 rgba(255,255,255,.1)}.navbar-inverse .nav-collapse .navbar-form,.navbar-inverse .nav-collapse .navbar-search{border-top-color:#111;border-bottom-color:#111}.navbar .nav-collapse .nav.pull-right{float:none;margin-left:0}.nav-collapse,.nav-collapse.collapse{height:0;overflow:hidden}.navbar .btn-navbar{display:block}.navbar-static .navbar-inner{padding-right:10px;padding-left:10px}}@media(min-width:980px){.nav-collapse.collapse{height:auto!important;overflow:visible!important}}</style><?php }
+function Switch_css(){?><style>.has-switch{display:inline-block;cursor:pointer;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;border:1px solid;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25);position:relative;text-align:left;overflow:hidden;line-height:8px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-o-user-select:none;user-select:none;vertical-align:middle;min-width:100px}.has-switch.switch-mini{min-width:72px}.has-switch.switch-mini i.switch-mini-icons{height:1.2em;line-height:9px;vertical-align:text-top;text-align:center;transform:scale(.6);margin-top:-1px;margin-bottom:-1px}.has-switch.switch-small{min-width:80px}.has-switch.switch-large{min-width:120px}.has-switch.deactivate{opacity:.5;cursor:default!important}.has-switch.deactivate label,.has-switch.deactivate span{cursor:default!important}.has-switch>div{display:inline-block;width:150%;position:relative;top:0}.has-switch>div.switch-animate{-webkit-transition:left .5s;-moz-transition:left .5s;-o-transition:left .5s;transition:left .5s}.has-switch>div.switch-off{left:-50%}.has-switch>div.switch-on{left:0}.has-switch input[type=checkbox],.has-switch input[type=radio]{display:none}.has-switch label,.has-switch span{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;cursor:pointer;position:relative;display:inline-block;height:100%;padding-bottom:4px;padding-top:4px;font-size:14px;line-height:20px}.has-switch label.switch-mini,.has-switch span.switch-mini{padding-bottom:4px;padding-top:4px;font-size:10px;line-height:9px}.has-switch label.switch-small,.has-switch span.switch-small{padding-bottom:3px;padding-top:3px;font-size:12px;line-height:18px}.has-switch label.switch-large,.has-switch span.switch-large{padding-bottom:9px;padding-top:9px;font-size:16px;line-height:normal}.has-switch label{text-align:center;margin-top:-1px;margin-bottom:-1px;z-index:100;width:34%;border-left:1px solid #ccc;border-right:1px solid #ccc;color:#333;text-shadow:0 -1px 0 rgba(0,0,0,.25);background-color:#f5f5f5;background-image:-moz-linear-gradient(top,#fff,#e6e6e6);background-image:-webkit-gradient(linear,0 0,0 100%,from(#fff),to(#e6e6e6));background-image:-webkit-linear-gradient(top,#fff,#e6e6e6);background-image:-o-linear-gradient(top,#fff,#e6e6e6);background-image:linear-gradient(to bottom,#fff,#e6e6e6);background-repeat:repeat-x;border-color:#e6e6e6 #e6e6e6 #bfbfbf;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25)}.has-switch label.active,.has-switch label.disabled,.has-switch label:active,.has-switch label:focus,.has-switch label:hover,.has-switch label[disabled]{color:#333;background-color:#e6e6e6}.has-switch label i{color:#000;text-shadow:0 1px 0 #fff;line-height:18px;pointer-events:none}.has-switch span{text-align:center;z-index:1;width:33%}.has-switch span.switch-left{-webkit-border-top-left-radius:4px;-moz-border-radius-topleft:4px;border-top-left-radius:4px;-webkit-border-bottom-left-radius:4px;-moz-border-radius-bottomleft:4px;border-bottom-left-radius:4px}.has-switch span.switch-right{color:#333;text-shadow:0 1px 1px rgba(255,255,255,.75);background-color:#f0f0f0;background-image:-moz-linear-gradient(top,#e6e6e6,#fff);background-image:-webkit-gradient(linear,0 0,0 100%,from(#e6e6e6),to(#fff));background-image:-webkit-linear-gradient(top,#e6e6e6,#fff);background-image:-o-linear-gradient(top,#e6e6e6,#fff);background-image:linear-gradient(to bottom,#e6e6e6,#fff);background-repeat:repeat-x;border-color:#fff #fff #d9d9d9;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25)}.has-switch span.switch-right.active,.has-switch span.switch-right.disabled,.has-switch span.switch-right:active,.has-switch span.switch-right:focus,.has-switch span.switch-right:hover,.has-switch span.switch-right[disabled]{color:#333;background-color:#fff}.has-switch span.switch-left,.has-switch span.switch-primary{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,.25);background-color:#005fcc;background-image:-moz-linear-gradient(top,#04c,#08c);background-image:-webkit-gradient(linear,0 0,0 100%,from(#04c),to(#08c));background-image:-webkit-linear-gradient(top,#04c,#08c);background-image:-o-linear-gradient(top,#04c,#08c);background-image:linear-gradient(to bottom,#04c,#08c);background-repeat:repeat-x;border-color:#08c #08c #005580;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25)}.has-switch span.switch-left.active,.has-switch span.switch-left.disabled,.has-switch span.switch-left:active,.has-switch span.switch-left:focus,.has-switch span.switch-left:hover,.has-switch span.switch-left[disabled],.has-switch span.switch-primary.active,.has-switch span.switch-primary.disabled,.has-switch span.switch-primary:active,.has-switch span.switch-primary:focus,.has-switch span.switch-primary:hover,.has-switch span.switch-primary[disabled]{color:#fff;background-color:#08c}.has-switch span.switch-info{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,.25);background-color:#41a7c5;background-image:-moz-linear-gradient(top,#2f96b4,#5bc0de);background-image:-webkit-gradient(linear,0 0,0 100%,from(#2f96b4),to(#5bc0de));background-image:-webkit-linear-gradient(top,#2f96b4,#5bc0de);background-image:-o-linear-gradient(top,#2f96b4,#5bc0de);background-image:linear-gradient(to bottom,#2f96b4,#5bc0de);background-repeat:repeat-x;border-color:#5bc0de #5bc0de #28a1c5;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25)}.has-switch span.switch-info.active,.has-switch span.switch-info.disabled,.has-switch span.switch-info:active,.has-switch span.switch-info:focus,.has-switch span.switch-info:hover,.has-switch span.switch-info[disabled]{color:#fff;background-color:#5bc0de}.has-switch span.switch-success{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,.25);background-color:#58b058;background-image:-moz-linear-gradient(top,#51a351,#62c462);background-image:-webkit-gradient(linear,0 0,0 100%,from(#51a351),to(#62c462));background-image:-webkit-linear-gradient(top,#51a351,#62c462);background-image:-o-linear-gradient(top,#51a351,#62c462);background-image:linear-gradient(to bottom,#51a351,#62c462);background-repeat:repeat-x;border-color:#62c462 #62c462 #3b9e3b;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25)}.has-switch span.switch-success.active,.has-switch span.switch-success.disabled,.has-switch span.switch-success:active,.has-switch span.switch-success:focus,.has-switch span.switch-success:hover,.has-switch span.switch-success[disabled]{color:#fff;background-color:#62c462}.has-switch span.switch-warning{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,.25);background-color:#f9a123;background-image:-moz-linear-gradient(top,#f89406,#fbb450);background-image:-webkit-gradient(linear,0 0,0 100%,from(#f89406),to(#fbb450));background-image:-webkit-linear-gradient(top,#f89406,#fbb450);background-image:-o-linear-gradient(top,#f89406,#fbb450);background-image:linear-gradient(to bottom,#f89406,#fbb450);background-repeat:repeat-x;border-color:#fbb450 #fbb450 #f89406;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25)}.has-switch span.switch-warning.active,.has-switch span.switch-warning.disabled,.has-switch span.switch-warning:active,.has-switch span.switch-warning:focus,.has-switch span.switch-warning:hover,.has-switch span.switch-warning[disabled]{color:#fff;background-color:#fbb450}.has-switch span.switch-danger{color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,.25);background-color:#d14641;background-image:-moz-linear-gradient(top,#bd362f,#ee5f5b);background-image:-webkit-gradient(linear,0 0,0 100%,from(#bd362f),to(#ee5f5b));background-image:-webkit-linear-gradient(top,#bd362f,#ee5f5b);background-image:-o-linear-gradient(top,#bd362f,#ee5f5b);background-image:linear-gradient(to bottom,#bd362f,#ee5f5b);background-repeat:repeat-x;border-color:#ee5f5b #ee5f5b #e51d18;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25)}.has-switch span.switch-danger.active,.has-switch span.switch-danger.disabled,.has-switch span.switch-danger:active,.has-switch span.switch-danger:focus,.has-switch span.switch-danger:hover,.has-switch span.switch-danger[disabled]{color:#fff;background-color:#ee5f5b}.has-switch span.switch-default{color:#333;text-shadow:0 1px 1px rgba(255,255,255,.75);background-color:#f0f0f0;background-image:-moz-linear-gradient(top,#e6e6e6,#fff);background-image:-webkit-gradient(linear,0 0,0 100%,from(#e6e6e6),to(#fff));background-image:-webkit-linear-gradient(top,#e6e6e6,#fff);background-image:-o-linear-gradient(top,#e6e6e6,#fff);background-image:linear-gradient(to bottom,#e6e6e6,#fff);background-repeat:repeat-x;border-color:#fff #fff #d9d9d9;border-color:rgba(0,0,0,.1) rgba(0,0,0,.1) rgba(0,0,0,.25)}.has-switch span.switch-default.active,.has-switch span.switch-default.disabled,.has-switch span.switch-default:active,.has-switch span.switch-default:focus,.has-switch span.switch-default:hover,.has-switch span.switch-default[disabled]{color:#333;background-color:#fff}</style><?php }
+function Skin_css(){?><style>
+	body{padding-top:60px;padding-bottom:40px}.sidebar-nav{padding:9px 0}.box{padding:8px 10px;background:#fdfdfd;border:1px solid #eee;border-bottom:3px solid #eee;border-radius:6px;margin-bottom:30px}.box table{margin-bottom:10px}.box>h4{border-bottom:1px solid #eee;padding-bottom:7px}
+	.container {
+    margin-right: auto;
+    margin-left: auto;
+}
+.row{position: relative;top:40px;max-width:1680px;}
+.clearfix{*zoom:1;}.clearfix:before,.clearfix:after{display:table;content:'';line-height:0;}
+.clearfix:after{clear:both;}
+.hide-text{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0;}
+.input-block-level{display:block;width:100%;min-height:30px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}
+article,aside,details,figcaption,figure,footer,header,hgroup,nav,section{display:block;}
+audio,canvas,video{display:inline-block;*display:inline;*zoom:1;}
+audio:not([controls]){display:none;}
+html{font-size:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
+a:focus{outline:thin dotted #333;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px;}
+a:hover,a:active{outline:0;}
+sub,sup{position:relative;font-size:75%;line-height:0;vertical-align:baseline;}
+sup{top:-0.5em;}
+sub{bottom:-0.25em;}
+img{max-width:100%;width:auto\9;height:auto;vertical-align:middle;border:0;-ms-interpolation-mode:bicubic;}
+#map_canvas img,.google-maps img{max-width:none;}
+button,input,select,textarea{margin:0;font-size:100%;vertical-align:middle;}
+button,input{*overflow:visible;line-height:normal;}
+button::-moz-focus-inner,input::-moz-focus-inner{padding:0;border:0;}
+button,html input[type='button'],input[type='reset'],input[type='submit']{-webkit-appearance:button;cursor:pointer;}
+label,select,button,input[type='button'],input[type='reset'],input[type='submit'],input[type='radio'],input[type='checkbox']{cursor:pointer;}
+input[type='search']{-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;-webkit-appearance:textfield;}
+input[type='search']::-webkit-search-decoration,input[type='search']::-webkit-search-cancel-button{-webkit-appearance:none;}
+textarea{overflow:auto;vertical-align:top;}
+@media print{*{text-shadow:none !important;color:#000 !important;background:transparent !important;box-shadow:none !important;}
+a,a:visited{text-decoration:underline;}
+a[href]:after{content:' (' attr(href) ')';}
+abbr[title]:after{content:' (' attr(title) ')';}
+.ir a:after,a[href^='javascript:']:after,a[href^='#']:after{content:'';}
+pre,blockquote{border:1px solid #999;page-break-inside:avoid;}
+thead{display:table-header-group;}
+tr,img{page-break-inside:avoid;}
+img{max-width:100% !important;}
+@page{margin:0.5cm;}p,h2,h3{orphans:3;widows:3;}
+h2,h3{page-break-after:avoid;}}body{margin:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#333333;background-color:#ffffff;}
+a{color:#0088cc;text-decoration:none;}
+a:hover,a:focus{color:#005580;text-decoration:underline;}
+.img-rounded{-webkit-border-radius:6px;-moz-border-radius:6px;border-radius:6px;}
+.img-polaroid{padding:4px;background-color:#fff;border:1px solid #ccc;border:1px solid rgba(0,0,0,0.2);-webkit-box-shadow:0 1px 3px rgba(0,0,0,0.1);-moz-box-shadow:0 1px 3px rgba(0,0,0,0.1);box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+.img-circle{-webkit-border-radius:500px;-moz-border-radius:500px;border-radius:500px;}
+.row{margin-top:-10px;margin-left:-20px*zoom:1;}.row:before,.row:after{display:table;content:'';line-height:0;}
+.row:after{clear:both;}
+[class*='span']{float:left;min-height:1px;margin-left:10px;}
+.container,.navbar-static-top .container,.navbar-fixed-top .container,.navbar-fixed-bottom .container{width:940px;}
+[class*='span'].hide,.row-fluid [class*='span'].hide{display:none;}
+[class*='span'].pull-right,.row-fluid [class*='span'].pull-right{float:right;}
+.container{margin-right:auto;margin-left:auto;*zoom:1;}.container:before,.container:after{display:table;content:'';line-height:0;}
+.container:after{clear:both;}
+.container-fluid{padding-right:20px;padding-left:20px;*zoom:1;}.container-fluid:before,.container-fluid:after{display:table;content:'';line-height:0;}
+.container-fluid:after{clear:both;}
+p{margin:0 0 10px;}
+.lead{margin-bottom:20px;font-size:21px;font-weight:200;line-height:30px;}
+small{font-size:85%;}
+strong{font-weight:bold;}
+em{font-style:italic;}
+cite{font-style:normal;}
+.muted{color:#999999;}
+a.muted:hover,a.muted:focus{color:#808080;}
+.text-warning{color:#c09853;}
+a.text-warning:hover,a.text-warning:focus{color:#a47e3c;}
+.text-error{color:#b94a48;}
+a.text-error:hover,a.text-error:focus{color:#953b39;}
+.text-info{color:#3a87ad;}
+a.text-info:hover,a.text-info:focus{color:#2d6987;}
+.text-success{color:#468847;}
+a.text-success:hover,a.text-success:focus{color:#356635;}
+.text-left{text-align:left;}
+.text-right{text-align:right;}
+.text-center{text-align:center;}</style><?php }
+function Formation_css(){?><style>
+	.accordion-body.in{overflow:visible}.accordion-body.in:hover{overflow:visible}.playerIsOnPitch{background-color:#bdefbd}.playerIsOnBench{background-color:#ebffad}#pitch{width:450px;height:680px;border:1px solid #000;background-color:green;position:relative;margin-bottom:10px;background-image:url('../img/formation_pitch_bg.png');background-repeat:no-repeat;background-position:center}.playersColumn{margin-left:0}.pitchColumn{width:470px}@media (max-width:979px) and (min-width:768px){.playersColumn{margin-left:20px}}#playersSelection .accordion-inner{padding:0}.playerinfo{border-top:1px solid #e5e5e5;padding:0 4px;position:relative;cursor:default}.playerBlocked{opacity:.5}.playerinfoBar{height:24px;font-size:12px}.playerinfoIcons{position:absolute;right:5px;padding-top:2px}.playerBlockedLabel{color:red;font-weight:700;opacity:1}.playerinfoStrengthRow{width:100%}.playerinfoStrengthRow:after,.playerinfoStrengthRow:before{display:table;line-height:0;content:""}.playerinfoStrengthRow:after{clear:both}.playerinfoStrength>.bar{font-size:10px;line-height:14px}.playerinfoStrength{height:14px;margin:0}.playerinfoStrengthLabelFull{display:block;float:left;width:80px;font-size:12px}.mainposition{color:#04c}.secondposition{color:#2f96b4}.position{position:absolute;width:90px;height:60px}.positionLabel{text-align:center;margin-top:20px;font-size:.9em;font-weight:700;cursor:default}.positionPlayer{background-color:#fff;border:1px solid #000;font-size:9px;width:100%;text-align:center;position:absolute;top:60px;left:-1px;word-wrap:break-word;border-radius:3px;cursor:default}.position>.playerinfoStrength{position:absolute;top:-18px;width:100%}.positionPlayerRemove{position:absolute;top:-5px;right:0}.positionPlayerIcons{position:absolute;top:-5px;right:0}.position.T{bottom:50px;left:180px}.position.IV.leftWing,.position.LV{bottom:160px;left:18px}.position.LV.goalyRow,.position.RV.goalyRow{bottom:50px}.position.IV{bottom:160px;left:180px}.position.IV.leftPos{left:126px}.position.IV.rightPos{left:234px}.position.IV.rightWing,.position.RV{bottom:160px;left:342px}.position.DM{bottom:270px;left:180px}.position.DM.leftPos{left:126px}.position.DM.rightPos{left:234px}.position.DM.leftOuterPos{left:18px}.position.DM.rightOuterPos{left:342px}.position.LM{bottom:380px;left:18px}.position.ZM{bottom:380px;left:180px}.position.ZM.leftPos{left:126px}.position.ZM.rightPos{left:234px}.position.RM{bottom:380px;left:342px}.position.OM{bottom:490px;left:180px}.position.OM.leftPos{left:126px}.position.OM.rightPos{left:234px}.position.OM.leftOuterPos{left:18px}.position.OM.rightOuterPos{left:342px}.position.LS{bottom:600px;left:18px}.position.MS{bottom:600px;left:180px}.position.MS.leftPos{left:126px}.position.MS.rightPos{left:234px}.position.RS{bottom:600px;left:342px}.freePosition{background-color:#fff;border-radius:6px;opacity:.7}.playerDropHover{background-color:#ccc;opacity:1}.playerRemoveLink{display:none}.formationPlayerPicture{position:absolute;top:0;text-align:center;width:100%}.formationPlayerPicture>img{max-width:90px;max-height:60px}.positionStatePrimary.jersey{background-image:url('../img/shirts_sprite.png');background-repeat:no-repeat;background-position:0 -60px}.positionStateSecondary.jersey{background-image:url('../img/shirts_sprite.png');background-repeat:no-repeat;background-position:-90px -60px}.positionStateWrong.jersey{background-image:url('../img/shirts_sprite.png');background-repeat:no-repeat;background-position:0 0}.positionStateSecondary{color:#00f}.positionStateWrong{color:red}.playerinfo.ui-draggable-dragging{background-color:#fff;border:1px solid #000;border-radius:6px;opacity:.95;max-width:150px}.playerinfo.ui-draggable-dragging .playerinfoIcons,.playerinfo.ui-draggable-dragging .playerinfoStrengthRow{display:none}.benchPlaceholder{font-style:italic}.benchPlayerRemove,.benchPlayerSubAdd,.benchPlayerSubInfo,.benchPlayerSubInfoConditionDeficit,.benchPlayerSubInfoConditionLeading,.benchPlayerSubInfoConditionTie{display:none}</style><?php }
+function Slider_css(){?><style>
+/*!
+ * Slider for Bootstrap
+ *
+ * Copyright 2012 Stefan Petre
+ * Licensed under the Apache License v2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ */.slider{display:inline-block;vertical-align:middle;position:relative}.slider.slider-horizontal{width:210px;height:20px}.slider.slider-horizontal .slider-track{height:10px;width:100%;margin-top:-5px;top:50%;left:0}.slider.slider-horizontal .slider-selection{height:100%;top:0;bottom:0}.slider.slider-horizontal .slider-handle{margin-left:-10px;margin-top:-5px}.slider.slider-horizontal .slider-handle.triangle{border-width:0 10px 10px 10px;width:0;height:0;border-bottom-color:#0480be;margin-top:0}.slider.slider-vertical{height:210px;width:20px}.slider.slider-vertical .slider-track{width:10px;height:100%;margin-left:-5px;left:50%;top:0}.slider.slider-vertical .slider-selection{width:100%;left:0;top:0;bottom:0}.slider.slider-vertical .slider-handle{margin-left:-5px;margin-top:-10px}.slider.slider-vertical .slider-handle.triangle{border-width:10px 0 10px 10px;width:1px;height:1px;border-left-color:#0480be;margin-left:0}.slider input{display:none}.slider .tooltip-inner{white-space:nowrap}.slider-track{position:absolute;cursor:pointer;background-color:#f7f7f7;background-image:-moz-linear-gradient(top,#f5f5f5,#f9f9f9);background-image:-webkit-gradient(linear,0 0,0 100%,from(#f5f5f5),to(#f9f9f9));background-image:-webkit-linear-gradient(top,#f5f5f5,#f9f9f9);background-image:-o-linear-gradient(top,#f5f5f5,#f9f9f9);background-image:linear-gradient(to bottom,#f5f5f5,#f9f9f9);background-repeat:repeat-x;-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,.1);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,.1);box-shadow:inset 0 1px 2px rgba(0,0,0,.1);-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}.slider-selection{position:absolute;background-color:#f7f7f7;background-image:-moz-linear-gradient(top,#f9f9f9,#f5f5f5);background-image:-webkit-gradient(linear,0 0,0 100%,from(#f9f9f9),to(#f5f5f5));background-image:-webkit-linear-gradient(top,#f9f9f9,#f5f5f5);background-image:-o-linear-gradient(top,#f9f9f9,#f5f5f5);background-image:linear-gradient(to bottom,#f9f9f9,#f5f5f5);background-repeat:repeat-x;-webkit-box-shadow:inset 0 -1px 0 rgba(0,0,0,.15);-moz-box-shadow:inset 0 -1px 0 rgba(0,0,0,.15);box-shadow:inset 0 -1px 0 rgba(0,0,0,.15);-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}.slider-handle{position:absolute;width:20px;height:20px;background-color:#0e90d2;background-image:-moz-linear-gradient(top,#149bdf,#0480be);background-image:-webkit-gradient(linear,0 0,0 100%,from(#149bdf),to(#0480be));background-image:-webkit-linear-gradient(top,#149bdf,#0480be);background-image:-o-linear-gradient(top,#149bdf,#0480be);background-image:linear-gradient(to bottom,#149bdf,#0480be);background-repeat:repeat-x;-webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 1px 2px rgba(0,0,0,.05);-moz-box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 1px 2px rgba(0,0,0,.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 1px 2px rgba(0,0,0,.05);opacity:.8;border:0 solid transparent}.slider-handle.round{-webkit-border-radius:20px;-moz-border-radius:20px;border-radius:20px}.slider-handle.triangle{background:transparent none}</style><?php }
+function Websoccer_css(){?><style>	.inforow{margin-top:10px}.infolabel{font-weight:700;background:#f5f5f5;padding:8px;border-radius:4px}.infovalue{padding:8px}.noBottomMargin{margin-bottom:0}.darkIcon{color:#000}.darkIcon:active,.darkIcon:hover{color:#444;text-decoration:none}.collapse{overflow:hidden}.dl-horizontal dt{white-space:normal}.tab-content{overflow:visible}.popover{max-width:500px}#ajaxLoaderPage{display:none;background:url('../img/ajaxloaderbar.gif') no-repeat center center;height:15px;width:100%;position:fixed;bottom:10px}.languageswitcher{list-style-type:none;margin:0;padding:0;text-align:center}.languageswitcher li{display:inline;padding-right:20px}.strength_success{color:#5eb95e}.strength_info{color:#4bb1cf}.strength_warning{color:#faa732}.strength_danger{color:#dd514c}.incell-strength-label{width:30px;display:inline-block}#report_result{border-top:1px solid #000;border-bottom:1px solid #000;text-align:center}#report_goals_guest,#report_goals_home,#report_goals_separator{padding:30px;display:inline-block;font-size:36px;font-weight:700}#report_goals_home{padding-left:0}#report_goals_guest{padding-right:0}#reportarea{border:1px solid #000;padding:5px;border:1px solid #dde2e4;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.05);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,.05);box-shadow:inset 0 1px 1px rgba(0,0,0,.05)}.report_minute{font-weight:700;color:#000}.report_comment{color:#666}.report_team_home{color:#069}.report_team_guest{color:#f60}#reporttable{table-layout:fixed}#reporttable td{padding-top:10px}.minutesPlayed{font-weight:700;font-size:80%;cursor:default}.youthmatchreporticon{max-height:14px}.websoccericon-goal{background:url('../img/icons-websoccer-32.png') no-repeat -95px -32px;width:34px;height:32px;display:inline-block}.websoccericon-yellowcard{background:url('../img/icons-websoccer-32.png') no-repeat -223px -96px;width:34px;height:32px;display:inline-block}.websoccericon-redcard{background:url('../img/icons-websoccer-32.png') no-repeat -160px -96px;width:34px;height:32px;display:inline-block}.websoccericon-substitution{background:url('../img/icons-websoccer-32.png') no-repeat -223px -163px;width:34px;height:32px;display:inline-block}.websoccericon-injury{background:url('../img/icons-websoccer-32.png') no-repeat -222px -224px;width:34px;height:32px;display:inline-block}.websoccericon-shoot{background:url('../img/icons-websoccer-32.png') no-repeat -95px -225px;width:34px;height:32px;display:inline-block}.websoccericon-attempt{background:url('../img/icons-websoccer-32.png') no-repeat -31px -225px;width:34px;height:32px;display:inline-block}.websoccericon-penalty{background:url('../img/icons-websoccer-32.png') no-repeat -160px -224px;width:34px;height:32px;display:inline-block}.websoccericon-matchcompleted{background:url('../img/icons-websoccer-32.png') no-repeat -159px -30px;width:34px;height:32px;display:inline-block}.websoccericon-corner{background:url('../img/icons-websoccer-32.png') no-repeat -31px -160px;width:34px;height:32px;display:inline-block}.websoccericon-tacticschange{background:url('../img/icons-websoccer-32.png') no-repeat -95px -160px;width:34px;height:34px;display:inline-block}.yAxis .tickLabel{left:-20px!important}#stadium{background:url('../img/pitch_bg.png') no-repeat 110px 90px}#notificationspopup{width:350px}.shoutboxmessages{height:250px;overflow-y:scroll;padding:10px 5px;margin-bottom:5px;background-color:#f9f9f9;border:1px solid #dde2e4;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.05);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,.05);box-shadow:inset 0 1px 1px rgba(0,0,0,.05)}@media all and (min-height:100px){.modal-body{max-height:50px}}@media all and (min-height:300px){.modal-body{max-height:150px}}@media all and (min-height:450px){.modal-body{max-height:300px}}@media all and (min-height:700px){.modal-body{max-height:550px}}
+</style><?php }
+function Editor_css(){?><style>
+	/* -------------------------------------------------------------------
+// markItUp! Universal MarkUp Engine, JQuery plugin
+// By Jay Salvat - http://markitup.jaysalvat.com/
+// ------------------------------------------------------------------*/
+.markItUp * {
+	margin:0px; padding:0px;
+	outline:none;
+}
+.markItUp a:link,
+.markItUp a:visited {
+	color:#000;
+	text-decoration:none;
+}
+.markItUp  {
+	width:700px;
+	margin:5px 0 5px 0;
+	border:5px solid #F5F5F5;
+}
+.markItUpContainer  {
+	border:1px solid #3C769D;
+	background:#FFF url(images/bg-container.png) repeat-x top left;
+	padding:5px 5px 2px 5px;
+	font:11px Verdana, Arial, Helvetica, sans-serif;
+}
+.markItUpEditor {
+	font:12px 'Courier New', Courier, monospace;
+	padding:5px 5px 5px 35px;
+	border:3px solid #3C769D;
+	width:643px;
+	height:320px;
+	background:#FFF url(images/bg-editor.png) no-repeat;
+	clear:both;
+	line-height:18px;
+	overflow:auto;
+}
+.markItUpPreviewFrame	{
+	overflow:auto;
+	background-color:#FFFFFF;
+	border:1px solid #3C769D;
+	width:99.9%;
+	height:300px;
+	margin:5px 0;
+}
+.markItUpFooter {
+	width:100%;
+	cursor:n-resize;
+}
+.markItUpResizeHandle {
+	overflow:hidden;
+	width:22px; height:5px;
+	margin-left:auto;
+	margin-right:auto;
+	background-image:url(images/handle.png);
+	cursor:n-resize;
+}
+.markItUpHeader ul li	{
+	list-style:none;
+	float:left;
+	position:relative;
+}
+.markItUpHeader ul li ul{
+	display:none;
+}
+.markItUpHeader ul li:hover > ul{
+	display:block;
+}
+.markItUpHeader ul .markItUpDropMenu {
+	background:transparent url(images/menu.png) no-repeat 115% 50%;
+	margin-right:5px;
+}
+.markItUpHeader ul .markItUpDropMenu li {
+	margin-right:0px;
+}
+.markItUpHeader ul .markItUpSeparator {
+	margin:0 10px;
+	width:1px;
+	height:16px;
+	overflow:hidden;
+	background-color:#CCC;
+}
+.markItUpHeader ul ul .markItUpSeparator {
+	width:auto; height:1px;
+	margin:0px;
+}
+.markItUpHeader ul ul {
+	display:none;
+	position:absolute;
+	top:18px; left:0px;
+	background:#F5F5F5;
+	border:1px solid #3C769D;
+	height:inherit;
+}
+.markItUpHeader ul ul li {
+	float:none;
+	border-bottom:1px solid #3C769D;
+}
+.markItUpHeader ul ul .markItUpDropMenu {
+	background:#F5F5F5 url(images/submenu.png) no-repeat 100% 50%;
+}
+.markItUpHeader ul ul ul {
+	position:absolute;
+	top:-1px; left:150px;
+}
+.markItUpHeader ul ul ul li {
+	float:none;
+}
+.markItUpHeader ul a {
+	display:block;
+	width:16px; height:16px;
+	text-indent:-10000px;
+	background-repeat:no-repeat;
+	padding:3px;
+	margin:0px;
+}
+.markItUpHeader ul ul a {
+	display:block;
+	padding-left:0px;
+	text-indent:0;
+	width:120px;
+	padding:5px 5px 5px 25px;
+	background-position:2px 50%;
+}
+.markItUpHeader ul ul a:hover  {
+	color:#FFF;
+	background-color:#3C769D;
+}
+.markItUp .markItUpButton1 a {background-image:url(data:image/png;filename=bold.png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADCSURBVCjPY/jPgB8yUEtBeUL5+ZL/Be+z61PXJ7yPnB8sgGFCcX3m/6z9IFbE/JD/XucxFOTWp/5PBivwr/f77/gfQ0F6ffz/aKACXwG3+27/LeZjKEioj/wffN+n3vW8y3+z/Vh8EVEf/N8LLGEy3+K/2nl5ATQF/vW+/x3BCrQF1P7r/hcvQFPgVg+0GWq0zH/N/wL1aAps6x3+64M9J12g8p//PZcCigKbBJP1uvvV9sv3S/YL7+ft51SgelzghgBKWvx6E5D1XwAAAABJRU5ErkJggg==);}
+.markItUp .markItUpButton2 a {	background-image:url(data:image/png;filename=italic.png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABxSURBVCjPY/jPgB8yUFtBdkPqh4T/kR+CD+A0Ie5B5P/ABJwmxBiE//f/gMeKkAlB/90W4FHg88Dzv20ATgVeBq7/bT7g8YXjBJf/RgvwKLB4YPFfKwCnAjMH0/8a/3EGlEmD7gG1A/IHJDfQOC4wIQALYP87Y6unEgAAAABJRU5ErkJggg==);}
+.markItUp .markItUpButton3 a {	background-image:url(data:image/png;filename=stroke.png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAACfSURBVCjPY/jPgB8yUFNBiWDBzOy01PKEmZG7sSrIe5dVDqIjygP/Y1GQm5b2P7kDwvbAZkK6S8L/6P8hM32N/zPYu2C1InJ36P/A/x7/bc+YoSooLy3/D4Px/23+SyC5G8kEf0EIbZSmfdfov9wZDCvc0uzLYWyZ/2J3MRTYppn/14eaIvKOvxxDgUma7ju1M/LlkmnC5bwdNIoL7BAAWzr8P9A5d4gAAAAASUVORK5CYII=);}
+.markItUp .markItUpButton4 a {	background-image:url(data:image/png;filename=list-bullet.png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADqSURBVDjLY/j//z8DJZiBKgbkzH9cMHXX6wcgmiwDQJq3nv/4H0SD+OXl5dlA/L+kpOR/QUHB/+zs7P+pqan/ExIS/kdGRv4PDg7+T10XDHwgpsx8VNC56eWDkJ675Hmhbf3zB0uPvP1fuvQpOBDj4uKyIyIi/gcGBv738vL67+zs/N/Gxua/iYnJf11d3f9qamqogRjQcaugZPHjB66V14ZqINrmXyqIn3bvgXXeJfK8ANLcv+3lfxAN4hsZGWVra2v/V1FR+S8nJ/dfXFz8v5CQ0H8eHp7/7Ozs/5mZmVEDEWQzRS6gBAMAYBDQP57x26IAAAAASUVORK5CYII=);}
+.markItUp .markItUpButton5 a {	background-image:url(data:image/png;filename=list-numeric.png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAD3SURBVDjLY/j//z8DJRhM5Mx/rLLo8Lv/ZBsA0kyRATBDYOzy8vJsIP5fUlLyv6Cg4H92dvb/1NTU/wkJCf8jIyP/BwcH/8fqgkUHSXcFA1UCce7+t/9n7Xn9P2LiPRWyXRDae0+ld8tL8rwQ1HVHpXPTc7jmuLi47IiIiP+BgYH/vby8/js7O/+3sbH5b2Ji8l9XV/e/mpoaaiC2rX/+v3HN0/81q54OUCCWL3v8v3Tp4//Fix+T7wKQZuu8S+THAkgzzAVGRkbZ2tra/1VUVP7Lycn9FxcX/y8kJPSfh4fnPzs7+39mZmbUQARpBGG7oisddA9EAPd/1bRtLxctAAAAAElFTkSuQmCC);}
+.markItUp .markItUpButton6 a {	background-image:url(data:image/png;filename=picture.png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAHwSURBVDjLpZM9a1RBFIafM/fevfcmC7uQjWEjUZKAYBHEVEb/gIWFjVVSWEj6gI0/wt8gprPQykIsTP5BQLAIhBVBzRf52Gw22bk7c8YiZslugggZppuZ55z3nfdICIHrrBhg+ePaa1WZPyk0s+6KWwM1khiyhDcvns4uxQAaZOHJo4nRLMtEJPpnxY6Cd10+fNl4DpwBTqymaZrJ8uoBHfZoyTqTYzvkSRMXlP2jnG8bFYbCXWJGePlsEq8iPQmFA2MijEBhtpis7ZCWftC0LZx3xGnK1ESd741hqqUaqgMeAChgjGDDLqXkgMPTJtZ3KJzDhTZpmtK2OSO5IRB6xvQDRAhOsb5Lx1lOu5ZCHV4B6RLUExvh4s+ZntHhDJAxSqs9TCDBqsc6j0iJdqtMuTROFBkIcllCCGcSytFNfm1tU8k2GRo2pOI43h9ie6tOvTJFbORyDsJFQHKD8fw+P9dWqJZ/I96TdEa5Nb1AOavjVfti0dfB+t4iXhWvyh27y9zEbRRobG7z6fgVeqSoKvB5oIMQEODx7FLvIJo55KS9R7b5ldrDReajpC+Z5z7GAHJFXn1exedVbG36ijwOmJgl0kS7lXtjD0DkLyqc70uPnSuIIwk9QCmWd+9XGnOFDzP/M5xxBInhLYBcd5z/AAZv2pOvFcS/AAAAAElFTkSuQmCC);}
+.markItUp .markItUpButton7 a {	background-image:url(data:image/png;filename=link.png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADpSURBVCjPY/jPgB8y0EmBHXdWaeu7ef9rHuaY50jU3J33v/VdVqkdN1SBEZtP18T/L/7f/X/wf+O96kM3f9z9f+T/xP8+XUZsYAWGfsUfrr6L2Ob9J/X/pP+V/1P/e/+J2LbiYfEHQz+ICV1N3yen+3PZf977/9z/Q//X/rf/7M81Ob3pu1EXWIFuZvr7aSVBOx1/uf0PBEK3/46/gnZOK0l/r5sJVqCp6Xu99/2qt+v+T/9f+L8CSK77v+pt73vf65qaYAVqzPYGXvdTvmR/z/4ZHhfunP0p+3vKF6/79gZqzPQLSYoUAABKPQ+kpVV/igAAAABJRU5ErkJggg==);}
+.markItUp .markItUpButton8 a {	background-image:url(data:image/png;filename=clean.png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABh0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzT7MfTgAAAhlJREFUOI2lk0toE1EYhc9kZmoeauyAMrZ5NFNsOo1tKm7MooIgKnTlqlkVF0LAlaWLuBG7kGJAV4qu7EYQtSvREkwVxKRWwVhLqKR5OK04Tu0jjQnNY5zJuBptbVqK/Zbnv+e73B8uoWkadoNhV+2tBMdufrX+t6A7NG9lGSrsf7KQ17P+Z8v53gcLb7tD85vEGwTeYYFhGTrMsw2+crGW0/NSuZbzsLSPZeiw52qWqSvoui74jx6xiHwT7ct8k4Vkotijz1KptZ6UJAt8E+3rbLeI7suzfn1GaJqGzqEvDR1u8xLXSO8XVmQlPpk/kb7Dx9ffxAfTx71de9/Z95FURpILU+9/Hpwb8cgGAEgMcfKnD4VARqpWGNpAtXLmUWd/olkvuwdTzZzDOMrQBiorVSsfJ1YDcyMeGQAo/dDsrbZHroszEZvN+Ly91eRT2yxRABwAXDA8THijjxvpxSwUEisB1FoA5e8T1mPzT1vtTlOYYeiOsaDrQKzPEbTYHTf4U+exh/OgPB3B5+i4mksmB868+nV7k+BfXpymsicHQpwp+xoQJwCrFcuUE/FITDj7UuGobdsAyBrhMh52Ab2DfzLqGguyRrRs2MFWqKQmlqbGbJanl1At/0AJQLFAQiXxHdjBXzAzh+7PTL5RpIoJBZLGao5AWiRUDbgL1FliPWJ99itrOSlAqoRTJTVRA+6dG1eGdyzYjt/h2M+sdF20TgAAAABJRU5ErkJggg==);}
+.markItUp .preview a {	background-image:url(data:image/png;filename=preview.png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAGrSURBVDjLvZPZLkNhFIV75zjvYm7VGFNCqoZUJ+roKUUpjRuqp61Wq0NKDMelGGqOxBSUIBKXWtWGZxAvobr8lWjChRgSF//dv9be+9trCwAI/vIE/26gXmviW5bqnb8yUK028qZjPfoPWEj4Ku5HBspgAz941IXZeze8N1bottSo8BTZviVWrEh546EO03EXpuJOdG63otJbjBKHkEp/Ml6yNYYzpuezWL4s5VMtT8acCMQcb5XL3eJE8VgBlR7BeMGW9Z4yT9y1CeyucuhdTGDxfftaBO7G4L+zg91UocxVmCiy51NpiP3n2treUPujL8xhOjYOzZYsQWANyRYlU4Y9Br6oHd5bDh0bCpSOixJiWx71YY09J5pM/WEbzFcDmHvwwBu2wnikg+lEj4mwBe5bC5h1OUqcwpdC60dxegRmR06TyjCF9G9z+qM2uCJmuMJmaNZaUrCSIi6X+jJIBBYtW5Cge7cd7sgoHDfDaAvKQGAlRZYc6ltJlMxX03UzlaRlBdQrzSCwksLRbOpHUSb7pcsnxCCwngvM2Rm/ugUCi84fycr4l2t8Bb6iqTxSCgNIAAAAAElFTkSuQmCC);}
+.markItUp .image a {	background-image:url(data:image/png;filename=image.png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAGWSURBVBgZpcE/a1NhGMbh3/OeN56cKq2Dp6AoCOKmk4uCn8DNycEOIojilr2TaBfRzVnESQR3Bz+FFDoWA2IjtkRqmpyc97k9qYl/IQV7XSaJw4g0VlZfP0m13dwepPbuiH85fyhyWCx4/ubxjU6kkdxWHt69VC6XpZlFBAhwJgwJJHAmRKorbj94ewvoRBrbuykvT5R2/+lLTp05Tp45STmEJYJBMAjByILxYeM9jzr3GCczGpHGYAQhRM6fO8uFy1fJQoaUwCKYEcwwC4QQaGUBd36KTDmQ523axTGQmEcIEBORKQfG1ZDxcA/MkBxXwj1ggCQyS9TVAMmZiUxJ8Ln/kS+9PmOvcSW+jrao0mmMH5bzHfa+9UGBmciUBJ+2Fmh1h+yTQCXSkJkdCrpd8btIwwEJQnaEkOXMk7XaiF8CUxL/JdKQOwb0Ntc5SG9zHXQNd/ZFGsaEeLa2ChjzXQcqZiKNxSL0vR4unVwwMENMCATib0ZdV+QtE41I42geXt1Ze3dlMNZFdw6Ut6CIvKBhkjiM79Pyq1YUmtkKAAAAAElFTkSuQmCC);}</style><?php }
+class DefaultBootstrapSkin{protected$_websoccer;
+				function __construct($websoccer){$this->_websoccer=$websoccer;}
+				function getTemplatesSubDirectory(){return 'default';}
+				function getCssSources(){Bootstrap_css();Skin_css();Websoccer_css();Responsive_css();Formation_css();Slider_css();$dir=Config('context_root').'/css/';return$files;}
+				function getJavaScriptSources(){$dir=Config('context_root').'/js/';$files[]='//code.jquery.com/jquery-1.11.1.min.js';$files[]=$dir.'websoccer.min.js';return$files;}
+				function getTemplate($templateName){return$templateName.'.twig';}
+				function getImage($fileName){if(file_exists($_SERVER['DOCUMENT_ROOT'].'/img/'.$fileName))return Config('context_root').'/img/'.$fileName;return FALSE;}
+				function __toString(){ return 'DefaultBootstrapSkin';}}
