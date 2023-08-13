@@ -65,7 +65,7 @@ elseif ($show == 'select') {
 	$formFields['target_missed_penalty'] = array('type' => 'number', 'value' => 0, 'required' => 'false');
 	$formFields['target_accomplished_reward'] = array('type' => 'number', 'value' => 0, 'required' => 'false');
 	$formFields['youthplayers_age_delete'] = array('type' => 'number', 'value' => 19, 'required' => 'false');
-	foreach ($formFields as $fieldId => $fieldInfo)echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], 'season_complete_label_');?>
+	foreach ($formFields as $fieldId => $fieldInfo)echo createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo['value'], 'season_complete_label_');?>
 	</fieldset>
 	<div class='form-actions'>
 		<input type='submit' class='btn btn-primary' accesskey='s' title='Alt + s' value='<?php echo Message('season_complete_submit'); ?>'>
@@ -124,7 +124,7 @@ elseif ($show == 'complete') {
 				if ($rank === 1 && $team['sponsor_id']) {
 					$sponsorres = $db->querySelect('name, b_meisterschaft', $conf['db_prefix'] .'_sponsor', 'id = %d', $team['sponsor_id']);
 					$sponsor = $sponsorres->fetch_array();
-					if ($sponsor)BankAccountDataService::creditAmount($website, $db, $team['id'], $sponsor['b_meisterschaft'],'sponsor_championship_bonus_subject', $sponsor['name']);
+					if ($sponsor)creditAmount($website, $db, $team['id'], $sponsor['b_meisterschaft'],'sponsor_championship_bonus_subject', $sponsor['name']);
 					$sponsorres->free();}}
 			foreach ($moveConfigs as $moveConfig) {
 				if ($moveConfig['rank_from'] <= $rank && $moveConfig['rank_to'] >= $rank) {
@@ -145,7 +145,7 @@ elseif ($show == 'complete') {
 						null, 1);
 				$badge = $res->fetch_array();
 				$res->free();
-				if ($badge)BadgesDataService::awardBadge($website, $db, $team['user_id'], $badge['id']);
+				if ($badge)awardBadge($website, $db, $team['user_id'], $badge['id']);
 				$db->queryInsert(array(
 					'user_id' => $team['user_id'],
 					'team_id' => $team['id'],
@@ -162,9 +162,9 @@ elseif ($show == 'complete') {
 							$popularity = max(1, $manager['fanbeliebtheit'] - $_POST['target_missed_popularityreduction']);
 							$db->queryUpdate(array('fanbeliebtheit' => $popularity), $conf['db_prefix'] .'_user', 'id = %d', $team['user_id']);}
 						$userres->free();}
-					if ($_POST['target_missed_penalty'] > 0)BankAccountDataService::debitAmount($website, $db, $team['id'], $_POST['target_missed_penalty'],'seasontarget_failed_penalty_subject',Config('projectname'));}
+					if ($_POST['target_missed_penalty'] > 0)debitAmount($website, $db, $team['id'], $_POST['target_missed_penalty'],'seasontarget_failed_penalty_subject',Config('projectname'));}
 				elseif ($team['min_target_rank'] > 0 && $team['min_target_rank'] >= $rank && $_POST['target_accomplished_reward'] > 0) {
-					BankAccountDataService::creditAmount($website, $db, $team['id'], $_POST['target_accomplished_reward'],
+					creditAmount($website, $db, $team['id'], $_POST['target_accomplished_reward'],
 						'seasontarget_accomplished_reward_subject',Config('projectname'));}}
 			$youthresult = $db->querySelect('id,age', $conf['db_prefix'] . '_youthplayer', 'team_id = %d', $team['id']);
 			while ($youthplayer = $youthresult->fetch_array()) {
@@ -173,7 +173,7 @@ elseif ($show == 'complete') {
 				else$db->queryUpdate(array('age' => $playerage), $conf['db_prefix'] . '_youthplayer', 'id = %d', $youthplayer['id']);}
 			$youthresult->free();
 			$event = new SeasonOfTeamCompletedEvent($website, $db, $i18n,$team['id'], $season['id'], $rank);
-			PluginMediator::dispatchEvent($event);
+			dispatchEvent($event);
 			++$rank;}
 		$result->free();
 		$teamcolumns = array();

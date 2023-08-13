@@ -16,7 +16,7 @@
 					<form action='<?php echo escapeOutput($_SERVER['PHP_SELF']);?>'method='post'class='form-horizontal'><input type='hidden'name='show'value='speichern'><input type='hidden'name='site'value='<?php echo$site;?>'><ul class='nav nav-tabs'>
     				<?php $firstTab=TRUE;foreach($tabs as$tabId=>$settings){echo'<li';if($firstTab)echo' class=\'active\'';echo'><a href=\'#'.$tabId.'\'data-toggle=\'tab\'>'.Message('settings_tab_'.$tabId).'</a></li>';$firstTab=FALSE;}?></ul><div class='tab-content'>
 					<?php $firstTab=TRUE;foreach($tabs as$tabId=>$settings){echo'<div class=\'tab-pane';if($firstTab)echo' active';echo'\'id=\''.$tabId.'\'>';foreach($settings as$settingId=>$settingInfo)
-					echo FormBuilder::createFormGroup($i18n,$settingId,$settingInfo,Config($settingId),'settings_label_');echo'</div>';$firstTab=FALSE;}?></div><div class='form-actions'>
+					echo createFormGroup($i18n,$settingId,$settingInfo,Config($settingId),'settings_label_');echo'</div>';$firstTab=FALSE;}?></div><div class='form-actions'>
 					<input type='submit'class='btn btn-primary'accesskey='s'title='Alt + s'value='<?php echo Message('button_save');?>'><input type='reset'class='btn'value='<?php echo Message('button_reset');?>'></div></form><?php }elseif($show=='speichern'){
 					if($admin['r_demo'])$err[]=Message('validationerror_no_changes_as_demo');if(isset($err))include('validationerror.inc.php');else{$newSettings=[];foreach($setting as$settingId=>$settingData)$newSettings[$settingId]=(isset($_POST[$settingId]))?
 					prepareFielfValueForSaving($_POST[$settingId]):'';$cf=ConfigFileWriter::getInstance($conf);$cf->saveSettings($newSettings);include('success.inc.php');echo createWarningMessage(Message('settings_saved_note_restartjobs'),

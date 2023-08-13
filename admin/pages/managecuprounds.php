@@ -76,7 +76,7 @@ if ($action == "create") {
 				$fieldValue = (isset($_POST[$fieldId])) ? $_POST[$fieldId] : "";
 			}
 
-			FormBuilder::validateField($i18n, $fieldId, $fieldInfo, $fieldValue, "managecuprounds_label_");
+			validateField($i18n, $fieldId, $fieldInfo, $fieldValue, "managecuprounds_label_");
 		}
 
 		// save
@@ -164,13 +164,13 @@ if (isset($rootIds)) {
 
 	<?php
 	foreach ($formFields as $fieldId => $fieldInfo) {
-		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "managecuprounds_label_");
+		echo createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "managecuprounds_label_");
 	}
 	?>
 	<hr>
 
 	<?php
-	echo FormBuilder::createFormGroup($i18n, "round_generation", array(
+	echo createFormGroup($i18n, "round_generation", array(
 			"type" => "select",
 			"selection" => "self,winners_from,loosers_from,generate_from_groups",
 			"value" => "",

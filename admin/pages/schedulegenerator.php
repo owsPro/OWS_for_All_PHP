@@ -50,7 +50,7 @@ if (!$show) {
 	$formFields["timebreak_rounds"] = array("type" => "number", "value" => 0);
 
 	foreach ($formFields as $fieldId => $fieldInfo) {
-		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "schedulegenerator_label_");
+		echo createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "schedulegenerator_label_");
 	}
 	?>
 	</fieldset>
@@ -92,7 +92,7 @@ elseif ($show == "generate") {
 	}
 	$result->free();
 
-	$schedule = ScheduleGenerator::createRoundRobinSchedule($teams);
+	$schedule = createRoundRobinSchedule($teams);
 	$numberOfMatchDaysPerRound = count($schedule);
 
 	// add additional rounds (always swap home/guest)

@@ -50,7 +50,7 @@ if (!$show) {
 	$formFields["stadium_p_vip"] = array("type" => "number", "value" => 100);
 
 	foreach ($formFields as $fieldId => $fieldInfo) {
-		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "generator_label_");
+		echo createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "generator_label_");
 	}
 	?>
 	</fieldset>
@@ -77,9 +77,7 @@ elseif ($show == "generate") {
     include("validationerror.inc.php");
 
   }
-  else {
-
-	DataGeneratorService::generateTeams($website, $db, $_POST['numberofteams'], $_POST['league'], $_POST['budget'],
+  else {generateTeams($website, $db, $_POST['numberofteams'], $_POST['league'], $_POST['budget'],
 		(isset($_POST['generatestadium']) && $_POST['generatestadium']), $_POST['stadiumpattern'], $_POST['stadium_p_stands'], $_POST['stadium_p_seats'], $_POST['stadium_p_stands_grand'], $_POST['stadium_p_seats_grand'], $_POST['stadium_p_vip'] );
 
 	echo createSuccessMessage(Message("generator_success"), "");

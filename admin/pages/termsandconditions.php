@@ -70,7 +70,7 @@ if (!$show) {
 
 	$formFields["content"] = array("type" => "html", "value" => $terms, "required" => "true");
 	foreach ($formFields as $fieldId => $fieldInfo) {
-		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "imprint_label_");
+		echo createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "imprint_label_");
 	}
 	?>
 	</fieldset>

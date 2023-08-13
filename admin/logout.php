@@ -11,4 +11,4 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-								require_once($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');SecurityUtil::logoutAdmin();header('location:login.php?loggedout=1');
+								require_once($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');logoutAdmin();header('location:login.php?loggedout=1');

@@ -35,7 +35,7 @@ if (!$show) {
 	$formFields["repeatpassword"] = array("type" => "password", "value" => "");
 	$formFields["language"] = array("type" => "select", "value" => $admin["lang"], "selection" =>Config("supported_languages"));
 	foreach ($formFields as $fieldId => $fieldInfo) {
-		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "profile_label_");
+		echo createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "profile_label_");
 	}
 	?>
 	</fieldset>
@@ -73,13 +73,13 @@ elseif ($show == "save") {
 
 		// create new salt
 		if (!strlen($admin["passwort_salt"])) {
-			$salt = SecurityUtil::generatePasswordSalt();
+			$salt = generatePasswordSalt();
 			$db->queryUpdate(array("passwort_salt" => $salt), $fromTable, $whereCondition, $parameter);
 		} else {
 			$salt = $admin["passwort_salt"];
 		}
 
-		$passwort = SecurityUtil::hashPassword(trim($_POST['newpassword']), $salt);
+		$passwort = hashPassword(trim($_POST['newpassword']), $salt);
     } else {
 		$passwort = $admin['passwort'];
     }

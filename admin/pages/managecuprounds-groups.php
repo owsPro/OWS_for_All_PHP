@@ -70,7 +70,7 @@ if ($action == "create") {
 
 			$fieldValue = (isset($_POST[$fieldId])) ? $_POST[$fieldId] : "";
 
-			FormBuilder::validateField($i18n, $fieldId, $fieldInfo, $fieldValue, "managecuprounds_group_label_");
+			validateField($i18n, $fieldId, $fieldInfo, $fieldValue, "managecuprounds_group_label_");
 		}
 
 		$teamIds = $_POST["teams"];
@@ -292,7 +292,7 @@ if (count($groups)) {
 				<input type="hidden" name="group" value="<?php echo escapeOutput($groupName); ?>">
 
 				<?php
-				FormBuilder::createForeignKeyField($i18n, "teamid", array("entity" => "club", "jointable" => "verein", "labelcolumns" => "name"), "");
+				createForeignKeyField($i18n, "teamid", array("entity" => "club", "jointable" => "verein", "labelcolumns" => "name"), "");
 				?>
 
 				<input type="submit" class="btn btn-small" value="<?php echo Message("managecuprounds_groups_addteam"); ?>">
@@ -365,7 +365,7 @@ if (count($groups)) {
 				$teamIds[] = $groupItem["team_id"];
 			}
 
-			$schedule = ScheduleGenerator::createRoundRobinSchedule($teamIds);
+			$schedule = createRoundRobinSchedule($teamIds);
 			$numberOfMatchDaysPerRound = count($schedule);
 
 			// create match pairs for after first round
@@ -446,7 +446,7 @@ if (count($groups)) {
 		  	</div>
 			<?php
 			foreach ($generateFormFields as $fieldId => $fieldInfo) {
-				echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "schedulegenerator_label_");
+				echo createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "schedulegenerator_label_");
 			}
 			?>
 		  </div>
@@ -473,7 +473,7 @@ if (count($groups)) {
 
 	<?php
 	foreach ($formFields as $fieldId => $fieldInfo) {
-		echo FormBuilder::createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "managecuprounds_group_label_");
+		echo createFormGroup($i18n, $fieldId, $fieldInfo, $fieldInfo["value"], "managecuprounds_group_label_");
 	}
 	?>
 	<div>
