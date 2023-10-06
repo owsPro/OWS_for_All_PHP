@@ -1,6 +1,6 @@
 # OWS_for_All_PHP
   Base: OpenWebSoccer-Sim 5.2.4-SNAPSHOT 2015
-  owsPro for All PHP - Version 5.5 to 8.2.8 / 8.3.0alpha3
+  owsPro for All PHP - Version 5.5 to 8.2.8 / 8.3.0 RC3
 
   This is "owsPro for All PHP" (Rolf Joseph)
   https://github.com/owsPro/OWS_for_All_PHP/
