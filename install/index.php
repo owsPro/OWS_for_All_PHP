@@ -10,6 +10,23 @@
 
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
+	Refactored
+
+- The code starts with the opening PHP tag <?php and includes the necessary file owsPro.php using the include statement.
+- The ini_set functions are used to set the session cookie options for security purposes.
+- The session_start function is called to start the session.
+- The $supportedLanguages array is defined, which contains the supported languages and their corresponding names.
+- The HTML code starts with the <!DOCTYPE html> declaration and the opening html tag.
+- The head section contains the necessary meta tags, CSS styles, and the title of the page.
+- The body section starts with a container div and displays the heading "owsPro Installation" followed by a horizontal line.
+- The code checks if the $_SESSION['lang'] variable is set and includes the corresponding language messages file.
+- The $action variable is checked to determine the appropriate view to display. If the action is not set or does not start with "action", the printWelcomeScreen view is displayed; otherwise, the action view is called.
+- If the language has changed, the corresponding language messages file is included again.
+- If there are any errors, they are displayed as alert messages using a foreach loop.
+- The appropriate view is displayed, either using the $messages variable or by calling the $view function.
+- The code ends with the closing div tag, a horizontal line, and a footer displaying the powered by and forked from information.
+- The necessary JavaScript files are included at the end of the code.
+
 *****************************************************************************/
 include($_SERVER['DOCUMENT_ROOT'].'/owsPro.php');
 ini_set('session.cookie_httponly',1);
@@ -53,22 +70,3 @@ else$_SESSION['lang'] = 'en'; // Set a default language or display an error mess
     <script src='../admin/bootstrap/js/bootstrap.min.js'></script>
 </body>
 </html>
-
-/* Refactored
-
-- The code starts with the opening PHP tag <?php and includes the necessary file owsPro.php using the include statement.
-- The ini_set functions are used to set the session cookie options for security purposes.
-- The session_start function is called to start the session.
-- The $supportedLanguages array is defined, which contains the supported languages and their corresponding names.
-- The HTML code starts with the <!DOCTYPE html> declaration and the opening html tag.
-- The head section contains the necessary meta tags, CSS styles, and the title of the page.
-- The body section starts with a container div and displays the heading "owsPro Installation" followed by a horizontal line.
-- The code checks if the $_SESSION['lang'] variable is set and includes the corresponding language messages file.
-- The $action variable is checked to determine the appropriate view to display. If the action is not set or does not start with "action", the printWelcomeScreen view is displayed; otherwise, the action view is called.
-- If the language has changed, the corresponding language messages file is included again.
-- If there are any errors, they are displayed as alert messages using a foreach loop.
-- The appropriate view is displayed, either using the $messages variable or by calling the $view function.
-- The code ends with the closing div tag, a horizontal line, and a footer displaying the powered by and forked from information.
-- The necessary JavaScript files are included at the end of the code.
-
-*/
