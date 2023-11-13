@@ -112,7 +112,7 @@ class FileUploadHelper{
 class FormBuilder{
 	 static function createFormGroup($i18n,$fieldId,$fieldInfo,$fieldValue,$labelKeyPrefix){createFormGroup($i18n,$fieldId,$fieldInfo,$fieldValue,$labelKeyPrefix);}
 	 static function validateField($i18n,$fieldId,$fieldInfo,$fieldValue,$labelKeyPrefix){validateField($i18n,$fieldId,$fieldInfo,$fieldValue,$labelKeyPrefix);}
-	 static function createForeignKeyField($i18n,$fieldId,$fieldInfo,$fieldValue){createForeignKeyField($i18n,$fieldId,$fieldInfo,$fieldValue);}}	
+	 static function createForeignKeyField($i18n,$fieldId,$fieldInfo,$fieldValue){createForeignKeyField($i18n,$fieldId,$fieldInfo,$fieldValue);}}
 			function createFormGroup($i18n,$fieldId,$fieldInfo,$fieldValue,$labelKeyPrefix){$type=$fieldInfo['type'];if($type=='timestamp'&&isset($fieldInfo['readonly'])&&$fieldInfo['readonly']){$website=WebSoccer::getInstance();$dateFormat=Config('datetime_format');
 							if(!strlen($fieldValue))$fieldValue=date($dateFormat);elseif(is_numeric($fieldValue))$fieldValue=date($dateFormat,$fieldValue);$type='text';}elseif($type=='date'&&strlen($fieldValue)){if(startsWith($fieldValue,'0000'))
 							$fieldValue='';else{$dateObj=DateTime::createFromFormat('Y-m-d',$fieldValue);if($dateObj!==FALSE){$website=WebSoccer::getInstance();$dateFormat=$website->getConfig('date_format');$fieldValue=$dateObj->format($dateFormat);}}}
@@ -415,7 +415,7 @@ class SimulationHelper{
 						 	=='Leading'&&$team->getGoals()<=getOpponentTeamOfTeam($team,$match)->getGoals()||$substitution->condition=='Deficit'&&$team->getGoals()>=getOpponentTeamOfTeam($team,$match)->getGoals()){$substitution->minute=999;continue;}
 							$team->removePlayer($substitution->playerOut);if(strlen($substitution->position))$mainPosition=$substitution->position;elseif(strlen($substitution->playerIn->mainPosition)&&$substitution->playerIn->mainPosition!="-")$mainPosition=
 							$substitution->playerIn->mainPosition;else$mainPosition=NULL;if($mainPosition==NULL)$position=$substitution->playerIn->position;else{$positionMapping=getPositionsMapping();$position=$positionMapping[$mainPosition];}$strength=
-							$substitution->playerIn->strength;if($position!=$substitution->playerIn->position)$strength=round($strength*(1-Config('sim_strength_reduction_wrongposition')/100));elseif($mainPosition!=NULL&&$mainPosition!= 
+							$substitution->playerIn->strength;if($position!=$substitution->playerIn->position)$strength=round($strength*(1-Config('sim_strength_reduction_wrongposition')/100));elseif($mainPosition!=NULL&&$mainPosition!=
 							$substitution->playerIn->mainPosition)$strength=round($strength*(1-Config('sim_strength_reduction_secondary')/100));$substitution->playerIn->position=$position;$substitution->playerIn->strength=$strength;$substitution->playerIn->mainPosition=
 							$mainPosition;$team->positionsAndPlayers[$substitution->playerIn->position][]=$substitution->playerIn;unset($team->playersOnBench[$substitution->playerIn->id]);foreach($observers as$observer)$observer->onSubstitution($match,$substitution);}}}
 	 		function createUnplannedSubstitutionForPlayer($minute,SimulationPlayer$playerOut){$team=$playerOut->team;if((array)count($team->playersOnBench)<1)return FALSE;$position=$playerOut->position;$player=selectPlayerFromBench($team->playersOnBench,$position);
@@ -553,10 +553,10 @@ class StadiumEnvironmentPlugin{
 							if($event->rateSeats)$event->rateSeats=max(0.0,min(1.0,$event->rateSeats+$bonus));if($event->rateStands)$event->rateStands=max(0.0,min(1.0,$event->rateStands+$bonus));if($event->rateSeatsGrand)$event->rateSeatsGrand=
 							max(0.0,min(1.0,$event->rateSeatsGrand+$bonus));if($event->rateStandsGrand)$event->rateStandsGrand=max(0.0,min(1.0,$event->rateStandsGrand+$bonus));if($event->rateVip)$event->rateVip=max(0.0,min(1.0,$event->rateVip+$bonus));}
 	 		function creditAndDebitAfterHomeMatch(MatchCompletedEvent$event){if($event->match->type=='Freundschaft'||$event->match->homeTeam->isNationalTeam)return;$homeTeamId=$event->match->homeTeam->id;$sum=getBonusSumFromBuildings($event->websoccer,
-		 					$event->db,'effect_income',$homeTeamId);if($sum)creditAmount($event->websoccer,$event->db,$homeTeamId,$sum,'stadiumenvironment_matchincome_subject',Config('projectname'));else 			
+		 					$event->db,'effect_income',$homeTeamId);if($sum)creditAmount($event->websoccer,$event->db,$homeTeamId,$sum,'stadiumenvironment_matchincome_subject',Config('projectname'));else
 		 					debitAmount($event->websoccer,$event->db,$homeTeamId,abs($sum),'stadiumenvironment_costs_per_match_subject',Config('projectname'));}
 	 		function handleInjuriesAfterMatch(MatchCompletedEvent$event){if($event->match->type=='Freundschaft'||$event->match->homeTeam->isNationalTeam)return;$homeTeamId=$event->match->homeTeam->id;$sumHome=getBonusSumFromBuildings($event->websoccer,
-		 					$event->db,'effect_injury',$homeTeamId);$guestTeamId=$event->match->guestTeam->id;$sumGuest=getBonusSumFromBuildings($event->websoccer,$event->db,'effect_injury',$guestTeamId);if($sumHome>0||$sumGuest){						
+		 					$event->db,'effect_injury',$homeTeamId);$guestTeamId=$event->match->guestTeam->id;$sumGuest=getBonusSumFromBuildings($event->websoccer,$event->db,'effect_injury',$guestTeamId);if($sumHome>0||$sumGuest){
 		 					$playerTable=Config('db_prefix').'_spieler';$result=$event->db->querySelect('id,verein_id AS team_id,verletzt AS injured',$playerTable,'(verein_id=%d OR verein_id=%d)AND verletzt>0',array($homeTeamId,$guestTeamId));
 							while($player=$result->fetch_array()){$reduction=0;if($sumHome>0&&$player['team_id']==$homeTeamId)$reduction=$sumHome;elseif($sumGuest>0&&$player['team_id']==$guestTeamId)$reduction=$sumGuest;if($reduction){
 							$injured=max(0,$player['injured']-$reduction);$event->db->queryUpdate(array('verletzt'=>$injured),$playerTable,'id=%d',$player['id']);}}}}
@@ -617,47 +617,41 @@ class CupsDataService{
 	 						Config('db_prefix').'_user AS U ON U.id=T.user_id',"G.cup_round_id=%d AND G.name='%s'ORDER BY G.tab_points DESC,(G.tab_goals-G.tab_goalsreceived)DESC,G.tab_wins DESC,T.st_punkte DESC",[$roundId,$groupName]);$teams=[];
 							while($team=$result->fetch_array())$teams[]=$team;return$teams;}
 
-class DataGeneratorService{
-	 static function generateTeams($websoccer,$db,$numberOfTeams,$leagueId,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip){generateTeams($websoccer,$db,$numberOfTeams,$leagueId,$budget,
-	 						$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip);}
-	 static function generatePlayers($websoccer,$db,$teamId,$age,$ageDeviation,$salary,$contractDuration,$strengths,$positions,$maxDeviation,$nationality=NULL){generatePlayers($websoccer,$db,$teamId,$age,$ageDeviation,$salary,$contractDuration,$strengths,$positions,
-	 						$maxDeviation,$nationality=NULL);}
-	 static function getLines($fileName,$country){getLines($fileName,$country);}
-	 static function getItemFromArray($items){getItemFromArray($items);}
-	 static function throwException($messageKey,$parameter=null){throwException($messageKey,$parameter=null);}
-	 static function createTeam($websoccer,$db,$league,$country,$cityName,$prefixes,$suffixes,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip){createTeam($websoccer,$db,$league,$country,
-	 						$cityName,$prefixes,$suffixes,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip);}
-	 static function createPlayer($websoccer,$db,$teamId,$firstName,$lastName,$position,$mainPosition,$strengths,$country,$age,$birthday,$salary,$contractDuration,$maxDeviation){createPlayer($websoccer,$db,$teamId,$firstName,$lastName,$position,$mainPosition,
-	 						$strengths,$country,$age,$birthday,$salary,$contractDuration,$maxDeviation);}
-	 static function getRandomDeviationValue($maxDeviation){getRandomDeviationValue($maxDeviation);}}
-	 		function generateTeams($websoccer,$db,$numberOfTeams,$leagueId,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip){$result=$db->querySelect('*',Config('db_prefix').'_liga','id=%d',
+function generatePlayers($websoccer,$db,$teamId,$age,$ageDeviation,$salary,$contractDuration,$strengths,$positions,$maxDeviation,$nationality=NULL){
+							if(strlen($nationality))$country=$nationality; // Check if nationality is provided, otherwise fetch it from the database
+    						else{
+        						$result=$db->querySelect('L.land AS country',Config('db_prefix').'_verein AS T INNER JOIN '.Config('db_prefix').'_liga AS L ON L.id=T.liga_id','T.id=%d',$teamId);
+        						$league=$result->fetch_array();
+        						if(!$league)throw new Exception('illegal team ID');
+        						$country=$league['country'];}
+								$firstNames=getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/firstnames.txt',$country);$lastNames=getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/lastnames.txt',$country); // Get first names and last names based on country
+    							$mainPositions=['T'=>'Torwart','LV'=>'Abwehr','IV'=>'Abwehr','RV'=>'Abwehr','LM'=>'Mittelfeld','ZM'=>'Mittelfeld','OM'=>'Mittelfeld','DM'=>'Mittelfeld','RM'=>'Mittelfeld','LS'=>'Sturm','MS'=>'Sturm','RS'=>'Sturm']; // Define main positions
+								foreach($positions as$mainPosition=>$numberOfPlayers){ // Generate players for each main position
+								for($playerNo=1;$playerNo<=$numberOfPlayers;++$playerNo){
+            						$birthday=date('Y-m-d',strtotime('-'.$age+getRandomDeviationValue($ageDeviation.' years',Timestamp()))); // Generate player age with deviation
+            						$firstName=getItemFromArray($firstNames);$lastName=getItemFromArray($lastNames); // Get random first name and last name
+            						createPlayer($websoccer,$db,$teamId,$firstName,$lastName,$mainPositions[$mainPosition],$mainPosition,$strengths,$country,$playerAge,$birthday,$salary,$contractDuration,$maxDeviation);}}} // Create player
+function getLines($fileName,$country){$filePath=sprintf($fileName,$country);if(!file_exists($filePath))throwException('generator_err_filedoesnotexist',$filePath);$items=file($filePath,FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);if(!count($items))
+							throwException('generator_err_emptyfile',$filePath);return$items;}
+function getRandomDeviationValue($maxDeviation){if($maxDeviation<=0)return 0;return mt_rand(0-$maxDeviation,$maxDeviation);}
+function getItemFromArray($items){$itemsCount=count($items);if($itemsCount)return$items[mt_rand(0,$itemsCount-1)];return FALSE;}
+function createPlayer($websoccer,$db,$teamId,$firstName,$lastName,$position,$mainPosition,$strengths,$country,$age,$birthday,$salary,$contractDuration,$maxDeviation){$columns=['vorname'=>$firstName,'nachname'=>$lastName,'geburtstag'=>$birthday,'age'=>$age,
+	 						'position'=>$position,'position_main'=>$mainPosition,'nation'=>$country,'w_staerke'=>max(1,min(100,$strengths['strength']+getRandomDeviationValue($maxDeviation))),'w_technik'=>max(1,min(100,$strengths['technique']+
+	 						getRandomDeviationValue($maxDeviation))),'w_kondition'=>max(1,min(100,$strengths['stamina']+getRandomDeviationValue($maxDeviation))),'w_frische'=>max(1,min(100,$strengths['freshness']+getRandomDeviationValue($maxDeviation))),
+							'w_zufriedenheit'=>max(1,min(100,$strengths['satisfaction']+getRandomDeviationValue($maxDeviation))),'vertrag_gehalt'=>$salary,'vertrag_spiele'=>$contractDuration,'status'=>'1'];if($teamId)$columns=['verein_id'=>$teamId];
+							else$columns=['transfermarkt'=>'1','transfer_start'=>Timestamp(),'transfer_ende'=>$columns['transfer_start']+Config('transfermarket_duration_days')*24*3600];$db->queryInsert($columns,Config('db_prefix').'_spieler');}
+function generateTeams($websoccer,$db,$numberOfTeams,$leagueId,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip){$result=$db->querySelect('*',Config('db_prefix').'_liga','id=%d',
 	 						$leagueId);$league=$result->fetch_array();if(!$league)throw new Exception('illegal league ID');$country=$league['land'];$cities=getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/cities.txt',$country);
 							$prefixes=getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/clubprefix.txt',$country);$suffixes=[];try{$suffixes=getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/clubsuffix.txt',$country);}catch(Exception$e){}
 							for($teamNo=1;$teamNo<=$numberOfTeams;++$teamNo){$cityName=getItemFromArray($cities);createTeam($websoccer,$db,$league,$country,$cityName,$prefixes,$suffixes,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,
 							$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip);}}
-	 		function generatePlayers($websoccer,$db,$teamId,$age,$ageDeviation,$salary,$contractDuration,$strengths,$positions,$maxDeviation,$nationality=NULL){if(strlen($nationality))$country=$nationality;else{$result=$db->querySelect('L.land AS country',$fromTable,
-	 						'T.id=%d',$teamId);$league=$result->fetch_array();if(!$league)throw new Exception('illegal team ID');$country=$league['country'];}$firstNames=getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/firstnames.txt',$country);
-							$lastNames=getLines($_SERVER['DOCUMENT_ROOT'].'/admin/config/names/%s/lastnames.txt',$country);
-							$mainPositions=['T'=>'Torwart','LV'=>'Abwehr','IV'=>'Abwehr','RV'=>'Abwehr','LM'=>'Mittelfeld','ZM'=>'Mittelfeld','OM'=>'Mittelfeld','DM'=>'Mittelfeld','RM'=>'Mittelfeld','LS'=>'Sturm','MS'=>'Sturm','RS'=>'Sturm'];
-							foreach($positions as$mainPosition=>$numberOfPlayers){for($playerNo=1;$playerNo<=$numberOfPlayers;++$playerNo){$playerAge=$age+getRandomDeviationValue($ageDeviation);$time=strtotime('-'.$playerAge.' years',Timestamp());			
-							$birthday=date('Y-m-d',$time);$firstName=getItemFromArray($firstNames);$lastName=getItemFromArray($lastNames);createPlayer($websoccer,$db,$teamId,$firstName,$lastName,$mainPositions[$mainPosition],$mainPosition,$strengths,$country,$playerAge,
-							$birthday,$salary,$contractDuration,$maxDeviation);}}}
-	 		function getLines($fileName,$country){$filePath=sprintf($fileName,$country);if(!file_exists($filePath))throwException('generator_err_filedoesnotexist',$filePath);$items=file($filePath,FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);if(!count($items))
-							throwException('generator_err_emptyfile',$filePath);return$items;}
-	 		function getItemFromArray($items){$itemsCount=count($items);if($itemsCount)return$items[mt_rand(0,$itemsCount-1)];return FALSE;}
-	 		function throwException($messageKey,$parameter=null){$websoccer=WebSoccer::getInstance();$i18n=I18n::getInstance(Config('supported_languages'));throw new Exception(Message($messageKey,$parameter));}
-	 		function createTeam($websoccer,$db,$league,$country,$cityName,$prefixes,$suffixes,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip){$teamName=$cityName;$shortName=
+function throwException($messageKey,$parameter=null){$websoccer=WebSoccer::getInstance();$i18n=I18n::getInstance(Config('supported_languages'));throw new Exception(Message($messageKey,$parameter));}
+function createTeam($websoccer,$db,$league,$country,$cityName,$prefixes,$suffixes,$budget,$generateStadium,$stadiumNamePattern,$stadiumStands,$stadiumSeats,$stadiumStandsGrand,$stadiumSeatsGrand,$stadiumVip){$teamName=$cityName;$shortName=
 							strtoupper(substr($cityName,0,3));if(rand(0,1)&&count($suffixes))$teamName.=' '.getItemFromArray($suffixes);else$teamName=getItemFromArray($prefixes).' '.$teamName;$stadiumId=0;if($generateStadium){$stadiumName=
 							sprintf($stadiumNamePattern,$cityName);$db->queryInsert(['name'=>$stadiumName,'stadt'=>$cityName,'land'=>$country,'p_steh'=>$stadiumStands,'p_sitz'=>$stadiumSeats,'p_haupt_steh'=>$stadiumStandsGrand,'p_haupt_sitz'=>$stadiumSeatsGrand,
 							'p_vip'=>$stadiumVip],Config('db_prefix').'_stadion');$stadiumId=$db->getLastInsertedId();}$db->queryInsert(['name'=>$teamName,'kurz'=>$shortName,'liga_id'=>$league['id'],'stadion_id'=>$stadiumId,'finanz_budget'=>$budget,
 							'preis_stehen'=>$league['preis_steh'],'preis_sitz'=>$league['preis_sitz'],'preis_haupt_stehen'=>$league['preis_steh'],'preis_haupt_sitze'=>$league['preis_sitz'],'preis_vip'=>$league['preis_vip'],'status'=>'1'],Config('db_prefix').'_verein');
 							echo'<p>'.$teamName.' ('.$shortName.')</p>';}
-	 		function createPlayer($websoccer,$db,$teamId,$firstName,$lastName,$position,$mainPosition,$strengths,$country,$age,$birthday,$salary,$contractDuration,$maxDeviation){$columns=['vorname'=>$firstName,'nachname'=>$lastName,'geburtstag'=>$birthday,'age'=>$age,
-	 						'position'=>$position,'position_main'=>$mainPosition,'nation'=>$country,'w_staerke'=>max(1,min(100,$strengths['strength']+getRandomDeviationValue($maxDeviation))),'w_technik'=>max(1,min(100,$strengths['technique']+
-	 						getRandomDeviationValue($maxDeviation))),'w_kondition'=>max(1,min(100,$strengths['stamina']+getRandomDeviationValue($maxDeviation))),'w_frische'=>max(1,min(100,$strengths['freshness']+getRandomDeviationValue($maxDeviation))),
-							'w_zufriedenheit'=>max(1,min(100,$strengths['satisfaction']+getRandomDeviationValue($maxDeviation))),'vertrag_gehalt'=>$salary,'vertrag_spiele'=>$contractDuration,'status'=>'1'];if($teamId)$columns=['verein_id'=>$teamId];
-							else$columns=['transfermarkt'=>'1','transfer_start'=>Timestamp(),'transfer_ende'=>$columns['transfer_start']+Config('transfermarket_duration_days')*24*3600];$db->queryInsert($columns,Config('db_prefix').'_spieler');}
-	 		function getRandomDeviationValue($maxDeviation){if($maxDeviation<=0)return 0;return mt_rand(0-$maxDeviation,$maxDeviation);}
 
 class DirectTransfersDataService{
 	 static function createTransferOffer($websoccer,$db,$playerId,$senderUserId,$senderClubId,$receiverUserId,$receiverClubId,$offerAmount,$offerMessage,$offerPlayerId1=null,$offerPlayerId2=null){createTransferOffer($websoccer,$db,$playerId,$senderUserId,$senderClubId,
@@ -7552,7 +7546,7 @@ echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).
 							'status'=>(!ini_get('safe_mode'))?'success':'error'];
 							$writableFiles=explode(',',"generated/,uploads/club/,uploads/cup/,uploads/player/,uploads/sponsor/,uploads/stadium/,uploads/stadiumbuilder/,uploads/stadiumbuilding/,uploads/users/,admin/config/jobs.xml,admin/config/termsandconditions.xml");
 							foreach($writableFiles as$writableFile){$file=$_SERVER['DOCUMENT_ROOT'].'/'.$writableFile;$requirments[]=['requirement'=>$messages['check_req_writable'].'<i>'.$writableFile.'</i>','min'=>$messages['check_req_yes'],
-							'actual'=>(is__writable($file))?$messages['check_req_yes']:$messages['check_req_no'],'status'=>(is__writable($file))?'success':'error'];}?><table class='table'><thead><tr><th><?php echo$messages['check_head_requirement']?></th><th><?php 
+							'actual'=>(is__writable($file))?$messages['check_req_yes']:$messages['check_req_no'],'status'=>(is__writable($file))?'success':'error'];}?><table class='table'><thead><tr><th><?php echo$messages['check_head_requirement']?></th><th><?php
 							echo$messages['check_head_required_value']?></th><th><?php echo$messages['check_head_actual_value']?></th></tr></thead><tbody><?php $valid=TRUE;foreach($requirments as$requirement){echo"<tr class=\"".$requirement["status"]."\"><td>".
 							$requirement["requirement"]."</td><td>".$requirement["min"]."</td><td>".$requirement["actual"]."</td></tr>";if($requirement['status']=='error')$valid=FALSE;}?></tbody></table><?php if($valid)echo"<form method=\"post\">
 							<button type=\"submit\"class=\"btn\">".$messages["button_next"]."</button><input type=\"hidden\"name=\"action\"value=\"actionGotoConfig\"></form>";else echo'<p>'.$messages['check_req_error'].'</p>';}
