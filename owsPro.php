@@ -38,7 +38,7 @@ class Value{static$pageId,$_createdConverters,$_eventlistenerConfigs,$_addedPlay
 			function iUrl($pageId=0,$queryString='',$fullUrl=FALSE){if(strlen($queryString))$queryString='&'.$queryString;if($fullUrl){$url=Config('homepage').Config('context_root');if($pageId!='home'||strlen($queryString))$url.='/?page='.$pageId.$queryString;}
 							else$url=Config('context_root').'/?page='.$pageId.$queryString;return $url;}
 			function FormattedDate($timestamp){return date(Config('date_format'),$timestamp);}
-			function Datetime($timestamp){return date('d.m.Y,H:i',$timestamp);}
+			function Datetime(){return date('d.m.Y,H:i');}
 			function Timestamp(){return time()+Config('time_offset');}
 			function PageId(){return Value::$pageId;}
 			function setPageId($pageId){Value::$pageId=$pageId;}
@@ -3214,7 +3214,7 @@ class MatchReportSimulatorObserver{private$_availableTexts,$_websoccer,$_db;
 			function onMatchCompleted(SimulationMatch$match){}
 			function onBeforeMatchStarts(SimulationMatch$match){}}
 class MatchReportSimulationObserver{private$_availableTexts,$_websoccer,$_db;
-			function __construct($websoccer,$db){$this->_availableTexts=[];$this->_websoccer=$websoccer;$this->_db=$db;$fromTable=Config('db_prefix').'_spiel_text';$columns='id,aktion AS actiontype';
+			function __construct(){$this->_availableTexts=[];$this->_websoccer=$websoccer;$this->_db=$db;$fromTable=Config('db_prefix').'_spiel_text';$columns='id,aktion AS actiontype';
 							$result=$db->querySelect($columns,$fromTable,'1=1');while($text=$result->fetch_array())$this->_availableTexts[$text['actiontype']][]=$text['id'];$result->free();}
 	function onGoal(SimulationMatch$match,SimulationPlayer$scorer,SimulationPlayer$goaly){$assistPlayerName=($match->getPreviousPlayerWithBall()!==NULL&&$match->getPreviousPlayerWithBall()->team->id==$scorer->team->id)?$match->getPreviousPlayerWithBall()->name:'';
 							if(strlen($assistPlayerName))$this->_createMessage($match,'Tor_mit_vorlage',[$scorer->name,$assistPlayerName],($scorer->team->id==$match->homeTeam->id));else$this->_createMessage($match,'Tor',[$scorer->name,$goaly->name],($scorer->team->id==
@@ -5906,7 +5906,7 @@ class YouthPlayerScoutedEvent extends AbstractEvent{
 				function __construct($websoccer,$db,$i18n,$teamId,$scoutId,$playerId){parent::__construct($websoccer,$db,$i18n);$this->teamId=$teamId;$this->scoutId=$scoutId;$this->playerId=$playerId;}}
 
 abstract class AbstractJob{protected$_websoccer,$_db,$_i18n;private$_id,$_interval;
-				function __construct($websoccer,$db,I18n$i18n,$jobId,$errorOnAlreadyRunning=TRUE){$this->_websoccer=$websoccer;$this->_db=$db;$this->_i18n=$i18n;$this->_id=$jobId;$xmlConfig=$this->getXmlConfig();if($errorOnAlreadyRunning){
+				function __construct($jobId,$errorOnAlreadyRunning=TRUE){$this->_websoccer=$websoccer;$this->_db=$db;$this->_i18n=$i18n;$this->_id=$jobId;$xmlConfig=$this->getXmlConfig();if($errorOnAlreadyRunning){
 							$initTime=(int)$xmlConfig->attributes()->inittime;$now=Timestamp();$timeoutTime=$now-5*60;if($initTime>$timeoutTime)throw new Exception('Another instance of this job is already running.');
 							$this->replaceAttribute('inittime',$now);}$interval=(int)$xmlConfig->attributes()->interval;$this->_interval=$interval*60;ignore_user_abort(TRUE);set_time_limit(0);gc_enable();}
 				function __destruct(){$this->_ping(Timestamp());$this->replaceAttribute('inittime',0);}

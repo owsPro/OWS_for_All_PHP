@@ -99,7 +99,7 @@
 	        	{% if Config("privacypolicy_url")|length > 0 %}| <a href="{{ Config("privacypolicy_url") }}">{{Message("privacypolicy_navlabel") }}</a>{% endif %}
 	        	| <a href="{{iUrl("imprint") }}">{{Message("imprint_navlabel") }}</a>
 	        	| Powered by <a href="https://github.com/owsPro/OWS_for_All_PHP" target="_blank">OWS_for_All_PHP</a>
-	        	| <i class="icon-time"></i> {{Datetime(null) }}
+	        	| <i class="icon-time"></i> {{Datetime() }}
 	        	</p>
 			</footer>
 
