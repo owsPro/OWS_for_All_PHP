@@ -144,9 +144,7 @@ $result->free();
 // list rounds
 if (isset($rootIds)) {
 	echo "<div id=\"rounds\">";
-	foreach ($rootIds as $rootId) {
-		renderRound($hierarchy[$rootId]);
-	}
+	foreach ($rootIds as $rootId)CupRound($hierarchy[$rootId]);
 	echo "</div>";
 }
 

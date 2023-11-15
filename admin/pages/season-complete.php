@@ -90,7 +90,7 @@ elseif ($show == 'complete') {
 		foreach ($playerResetColumns as $playerResetColumn)$playersSql .= $playerResetColumn . '= 0, ';
 		$playersSql .= ' P.age = P.age + 1';
 		$playersSql .= ' WHERE T.liga_id = ' . $season['liga_id'];
-		$db->executeQuery($playersSql);
+		Query($playersSql);
 		$playersSql = 'UPDATE ' . $conf['db_prefix'] .'_spieler AS P';
 		$playersSql .= ' SET ';
 		$firstColumn = TRUE;
@@ -99,7 +99,7 @@ elseif ($show == 'complete') {
 			else$playersSql .= ', ';
 			$playersSql .= $playerResetColumn . '= 0';}
 		$playersSql .= ' WHERE P.status = \'1\' AND (P.verein_id = 0 OR P.verein_id IS NULL)';
-		$db->executeQuery($playersSql);
+		Query($playersSql);
 		$retirementAge = (int) $_POST['playerdisableage'];
 		if ($retirementAge > 0) {
 			$ageColumn = 'age';
