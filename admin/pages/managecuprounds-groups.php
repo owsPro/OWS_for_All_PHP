@@ -316,7 +316,7 @@ if (count($groups)) {
 				echo "<li><select name=\"rank_$rank\"><option></option>";
 				foreach ($rounds as $roundItem) {
 
-					echo "<option value=\"" . $roundItem["id"] . "\"";
+					echo "<option value=\"" . escapeOutput($roundItem["id"]) . "\"";
 					if (isset($rankConfigs[$groupName][$rank]) && $rankConfigs[$groupName][$rank] == $roundItem["id"]) {
 						echo " selected";
 					}
