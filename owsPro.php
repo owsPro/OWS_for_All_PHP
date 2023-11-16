@@ -60,7 +60,7 @@ function dumpTable($handle,$table){
         $res=Query("SELECT*FROM $delTable",MYSQLI_USE_RESULT);
         while($row=$res->fetch_assoc()){
         	$values=[];
-            foreach($row as$value)$values[]=$value===null?'NULL':"'".escapeOutput($value)."'";$rows[]='('.implode(',',$values).')';}
+            foreach($row as$value)$values[]=$value===null?'NULL':"'".ESC($value)."'";$rows[]='('.implode(',',$values).')';}
             $res->close();
             $inserts=array_chunk($rows,100);
     		foreach($inserts as$insert)fwrite($handle,'INSERT INTO '.$delTable.' ('.implode(',',$cols).') VALUES '.(implode(',',$insert)??'').';\n');
