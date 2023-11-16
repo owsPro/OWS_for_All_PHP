@@ -19,7 +19,7 @@ function C(...$args){return Config(...$args);}
 function DBSave(){save(date('Y-m-d_H-i-s').'_'.C('db_name').'.sql.gz');}
 function Query($queryStr){
         $con=new mysqli(C('db_host'),C('db_user'),C('db_passwort'),C('db_name'));
-        $Result=$con->query($queryStr);
+        $Result=htmlspecialchars((string)$con->query($queryStr),ENT_COMPAT,'UTF-8');
         if(!$Result)throw new Exception('Database Query Error: '.$con->error);
         return$Result;}
 function save($file){
@@ -42,7 +42,7 @@ function write($handle=null) {
         $tables=array_merge($tables,$views);
         Query('LOCK TABLES `'.implode('` READ,`',$tables).'`READ');
         Query('SELECT DATABASE()')->fetch_row();
-        foreach($tables as$table)dumpTable($handle,$table);
+        foreach($tables as$table)htmlspecialchars((string)dumpTable($handle,$table),ENT_COMPAT,'UTF-8');
         Query('UNLOCK TABLES');}
 function dumpTable($handle,$table){
         $delTable=delimit($table);
