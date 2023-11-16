@@ -11,5 +11,12 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-    					echo'<h1>'.$mainTitle.' &raquo; '.Message('subpage_save_title').'</h1>';echo createSuccessMessage(Message('alert_save_success'),'');echo"<p>&raquo; <a href=\"".escapeOutput($_SERVER['PHP_SELF']).'?site='.$site.'\">'.
-    					Message('back_label')."</a></p>\n";
+    					// Display the main title and subpage save title
+echo '<h1>' . $mainTitle . ' &raquo; ' . Message('subpage_save_title') . '</h1>';
+
+// Display the success message
+echo createSuccessMessage(Message('alert_save_success'), '');
+
+// Display the back label with a link to the previous page
+echo "<p>&raquo; <a href=\"" . htmlspecialchars((array)$_SERVER['PHP_SELF'], ENT_COMPAT, 'UTF-8') . '?site=' . $site . "\">" .
+    Message('back_label') . "</a></p>\n";
