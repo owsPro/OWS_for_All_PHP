@@ -11,6 +11,41 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-								include($_SERVER['DOCUMENT_ROOT'].'/admin/adminglobal.inc.php');if($admin['r_demo'])exit;$jobId=escapeOutput($_REQUEST['id']);$xml=simplexml_load_file($_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');$jobConfig=$xml->xpath(
-								'//job[@id=\''.escaapeOutput($jobId).'\']');if(!$jobConfig)throw new Exception('Job config not found.');$jobClass=(string)$jobConfig[0]->attributes()->class;if(class_exists($jobClass))$job=new$jobClass($website,$db,$i18n,$jobId,
-								$action!=='stop');else throw new Exception('class not found: '.$jobClass);if($action=='start')$job->start();elseif($action=='stop')$job->stop();
+								include($_SERVER['DOCUMENT_ROOT'].'/admin/adminglobal.inc.php');
+
+// Check if the demo mode is enabled for the admin
+if ($admin['r_demo']) {
+    exit;
+}
+
+// Get the job ID from the request
+$jobId = htmlspecialchars((array)$_REQUEST['id'], ENT_COMPAT, 'UTF-8');
+
+// Load the jobs configuration file
+$xml = simplexml_load_file($_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');
+
+// Find the job configuration based on the job ID
+$jobConfig = $xml->xpath('//job[@id=\''.escaapeOutput($jobId).'\']');
+
+// Throw an exception if the job configuration is not found
+if (!$jobConfig) {
+    throw new Exception('Job config not found.');
+}
+
+// Get the class name of the job
+$jobClass = (string)$jobConfig[0]->attributes()->class;
+
+// Check if the job class exists
+if (class_exists($jobClass)) {
+    // Create an instance of the job class
+    $job = new $jobClass($website, $db, $i18n, $jobId, $action !== 'stop');
+} else {
+    throw new Exception('class not found: '.$jobClass);
+}
+
+// Start or stop the job based on the action
+if ($action == 'start') {
+    $job->start();
+} elseif ($action == 'stop') {
+    $job->stop();
+}
