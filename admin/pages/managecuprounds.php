@@ -42,7 +42,7 @@ if (!isset($cup["name"])) {
 
 <?php
 
-echo "<h2>". Message("entity_cup") . ": " . ESC($cup["name"]) . "</h2>";
+echo "<h2>". Message("entity_cup") . ": " . escapeOutput($cup["name"]) . "</h2>";
 
 // configure create form
 $formFields = array();
@@ -152,10 +152,10 @@ if (isset($rootIds)) {
 
 // Create new round
 ?>
-  <form action="<?php echo ESC($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
+  <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="action" value="create">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
-	<input type="hidden" name="cup" value="<?php echo ESC($cupid); ?>">
+	<input type="hidden" name="cup" value="<?php echo escapeOutput($cupid); ?>">
 
 	<fieldset>
     <legend><?php echo Message("managecuprounds_label_create"); ?></legend>
@@ -186,7 +186,7 @@ if (isset($rootIds)) {
 				<option></option>
 				<?php
 				foreach ($hierarchy as $roundId => $roundInfo) {
-					echo "<option value=\"". $roundId . "\">". ESC($roundInfo["round"]["name"]) . "</option>\n";
+					echo "<option value=\"". $roundId . "\">". escapeOutput($roundInfo["round"]["name"]) . "</option>\n";
 				}
 				?>
 			</select>

@@ -20,12 +20,12 @@ if (!$show) {
 
   <h1><?php echo $mainTitle; ?></h1>
 
-  <form action="<?php echo ESC($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
+  <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="show" value="save">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
 
 	<fieldset>
-    <legend><?php echo ESC($admin['name']); ?></legend>
+    <legend><?php echo escapeOutput($admin['name']); ?></legend>
 
 	<?php
 	$formFields = array();

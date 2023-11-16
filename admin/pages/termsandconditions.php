@@ -40,7 +40,7 @@ if (!$show) {
 
     <p><?php echo $i18n->getMessage("termsandconditions_introduction"); ?></p>
 
-    <form action="<?php echo ESC($_SERVER['PHP_SELF']); ?>" method="post" class="form-inline">
+    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-inline">
         <input type="hidden" name="site" value="<?php echo $site; ?>">
 
         <label for="lang"><?php echo $i18n->getMessage("termsandconditions_label_language"); ?></label>
@@ -56,9 +56,9 @@ if (!$show) {
         <button type="submit" class="btn"><?php echo $i18n->getMessage("button_display"); ?></button>
     </form>
 
-    <form action="<?php echo ESC($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
+    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-horizontal">
         <input type="hidden" name="show" value="save">
-        <input type="hidden" name="lang" value="<?php echo ESC($selectedLang); ?>">
+        <input type="hidden" name="lang" value="<?php echo escapeOutput($selectedLang); ?>">
         <input type="hidden" name="site" value="<?php echo $site; ?>">
 
         <fieldset>
@@ -91,7 +91,7 @@ if ($show !== "save") {
 
     <p><?php echo $i18n->getMessage("termsandconditions_introduction"); ?></p>
 
-    <form action="<?php echo ESC($_SERVER['PHP_SELF']); ?>" method="post" class="form-inline">
+    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-inline">
         <input type="hidden" name="site" value="<?php echo $site; ?>">
 
         <label for="lang"><?php echo $i18n->getMessage("termsandconditions_label_language"); ?></label>
@@ -107,9 +107,9 @@ if ($show !== "save") {
         <button type="submit" class="btn"><?php echo $i18n->getMessage("button_display"); ?></button>
     </form>
 
-    <form action="<?php echo ESC($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
+    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" class="form-horizontal">
         <input type="hidden" name="show" value="save">
-        <input type="hidden" name="lang" value="<?php echo ESC($selectedLang); ?>">
+        <input type="hidden" name="lang" value="<?php echo escapeOutput($selectedLang); ?>">
         <input type="hidden" name="site" value="<?php echo $site; ?>">
 
         <fieldset>

@@ -204,14 +204,14 @@ class DbConnection{ // This class represents a database connection.
      *
      * The method first checks if the $parameters parameter is an array.
      * If not, it converts it into an array.
-     * It then iterates over each parameter, trims it, and escapes any special characters using the ESC() method.
+     * It then iterates over each parameter, trims it, and escapes any special characters using the escapeOutput() method.
 	 * Finally, it returns the prepared parameters.
      */
     static function prepareParameters($parameters){
         if(!is_array($parameters))$parameters=[$parameters]; // Check if the input is an array, if not convert it to an array
         $arrayLength = count($parameters); // Get the length of the array
     	for($i = 0; $i < $arrayLength; ++$i){ // Loop through each element of the array
-        $parameters[$i] = ESC(trim($parameters[$i]));} // Trim the element and escape any output
+        $parameters[$i] = escapeOutput(trim($parameters[$i]));} // Trim the element and escape any output
         return$parameters;} // Return the modified array
     
     /**

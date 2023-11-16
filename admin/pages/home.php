@@ -11,8 +11,8 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-							Bootstrap_css();if(!$show){flags('/admin/index.php?lang=');?><h1><?php echo sprintf(Message('home_title'),ESC($admin['name']));?></h1><p><?php echo Message('home_intro');?></p><h3><?php echo Message('home_softwareinfo_title');?></h3>
+							Bootstrap_css();if(!$show){flags('/admin/index.php?lang=');?><h1><?php echo sprintf(Message('home_title'),escapeOutput($admin['name']));?></h1><p><?php echo Message('home_intro');?></p><h3><?php echo Message('home_softwareinfo_title');?></h3>
 							<table class='table table-bordered'style='width:500px;'><tr><td><b><?php echo Message('home_softwareinfo_name');?></b></td><td>owsPro for All PHP</td></tr><tr><td><b><?php echo Message('home_softwareinfo_version');?></b></td>
 							<td><?php readfile('config/version.txt');?></td></tr></table><h3><?php echo Message('home_projectinfo_title');?></h3><table class='table table-bordered'style='width:500px;'><tr><td><b><?php echo Message('home_projectinfo_name');?></b></td>
-							<td><?php echo ESC(Config('projectname'))?></td></tr><tr><td><b><?php Message('home_projectinfo_adminemail');?></b></td><td><a href='mailto:<?php echo Config('systememail');?>'><?php echo Config('systememail');?></a></td></tr></table>
+							<td><?php echo escapeOutput(Config('projectname'))?></td></tr><tr><td><b><?php Message('home_projectinfo_adminemail');?></b></td><td><a href='mailto:<?php echo Config('systememail');?>'><?php echo Config('systememail');?></a></td></tr></table>
 							<?php }

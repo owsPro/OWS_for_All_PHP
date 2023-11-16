@@ -124,11 +124,11 @@ class FormBuilder{
 							<div class=\'input-append bootstrap-timepicker\'><input type=\'text\'name=\''.$fieldId.'_time\'value=\''.date('H:i',$fieldValue).'\'class=\'timepicker input-small\'><span class=\'add-on\'><i class=\'icon-time\'></i></span></div>';break;
 							case'select':echo'<select id=\''.$fieldId.'\'name=\''.$fieldId.'\'>';$selection=explode(',',$fieldInfo['selection']);$selectValue=$fieldValue;echo'<option></option>';foreach($selection as$selectItem){$selectItem=trim($selectItem);
 							echo'<option value=\''.$selectItem.'\'';if($selectItem==$selectValue)echo'selected';echo'>';$label=$selectItem;if(hasMessage('option_'.$selectItem))$label=Message('option_'.$selectItem);echo$label.'</option>';}echo'</select>';break;default:
-							if(isset($fieldInfo['readonly'])&&$fieldInfo['readonly'])echo'<span class=\'uneditable-input\'>'.ESC($fieldValue).'</span>';else{$additionalAttrs='';$htmlType=$type;if($type=='file'&&strlen($fieldValue)){global$entity;
-							echo'[<a href=\'../uploads/'.$entity.'/'.ESC($fieldValue).'\'target=\'_blank\'>View</a>] ';}elseif($type=='percent'){$htmlType='number';$additionalAttrs='class=\'input-mini\'min=\'0\' ';}elseif($type=='number')
+							if(isset($fieldInfo['readonly'])&&$fieldInfo['readonly'])echo'<span class=\'uneditable-input\'>'.escapeOutput($fieldValue).'</span>';else{$additionalAttrs='';$htmlType=$type;if($type=='file'&&strlen($fieldValue)){global$entity;
+							echo'[<a href=\'../uploads/'.$entity.'/'.escapeOutput($fieldValue).'\'target=\'_blank\'>View</a>] ';}elseif($type=='percent'){$htmlType='number';$additionalAttrs='class=\'input-mini\'min=\'0\' ';}elseif($type=='number')
 							$additionalAttrs='class=\'input-small\' ';elseif($type=='date'){if($type=='date')echo'<div class=\'input-append date datepicker\'>';$htmlType='text';$additionalAttrs=' class=\'input-small\' ';}elseif($type=='tags')$additionalAttrs=
 							'class=\'input-tag\'data-provide=\'tag\' ';else$additionalAttrs='placeholder=\''.Message($labelKeyPrefix.$fieldId).'\' ';echo'<input type=\''.$htmlType.'\'id=\''.$fieldId.'\' '.$additionalAttrs.'name=\''.$fieldId.'\'value=\'';
-							if($type!='password')echo ESC($fieldValue);echo'\'';if(isset($fieldInfo['required'])&&$fieldInfo['required'])echo'required';echo'>';if($type=='date')echo '<span class=\'add-on\'><i class=\'icon-calendar\'></i></span></div>';}}
+							if($type!='password')echo escapeOutput($fieldValue);echo'\'';if(isset($fieldInfo['required'])&&$fieldInfo['required'])echo'required';echo'>';if($type=='date')echo '<span class=\'add-on\'><i class=\'icon-calendar\'></i></span></div>';}}
 							if($type=='percent')echo' % ';echo$helpText;echo'</div>';}echo'</div>';}
 			function validateField($i18n,$fieldId,$fieldInfo,$fieldValue,$labelKeyPrefix){$textLength=strlen(trim($fieldValue));$isEmpty=!$textLength;if($fieldInfo['type']!='boolean'&&$fieldInfo['required']&&$isEmpty)throw new Exception(sprintf(
 							Message('validationerror_required'),Message($labelKeyPrefix.$fieldId)));if(!$isEmpty){if($fieldInfo['type']=='text'&&$textLength>255)throw new Exception(sprintf(Message('validationerror_text_too_long'),Message($labelKeyPrefix.$fieldId)));
@@ -141,7 +141,7 @@ class FormBuilder{
 			function createForeignKeyField($i18n,$fieldId,$fieldInfo,$fieldValue){$website=WebSoccer::getInstance();$db=DbConnection::getInstance();$fromTable=Config('db_prefix').'_'.$fieldInfo['jointable'];$result=$db->querySelect('COUNT(*)AS hits',$fromTable,'1=1','');
 							$items=$result->fetch_array();$result->free();if($items['hits']<=20){echo'<select id=\''.$fieldId.'\'name=\''.$fieldId.'\'><option value=\'\'>'.Message('manage_select_placeholder').'</option>';$whereCondition='1=1 ORDER BY '.
 							$fieldInfo['labelcolumns'].' ASC';$result=$db->querySelect('id, '.$fieldInfo['labelcolumns'],$fromTable,$whereCondition,'',2000);while($row=$result->fetch_array()){$labels=explode(',',$fieldInfo['labelcolumns']);$label='';$first=TRUE;
-							foreach($labels as$labelColumn){if(!$first)$label.=' - ';$first=FALSE;$label.= $row[trim($labelColumn)];}echo'<option value=\''.$row['id'].'\'';if($fieldValue==$row['id'])echo'selected';echo'>'.ESC($label).'</option>';}
+							foreach($labels as$labelColumn){if(!$first)$label.=' - ';$first=FALSE;$label.= $row[trim($labelColumn)];}echo'<option value=\''.$row['id'].'\'';if($fieldValue==$row['id'])echo'selected';echo'>'.escapeOutput($label).'</option>';}
 							$result->free();echo'</select>';}else echo'<input type=\'hidden\'class=\'pkpicker\'id=\''.$fieldId.'\' name=\''.$fieldId.'\'value=\''.$fieldValue.'\'data-dbtable=\''.$fieldInfo['jointable'].'\' data-labelcolumns=\''. $fieldInfo['labelcolumns']
 							.'\'data-placeholder=\''.Message('manage_select_placeholder').'\'>';echo'<a href=\'?site=manage&entity='.$fieldInfo['entity'].'&show=add\'title=\''.Message('manage_add').'\'><i class=\'icon-plus-sign\'></i></a>';}
 class ModuleConfigHelper{
@@ -504,7 +504,7 @@ class TwigAutoloader{
 class UrlUtil{
 	 static function buildCurrentUrlWithParameters($parameters){buildCurrentUrlWithParameters($parameters);}}
 			function buildCurrentUrlWithParameters($parameters){$url=htmlentities($_SERVER['PHP_SELF']).'?';$first=TRUE;foreach($parameters as$parameterName=>$parameterValue){if(!$first)$url.='&';$url.=$parameterName.'='.$parameterValue;$first=FALSE;}
-							foreach($_GET as$parameterName=>$parameterValue){if(!isset($parameters[$parameterName]))$url.='&'.$parameterName.'='.$parameterValue;}return ESC($url);}
+							foreach($_GET as$parameterName=>$parameterValue){if(!isset($parameters[$parameterName]))$url.='&'.$parameterName.'='.$parameterValue;}return escapeOutput($url);}
 
 class YouthMatchSimulationExecutor{
 	 static function simulateOpenYouthMatches($websoccer,$db,$maxMatchesToSimulate){simulateOpenYouthMatches($websoccer,$db,$maxMatchesToSimulate);}
@@ -1015,7 +1015,7 @@ class NotificationsDataService {
 			if(strlen($row['message_data'])){
 				$messageData=json_decode($row['message_data'],true);
 				if($messageData){
-					foreach($messageData as $placeholderName=>$placeholderValue)$message=str_replace('{'.$placeholderName.'}', ESC($placeholderValue, ENT_COMPAT, 'UTF-8'),$message);}}
+					foreach($messageData as $placeholderName=>$placeholderValue)$message=str_replace('{'.$placeholderName.'}', escapeOutput($placeholderValue, ENT_COMPAT, 'UTF-8'),$message);}}
 			$notification['message']=$message;
 			$link='';
 			if($row['target_pageid']){
@@ -2355,7 +2355,7 @@ class YouthMatchesDataService {
 			if(strlen($item['message_data'])){
 				$messageData=json_decode($item['message_data'],true);
 				if($messageData){
-					foreach($messageData as$placeholderName=>$placeholderValue)$message=str_replace('{'.$placeholderName.'}',ESC($placeholderValue, ENT_COMPAT,'UTF-8'),$message);}}
+					foreach($messageData as$placeholderName=>$placeholderValue)$message=str_replace('{'.$placeholderName.'}',escapeOutput($placeholderValue, ENT_COMPAT,'UTF-8'),$message);}}
 			$items[]=array('minute'=>$item['minute'],'active_home'=>$item['home_on_ball'],'message_key'=>$item['message_key'],'message'=>$message);}
 		return$items;}}
 
@@ -4668,7 +4668,7 @@ class MicropaymentRedirectController extends Controller {
 		$seal=hash('sha256',$parameters .$accessKey);
 		$queryStr.='&seal='.$seal;
 		$paymentUrl .= $queryStr;
-		header('Location: '.ESC($paymentUrl));
+		header('Location: '.escapeOutput($paymentUrl));
 		exit;
 		return null;}}
 class MoveYouthPlayerToProfessionalController extends Controller {
@@ -5769,7 +5769,7 @@ class InactivityConverter extends Converter{
 		$popup='';
 		$popup.='<div id=\'actPopup'.$row['id'].'\' class=\'modal hide fade\' tabindex=\'-1\' role=\'dialog\' aria-labelledby=\'actPopupLabel\' aria-hidden=\'true\'>';
 		$popup.='<div class=\'modal-header\'><button type=\'button\' class=\'close\'data-dismiss=\'modal\' aria-hidden=\'true\' title=\''.Message('button_close').'\'>&times;</button>';
-		$popup.='<h3 id=\'actPopupLabel'.$row['id'].'\'>'.Message('entity_user_inactivity').': '. ESC($row['entity_users_nick']).'</h3></div>';
+		$popup.='<h3 id=\'actPopupLabel'.$row['id'].'\'>'.Message('entity_user_inactivity').': '. escapeOutput($row['entity_users_nick']).'</h3></div>';
 		$popup.='<div class=\'modal-body\'>';
 		$gesamt=$row['entity_user_inactivity_login'] + $row['entity_user_inactivity_aufstellung'] + $row['entity_user_inactivity_transfer']+ $row['entity_user_inactivity_vertragsauslauf'];
 		$popup.='<table class=\'table table-bordered\'>
@@ -7639,11 +7639,11 @@ echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).
 							<input type=\"radio\"name=\"lang\"id=\"$langId\"value=\"$langId\"";if($first){echo'checked';$first=FALSE;}echo"> $langLabel</label>";}echo"<br><br><button type=\"submit\"class=\"btn\">Let´s go!</button><input type=\"hidden\"name=\"action\"
 							value=\"actionSetLanguage\"></form>";}
 			function setAdminForm($messages){?><form method='post'class='form-horizontal'><fieldset><legend><?php echo$messages['user_formtitle']?></legend><div class='control-group'><label class='control-label'for='db_host'><?php echo$messages['label_db_host']?></label>
-							<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo ESC(isset($_POST['db_host'])?$_POST['db_host']:'localhost');?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span>
-							</div></div><div class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo ESC(isset(
+							<div class='controls'><input type='text'id='db_host'name='db_host'required value="<?php echo escapeOutput(isset($_POST['db_host'])?$_POST['db_host']:'localhost');?>"><span class='help-inline'><?php echo$messages['label_db_host_help']?></span>
+							</div></div><div class='control-group'><label class='control-label'for='db_name'><?php echo$messages['label_db_name']?></label><div class='controls'><input type='text'id='db_name'name='db_name'required value="<?php echo escapeOutput(isset(
 							$_POST['db_name'])?$_POST['db_name']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_user'><?php echo$messages['label_db_user']?></label><div class='controls'><input type='text'id='db_user'name='db_user'
-							required value="<?php echo ESC(isset($_POST['db_user'])?$_POST['db_user']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label>
-							<div class='controls'><input type=text'id='db_password'name='db_password'required value="<?php echo ESC(isset($_POST['db_password'])?$_POST['db_password']:'');?>"></div></div><div class='control-group'><label
+							required value="<?php echo escapeOutput(isset($_POST['db_user'])?$_POST['db_user']:'');?>"></div></div><div class='control-group'><label class='control-label'for='db_password'><?php echo$messages['label_db_password']?></label>
+							<div class='controls'><input type=text'id='db_password'name='db_password'required value="<?php echo escapeOutput(isset($_POST['db_password'])?$_POST['db_password']:'');?>"></div></div><div class='control-group'><label
 							class='control-label'for='name'><?php echo$messages['label_name']?></label><div class='controls'><input type='text'id='name'name='name'required value='<?php echo htmlentities((isset($_POST['name']))?$_POST['name']:'');?>'></div></div>
 							<div class='control-group'><label class='control-label'for='password'><?php echo$messages['label_password']?></label><div class='controls'><input type='password'id='password'name='password'required value='<?php echo
 							htmlspecialchars(isset($_POST['password'])?$_POST['password']:'');?>'></div></div><div class='control-group'><label class='control-label'for='email'><?php echo$messages['label_email']?></label><div class='controls'><input type='email'
@@ -7666,6 +7666,7 @@ echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).
 							$subforder='validators/';elseif(substr($class,-10)==='Controller')$subforder='actions/';elseif(substr($class,-7)==='Service')$subforder='services/';elseif(substr($class,-3)==='Job')$subforder='jobs/';elseif(substr($class,-11)==='LoginMethod')
 							$subforder='loginmethods/';elseif(substr($class,-5)==='Event')$subforder='events/';elseif(substr($class,-6)==='Plugin')$subforder='plugins/';@include($_SERVER['DOCUMENT_ROOT'].'/classes/'.$subforder.$class.'.class.php');}
 			function sendEmail($email,$password,$website,$i18n){$tplparameters['newpassword']=$password;sendSystemEmailFromTemplate($website,$i18n,$email,Message('sendpassword_admin_email_subject'),'sendpassword_admin',$tplparameters);}
+			function escapeOutput($message){return htmlspecialchars((string)$message,ENT_COMPAT,'UTF-8');}
 			function createWarningMessage($title,$message){return createMessage('warning',$title,$message);}
 			function createInfoMessage($title,$message){return createMessage('info',$title,$message);}
 			function createErrorMessage($title,$message){return createMessage('error',$title,$message);}
@@ -7674,7 +7675,7 @@ echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).
 			function logAdminAction(WebSoccer $websoccer,$type,$username,$entity,$entityValue){$userIp=getenv('REMOTE_ADDR');$message=Datetime(Timestamp()).';'.$username.';'.$userIp.';'.$type.';'.$entity.';'.$entityValue;
 							$file=$_SERVER['DOCUMENT_ROOT'].'/generated/entitylog.php';$fw=new FileWriter($file,FALSE);$fw->writeLine($message);$fw->close();}
 			function renderErrorPage($website,$i18n,$viewHandler,$message,$parameters){$parameters['title']=$message;$parameters['message']='';print_r($website->getTemplateEngine($i18n,$viewHandler)->loadTemplate('error')->render($parameters));}
-			function printNavItem($currentSite,$pageId,$navLabel,$entity=''){$url='?site='.$pageId;$active=($currentSite==$pageId);if(strlen($entity)){$url.='&entity='.ESC($entity);$active=(isset($_REQUEST['entity'])&&$_REQUEST['entity']==$entity);}echo'<li';
+			function printNavItem($currentSite,$pageId,$navLabel,$entity=''){$url='?site='.$pageId;$active=($currentSite==$pageId);if(strlen($entity)){$url.='&entity='.escapeOutput($entity);$active=(isset($_REQUEST['entity'])&&$_REQUEST['entity']==$entity);}echo'<li';
 							if($active)echo'class=\'active\'';echo'><a href=\''.$url.'\'>'.$navLabel.'</a></li>';}
 			function prepareFielfValueForSaving($fieldValue){$preparedValue=trim($fieldValue);$preparedValue=stripslashes($fieldValue);return$preparedValue;}
 			function renderRound($roundNode){global$i18n,$website,$hierarchy,$site,$cupid,$cup,$action,$db;echo'<div class=\'cupround\'>';$showEditForm=FALSE;if($action=='edit'&&$_REQUEST['id']==$roundNode['round']['id']){$showEditForm=TRUE;}elseif($action=='edit-save'&&
@@ -7683,20 +7684,20 @@ echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).
 							$_POST['firstround_date_date'].', '.$_POST['firstround_date_time']);$columns['firstround_date']=$firstDateObj->getTimestamp();if(isset($_POST['secondround_date_date'])){$secondDateObj=DateTime::createFromFormat(Config('date_format').', H:i',
 							$_POST['secondround_date_date'].', '.$_POST['secondround_date_time']);$columns['secondround_date']=$secondDateObj->getTimestamp();}$db->queryUpdate($columns,Config('db_prefix').'_cup_round','id=%d',$roundNode['round']['id']);
 							if($roundNode['round']['name']!==$_POST['name'])$db->queryUpdate(['pokalrunde'=>$_POST['name']],Config('db_prefix').'_spiel',"pokalname='%s'AND pokalrunde='%s'",[$cup['name'],$roundNode['round']['name']]);$result=$db->querySelect('*',
-							Config('db_prefix').'_cup_round','id=%d',$roundNode['round']['id']);$roundNode['round']=$result->fetch_array();$result->free();$showEditForm=FALSE;}if($showEditForm){?><form action='<?php echo ESC($_SERVER['PHP_SELF']);?>'
-							method='post'class='form-horizontal'><input type='hidden'name='action'value='edit-save'><input type='hidden'name='site'value='<?php echo$site; ?>'><input type='hidden'name='cup'value='<?php echoESC($cupid);?>'><input type='hidden'
+							Config('db_prefix').'_cup_round','id=%d',$roundNode['round']['id']);$roundNode['round']=$result->fetch_array();$result->free();$showEditForm=FALSE;}if($showEditForm){?><form action='<?php echo escapeOutput($_SERVER['PHP_SELF']);?>'
+							method='post'class='form-horizontal'><input type='hidden'name='action'value='edit-save'><input type='hidden'name='site'value='<?php echo$site; ?>'><input type='hidden'name='cup'value='<?php echoescapeOutput($cupid);?>'><input type='hidden'
 							name='id'value='<?php echo$roundNode['round']['id'];?>'><?php $formFields=[];$formFields['name']=['type'=>'text','value'=>$roundNode['round']['name'],'required'=>'true'];$formFields['firstround_date']=['type'=>'timestamp','value'=>
 							$roundNode['round']['firstround_date'],'required'=>'true'];if($roundNode['round']['secondround_date'])$formFields['secondround_date']=['type'=>'timestamp','value'=>$roundNode['round']['secondround_date'],'required'=>'false'];
 							$formFields['finalround']=['type'=>'boolean','value'=>$roundNode['round']['finalround']];$formFields['groupmatches']=['type'=>'boolean','value'=>$roundNode['round']['groupmatches']];foreach($formFields as$fieldId=>$fieldInfo)echo
 							createFormGroup($i18n,$fieldId,$fieldInfo,$fieldInfo['value'],'managecuprounds_label_');?><div class='control-group'><div class='controls'><input type='submit'class='btn btn-primary'accesskey='s'title='Alt + s'value='<?php echo
-							Message('button_save');?>'><a href="<?php echo'?site='.ESC($site).'&cup='.ESC($cupid);?>'class='btn'><?php echo Message('button_cancel');?></a></div></div></form><?php }else{echo'<p><strong>';
-							if($roundNode['round']['finalround']=='1')echo'<em>';echo ESC($roundNode['round']['name']);if($roundNode['round']['finalround']=='1')echo'</em></strong><a href=\'?site='.ESC($site).'&cup='.
-							ESC($cupid).'&action=edit&id='.$roundNode['round']['id'].'\'title=\''.Message('manage_edit').'\'><i class=\'icon-pencil\'></i></a><a class=\'deleteLink\'href=\'?site='.ESC($site).'&cup='.ESC($cupid).
+							Message('button_save');?>'><a href="<?php echo'?site='.escapeOutput($site).'&cup='.escapeOutput($cupid);?>'class='btn'><?php echo Message('button_cancel');?></a></div></div></form><?php }else{echo'<p><strong>';
+							if($roundNode['round']['finalround']=='1')echo'<em>';echo escapeOutput($roundNode['round']['name']);if($roundNode['round']['finalround']=='1')echo'</em></strong><a href=\'?site='.escapeOutput($site).'&cup='.
+							escapeOutput($cupid).'&action=edit&id='.$roundNode['round']['id'].'\'title=\''.Message('manage_edit').'\'><i class=\'icon-pencil\'></i></a><a class=\'deleteLink\'href=\'?site='.escapeOutput($site).'&cup='.escapeOutput($cupid).
 							'&action=delete&id='.$roundNode['round']['id'].'\'title=\''.Message('manage_delete').'\'><i class=\'icon-trash\'></i></a></p><ul><li><em>'.Message('managecuprounds_label_firstround_date').':</em>'.
 							date(FormattedDatetime($roundNode['round']['firstround_date'])).'</li>';if($roundNode['round']['secondround_date'])echo'<li><em>'.Message('managecuprounds_label_secondround_date').':</em>'.date(FormattedDatetime(
-							$roundNode['round']['secondround_date'])).'</li>';$matchesUrl='?site=manage&entity=match&'.http_build_query(['entity_match_pokalname'=>ESC($cup['name']),'entity_match_pokalrunde'=>ESC($roundNode['round']['name'])]);
-							echo'<li><a href=\'$matchesUrl\'>'.Message('managecuprounds_show_matches').'</a></li></ul>';$addMatchUrl='?site=manage&entity=match&show=add&'.http_build_query(['pokalname'=>ESC($cup['name']),'pokalrunde'=>
-							ESC($roundNode['round']['name']),'spieltyp'=>'Pokalspiel']);if(!$roundNode['round']['groupmatches']){echo'<p><a href=\'$addMatchUrl\'class=\'btn btn-mini\'><i class=\'icon-plus-sign\'></i>'.Message('managecuprounds_add_match').'</a>
+							$roundNode['round']['secondround_date'])).'</li>';$matchesUrl='?site=manage&entity=match&'.http_build_query(['entity_match_pokalname'=>escapeOutput($cup['name']),'entity_match_pokalrunde'=>escapeOutput($roundNode['round']['name'])]);
+							echo'<li><a href=\'$matchesUrl\'>'.Message('managecuprounds_show_matches').'</a></li></ul>';$addMatchUrl='?site=manage&entity=match&show=add&'.http_build_query(['pokalname'=>escapeOutput($cup['name']),'pokalrunde'=>
+							escapeOutput($roundNode['round']['name']),'spieltyp'=>'Pokalspiel']);if(!$roundNode['round']['groupmatches']){echo'<p><a href=\'$addMatchUrl\'class=\'btn btn-mini\'><i class=\'icon-plus-sign\'></i>'.Message('managecuprounds_add_match').'</a>
 							<a href=\'?site=managecuprounds-generate&round='.$roundNode['round']['id'].'\'class=\'btn btn-mini\'><i class=\'icon-random\'></i>'.Message('managecuprounds_generate_matches').'</a></p>';}else{echo'<p>
 							<a href=\'?site=managecuprounds-groups&round='.$roundNode['round']['id'].'\'class=\'btn btn-mini\'><i class=\'icon-list\'></i>'.Message('managecuprounds_manage_groups').'</a></p>';}if(isset($roundNode['winnerround'])){echo'<p><em>'.
 							Message('managecuprounds_next_round_winners').':</em></p>\n';renderRound($hierarchy[$roundNode['winnerround']]);}if(isset($roundNode['looserround'])){echo'<p><em>'.Message('managecuprounds_next_round_loosers').':</em></p>\n';

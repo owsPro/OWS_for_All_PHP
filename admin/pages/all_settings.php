@@ -13,7 +13,7 @@
 *****************************************************************************/
 					$mainTitle=Message('all_settings_title');include($_SERVER['DOCUMENT_ROOT'].'/cache/settingsconfig.inc.php');include($_SERVER['DOCUMENT_ROOT'].'/settingsconfig.php');if(!$admin['r_admin']&&!$admin['r_demo']){echo'<p>'.
 					Message('error_access_denied').'</p>';exit;}if(!$show){$tabs=[];foreach($setting as$settingId=>$settingData){$settingInfo=json_decode($settingData,true);$tabs[$settingInfo['category']][$settingId]=$settingInfo;}?><h1><?php echo$mainTitle;?></h1>
-					<form action='<?php echo ESC($_SERVER['PHP_SELF']);?>'method='post'class='form-horizontal'><input type='hidden'name='show'value='speichern'><input type='hidden'name='site'value='<?php echo$site;?>'><ul class='nav nav-tabs'>
+					<form action='<?php echo escapeOutput($_SERVER['PHP_SELF']);?>'method='post'class='form-horizontal'><input type='hidden'name='show'value='speichern'><input type='hidden'name='site'value='<?php echo$site;?>'><ul class='nav nav-tabs'>
     				<?php $firstTab=TRUE;foreach($tabs as$tabId=>$settings){echo'<li';if($firstTab)echo' class=\'active\'';echo'><a href=\'#'.$tabId.'\'data-toggle=\'tab\'>'.Message('settings_tab_'.$tabId).'</a></li>';$firstTab=FALSE;}?></ul><div class='tab-content'>
 					<?php $firstTab=TRUE;foreach($tabs as$tabId=>$settings){echo'<div class=\'tab-pane';if($firstTab)echo' active';echo'\'id=\''.$tabId.'\'>';foreach($settings as$settingId=>$settingInfo)
 					echo createFormGroup($i18n,$settingId,$settingInfo,Config($settingId),'settings_label_');echo'</div>';$firstTab=FALSE;}?></div><div class='form-actions'>

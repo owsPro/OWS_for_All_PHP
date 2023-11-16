@@ -31,7 +31,7 @@ if (!isset($round["round_name"])) {
 	throw new Exception("illegal round id");
 }
 
-echo "<h2>". Message("entity_cup") . " - " . ESC($round["round_name"]) . "</h2>";
+echo "<h2>". Message("entity_cup") . " - " . escapeOutput($round["round_name"]) . "</h2>";
 
 // ****** Generate matches ***********
 if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])) {
@@ -73,7 +73,7 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 	}
 
 	echo createSuccessMessage(Message("managecuprounds_generate_success"), "");
-	echo "<p><a href=\"?site=managecuprounds&cup=". ESC($round["cup_id"]) . "\" class=\"btn btn-primary\">" . Message("managecuprounds_generate_success_overviewlink") ."</a></p>";
+	echo "<p><a href=\"?site=managecuprounds&cup=". escapeOutput($round["cup_id"]) . "\" class=\"btn btn-primary\">" . Message("managecuprounds_generate_success_overviewlink") ."</a></p>";
 }
 
 // ****** Display selection form ***********
@@ -86,10 +86,10 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 		<h5><?php echo Message("managecuprounds_generate_possiblerounds"); ?>: <span id="roundsNo">0</span></h5>
 	</div>
 
-  <form action="<?php echo ESC($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
+  <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="action" value="generate">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
-	<input type="hidden" name="round" value="<?php echo ESC($roundid); ?>">
+	<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
 
 	<fieldset>
     	<legend><?php echo Message("managecuprounds_generate_formlabel"); ?> (<span id="numberOfTeamsSelected">0</span>)</legend>
@@ -117,8 +117,8 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 					while ($team = $result->fetch_array()) {
 						echo "<tr>";
 						echo "<td><input type=\"checkbox\" class=\"teamForCupCheckbox\" name=\"teams[]\" value=\"". $team["team_id"] . "\"></td>";
-						echo "<td class=\"tableRowSelectionCell\">". ESC($team["team_name"]) . "</td>";
-						echo "<td class=\"tableRowSelectionCell\">". ESC($team["league_name"] . " (" . $team["league_country"] . ")") . "</td>";
+						echo "<td class=\"tableRowSelectionCell\">". escapeOutput($team["team_name"]) . "</td>";
+						echo "<td class=\"tableRowSelectionCell\">". escapeOutput($team["league_name"] . " (" . $team["league_country"] . ")") . "</td>";
 						echo "</tr>";
 					}
 					$result->free();
@@ -130,7 +130,7 @@ if ($action == "generate" && isset($_POST["teams"]) && is_array($_POST["teams"])
 	<div class="form-actions">
 		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("managecuprounds_generate_submitbutton"); ?>">
 		<?php
-		echo " <a href=\"?site=managecuprounds&cup=". ESC($round["cup_id"]) . "\" class=\"btn\">" . Message("button_cancel") ."</a>";
+		echo " <a href=\"?site=managecuprounds&cup=". escapeOutput($round["cup_id"]) . "\" class=\"btn\">" . Message("button_cancel") ."</a>";
 		?>
 	</div>
   </form>

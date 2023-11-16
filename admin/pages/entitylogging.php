@@ -67,7 +67,7 @@ if (!$show) {
                 echo '<tr>
                   <td><b>'. $n .'</b></td>
                   <td>'. $row[0] .'</td>
-                  <td>'. ESC($row[1]) .' ('. ESC($row[2]) . ')</td>
+                  <td>'. escapeOutput($row[1]) .' ('. escapeOutput($row[2]) . ')</td>
                   <td>';
 
                   	if ($row[3] == 'edit') {
@@ -88,7 +88,7 @@ if (!$show) {
 							echo ', ';
 						}
 
-						echo $fieldKey . ': ' . ESC($fieldValue);
+						echo $fieldKey . ': ' . escapeOutput($fieldValue);
 
 					}
 				   echo ' }</td>

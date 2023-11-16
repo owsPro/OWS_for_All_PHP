@@ -21,7 +21,7 @@
 					<meta charset='UTF-8'><link rel='shortcut icon'type='image/x-icon'href='../favicon.ico'/><style type='text/css'>body{padding-top:100px;padding-bottom:40px;}</style></head>
 					<body><div class='container'><h1><?php echo Message('sendpassword_admin_title');?></h1><?php if(count($errors)>0)foreach($errors as$key=>$message)echo createErrorMessage(Message('subpage_error_title'),$message);
 					flags('/admin/forgot-password.php?lang=');?><p><?php echo Message('sendpassword_admin_intro');?></p><form action='forgot-password.php'method='post'class='form-horizontal'><div class='control-group<?php if(isset($errors['inputEmail']))echo' error';
-					?>'><label class='control-label'for='inputEmail'><?php echo Message('sendpassword_admin_label_email');?></label><div class='controls'><input type='email'name='inputEmail'id='inputEmail'placeholder='E-Mail'value='<?php echo ESC($inputEmail);
+					?>'><label class='control-label'for='inputEmail'><?php echo Message('sendpassword_admin_label_email');?></label><div class='controls'><input type='email'name='inputEmail'id='inputEmail'placeholder='E-Mail'value='<?php echo escapeOutput($inputEmail);
 					?>'></div></div><div class='control-group'><div class='controls'><button type='submit'class='btn'><?php echo Message('sendpassword_admin_button');?></button></div></div></form><p><a href='login.php'><?php echo Message('sendpassword_admin_loginlink');
 					?></a><hr><footer><p>Powered by <a href='https://github.com/owsPro/OWS_for_All_PHP' target='_blank'>OWS_for_All_PHP</a></p></footer></div><script src='https://code.jquery.com/jquery-latest.min.js'></script><script src='bootstrap/js/bootstrap.min.js'>
 					</script></body></html>

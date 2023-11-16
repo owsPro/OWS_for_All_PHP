@@ -16,8 +16,6 @@
 
 function Config($name){global$conf;if(!isset($conf[$name]))throw new Exception('Missing configuration: '.$name);return$conf[$name];}
 function C(...$args){return Config(...$args);}
-function ESC($message){return htmlspecialchars((string)$message,ENT_COMPAT,'UTF-8');}
-function ESC(...$args){return ESC(...$args);}
 function DBSave(){save(date('Y-m-d_H-i-s').'_'.C('db_name').'.sql.gz');}
 function Query($queryStr){
         $con=new mysqli(C('db_host'),C('db_user'),C('db_passwort'),C('db_name'));
@@ -62,7 +60,7 @@ function dumpTable($handle,$table){
         $res=Query("SELECT*FROM $delTable",MYSQLI_USE_RESULT);
         while($row=$res->fetch_assoc()){
         	$values=[];
-            foreach($row as$value)$values[]=$value===null?'NULL':"'".ESC($value)."'";$rows[]='('.implode(',',$values).')';}
+            foreach($row as$value)$values[]=$value===null?'NULL':"'".escapeOutput($value)."'";$rows[]='('.implode(',',$values).')';}
             $res->close();
             $inserts=array_chunk($rows,100);
     		foreach($inserts as$insert)fwrite($handle,'INSERT INTO '.$delTable.' ('.implode(',',$cols).') VALUES '.(implode(',',$insert)??'').';\n');
