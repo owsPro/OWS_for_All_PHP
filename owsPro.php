@@ -18,10 +18,12 @@ function Config($name){global$conf;if(!isset($conf[$name]))throw new Exception('
 function C(...$args){return Config(...$args);}
 function DBSave(){save(date('Y-m-d_H-i-s').'_'.C('db_name').'.sql.gz');}
 function Query($queryStr){
-        $con=new mysqli(C('db_host'),C('db_user'),C('db_passwort'),C('db_name'));
-        $Result=htmlspecialchars((string)$con->query($queryStr),ENT_COMPAT,'UTF-8');
-        if(!$Result)throw new Exception('Database Query Error: '.$con->error);
-        return$Result;}
+    	$con=new mysqli(C('db_host'),C('db_user'),C('db_password'),$dbName=C('db_name'));
+    	if($con->connect_error)throw new Exception('Database Connection Error: '.$con->connect_error);
+    	$sanitizedQuery=$con->real_escape_string($queryStr);
+		$result=$con->query($sanitizedQuery);
+    	if(!$result)throw new Exception('Database Query Error: '.$con->error);
+    	return $result;}
 function save($file){
     	$extension='.gz';
     	$fileExtension=substr($file,-strlen($extension));
@@ -42,7 +44,7 @@ function write($handle=null) {
         $tables=array_merge($tables,$views);
         Query('LOCK TABLES `'.implode('` READ,`',$tables).'`READ');
         Query('SELECT DATABASE()')->fetch_row();
-        foreach($tables as$table)htmlspecialchars((string)dumpTable($handle,$table),ENT_COMPAT,'UTF-8');
+        foreach($tables as$table)dumpTable($handle,$table);
         Query('UNLOCK TABLES');}
 function dumpTable($handle,$table){
         $delTable=delimit($table);
