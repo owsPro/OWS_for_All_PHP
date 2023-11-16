@@ -113,13 +113,14 @@ if ($action == "create") {
 
 		$columns = array("name" => $_REQUEST["groupname"]);
 
+		
 		$db->queryUpdate($columns,Config("db_prefix") . "_cup_round_group", "cup_round_id = %d AND name = '%s'",
 				array($roundid, $_REQUEST["group"]));
 
 		$db->queryUpdate(array("groupname" => $_REQUEST["groupname"]),Config("db_prefix") . "_cup_round_group_next", "cup_round_id = %d AND groupname = '%s'",
 				array($roundid, $_REQUEST["group"]));
 
-		$db->queryUpdate(array("pokalgruppe" => $_REQUEST["groupname"]), $Config("db_prefix") . "_spiel", "pokalname = '%s' AND pokalrunde = '%s' AND pokalgruppe = '%s'",
+		$db->queryUpdate(array("pokalgruppe" => $_REQUEST["groupname"]), Config("db_prefix") . "_spiel", "pokalname = '%s' AND pokalrunde = '%s' AND pokalgruppe = '%s'",
 				array($round["cup_name"], $round["round_name"], $_REQUEST["group"]));
 
 		echo createSuccessMessage(Message("alert_save_success"), "");
@@ -413,10 +414,10 @@ if (count($groups)) {
 	}
 
 	// count matches
-	$result = $db->querySelect("COUNT(*) AS hits",Config("db_prefix") . "_spiel",
-					"pokalname = '%s' AND pokalrunde = '%s'", array($round["cup_name"], $round["round_name"]));
-	$matches = $result->fetch_array();
-	$result->free();
+$result = $db->querySelect("COUNT(*) AS hits", Config("db_prefix") . "_spiel",
+    "pokalname = '%s' AND pokalrunde = '%s'", array($round["cup_name"], $round["round_name"]));
+$matches = $result->fetch_assoc();
+$result->free();
 
 	$matchesUrl = "?site=manage&entity=match&" . http_build_query(array(
 			"entity_match_pokalname" => escapeOutput($round["cup_name"]),
