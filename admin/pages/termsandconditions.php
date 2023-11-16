@@ -28,7 +28,7 @@ if (!file_exists($termsFile)) {
 
 $xml = simplexml_load_file($termsFile);
 
-$termsConfig = $xml->xpath("//pagecontent[@lang = '". $selectedLang . "'][1]");
+$termsConfig = escapeOutput($xml->xpath("//pagecontent[@lang = '". $selectedLang . "'][1]"));
 if (!$termsConfig) {
 	throw new Exception("No terms and conditions available for this language. Create manually a new entry at " . $termsFile);
 }
