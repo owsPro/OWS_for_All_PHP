@@ -559,7 +559,7 @@ if ($showOverview) {
 
                 if (isset($columnInfo['converter'])) {
                     $converter = getConverter($website, $i18n, $columnInfo['converter']);
-                    echo $converter->toHtml($row);
+                    echo escapeOutput($converter->toHtml($row));
                 } elseif ($fieldId == 'entity_' . $entity . '_status') {
                     if ($columnValue == 1) {
                         echo "<i class=\"icon-ok-sign\" title=\"" . Message('manage_status_active') . "\"></i>";
@@ -674,7 +674,7 @@ if ($showOverview) {
             if ($seite < $seiten) {
                 $next = $seite + 1;
                 $url = buildCurrentUrlWithParameters(array('site' => $site, 'entity' => $entity, 'page' => $next));
-                echo '<li><a href=\'' . $url . '\'>&raquo;</a></li>';
+                echo '<li><a href=\'' . escapeOutput($url) . '\'>&raquo;</a></li>';
             }
 
             echo '</ul></div>';
