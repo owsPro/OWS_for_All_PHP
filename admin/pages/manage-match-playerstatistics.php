@@ -266,7 +266,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 		$formationCount = $fresult->fetch_array();
 		$fresult->free();
 		if ($formationCount && $formationCount["hits"]) {
-			echo "<p><a href=\"?site=$site&match=escapeOutput($matchId&team)=$teamPrefix&action=generate\" class=\"btn\"><i class=\"icon-hand-right\"></i> ". Message("match_manage_playerstatistics_createfromfrmation") . "</a></p>";
+			echo "<p><a href=\"?site=$site&match=escapeOutput($matchId&team)=escapeOutput($teamPrefix&action)=generate\" class=\"btn\"><i class=\"icon-hand-right\"></i> ". Message("match_manage_playerstatistics_createfromfrmation") . "</a></p>";
 		} else {
 			echo "<p><i class=\"icon-warning-sign\"></i> ". Message("match_manage_playerstatistics_noformationavailable") . "</p>";
 		}
@@ -323,12 +323,12 @@ foreach ($teamPrefixes as $teamPrefix) {
 
 			// name
 			echo "<td>". escapeOutput(escapeOutput($player["name"]));
-			echo " <a href=\"?site=$site&action=delete&match=$matchId&player=". $player["spieler_id"] . "\" title=\"". Message("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a>";
+			echo " <a href=\"?site=$site&action=delete&match=$matchId&player=". escapeOutput($player["spieler_id"]) . "\" title=\"". Message("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a>";
 			echo "</td>";
 
 			// statistics
 			foreach ($formFields as $formField) {
-				echo "<td><input type=\"text\" class=\"input-mini\" name=\"". escapeOutput($fieldPrefix) . "_". $formField . "\" title=\"". Message("match_manage_" . $formField) . "\" value=\"". $player[$formField] . "\"/></td>";
+				echo "<td><input type=\"text\" class=\"input-mini\" name=\"". escapeOutput($fieldPrefix) . "_". escapeOutput($formField) . "\" title=\"". Message("match_manage_" . $formField) . "\" value=\"". $player[$formField] . "\"/></td>";
 			}
 
 			echo "</tr>";
@@ -336,7 +336,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 
 		echo "</tbody>";
 		echo "</table>";
-		echo "<input type=\"hidden\" name=\"". escapeOutput($teamPrefix) . "_players\" value=\"". implode(";", $playerIds) . "\"/>";
+		echo "<input type=\"hidden\" name=\"". escapeOutput($teamPrefix) . "_players\" value=\"". escapeOutput(implode(";", $playerIds)) . "\"/>";
 
 		// substitutions
 		echo "<h4>". Message("match_manage_substitutions") . "</h4>";
@@ -391,7 +391,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 					echo "</td>";
 
 					// minute
-					echo "<td><input class=\"input-mini\" type=\"number\" name=\"". escapeOutput($teamPrefix) . "_sub" . $subNo . "_minute\" value=\"". $match["match_". escapeOutput($teamPrefix) . "_sub" . $subNo . "_minute"] . "\"/></td>";
+					echo "<td><input class=\"input-mini\" type=\"number\" name=\"". escapeOutput($teamPrefix) . "_sub" . escapeOutput($subNo) . "_minute\" value=\"". $match["match_". escapeOutput($teamPrefix) . "_sub" . escapeOutput($subNo) . "_minute"] . "\"/></td>";
 
 					echo "</tr>";
 				}
