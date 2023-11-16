@@ -33,7 +33,7 @@ function save($file){
     	write($handle);
     	fclose($handle);}
 function write($handle=null) {
-        if($handle===null)$handle??fopen('php://output','wb');
+        if($handle===null)$handle=fopen('php://output','wb');
         elseif(!is_resource($handle)||get_resource_type($handle)!=='stream')throw new Exception('Argument must be a stream resource.');
         $tables=$views=[];
         $res=Query('SHOW FULL TABLES');
