@@ -25,7 +25,7 @@ $jobId = htmlspecialchars((array)$_REQUEST['id'], ENT_COMPAT, 'UTF-8');
 $xml = simplexml_load_file($_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');
 
 // Find the job configuration based on the job ID
-$jobConfig = htmlspecialchars((string)$xml->xpath('//job[@id=\''.$jobId,ENT_COMPAT,'UTF-8').'\']');
+$jobConfig = xpathESC($xml->xpath('//job[@id=\''.$jobId.'\']'));
 
 // Throw an exception if the job configuration is not found
 if (!$jobConfig) {
