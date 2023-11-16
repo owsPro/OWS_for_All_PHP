@@ -33,7 +33,7 @@ if (!isset($round["round_name"])) {
 
 echo "<h2>". Message("entity_cup") . " - " . escapeOutput($round["round_name"]) . "</h2>";
 
-echo "<p><a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . Message("managecuprounds_groups_back") ."</a></p>";
+echo "<p><a href=\"?site=managecuprounds&cup=". escapeOutput($round["cup_id"]) . "\" class=\"btn\">" . Message("managecuprounds_groups_back") ."</a></p>";
 
 // get teams for team selection
 $result = $db->querySelect("T.id AS team_id,T.name AS team_name,L.name AS league_name,L.land AS league_country",
@@ -264,7 +264,7 @@ if (count($groups)) {
 				<form method="post" action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" class="form-inline">
 					<input type="hidden" name="action" value="editsave">
 					<input type="hidden" name="site" value="<?php echo $site; ?>">
-					<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+					<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
 					<input type="hidden" name="group" value="<?php echo escapeOutput($groupName); ?>">
 
 					<input id="groupname" name="groupname" type="text" value="<?php echo escapeOutput($nameValue) ?>">
@@ -280,7 +280,7 @@ if (count($groups)) {
 			echo "<td><ul>";
 			$noOfTeams = 0;
 			foreach ($groupItems as $groupItem) {
-				echo "<li>" . escapeOutput($groupItem["team_name"]) . " <a class=\"deleteLink\" href=\"?site=". $site . "&round=". $roundid . "&group=". urlencode(escapeOutput($groupName)) . "&action=deletegroupassignment&teamid=". $groupItem["team_id"] . "\" title=\"". Message("manage_delete") . "\"><i class=\"icon-remove-sign\"></i></a></li>";
+				echo "<li>" . escapeOutput($groupItem["team_name"]) . " <a class=\"deleteLink\" href=\"?site=". escapeOutput($site) . "&round=". escapeOutput($roundid) . "&group=". urlencode(escapeOutput($groupName)) . "&action=deletegroupassignment&teamid=". escapeOutput($groupItem["team_id"]) . "\" title=\"". Message("manage_delete") . "\"><i class=\"icon-remove-sign\"></i></a></li>";
 				++$noOfTeams;
 			}
 			echo "</ul>\n";
@@ -288,8 +288,8 @@ if (count($groups)) {
 			?>
 			<form method="post" action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" class="form-inline">
 				<input type="hidden" name="action" value="addteam">
-				<input type="hidden" name="site" value="<?php echo $site; ?>">
-				<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+				<input type="hidden" name="site" value="<?php echo escapeOutput($site); ?>">
+				<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
 				<input type="hidden" name="group" value="<?php echo escapeOutput($groupName); ?>">
 
 				<?php
@@ -306,8 +306,8 @@ if (count($groups)) {
 			?>
 			<form method="post" action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" class="form-inline">
 				<input type="hidden" name="action" value="saveranks">
-				<input type="hidden" name="site" value="<?php echo $site; ?>">
-				<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+				<input type="hidden" name="site" value="<?php echo escapeOutput($site); ?>">
+				<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
 				<input type="hidden" name="group" value="<?php echo escapeOutput($groupName); ?>">
 			<?php
 			echo "<ol>";
@@ -331,8 +331,8 @@ if (count($groups)) {
 			</form>
 			<?php
 			echo "</td>";
-			echo "<td><a href=\"?site=". $site . "&round=". $roundid . "&action=edit&group=". urlencode(escapeOutput($groupName)) . "\" title=\"". Message("manage_edit") . "\"><i class=\"icon-pencil\"></i></a></td>";
-			echo "<td><a class=\"deleteLink\" href=\"?site=". $site . "&round=". $roundid . "&group=". urlencode(escapeOutput($groupName)) . "&action=delete\" title=\"". Message("manage_delete") . "\"><i class=\"icon-trash\"></i></a></td>";
+			echo "<td><a href=\"?site=". escapeOutput($site) . "&round=". escapeOutput($roundid) . "&action=edit&group=". urlencode(escapeOutput($groupName)) . "\" title=\"". Message("manage_edit") . "\"><i class=\"icon-pencil\"></i></a></td>";
+			echo "<td><a class=\"deleteLink\" href=\"?site=". escapeOutput($site) . "&round=". escapeOutput($roundid) . "&group=". urlencode(escapeOutput($groupName)) . "&action=delete\" title=\"". Message("manage_delete") . "\"><i class=\"icon-trash\"></i></a></td>";
 
 			echo "</tr>\n";
 		}
@@ -427,15 +427,15 @@ $result->free();
 
 	<div class="well">
 		<?php if (isset($matches["hits"]) && $matches["hits"]) { ?>
-		<p><a href="<?php echo $matchesUrl; ?>"><strong><?php echo $matches["hits"]; ?></strong> <?php echo Message("managecuprounds_groups_created_matches"); ?></a></p>
+		<p><a href="<?php echo escapeOutput($matchesUrl); ?>"><strong><?php echo escapeOutput($matches["hits"]); ?></strong> <?php echo Message("managecuprounds_groups_created_matches"); ?></a></p>
 		<?php } ?>
 		<p><a href="#generateModal" role="button" class="btn" data-toggle="modal"><?php echo Message("managecuprounds_groups_open_generate_matches_popup"); ?></a></p>
 	</div>
 
 	<form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
 	    <input type="hidden" name="action" value="generateschedule">
-		<input type="hidden" name="site" value="<?php echo $site; ?>">
-		<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+		<input type="hidden" name="site" value="<?php echo escapeOutput($site); ?>">
+		<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
 		<div id="generateModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="generateModalLabel" aria-hidden="true">
 		  <div class="modal-header">
 		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">??</button>
@@ -466,8 +466,8 @@ $result->free();
 
   <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="action" value="create">
-	<input type="hidden" name="site" value="<?php echo $site; ?>">
-	<input type="hidden" name="round" value="<?php echo $roundid; ?>">
+	<input type="hidden" name="site" value="<?php echo escapeOutput($site); ?>">
+	<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
 
 	<fieldset>
     <legend><?php echo Message("managecuprounds_groups_label_create"); ?></legend>
@@ -513,7 +513,7 @@ $result->free();
 	<div class="form-actions">
 		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("button_save"); ?>">
 	<?php
-	echo "<a href=\"?site=managecuprounds&cup=". $round["cup_id"] . "\" class=\"btn\">" . Message("button_cancel") ."</a>";
+	echo "<a href=\"?site=managecuprounds&cup=". escapeOutput($round["cup_id"]) . "\" class=\"btn\">" . Message("button_cancel") ."</a>";
 
 	?>
 
