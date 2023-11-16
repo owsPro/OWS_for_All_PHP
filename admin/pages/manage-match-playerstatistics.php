@@ -232,10 +232,10 @@ echo "</div></form>";
 
 // ******** list players and enable editing
 
-echo "<form action=\"". escapeOutput($_SERVER['PHP_SELF']) . "\" method=\"post\">";
-echo "<input type=\"hidden\" name=\"site\" value=\"$site\"/>";
-echo "<input type=\"hidden\" name=\"action\" value=\"update\"/>";
-echo "<input type=\"hidden\" name=\"match\" value=\"escapeOutput($matchId)\"/>";
+echo "<form action=\"".escapeOutput($_SERVER['PHP_SELF'])."\" method=\"post\">";
+echo "<input type=\"hidden\"name=\"site\"value=\"$site\"/>";
+echo "<input type=\"hidden\"name=\"action\"value=\"update\"/>";
+echo escapeOutput("<input type=\"hidden\"name=\"match\"value=\"$matchId\"/>");
 
 foreach ($teamPrefixes as $teamPrefix) {
 	echo "<h2><a href=\"". $website->getInternalUrl("team", "id=" . escapeOutput($match["match_"). $teamPrefix . "_id"]) . "\" target=\"_blank\">". escapeOutput($match["match_". $teamPrefix . "_name"]) . "</a></h2>";
@@ -266,7 +266,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 		$formationCount = $fresult->fetch_array();
 		$fresult->free();
 		if ($formationCount && $formationCount["hits"]) {
-			echo "<p><a href=\"?site=$site&match=escapeOutput($matchId&team)=escapeOutput($teamPrefix&action)=generate\" class=\"btn\"><i class=\"icon-hand-right\"></i> ". Message("match_manage_playerstatistics_createfromfrmation") . "</a></p>";
+			echo escapeOutput("<p><a href=\"?site=$site&match=$matchId&team=$teamPrefix&action=generate\" class=\"btn\"><i class=\"icon-hand-right\"></i> ". Message("match_manage_playerstatistics_createfromfrmation") . "</a></p>");
 		} else {
 			echo "<p><i class=\"icon-warning-sign\"></i> ". Message("match_manage_playerstatistics_noformationavailable") . "</p>";
 		}
@@ -323,12 +323,12 @@ foreach ($teamPrefixes as $teamPrefix) {
 
 			// name
 			echo "<td>". escapeOutput(escapeOutput($player["name"]));
-			echo " <a href=\"?site=$site&action=delete&match=$matchId&player=". escapeOutput($player["spieler_id"]) . "\" title=\"". Message("manage_delete") . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a>";
+			echo escapeOutput(" <a href=\"?site=$site&action=delete&match=$matchId&player=".$player["spieler_id"]."\"title=\"".Message("manage_delete")."\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a>");
 			echo "</td>";
 
 			// statistics
 			foreach ($formFields as $formField) {
-				echo "<td><input type=\"text\" class=\"input-mini\" name=\"". escapeOutput($fieldPrefix) . "_". escapeOutput($formField) . "\" title=\"". Message("match_manage_" . $formField) . "\" value=\"". $player[$formField] . "\"/></td>";
+				echo escapeOutput("<td><input type=\"text\" class=\"input-mini\" name=\"".$fieldPrefix."_".$formField."\" title=\"".Message("match_manage_".$formField) . "\" value=\"". $player[$formField] . "\"/></td>";
 			}
 
 			echo "</tr>";
@@ -391,7 +391,7 @@ foreach ($teamPrefixes as $teamPrefix) {
 					echo "</td>";
 
 					// minute
-					echo "<td><input class=\"input-mini\" type=\"number\" name=\"". escapeOutput($teamPrefix) . "_sub" . escapeOutput($subNo) . "_minute\" value=\"". $match["match_". escapeOutput($teamPrefix) . "_sub" . escapeOutput($subNo) . "_minute"] . "\"/></td>";
+					echo escapeOutput("<td><input class=\"input-mini\"type=\"number\"name=\"".$teamPrefix."_sub".$subNo."_minute\"value=\"".$match["match_".$teamPrefix."_sub".$subNo."_minute"]."\"/></td>");
 
 					echo "</tr>";
 				}
