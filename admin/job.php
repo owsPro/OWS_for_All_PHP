@@ -11,6 +11,6 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-								include($_SERVER['DOCUMENT_ROOT'].'/admin/adminglobal.inc.php');if($admin['r_demo'])exit;$jobId=escapeOutput($_REQUEST['id']);$xml=simplexml_load_file($_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');$jobConfig=$xml->xpath(
+								include($_SERVER['DOCUMENT_ROOT'].'/admin/adminglobal.inc.php');if($admin['r_demo'])exit;$jobId=ESC($_REQUEST['id']);$xml=simplexml_load_file($_SERVER['DOCUMENT_ROOT'].'/admin/config/jobs.xml');$jobConfig=$xml->xpath(
 								'//job[@id=\''.escaapeOutput($jobId).'\']');if(!$jobConfig)throw new Exception('Job config not found.');$jobClass=(string)$jobConfig[0]->attributes()->class;if(class_exists($jobClass))$job=new$jobClass($website,$db,$i18n,$jobId,
 								$action!=='stop');else throw new Exception('class not found: '.$jobClass);if($action=='start')$job->start();elseif($action=='stop')$job->stop();

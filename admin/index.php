@@ -60,7 +60,7 @@ Bootstrap_css();
 ?>
 
 <!DOCTYPE html>
-<html lang='<?php echo escapeOutput($i18n->getCurrentLanguage());?>'>
+<html lang='<?php echo ESC($i18n->getCurrentLanguage());?>'>
 <head>
     <title><?php echo Message('main_title')?></title>
     <link href='bootstrap-datepicker/css/datepicker.css' rel='stylesheet'>
@@ -87,7 +87,7 @@ Bootstrap_css();
                         <div class='nav-collapse collapse'>
                             <p class='navbar-text pull-right'></a></p>
                             <ul class='nav'>
-                                <?php echo Message('admincenter_loggedin_as');echo' ';echo escapeOutput($admin['name']);?><br><br>
+                                <?php echo Message('admincenter_loggedin_as');echo' ';echo ESC($admin['name']);?><br><br>
                                 <li>
                                     <a href="<?php $contextRoot=Config('context_root');echo(strlen($contextRoot))?$contextRoot:'/';?>">
                                         <i class='icon-globe icon-white'></i>
@@ -166,10 +166,10 @@ Bootstrap_css();
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script src="bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-    <script src="bootstrap-datepicker/js/locales/bootstrap-datepicker.<?php echo escapeOutput($i18n->getCurrentLanguage());?>.js"></script>
+    <script src="bootstrap-datepicker/js/locales/bootstrap-datepicker.<?php echo ESC($i18n->getCurrentLanguage());?>.js"></script>
     <script src="bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
     <script src="select2/select2.min.js"></script>
-    <?php if($i18n->getCurrentLanguage()!="en") echo "<script src=\"select2/select2_locale_".escapeOutput($i18n->getCurrentLanguage()).".js\"></script>";?>
+    <?php if($i18n->getCurrentLanguage()!="en") echo "<script src=\"select2/select2_locale_".ESC($i18n->getCurrentLanguage()).".js\"></script>";?>
     <script src="markitup/jquery.markitup.js"></script>
     <?php if ($i18n->getCurrentLanguage() == "de") { ?>
         <script src="markitup/sets/ws/set_de.js"></script>
@@ -201,7 +201,7 @@ Bootstrap_css();
 
             $(".datepicker").datepicker({
                 format: "<?php echo str_replace("Y","yyyy",Config("date_format"));?>",
-                language: "<?php echo escapeOutput($i18n->getCurrentLanguage());?>",
+                language: "<?php echo ESC($i18n->getCurrentLanguage());?>",
                 autoclose: true
             });
         });

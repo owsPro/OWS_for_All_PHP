@@ -59,7 +59,7 @@ if (!$show) {
 
       ?>
 
-      <form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post'>
+      <form action='<?php echo ESC($_SERVER['PHP_SELF']); ?>' method='post'>
         <input type='hidden' name='action' value='leeren'>
 		<input type='hidden' name='site' value='<?php echo $site; ?>'>
         <p><input type='submit' class='btn' value='<?php echo Message('all_logging_button_empty_file'); ?>'></p>
@@ -90,9 +90,9 @@ if (!$show) {
 				$n = $i + 1;
                 echo '<tr>
                   <td><b>'. $n .'</b></td>
-                  <td>'. escapeOutput($row[0]) .'</td>
-                  <td>'. escapeOutput($row[1]) .'</td>
-                  <td>'. escapeOutput($row[2]) .'</td>
+                  <td>'. ESC($row[0]) .'</td>
+                  <td>'. ESC($row[1]) .'</td>
+                  <td>'. ESC($row[2]) .'</td>
                 </tr>';
               }
 

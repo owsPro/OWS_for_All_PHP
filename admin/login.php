@@ -12,7 +12,7 @@
 
 *****************************************************************************/
 								include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');include($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');$i18n=I18n::getInstance(Config('supported_languages'));if(isset($_GET['lang']))
-								$i18n->setCurrentLanguage($_GET['lang']);include(escapeOutput($_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_'.$i18n->getCurrentLanguage().'inc.php'));include(escapeOutput($_SERVER['DOCUMENT_ROOT'].'/languages/messages_'.
+								$i18n->setCurrentLanguage($_GET['lang']);include(ESC($_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_'.$i18n->getCurrentLanguage().'inc.php'));include(ESC($_SERVER['DOCUMENT_ROOT'].'/languages/messages_'.
 								$i18n->getCurrentLanguage().'.php'));$errors=[];$inputUser=(isset($_POST['inputUser']))?$_POST['inputUser']:FALSE;$inputPassword=(isset($_POST['inputPassword']))?$_POST['inputPassword']:FALSE;$forwarded=(isset($_GET['forwarded'])&&
 								$_GET['forwarded']==1)?TRUE:FALSE;$loggedout=(isset($_GET['loggedout'])&&$_GET['loggedout']==1)?TRUE:FALSE;$newpwd=(isset($_GET['newpwd'])&&$_GET['newpwd']==1)?TRUE:FALSE;if($inputUser or$inputPassword){if(!$inputUser)$errors['inputUser']=
 								Message('login_error_nousername');if(!$inputPassword)$errors['inputPassword']=Message('login_error_nopassword');if(count((array)$errors)==0){$columns=['id','passwort','passwort_salt','passwort_neu','name'];$fromTable=$conf['db_prefix'].

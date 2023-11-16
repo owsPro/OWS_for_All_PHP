@@ -196,7 +196,7 @@ if ($show == 'add' || $show == 'edit') {
 if ($show == 'add') {
     if (!$showOverview) {
         ?>
-        <form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal' <?php if ($enableFileUpload) echo 'enctype=\'multipart/form-data\''; ?>>
+        <form action='<?php echo ESC($_SERVER['PHP_SELF']); ?>' method='post' class='form-horizontal' <?php if ($enableFileUpload) echo 'enctype=\'multipart/form-data\''; ?>>
             <input type='hidden' name='show' value='<?php echo $show; ?>'>
             <input type='hidden' name='entity' value='<?php echo $entity; ?>'>
             <input type='hidden' name='action' value='save'>
@@ -213,7 +213,7 @@ if ($show == 'add') {
                         $fieldValue = $fieldInfo['default'];
                     }
 
-                    echo escapeOutput(createFormGroup($i18n, $fieldId, $fieldInfo, $fieldValue, $labelPrefix));
+                    echo ESC(createFormGroup($i18n, $fieldId, $fieldInfo, $fieldValue, $labelPrefix));
                 }
                 ?>
             </fieldset>
@@ -237,15 +237,15 @@ if ($show == 'add') {
 
         $result->free();
         ?>
-        <form action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>#item<?php echo escapeOutput($row['id']); ?>' method='post' class='form-horizontal' <?php if ($enableFileUpload) echo 'enctype=\'multipart/form-data\''; ?>>
+        <form action='<?php echo ESC($_SERVER['PHP_SELF']); ?>#item<?php echo ESC($row['id']); ?>' method='post' class='form-horizontal' <?php if ($enableFileUpload) echo 'enctype=\'multipart/form-data\''; ?>>
             <input type='hidden' name='show' value='<?php echo $show; ?>'>
             <input type='hidden' name='entity' value='<?php echo $entity; ?>'>
             <input type='hidden' name='action' value='save'>
-            <input type='hidden' name='id' value='<?php echo escapeOutput($id); ?>'>
+            <input type='hidden' name='id' value='<?php echo ESC($id); ?>'>
             <input type='hidden' name='site' value='<?php echo $site; ?>'>
             <?php
             if (isset($_REQUEST['page'])) {
-                ?><input type='hidden' name='page' value='<?php echo escapeOutput($_REQUEST['page']); ?>'><?php
+                ?><input type='hidden' name='page' value='<?php echo ESC($_REQUEST['page']); ?>'><?php
             }
             ?>
             <fieldset>
@@ -253,7 +253,7 @@ if ($show == 'add') {
                 <?php
                 foreach ($formFields as $fieldId => $fieldInfo) {
                     $fieldValue = ($action == 'save' && isset($_POST[$fieldId])) ? $_POST[$fieldId] : $row[$fieldId];
-                    echo escapeOutput(createFormGroup($i18n, $fieldId, $fieldInfo, $fieldValue, $labelPrefix));
+                    echo ESC(createFormGroup($i18n, $fieldId, $fieldInfo, $fieldValue, $labelPrefix));
                 }
                 ?>
             </fieldset>
@@ -361,7 +361,7 @@ if ($showOverview) {
                 </div>
                 <div id='collapseOne' class='accordion-body collapse<?php if ($openSearchForm) echo 'in' ?>'>
                     <div class='accordion-inner'>
-                        <form class='form-horizontal' name='frmSearch' action='<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>' method='get'>
+                        <form class='form-horizontal' name='frmSearch' action='<?php echo ESC($_SERVER['PHP_SELF']); ?>' method='get'>
                             <input type='hidden' name='site' value='<?php echo $site; ?>'>
                             <input type='hidden' name='entity' value='<?php echo $entity; ?>'>
                             <?php
@@ -472,7 +472,7 @@ if ($showOverview) {
         $limit = $start . ',' . $eps;
         $result = $db->querySelect($fields, $fromTable, $wherePart, $parameters, $limit);
 
-        echo "<form name=\"frmMain\" action=\"" . escapeOutput($_SERVER['PHP_SELF']) . "\" method=\"post\">";
+        echo "<form name=\"frmMain\" action=\"" . ESC($_SERVER['PHP_SELF']) . "\" method=\"post\">";
         echo "<input type=\"hidden\" name=\"site\" value=\"" . $site . "\">";
         echo "<input type=\"hidden\" name=\"entity\" value=\"" . $entity . "\">";
         echo "<input type=\"hidden\" name=\"action\" value=\"delete\">";
@@ -542,24 +542,24 @@ if ($showOverview) {
             echo '<tr>';
 
             if ($deleteEnabled) {
-                echo "<td><input type=\"checkbox\" name=\"del_id[]\" value=\"" . escapeOutput($row['id']) . "\"></td>";
+                echo "<td><input type=\"checkbox\" name=\"del_id[]\" value=\"" . ESC($row['id']) . "\"></td>";
             }
 
             $first = true;
 
             foreach ($outputColumns as $fieldId => $columnInfo) {
-                echo "<td id=\"item" . escapeOutput($row['id']) . "\">";
+                echo "<td id=\"item" . ESC($row['id']) . "\">";
                 $columnValue = $row['' . $fieldId];
                 $type = $columnInfo['type'];
                 $editUrl = '?site=' . $site . '&entity=' . $entity . '&show=edit&id=' . $row['id'];
 
                 if (isset($_REQUEST['page'])) {
-                    $editUrl .= '&page=' . escapeOutput($_REQUEST['page']);
+                    $editUrl .= '&page=' . ESC($_REQUEST['page']);
                 }
 
                 if (isset($columnInfo['converter'])) {
                     $converter = getConverter($website, $i18n, $columnInfo['converter']);
-                    echo escapeOutput($converter->toHtml($row));
+                    echo ESC($converter->toHtml($row));
                 } elseif ($fieldId == 'entity_' . $entity . '_status') {
                     if ($columnValue == 1) {
                         echo "<i class=\"icon-ok-sign\" title=\"" . Message('manage_status_active') . "\"></i>";
@@ -567,35 +567,35 @@ if ($showOverview) {
                         echo "<i class=\"icon-ban-circle\" title=\"" . Message("manage_status_blocked") . "\"></i>";
                     }
                 } elseif ($type == 'date') {
-                    echo escapeOutput(date($dateFormat, $columnValue));
+                    echo ESC(date($dateFormat, $columnValue));
                 } elseif ($type == 'timestamp') {
                     if ($columnValue) {
-                        echo escapeOutput(date($datetimeFormat, $columnValue));
+                        echo ESC(date($datetimeFormat, $columnValue));
                     } else {
                         echo '-';
                     }
                 } elseif ($type == 'email') {
-                    echo "<a href=\"mailto:" . escapeOutput($columnValue) . "\" title=\"" . escapeOutput($columnValue) . "\"><i class=\"icon-envelope\"></i></a>";
+                    echo "<a href=\"mailto:" . ESC($columnValue) . "\" title=\"" . ESC($columnValue) . "\"><i class=\"icon-envelope\"></i></a>";
                 } elseif ($type == 'select' && hasMessage('option_' . $columnValue)) {
-                    echo Message('option_' . escapeOutput($columnValue));
+                    echo Message('option_' . ESC($columnValue));
                 } elseif ($type == 'boolean') {
                     $iconName = $columnValue ? 'icon-ok' : 'icon-minus-sign';
                     $iconTooltip = $columnValue ? Message('option_yes') : Message('option_no');
                     echo "<i class=\"" . $iconName . "\" title=\"" . $iconTooltip . "\"></i>";
                 } elseif ($type == 'number') {
-                    echo number_format(escapeOutput($columnValue), 0, ',', ' ');
+                    echo number_format(ESC($columnValue), 0, ',', ' ');
                 } elseif ($type == 'percent') {
-                    echo escapeOutput($columnValue) . '%';
+                    echo ESC($columnValue) . '%';
                 } else {
                     if (hasMessage('option_' . $columnValue)) {
                         $columnValue = Message('option_' . $columnValue);
                     }
 
                     if ($first && $editEnabled) {
-                        echo "<a href=\"" . escapeOutput($editUrl) . "\">";
+                        echo "<a href=\"" . ESC($editUrl) . "\">";
                     }
 
-                    echo escapeOutput($columnValue);
+                    echo ESC($columnValue);
 
                     if ($first && $editEnabled) {
                         echo '</a>';
@@ -608,12 +608,12 @@ if ($showOverview) {
 
             if ($editEnabled) {
                 $url = '?site=' . $site . '&entity=' . $entity . '&show=edit&id=' . $row['id'];
-                echo "<td><a href=\"" . escapeOutput($url) . "\" title=\"" . $editTooltip . "\"><i class=\"icon-pencil\"></i></a></td>";
+                echo "<td><a href=\"" . ESC($url) . "\" title=\"" . $editTooltip . "\"><i class=\"icon-pencil\"></i></a></td>";
             }
 
             if ($deleteEnabled) {
                 $url = '?site=' . $site . '&entity=' . $entity . '&action=delete&id=' . $row['id'];
-                echo "<td><a href=\"" . escapeOutput($url) . "\" title=\"" . escapeOutput($deleteTooltip) . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a></td>";
+                echo "<td><a href=\"" . ESC($url) . "\" title=\"" . ESC($deleteTooltip) . "\" class=\"deleteLink\"><i class=\"icon-trash\"></i></a></td>";
             }
 
             echo '</tr>';
@@ -674,7 +674,7 @@ if ($showOverview) {
             if ($seite < $seiten) {
                 $next = $seite + 1;
                 $url = buildCurrentUrlWithParameters(array('site' => $site, 'entity' => $entity, 'page' => $next));
-                echo '<li><a href=\'' . escapeOutput($url) . '\'>&raquo;</a></li>';
+                echo '<li><a href=\'' . ESC($url) . '\'>&raquo;</a></li>';
             }
 
             echo '</ul></div>';

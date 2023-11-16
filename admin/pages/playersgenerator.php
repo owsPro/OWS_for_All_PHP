@@ -53,7 +53,7 @@ if (!$show) {
 	  } else {
 	  	?>
 
-	  	<p><a href="?site=<?php echo $site ?>&show=generateform&leagueid=<?php echo escapeOutput($leagueid) ?>"
+	  	<p><a href="?site=<?php echo $site ?>&show=generateform&leagueid=<?php echo ESC($leagueid) ?>"
 	  		class="btn"><?php echo Message("playersgenerator_create_for_all_teams"); ?></a></p>
 
 	  	<h4 style="margin-top:20px"><?php echo Message("playersgenerator_create_for_single_teams"); ?></h4>
@@ -70,8 +70,8 @@ if (!$show) {
 
 	  		while ($team = $result->fetch_array()) {
 	  			echo "<tr>";
-	  			echo "<td><a href=\"?site=". escapeOutput($site) . "&show=generateform&teamid=". escapeOutput($team["id"]) . "\">". escapeOutput($team["name"]) . "</a></td>";
-	  			echo "<td>". escapeOutput($team["playerscount"]) . "</td>";
+	  			echo "<td><a href=\"?site=". ESC($site) . "&show=generateform&teamid=". ESC($team["id"]) . "\">". ESC($team["name"]) . "</a></td>";
+	  			echo "<td>". ESC($team["playerscount"]) . "</td>";
 	  			echo "</tr>";
 	  		}
 
@@ -90,11 +90,11 @@ if (!$show) {
 elseif ($show == "generateform") {
 	?>
 
-  <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
+  <form action="<?php echo ESC($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
     <input type="hidden" name="show" value="generate">
 	<input type="hidden" name="site" value="<?php echo $site; ?>">
-	<input type="hidden" name="teamid" value="<?php echo escapeOutput($teamid); ?>">
-	<input type="hidden" name="leagueid" value="<?php echo escapeOutput($leagueid); ?>">
+	<input type="hidden" name="teamid" value="<?php echo ESC($teamid); ?>">
+	<input type="hidden" name="leagueid" value="<?php echo ESC($leagueid); ?>">
 
 	<fieldset>
     <legend><?php echo Message("generator_label"); ?></legend>
@@ -183,4 +183,4 @@ $_POST['entity_player_vertrag_gehalt'], $_POST['entity_player_vertrag_spiele'], 
 	}
 	else generatePlayers($website, $db, 0, $_POST['player_age'], $_POST['player_age_deviation'],$_POST['entity_player_vertrag_gehalt'], $_POST['entity_player_vertrag_spiele'], $strengths, $positions, $_POST["playersgenerator_label_deviation"], $_POST['entity_player_nation']);
 	echo createSuccessMessage(Message('generator_success'),'');
-    echo'<p>&raquo; <a href=\'?site='.escapeOutput($site).'&leagueid='.escapeOutput($leagueid).'\'>'.Message('back_label').'</a></p>\n';}}
+    echo'<p>&raquo; <a href=\'?site='.ESC($site).'&leagueid='.ESC($leagueid).'\'>'.Message('back_label').'</a></p>\n';}}

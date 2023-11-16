@@ -12,7 +12,7 @@
 
 *****************************************************************************/
 								include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');Bootstrap_css();$i18n=I18n::getInstance(Config('supported_languages'));if(isset($_GET['lang']))$i18n->setCurrentLanguage(
-								$_GET['lang']);include(sprintf(escapeOutput($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php',$i18n->getCurrentLanguage())));$root=escapeOutput($_SERVER['DOCUMENT_ROOT']);$inc=$root.'/languages/messages_%s.php';include(sprintf($inc,
+								$_GET['lang']);include(sprintf(ESC($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php',$i18n->getCurrentLanguage())));$root=ESC($_SERVER['DOCUMENT_ROOT']);$inc=$root.'/languages/messages_%s.php';include(sprintf($inc,
 								$i18n->getCurrentLanguage()));$errors=[];$inputEmail=(isset($_POST['inputEmail']))?trim($_POST['inputEmail']):FALSE;if($inputEmail){$now=Timestamp();if(count($errors)==0){$columns=array('id','passwort_neu_angefordert','name',
 								'passwort_salt');$fromTable=$conf['db_prefix'].'_admin';$whereCondition='email=\'%s\'';$parameters=$inputEmail;$result=$db->querySelect($columns,$fromTable,$whereCondition,$parameters);$admin=$result->fetch_array();if($result->num_rows<1)
 								$errors['inputEmail']=Message('sendpassword_admin_usernotfound');elseif($admin['passwort_neu_angefordert']>($now-120*60))$errors['inputEmail']=Message('sendpassword_admin_alreadysent');else{$newPassword=generatePassword();
@@ -22,6 +22,6 @@
 								body{padding-top:100px;padding-bottom:40px;}</style></head><body><div class='container'><h1><?php echo Message('sendpassword_admin_title');?></h1><?php if(count($errors)>0)foreach($errors as$key=>$message)echo createErrorMessage(
 								Message('subpage_error_title'),$message);flags('/admin/forgot-password.php?lang=');?><p><?php echo Message('sendpassword_admin_intro');?></p><form action='forgot-password.php'method='post'class='form-horizontal'><div class='control-group
 								<?php if(isset($errors['inputEmail']))echo' error';?>'><label class='control-label'for='inputEmail'><?php echo Message('sendpassword_admin_label_email');?></label><div class='controls'><input type='email'name='inputEmail'id='inputEmail'
-								placeholder='E-Mail'value='<?php echo escapeOutput($inputEmail);?>'></div></div><div class='control-group'><div class='controls'><button type='submit'class='btn'><?php echo Message('sendpassword_admin_button');?></button></div></div></form>
+								placeholder='E-Mail'value='<?php echo ESC($inputEmail);?>'></div></div><div class='control-group'><div class='controls'><button type='submit'class='btn'><?php echo Message('sendpassword_admin_button');?></button></div></div></form>
 								<p><a href='login.php'><?php echo Message('sendpassword_admin_loginlink');?></a><hr><footer><p>Powered by <a href='https://github.com/owsPro/OWS_for_All_PHP'target='_blank'>OWS_for_All_PHP</a></p></footer></div><script
 								src='https://code.jquery.com/jquery-latest.min.js'></script><script src='bootstrap/js/bootstrap.min.js'></script></body></html>
