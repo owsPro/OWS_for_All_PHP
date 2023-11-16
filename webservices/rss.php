@@ -52,5 +52,5 @@ try {
     echo $viewHandler->handlePage($pageId, []);
 } catch (Exception $e) {
     // Handle any exceptions that occur during page handling
-    echo print_r($e->getMessage());
+    print_r($e->getMessage());
 }
