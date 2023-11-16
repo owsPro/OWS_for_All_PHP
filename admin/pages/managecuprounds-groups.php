@@ -31,9 +31,9 @@ if (!isset($round["round_name"])) {
 	throw new Exception("illegal round id");
 }
 
-echo "<h2>". Message("entity_cup") . " - " . escapeOutput($round["round_name"]) . "</h2>";
+echo "<h2>". Message("entity_cup") . " - " . htmlspecialchars((string)$round["round_name"],ENT_COMPAT,'UTF-8') . "</h2>";
 
-echo "<p><a href=\"?site=managecuprounds&cup=". escapeOutput($round["cup_id"]) . "\" class=\"btn\">" . Message("managecuprounds_groups_back") ."</a></p>";
+echo "<p><a href=\"?site=managecuprounds&cup=". htmlspecialchars((string)$round["cup_id"],ENT_COMPAT,'UTF-8') . "\" class=\"btn\">" . Message("managecuprounds_groups_back") ."</a></p>";
 
 // get teams for team selection
 $result = $db->querySelect("T.id AS team_id,T.name AS team_name,L.name AS league_name,L.land AS league_country",
@@ -113,7 +113,7 @@ if ($action == "create") {
 
 		$columns = array("name" => $_REQUEST["groupname"]);
 
-		
+
 		$db->queryUpdate($columns,Config("db_prefix") . "_cup_round_group", "cup_round_id = %d AND name = '%s'",
 				array($roundid, $_REQUEST["group"]));
 
@@ -261,18 +261,18 @@ if (count($groups)) {
 			if ($showEditForm && $_REQUEST["group"] == $groupName) {
 				$nameValue = (isset($_REQUEST["groupname"])) ? $_REQUEST["groupname"] : $groupName;
 				?>
-				<form method="post" action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" class="form-inline">
+				<form method="post" action="<?php echo htmlspecialchars((string)$_SERVER['PHP_SELF'],ENT_COMPAT,'UTF-8'); ?>" class="form-inline">
 					<input type="hidden" name="action" value="editsave">
 					<input type="hidden" name="site" value="<?php echo $site; ?>">
-					<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
-					<input type="hidden" name="group" value="<?php echo escapeOutput($groupName); ?>">
+					<input type="hidden" name="round" value="<?php echo htmlspecialchars((string)$roundid,ENT_COMPAT,'UTF-8'); ?>">
+					<input type="hidden" name="group" value="<?php echo htmlspecialchars((string)$groupName,ENT_COMPAT,'UTF-8'); ?>">
 
-					<input id="groupname" name="groupname" type="text" value="<?php echo escapeOutput($nameValue) ?>">
+					<input id="groupname" name="groupname" type="text" value="<?php echo htmlspecialchars((string)$nameValue,ENT_COMPAT,'UTF-8'); ?>">
 					<input type="submit" class="btn" value="<?php echo Message("button_save"); ?>">
 				</form>
 				<?php
 			} else {
-				echo escapeOutput($groupName);
+				echo htmlspecialchars((string)$groupName,ENT_COMPAT,'UTF-8');};
 			}
 
 			echo "</td>";
@@ -280,17 +280,17 @@ if (count($groups)) {
 			echo "<td><ul>";
 			$noOfTeams = 0;
 			foreach ($groupItems as $groupItem) {
-				echo "<li>" . escapeOutput($groupItem["team_name"]) . " <a class=\"deleteLink\" href=\"?site=". escapeOutput($site) . "&round=". escapeOutput($roundid) . "&group=". urlencode(escapeOutput($groupName)) . "&action=deletegroupassignment&teamid=". escapeOutput($groupItem["team_id"]) . "\" title=\"". Message("manage_delete") . "\"><i class=\"icon-remove-sign\"></i></a></li>";
+				echo "<li>" . htmlspecialchars((string)$groupItem["team_name"],ENT_COMPAT,'UTF-8') . " <a class=\"deleteLink\" href=\"?site=". htmlspecialchars((string)$site,ENT_COMPAT,'UTF-8') . "&round=". htmlspecialchars((string)$roundid,ENT_COMPAT,'UTF-8') . "&group=". urlencode(htmlspecialchars((string)$groupName),ENT_COMPAT,'UTF-8') . "&action=deletegroupassignment&teamid=". htmlspecialchars((string)$groupItem["team_id"],ENT_COMPAT,'UTF-8') . "\" title=\"". Message("manage_delete") . "\"><i class=\"icon-remove-sign\"></i></a></li>";
 				++$noOfTeams;
 			}
 			echo "</ul>\n";
 
 			?>
-			<form method="post" action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" class="form-inline">
+			<form method="post" action="<?php echo htmlspecialchars((string)$_SERVER['PHP_SELF'],ENT_COMPAT,'UTF-8'); ?>" class="form-inline">
 				<input type="hidden" name="action" value="addteam">
-				<input type="hidden" name="site" value="<?php echo escapeOutput($site); ?>">
-				<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
-				<input type="hidden" name="group" value="<?php echo escapeOutput($groupName); ?>">
+				<input type="hidden" name="site" value="<?php echo htmlspecialchars((string)$site,ENT_COMPAT,'UTF-8'); ?>">
+				<input type="hidden" name="round" value="<?php echo $roundid,ENT_COMPAT,'UTF-8');} ?>">
+				<input type="hidden" name="group" value="<?php echo htmlspecialchars((string)$groupName,ENT_COMPAT,'UTF-8');} ?>">
 
 				<?php
 				createForeignKeyField($i18n, "teamid", array("entity" => "club", "jointable" => "verein", "labelcolumns" => "name"), "");
@@ -304,11 +304,10 @@ if (count($groups)) {
 			echo "<td>";
 
 			?>
-			<form method="post" action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" class="form-inline">
+			<form method="post" action="<?php echo htmlspecialchars((string)$_SERVER['PHP_SELF'],ENT_COMPAT,'UTF-8');} ?>" class="form-inline">
 				<input type="hidden" name="action" value="saveranks">
-				<input type="hidden" name="site" value="<?php echo escapeOutput($site); ?>">
-				<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
-				<input type="hidden" name="group" value="<?php echo escapeOutput($groupName); ?>">
+				<input type="hidden" name="round" value="<?php echo htmlspecialchars((string)$roundid,ENT_COMPAT,'UTF-8');} ?>">
+				<input type="hidden" name="group" value="<?php echo htmlspecialchars((string)$groupName,ENT_COMPAT,'UTF-8');} ?>">
 			<?php
 			echo "<ol>";
 			for ($rank = 1; $rank <= $noOfTeams; $rank++) {
@@ -316,11 +315,11 @@ if (count($groups)) {
 				echo "<li><select name=\"rank_$rank\"><option></option>";
 				foreach ($rounds as $roundItem) {
 
-					echo "<option value=\"" . escapeOutput($roundItem["id"]) . "\"";
+					echo "<option value=\"" . htmlspecialchars((string)$roundItem["id"],ENT_COMPAT,'UTF-8') . "\"";
 					if (isset($rankConfigs[$groupName][$rank]) && $rankConfigs[$groupName][$rank] == $roundItem["id"]) {
 						echo " selected";
 					}
-					echo ">". escapeOutput($roundItem["name"]) . "</option>";
+					echo ">". htmlspecialchars((string)$roundItem["name"],ENT_COMPAT,'UTF-8') . "</option>";
 				}
 				echo "</select></li>\n";
 
@@ -331,8 +330,8 @@ if (count($groups)) {
 			</form>
 			<?php
 			echo "</td>";
-			echo "<td><a href=\"?site=". escapeOutput($site) . "&round=". escapeOutput($roundid) . "&action=edit&group=". urlencode(escapeOutput($groupName)) . "\" title=\"". Message("manage_edit") . "\"><i class=\"icon-pencil\"></i></a></td>";
-			echo "<td><a class=\"deleteLink\" href=\"?site=". escapeOutput($site) . "&round=". escapeOutput($roundid) . "&group=". urlencode(escapeOutput($groupName)) . "&action=delete\" title=\"". Message("manage_delete") . "\"><i class=\"icon-trash\"></i></a></td>";
+			echo "<td><a href=\"?site=". htmlspecialchars((string)$site,ENT_COMPAT,'UTF-8') . "&round=". htmlspecialchars((string)$roundid,ENT_COMPAT,'UTF-8') . "&action=edit&group=". urlencode(htmlspecialchars((string)$groupName),ENT_COMPAT,'UTF-8') . "\" title=\"". Message("manage_edit") . "\"><i class=\"icon-pencil\"></i></a></td>";
+			echo "<td><a class=\"deleteLink\" href=\"?site=". htmlspecialchars((string)$site,ENT_COMPAT,'UTF-8');} . "&round=". htmlspecialchars((string)$roundid,ENT_COMPAT,'UTF-8') . "&group=". urlencode(htmlspecialchars((string)$groupName),ENT_COMPAT,'UTF-8') . "&action=delete\" title=\"". Message("manage_delete") . "\"><i class=\"icon-trash\"></i></a></td>";
 
 			echo "</tr>\n";
 		}
@@ -420,22 +419,22 @@ $matches = $result->fetch_assoc();
 $result->free();
 
 	$matchesUrl = "?site=manage&entity=match&" . http_build_query(array(
-			"entity_match_pokalname" => escapeOutput($round["cup_name"]),
-			"entity_match_pokalrunde" => escapeOutput($round["round_name"])));
+			"entity_match_pokalname" => htmlspecialchars((string)$round["cup_name"],ENT_COMPAT,'UTF-8'),
+			"entity_match_pokalrunde" => htmlspecialchars((string)$round["round_name"],ENT_COMPAT,'UTF-8');}));
 
 	?>
 
 	<div class="well">
 		<?php if (isset($matches["hits"]) && $matches["hits"]) { ?>
-		<p><a href="<?php echo escapeOutput($matchesUrl); ?>"><strong><?php echo escapeOutput($matches["hits"]); ?></strong> <?php echo Message("managecuprounds_groups_created_matches"); ?></a></p>
+		<p><a href="<?php echo htmlspecialchars((string)$matchesUrl,ENT_COMPAT,'UTF-8');} ?>"><strong><?php echo htmlspecialchars((string)$matches["hits"],ENT_COMPAT,'UTF-8');}); ?></strong> <?php echo Message("managecuprounds_groups_created_matches"); ?></a></p>
 		<?php } ?>
 		<p><a href="#generateModal" role="button" class="btn" data-toggle="modal"><?php echo Message("managecuprounds_groups_open_generate_matches_popup"); ?></a></p>
 	</div>
 
-	<form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
+	<form action="<?php echo htmlspecialchars((string)$_SERVER['PHP_SELF'],ENT_COMPAT,'UTF-8');} ?>" method="post" class="form-horizontal">
 	    <input type="hidden" name="action" value="generateschedule">
-		<input type="hidden" name="site" value="<?php echo escapeOutput($site); ?>">
-		<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
+		<input type="hidden" name="site" value="<?php echo htmlspecialchars((string)$site,ENT_COMPAT,'UTF-8');} ?>">
+		<input type="hidden" name="round" value="<?php echo htmlspecialchars((string)$roundid,ENT_COMPAT,'UTF-8');} ?>">
 		<div id="generateModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="generateModalLabel" aria-hidden="true">
 		  <div class="modal-header">
 		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">??</button>
@@ -464,10 +463,10 @@ $result->free();
 // Create form
 ?>
 
-  <form action="<?php echo escapeOutput($_SERVER['PHP_SELF']); ?>" method="post" class="form-horizontal">
+  <form action="<?php echo htmlspecialchars((string)$_SERVER['PHP_SELF'],ENT_COMPAT,'UTF-8');} ?>" method="post" class="form-horizontal">
     <input type="hidden" name="action" value="create">
-	<input type="hidden" name="site" value="<?php echo escapeOutput($site); ?>">
-	<input type="hidden" name="round" value="<?php echo escapeOutput($roundid); ?>">
+	<input type="hidden" name="site" value="<?php echo htmlspecialchars((string)$site,ENT_COMPAT,'UTF-8');} ?>">
+	<input type="hidden" name="round" value="<?php echo htmlspecialchars((string)$roundid,ENT_COMPAT,'UTF-8');} ?>">
 
 	<fieldset>
     <legend><?php echo Message("managecuprounds_groups_label_create"); ?></legend>
@@ -500,8 +499,8 @@ $result->free();
 					foreach ($teams as $team) {
 						echo "<tr>";
 						echo "<td><input type=\"checkbox\" name=\"teams[]\" value=\"". $team["team_id"] . "\"></td>";
-						echo "<td class=\"tableRowSelectionCell\">". escapeOutput($team["team_name"]) . "</td>";
-						echo "<td class=\"tableRowSelectionCell\">". escapeOutput($team["league_name"] . " (" . $team["league_country"] . ")") . "</td>";
+						echo "<td class=\"tableRowSelectionCell\">". htmlspecialchars((string)$team["team_name"],ENT_COMPAT,'UTF-8') . "</td>";
+						echo "<td class=\"tableRowSelectionCell\">". htmlspecialchars((string)$team["league_name"] . " (" . $team["league_country"] . ")",ENT_COMPAT,'UTF-8');} . "</td>";
 						echo "</tr>\n";
 					}
 					?>
@@ -513,7 +512,7 @@ $result->free();
 	<div class="form-actions">
 		<input type="submit" class="btn btn-primary" accesskey="s" title="Alt + s" value="<?php echo Message("button_save"); ?>">
 	<?php
-	echo "<a href=\"?site=managecuprounds&cup=". escapeOutput($round["cup_id"]) . "\" class=\"btn\">" . Message("button_cancel") ."</a>";
+	echo "<a href=\"?site=managecuprounds&cup=". htmlspecialchars((string)$round["cup_id"],ENT_COMPAT,'UTF-8');} . "\" class=\"btn\">" . Message("button_cancel") ."</a>";
 
 	?>
 
