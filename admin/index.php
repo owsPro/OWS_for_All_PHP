@@ -146,7 +146,7 @@ Bootstrap_css();
                     try{
                         include($includeFile);
                     }catch(Exception $e){
-                        echo createErrorMessage(Message('alert_error_title'),  htmlspecialchars((string)$e->getMessage(),ENT_COMPAT,'UTF-8'));
+                        echo Message(createErrorMessage(Message('alert_error_title'),$e->getMessage()));
                     }
                 }else{
                     echo createErrorMessage(Message('alert_error_title'), Message('error_page_not_found'));
