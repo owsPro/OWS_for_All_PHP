@@ -22,9 +22,10 @@ function xpathESC($value){
     	else return sprintf("concat('%s')",implode("',\"'\",'",explode($quote,$value)));}
 function DBSave(){save(date('Y-m-d_H-i-s').'_'.C('db_name').'.sql.gz');}
 function Query($queryStr){
+		static $con;
     	$con=new mysqli(C('db_host'),C('db_user'),C('db_password'),$dbName=C('db_name'));
     	if($con->connect_error)throw new Exception('Database Connection Error: '.$con->connect_error);
-		$result=$con->query($con->real_escape_string($queryStr));
+		$result=$con->query($queryStr);
     	if(!$result)throw new Exception('Database Query Error: '.$con->error);
     	return $result;}
 function save($file){
@@ -47,7 +48,7 @@ function write($handle=null) {
         $tables=array_merge($tables,$views);
         Query('LOCK TABLES `'.implode('` READ,`',$tables).'`READ');
         Query('SELECT DATABASE()')->fetch_row();
-        foreach($tables as$table)$con->real_escape_string(dumpTable($handle,$table));
+        foreach($tables as$table)dumpTable($handle,$table);
         Query('UNLOCK TABLES');}
 function dumpTable($handle,$table){
         $delTable=delimit($table);
