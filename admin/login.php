@@ -11,18 +11,16 @@
   See GNU Lesser General Public License Version 3 http://www.gnu.org/licenses/
 
 *****************************************************************************/
-								include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');
+include($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');
 include($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php');
 
 // Create an instance of the I18n class and set the current language
 $i18n = I18n::getInstance(Config('supported_languages'));
-if(isset($_GET['lang'])) {
-    $i18n->setCurrentLanguage($_GET['lang']);
-}
+if(isset($_GET['lang'])) setCurrentLanguage($_GET['lang']);
 
 // Include the language files
-include($_SERVER['DOCUMENT_ROOT'].'/cache/adminmessages_'.$i18n->getCurrentLanguage().'.inc.php');
-include($_SERVER['DOCUMENT_ROOT'].'/languages/messages_'.$i18n->getCurrentLanguage().'.php');
+include('/cache/adminmessages_'.CurrentLanguage().'.inc.php');
+include('/languages/messages_'.CurrentLanguage().'.php');
 
 $errors = [];
 $inputUser = (isset($_POST['inputUser'])) ? $_POST['inputUser'] : FALSE;
