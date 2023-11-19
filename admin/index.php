@@ -146,7 +146,7 @@ Bootstrap_css();
                     try{
                         include($includeFile);
                     }catch(Exception $e){
-                        echo Message(createErrorMessage(Message('alert_error_title'),$e->getMessage()));
+                        twig_escape_filter((createErrorMessage(Message('alert_error_title'),$e->getMessage()));
                     }
                 }else{
                     echo createErrorMessage(Message('alert_error_title'), Message('error_page_not_found'));
