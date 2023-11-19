@@ -105,7 +105,7 @@ if ($action == "create") {
 		$db->queryInsert($columns,Config("db_prefix") . "_cup_round");
 
 	} catch (Exception $e) {
-		echo twig_escape_filter(createErrorMessage(Message("subpage_error_alertbox_title") , $e->getMessage()));
+		echo twig_escape_filter((createErrorMessage(Message("subpage_error_alertbox_title") , $e->getMessage()));
 	}
 
 // Action: delete
