@@ -23,13 +23,10 @@ if(isset($_GET['lang'])){
 }
 
 // Include the language configuration file based on the current language
-include(sprintf(escapeOutput($_SERVER['DOCUMENT_ROOT'].'/cache/wsconfigadmin.inc.php', $i18n->getCurrentLanguage())));
-
-$root = escapeOutput($_SERVER['DOCUMENT_ROOT']);
-$inc = $root.'/languages/messages_%s.php';
+include('/cache/wsconfigadmin.inc.php',CurrentLanguage());
 
 // Include the language messages file based on the current language
-include(sprintf($inc, $i18n->getCurrentLanguage()));
+include('/languages/messages_%s.php',CurrentLanguage()));
 
 $errors = [];
 
