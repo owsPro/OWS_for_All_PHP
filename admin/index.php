@@ -32,14 +32,14 @@ $navItems['website'] = [];
 // Loop through the admin pages
 foreach($adminpage as $pageId => $pageData){
     $pageInfo = json_decode($pageData, true);
-    
+
     // Check if the user has the required permissions to access the page
-    if((!isset($admin['r_admin']) || !$admin['r_admin']) && 
-       (!isset($admin['r_demo']) || !$admin['r_demo']) && 
+    if((!isset($admin['r_admin']) || !$admin['r_admin']) &&
+       (!isset($admin['r_demo']) || !$admin['r_demo']) &&
        (!isset($admin[$pageInfo['permissionrole']]) || !$admin[$pageInfo['permissionrole']])){
         continue;
     }
-    
+
     // Create the site info based on the page info
     if(isset($pageInfo['entity']) && $pageInfo['entity']){
         $siteInfo['label'] = Message('entity_'.$pageInfo['entity']);
@@ -50,7 +50,7 @@ foreach($adminpage as $pageId => $pageData){
         $siteInfo['pageid'] = $pageInfo['filename'];
         $siteInfo['entity'] = null;
     }
-    
+
     // Add the site info to the navigation items array
     $navItems[$pageInfo['navcategory']][] = $siteInfo;
 }
@@ -137,7 +137,7 @@ Bootstrap_css();
             </div>
             <br>
             <div class="span10">
-                <?php 
+                <?php
                 if(empty($site)){
                     $site = 'home';
                 }
@@ -146,7 +146,7 @@ Bootstrap_css();
                     try{
                         include($includeFile);
                     }catch(Exception $e){
-                        echo createErrorMessage(Message('alert_error_title'), $e->getMessage());
+                        echo createErrorMessage(Message('alert_error_title'),  htmlspecialchars((string)$e->getMessage(),ENT_COMPAT,'UTF-8'));
                     }
                 }else{
                     echo createErrorMessage(Message('alert_error_title'), Message('error_page_not_found'));
