@@ -188,7 +188,7 @@ if ($show == 'add' || $show == 'edit') {
             echo createSuccessMessage(Message('alert_save_success'), '');
             $showOverview = TRUE;
         } catch (Exception $e) {
-            echo createErrorMessage(Message('subpage_error_alertbox_title'), $e->getMessage());
+            echo twig_escape_filter(createErrorMessage(Message('subpage_error_alertbox_title'), $e->getMessage()));
         }
     }
 }
