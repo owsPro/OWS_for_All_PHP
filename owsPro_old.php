@@ -30,7 +30,6 @@ class Value{static$pageId,$_createdConverters,$_eventlistenerConfigs,$_addedPlay
 			function connectDB($host,$user,$password,$dbname){Value::$connection=new mysqli($db->connect(Config('db_host'),Config('db_user'),Config('db_passwort'),Config('db_name')));Value::$connection->set_charset('utf8');if(mysqli_connect_error()){
 							throw new Exception('Die Datenbank ist zur Zeit nicht verfügbar: ('.mysqli_connect_errno().') '.mysqli_connect_error());}}
 			function Message($messageKey,$paramaters=NULL){global$msg;if(!hasMessage($messageKey)){return'???'.$messageKey.'???';}$message=stripslashes($msg[$messageKey]);if($paramaters!=NULL){$message=sprintf($message,$paramaters);}return$message;}
-			function hasMessage($messageKey){global$msg;return isset($msg[$messageKey]);}
 			function Request($name){if(isset($_REQUEST[$name])){$value=trim($_REQUEST[$name]);if(strlen($value)){return$value;}}return NULL;}
 			function aUrl($actionId,$queryString='',$pageId=NULL,$fullUrl=FALSE){if($pageId==NULL)$pageId=Request('page');if(strlen($queryString))$queryString='&'.$queryString;$url=Config('context_root').'/?page='.$pageId.$queryString.'&action='.$actionId;
 							if($fullUrl)$url=Config('homepage').$url;return $url;}
