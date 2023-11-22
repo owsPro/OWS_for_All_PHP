@@ -3596,8 +3596,8 @@ function delDir($dir){
 		rmdir($dir);}}
 class TemplateEngine{
 	private$_environment;
-	function __construct(WebSoccer$env,I18n$i18n,ViewHandler$viewHandler=null){
-		$this->_skin=$env->getSkin();
+	function __construct($env,$i18n,ViewHandler$viewHandler=null){
+		$this->_skin=getSkin();
 		$this->_initTwig();
 		$this->_environment->addGlobal('i18n',$i18n);
 		$this->_environment->addGlobal('env',$env);

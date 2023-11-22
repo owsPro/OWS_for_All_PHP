@@ -19,6 +19,13 @@ function SuccessMessage($title,$message){return createMessage('success',$title,$
 function WarningMessage($title,$message){return createMessage('warning',$title,$message);}
 function ESC($message){return htmlspecialchars((string)$message,ENT_COMPAT,'UTF-8');}
 function prepareFielfValueForSaving($fieldValue){$preparedValue=stripslashes($fieldValue);return$preparedValue;}
+function resetConfigCache(){$cacheBuilder=new ConfigCacheFileWriter(SupportedLanguages());$cacheBuilder->buildConfigCache();}
+function SupportedLanguages(){return V::$supportedLanguages=array_map('trim',explode(',',C('supported_languages')));}
+function TemplateEngine($i18n,$viewHandler=null){if(V::$templateEngine===null)V::$templateEngine=new TemplateEngine($templateEngine,$i18n,$viewHandler);return V::$templateEngine;}
+function getSkin(){if(V::$skin==NULL){$skinName=C('skin');if(class_exists($skinName))V::$skin=new $skinName(V::$skin);else M('Configured skin \''.$skinName.'\' does not exist. Check the system settings.');}return V::$skin;}
+class V{
+	static $templateEngine,$supportedLanguages=['de','en'],$skin;
+    }
 function AllLogging(){
 	$mainTitle=M('all_logging_title');
 	if(!$show){?>
@@ -37,12 +44,12 @@ function AllLogging(){
     		else{?>	<form action='<?php echo ESC($_SERVER['PHP_SELF']);?>'method='post'><input type='hidden'name='action'value='leeren'><input type='hidden'name='site'value='<?php echo $site;?>'><p><input type='submit'class='btn'value='<?php echo M('all_logging_button_empty_file');?>'></p></form>
       			<p>(<?php echo M('all_logging_only_last_entries_shown');?>)</p>
         		<table class='table table-bordered table-striped'>
-           			<tr><th><?php echo M('all_logging_label_no');?></th><th><?php echo M('all_logging_label_user');?></th><th><?php echo M('all_logging_label_ip');?></th><th><?php echo M('all_logging_label_time');?></th></tr><?php 
+           			<tr><th><?php echo M('all_logging_label_no');?></th><th><?php echo M('all_logging_label_user');?></th><th><?php echo M('all_logging_label_ip');?></th><th><?php echo M('all_logging_label_time');?></th></tr><?php
             		$file=file($datei);$lines=count($file);$min=$lines-50;
             		if($min<0)$min=0;for($i=$lines-1;$i>=$min;--$i){$line=$file[$i];$row=explode(',',$line);$n=$i+1;echo'<tr><td><b>'.$n.'</b></td><td>'.ESC($row[0]).'</td><td>'.ESC($row[1]).'</td><td>'.ESC($row[2]).'</td></tr>';}?></table><?php }}}}
 function AllSettings(){
 	$mainTitle=M('all_settings_title');
-	include(CONFIGCACHE_SETTINGS);
+	include($_SERVER['DOCUMENT_ROOT'].'/cache/settingsconfig.inc.php');
 	if(!$show){
 		$tabs=[];
 		foreach($setting as$settingId=>$settingData){
@@ -77,6 +84,13 @@ function AllSettings(){
   			$cf->saveSettings($newSettings);
 			include('success.inc.php');
 			echo WarningMessage(M('settings_saved_note_restartjobs'),M('settings_saved_note_restartjobs_details'));}}}
+function ClearCache(){
+	echo'<h1>'.M('clearcache_title').'</h1>';
+	resetConfigCache();
+	TemplateEngine($i18n)->clearCache();
+	echo SuccessMessage(M('clearcache_success_title'),M('clearcache_success_message'));}
+
+
 
 @include($_SERVER['DOCUMENT_ROOT'].'/owsPro_old.php');
 
