@@ -7676,7 +7676,6 @@ echo@$head.'<br>'.str_pad('PHP Benchmark   : Server       PHP '.PHP_VERSION,23).
 			function renderErrorPage($website,$i18n,$viewHandler,$message,$parameters){$parameters['title']=$message;$parameters['message']='';print_r($website->getTemplateEngine($i18n,$viewHandler)->loadTemplate('error')->render($parameters));}
 			function printNavItem($currentSite,$pageId,$navLabel,$entity=''){$url='?site='.$pageId;$active=($currentSite==$pageId);if(strlen($entity)){$url.='&entity='.escapeOutput($entity);$active=(isset($_REQUEST['entity'])&&$_REQUEST['entity']==$entity);}echo'<li';
 							if($active)echo'class=\'active\'';echo'><a href=\''.$url.'\'>'.$navLabel.'</a></li>';}
-			function prepareFielfValueForSaving($fieldValue){$preparedValue=trim($fieldValue);$preparedValue=stripslashes($fieldValue);return$preparedValue;}
 			function renderRound($roundNode){global$i18n,$website,$hierarchy,$site,$cupid,$cup,$action,$db;echo'<div class=\'cupround\'>';$showEditForm=FALSE;if($action=='edit'&&$_REQUEST['id']==$roundNode['round']['id']){$showEditForm=TRUE;}elseif($action=='edit-save'&&
 							$_REQUEST['id']==$roundNode['round']['id']){if(isset($admin['r_demo'])&&$admin['r_demo'])throw new Exception(Message('validationerror_no_changes_as_demo'));$showEditForm=TRUE;$columns=[];$columns['name']=$_POST['name'];$columns['finalround']=
 							(isset($_POST['finalround'])&&$_POST['finalround']=='1')?1:0;$columns['groupmatches']=(isset($_POST['groupmatches'])&&$_POST['groupmatches']=='1')?1:0;$firstDateObj=DateTime::createFromFormat(Config('date_format').', H:i',

@@ -12,10 +12,13 @@
  - Additional configuration and settings, e.g. through add-ons and basic configuration and settings, which are supplemented or overwritten by '/cache/wsconfigadmin.inc.php'.
  - Terms and conditions translated into many languages.
 =====================================================================================*/
+function C($name){global$conf;if(!isset($conf[$name]))M('Missing configuration: '.$name);return$conf[$name];}
 function M($messageKey,$paramaters=NULL){global$msg;if(!hasMessage($messageKey)){return$messageKey;}$message=stripslashes($msg[$messageKey]);if($paramaters!=NULL){$message=sprintf($message,$paramaters);}return$message;}
 function hasMessage($messageKey){global$msg;return isset($msg[$messageKey]);}
 function SuccessMessage($title,$message){return createMessage('success',$title,$message);}
+function WarningMessage($title,$message){return createMessage('warning',$title,$message);}
 function ESC($message){return htmlspecialchars((string)$message,ENT_COMPAT,'UTF-8');}
+function prepareFielfValueForSaving($fieldValue){$preparedValue=stripslashes($fieldValue);return$preparedValue;}
 function AllLogging(){
 	$mainTitle=M('all_logging_title');
 	if(!$show){?>
@@ -37,10 +40,47 @@ function AllLogging(){
            			<tr><th><?php echo M('all_logging_label_no');?></th><th><?php echo M('all_logging_label_user');?></th><th><?php echo M('all_logging_label_ip');?></th><th><?php echo M('all_logging_label_time');?></th></tr><?php 
             		$file=file($datei);$lines=count($file);$min=$lines-50;
             		if($min<0)$min=0;for($i=$lines-1;$i>=$min;--$i){$line=$file[$i];$row=explode(',',$line);$n=$i+1;echo'<tr><td><b>'.$n.'</b></td><td>'.ESC($row[0]).'</td><td>'.ESC($row[1]).'</td><td>'.ESC($row[2]).'</td></tr>';}?></table><?php }}}}
+function AllSettings(){
+	$mainTitle=M('all_settings_title');
+	include(CONFIGCACHE_SETTINGS);
+	if(!$show){
+		$tabs=[];
+		foreach($setting as$settingId=>$settingData){
+			$settingInfo=json_decode($settingData,true);
+			$tabs[$settingInfo['category']][$settingId]=$settingInfo;}?>
+  	<h1><?php echo$mainTitle;?></h1>
+  	<form action='<?php echo ESC($_SERVER['PHP_SELF']);?>'method='post'class='form-horizontal'><input type='hidden'name='show'value='speichern'><input type='hidden'name='site'value='<?php echo$site;?>'>
+		<ul class='nav nav-tabs'><?php
+			$firstTab=TRUE;
+			foreach($tabs as$tabId=>$settings){
+				echo'<li';
+				if($firstTab)echo' class=\'active\'';
+				echo'><a href=\'#'.$tabId.'\'data-toggle=\'tab\'>'.M('settings_tab_'.$tabId).'</a></li>';
+				$firstTab=FALSE;}?></ul>
+		<div class='tab-content'><?php
+			$firstTab=TRUE;
+			foreach($tabs as$tabId=>$settings){
+				echo'<div class=\'tab-pane';
+				if($firstTab)echo' active';
+				echo'\'id=\''.$tabId.'\'>';
+				foreach($settings as$settingId=>$settingInfo)echo FormBuilder::createFormGroup($i18n,$settingId,$settingInfo,C($settingId),'settings_label_');
+				echo'</div>';
+				$firstTab=FALSE;}?></div>
+		<div class='form-actions'><input type='submit'class='btn btn-primary'accesskey='s'title='Alt + s'value='<?php echo M('button_save');?>'><input type='reset'class='btn'value='<?php echo M('button_reset');?>'></div></form><?php }
+	elseif($show=='speichern'){
+		if($admin['r_demo'])$err[]=M('validationerror_no_changes_as_demo');
+		if(isset($err))include('validationerror.inc.php');
+		else{
+  			$newSettings=[];
+  			foreach($setting as$settingId=>$settingData)$newSettings[$settingId]=(isset($_POST[$settingId]))?prepareFielfValueForSaving($_POST[$settingId]):'';
+  			$cf=ConfigFileWriter::getInstance($conf);
+  			$cf->saveSettings($newSettings);
+			include('success.inc.php');
+			echo WarningMessage(M('settings_saved_note_restartjobs'),M('settings_saved_note_restartjobs_details'));}}}
+
 @include($_SERVER['DOCUMENT_ROOT'].'/owsPro_old.php');
 
 function Config($name){global$conf;if(!isset($conf[$name]))throw new Exception('Missing configuration: '.$name);return$conf[$name];}
-function C(...$args){return Config(...$args);}
 function DBSave(){save(date('Y-m-d_H-i-s').'_'.C('db_name').'.sql.gz');}
 function Query($queryStr){
         $con=new mysqli(C('db_host'),C('db_user'),C('db_passwort'),C('db_name'));
