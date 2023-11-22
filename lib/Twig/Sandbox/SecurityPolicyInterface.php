@@ -9,18 +9,37 @@
  * file that was distributed with this source code.
  */
 
+namespace Twig\Sandbox;
+
 /**
- * Interfaces that all security policy classes must implements.
+ * Interface that all security policy classes must implements.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-interface Twig_Sandbox_SecurityPolicyInterface
+interface SecurityPolicyInterface
 {
-    public function checkSecurity($tags, $filters, $functions);
+    /**
+     * @param string[] $tags
+     * @param string[] $filters
+     * @param string[] $functions
+     *
+     * @throws SecurityError
+     */
+    public function checkSecurity($tags, $filters, $functions): void;
 
-    public function checkMethodAllowed($obj, $method);
+    /**
+     * @param object $obj
+     * @param string $method
+     *
+     * @throws SecurityNotAllowedMethodError
+     */
+    public function checkMethodAllowed($obj, $method): void;
 
-    public function checkPropertyAllowed($obj, $method);
+    /**
+     * @param object $obj
+     * @param string $property
+     *
+     * @throws SecurityNotAllowedPropertyError
+     */
+    public function checkPropertyAllowed($obj, $property): void;
 }
-
-class_alias('Twig_Sandbox_SecurityPolicyInterface', 'Twig\Sandbox\SecurityPolicyInterface', false);

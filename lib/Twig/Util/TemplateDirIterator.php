@@ -9,20 +9,28 @@
  * file that was distributed with this source code.
  */
 
+namespace Twig\Util;
+
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Twig_Util_TemplateDirIterator extends IteratorIterator
+class TemplateDirIterator extends \IteratorIterator
 {
+    /**
+     * @return mixed
+     */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return file_get_contents(parent::current());
     }
 
+    /**
+     * @return mixed
+     */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return (string) parent::key();
     }
 }
-
-class_alias('Twig_Util_TemplateDirIterator', 'Twig\Util\TemplateDirIterator', false);
