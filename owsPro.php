@@ -12,6 +12,9 @@
  - Additional configuration and settings, e.g. through add-ons and basic configuration and settings, which are supplemented or overwritten by '/cache/wsconfigadmin.inc.php'.
  - Terms and conditions translated into many languages.
 =====================================================================================*/
+if(!function_exists('str_contains')){function Str_Contains($php,$needle):bool{if(is_string($php)&&is_string($needle))return''===$needle||false!==strpos($php,$needle);else return false;}}
+if(!function_exists('str_starts_with')){function Str_Starts_With($haystack,$needle){return $haystack[0]===$needle[0]?strncmp($haystack,$needle,strlen($needle))===0:false;}}
+if(!function_exists('str_ends_with')){function Str_Ends_With($haystack,$needle){return $haystack[0]===$needle[0]?strncmp($haystack,$needle,-strlen($needle))===0:false;}}
 function C($name){global$conf;if(!isset($conf[$name]))M('Missing configuration: '.$name);return$conf[$name];}
 function M($messageKey,$paramaters=NULL){global$msg;if(!hasMessage($messageKey)){return$messageKey;}$message=stripslashes($msg[$messageKey]);if($paramaters!=NULL){$message=sprintf($message,$paramaters);}return$message;}
 function hasMessage($messageKey){global$msg;return isset($msg[$messageKey]);}
@@ -109,7 +112,7 @@ function save($file){
     	if(!$handle){error_log("ERROR: Cannot write file '$file'.");return;}
     	write($handle);
     	fclose($handle);}
-function write($handle=null) {
+function write($handle=null){
         if($handle===null)$handle??fopen('php://output','wb');
         elseif(!is_resource($handle)||get_resource_type($handle)!=='stream')throw new Exception('Argument must be a stream resource.');
         $tables=$views=[];
