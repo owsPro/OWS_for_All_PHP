@@ -1,8 +1,0 @@
-
-{% if leagues is defined %}
-<ul>
-{% for league in leagues %}
-<li><a href="{{iUrl("league", "id=" ~ league.id) }}">{{ league.name }}</a></li>
-{% endfor %}
-</ul>
-{% endif %}

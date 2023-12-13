@@ -1,6 +1,0 @@
-{% if Config("facebook_enable_comments") %}
-	{% set url =iUrl(null, "id=" ~ Request("id"), TRUE) %}
-
-	<hr>
-	<div class="fb-comments" data-href="{{ url }}" data-width="500"></div>
-{% endif %}

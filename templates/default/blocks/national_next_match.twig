@@ -1,9 +1,0 @@
-<h4>{{ Message("nationalmatches_nextmatch_title") }}</h4>
-
-<p><em>{{Datetime(match.date) }} | {{ Message("option_" ~ match.type) }}</em></p>
-<p><strong><a href="{{iUrl("team", "id=" ~ match.home_id) }}">{{ match.home_team }}</a>
-	-
-	<a href="{{iUrl("team", "id=" ~ match.guest_id) }}">{{ match.guest_team }}</a>
-	</strong></p>
-<p><a href="{{iUrl("match", "id=" ~ match.id) }}" class="btn">{{ Message("match_navlabel") }}</a>
-<a href="{{iUrl("formation", "nationalteam=1&id=" ~ match.id) }}" class="btn">{{ Message("formation_navlabel") }}</a></p>

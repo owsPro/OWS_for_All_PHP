@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module SYSTEM "../module.dtd">
-<module version="1.0.0">
-  <actions>
-	<action id="choose-sponsor" controller="ChooseSponsorController" role="user">
-	    <param id="id" type="number" required="true" min="1" max="2000000000" />
-	</action>
-  </actions>
-</module>
