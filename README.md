@@ -12,7 +12,8 @@
 
 
 It is intended to update the Websoccer to PHP 8.1 or higher from 2015.
-The possibilities with PHP 8.1 and higher are to be integrated as far as possible in order to bring the Websoccer up to date. 
+The possibilities with PHP 8.1 and higher are to be integrated as far as possible in order to bring the Websoccer up to date.
+
 
 # The coding standards of owsPro apply.
 
@@ -23,6 +24,16 @@ So if you do not provide a precise explanation of your intention, this is not an
 
 Just bear in mind that the processing may take some time. If the pull request is not closed, processing is only pending.
 
+
+#The leading slash is used by default.
+
+
+The leading slash ensures that the native PHP functions or constants are used and not the functions/constants with the same name defined in a namespace of the project.
+This also applies to custom functions or static function calls with a class name. If PHP provides an opcode-optimised function, it will be used, speeding up execution.
+PHP does not need to use the autoloader to find the function or constant declaration. This allows PHP to use native functions without additional checks.
+
+
+#Features
 
 - Base-Features like the OpenWebSoccer from Ingo Hofmann
 - Analysed and fixed PHP code using PSR12 code style rules and made all necessary changes.
