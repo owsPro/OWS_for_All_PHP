@@ -23,10 +23,10 @@ if(!empty($offlineTimeSpansConfig)){																									// Check if there a
                 $isOffline=\true;																										// Set the offline flag to true
                 \break;}}}																												// Exit the loop
     catch(\Exception$e){																												// Catch any exceptions that occur during the process
-        echo'Error: '.$e->getMessage();																									// Display the error messag
+        print_r('<pre> Error: '.$e->getMessage());																									// Display the error messag
         \exit;}}																														// Exit the script
 if($isOffline){
-    $parameters['offline_message']=\nl2br(\C('offline_text'));																			// If the website is offline, 
+    $parameters['offline_message']=\nl2br(\C('offline_text'));																			// If the website is offline,
     echo $website->getTemplateEngine($i18n)->loadTemplate('views/offline')->render($parameters);}										// display the offline messag
 else{
     $user=$user??$website->getUser();																									// Assigns the value of $user. If $user is null, it retrieves the user object from the $website object using the getUser() method
