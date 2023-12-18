@@ -3,7 +3,16 @@
    "owsPro" is distributed WITHOUT ANY WARRANTY, including the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public Licence version 3 http://www.gnu.org/licenses/ */
 \error_reporting(E_ALL);																												// Set error reporting to all errors
 \ini_set('display_errors',1);																											// Set explicit error display
-require($_SERVER['DOCUMENT_ROOT'].'/frontbase.inc.php');																				// Include the frontbase.inc.php file
+require($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');																		// Include the global configuration file
+include($_SERVER['DOCUMENT_ROOT'].'/cache/settingsconfig.inc.php');																		// Include the settings configuration file from the cache
+include($_SERVER['DOCUMENT_ROOT'].'/settingsconfig.php');																				// Include the settings configuration file
+$i18n=I18n::getInstance(C('supported_languages'));																						// Create an instance of the I18n class with supported languages
+if($website->getUser()->language!=\null){																								// Check if the user's language preference is set
+    try{$i18n->setCurrentLanguage($website->getUser()->language);}																		// Set the current language based on the user's preference
+    catch(Exception$e){}}																												// Handle any exceptions that occur during language setting
+include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/messages_%s.inc.php',$i18n->getCurrentLanguage()));									// Include the cached messages file based on the current language
+include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/entitymessages_%s.inc.php',$i18n->getCurrentLanguage()));								// Include the cached entity messages file based on the current language
+include(sprintf($_SERVER['DOCUMENT_ROOT'].'/languages/messages_%s.php',$i18n->getCurrentLanguage()));									// Include the language-specific messages file based on the current language
 $output['messages']='';																													// Initialize the output variable
 $output['content']='';																													// Initialize the output variable
 \header('Content-type:application/json;charset=utf-8');																					// Set the content type to JSON
@@ -17,7 +26,7 @@ if(\C('offline')!=='offline'){																											// Check if the applica
             $validationMessages=$ve->getMessages();																						// If a ValidationException is thrown, get the validation messages
             $website->addFrontMessage(new \FrontMessage('error',\M('validation_error_box_title'),\M('validation_error_box_message')));} // Add a front message for the validation error
         catch(\Exception$e){
-            $website->addFrontMessage(new FrontMessage('error',\M('errorpage_title'),$e->getMessage()));								// If any other exception is thrown, add a front message with the error details
+            $website->addFrontMessage(new \FrontMessage('error',\M('errorpage_title'),$e->getMessage()));								// If any other exception is thrown, add a front message with the error details
             $output['messages']=$e->getMessage();}}																						// Set the error message in the output array
     $viewHandler=new \ViewHandler($website,$db,$i18n,$page,$block,$validationMessages);													// Create a new ViewHandler instance
     try{
@@ -37,4 +46,4 @@ if(\C('offline')!=='offline'){																											// Check if the applica
 if(\R('contentonly'))echo$output['content'];																							// Check if the 'contentonly' parameter is present in the request
 else{
     $output['messages']=$viewHandler->renderBlock('messagesblock',\json_decode($block['messagesblock'],true));							// If 'contentonly' parameter is not present, render the 'messagesblock' and encode the output
-    echo \json_encode($output, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);}															// JSON_THROW_ON_ERROR throws an exception if an error occurs during JSON encoding, and JSON_UNESCAPED_UNICODE ensures that Unicode characters are not escaped.
+    echo \json_encode($output,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);}																// JSON_THROW_ON_ERROR throws an exception if an error occurs during JSON encoding, and JSON_UNESCAPED_UNICODE ensures that Unicode characters are not escaped.

@@ -4,7 +4,23 @@
 if(\PHP_VERSION_ID<80100){																												// Check if the PHP version is less than 8.1.0
     echo'Minimum PHP 8.1.0!';																											// If the version is lower, it displays the message "Minimum PHP 8.1.0!"
     \exit;}																																// and exits the script.
-include($_SERVER['DOCUMENT_ROOT'].'/frontbase.inc.php');																				// It includes the "frontbase.inc.php" file located in the document root directory. This file is required for the script to run correctly.
+require($_SERVER['DOCUMENT_ROOT'].'/admin/config/global.inc.php');																		// Include the global configuration file
+include($_SERVER['DOCUMENT_ROOT'].'/cache/settingsconfig.inc.php');																		// Include the settings configuration file from the cache
+include($_SERVER['DOCUMENT_ROOT'].'/settingsconfig.php');																				// Include the settings configuration file
+$i18n=I18n::getInstance(C('supported_languages'));																						// Create an instance of the I18n class with supported languages
+if($website->getUser()->language!=\null){																								// Check if the user's language preference is set
+    try{$i18n->setCurrentLanguage($website->getUser()->language);}																		// Set the current language based on the user's preference
+    catch(Exception$e){}}																												// Handle any exceptions that occur during language setting
+include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/messages_%s.inc.php',$i18n->getCurrentLanguage()));									// Include the cached messages file based on the current language
+include(sprintf($_SERVER['DOCUMENT_ROOT'].'/cache/entitymessages_%s.inc.php',$i18n->getCurrentLanguage()));								// Include the cached entity messages file based on the current language
+include(sprintf($_SERVER['DOCUMENT_ROOT'].'/languages/messages_%s.php',$i18n->getCurrentLanguage()));									// Include the language-specific messages file based on the current language
+$authenticatorClasses=\array_map('trim',\explode(',',C('authentication_mechanism')));													// Get the authentication mechanism from the configuration and split it into an array - We only need this part so that the frontend message appears when you log out.
+foreach($authenticatorClasses as$authenticatorClass){																					// Loop through each authenticator class
+    $authenticatorClass=\trim($authenticatorClass);																						// Trim the $authenticatorClass variable to remove any leading or trailing whitespace
+    if(!\class_exists($authenticatorClass))throw new Exception('Class not found: '.$authenticatorClass);								// Check if the class exists
+	else{
+    $authenticator=new $authenticatorClass($website);																					// Create an instance of the authenticator class
+    $authenticator->verifyAndUpdateCurrentUser($website->getUser());}}																	// Verify and update the current user using the authenticator
 $isOffline=(\C('offline')=='offline');																									// The configuration entries "offline" and "offline_times" are retrieved with the function \C() and compared with the string "offline" and stored in the variable $isOffline.
 $offlineTimeSpansConfig=\C('offline_times');																							// The value of the "offline_times" configuration is stored in the $offlineTimeSpansConfig variable.
 if(!empty($offlineTimeSpansConfig)){																									// Check if there are offline time spans configured
