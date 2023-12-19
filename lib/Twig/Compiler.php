@@ -8,8 +8,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-/* Important! - @author Rolf Joseph - This code has been modified for the Websoccer owsPro to take better advantage of the new features of PHP 8. In addition, the code is more documented. You can replace it with the attached original Twig version.
-   "owsPro" is distributed WITHOUT ANY WARRANTY, including the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public Licence version 3 http://www.gnu.org/licenses/ */
+/*
+
+(c) & @author Rolf Joseph of this modified code and includes additional comments and documentation.
+
+It improves the readability and understanding of the code. It also mentions that the code has been modified for the Websoccer owsPro project to take advantage of PHP 8 features.
+"owsPro" is distributed WITHOUT ANY WARRANTY, including the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public Licence version 3 http://www.gnu.org/licenses/
+The code provided is a modified version of the Twig environment class. Twig is a popular PHP templating engine. The modified code takes advantage of new features in PHP 8 and includes additional documentation. */
+
 namespace Twig;
 use Twig\Node\Node;
 
@@ -28,39 +34,40 @@ class Compiler
     public function __construct(Environment$env)
     {   $this->env=$env;																												// Assign the environment object
         $this->reset();}																												// Reset the state of the object
-    public function getEnvironment():Environment
+    public function getEnvironment()																									:Environment
     {return $this->env;}																												// Return the current environment.
-    public function getSource():string
+    public function getSource()																											:string
     {return $this->source;}																												// Return the source of the data as string.
-    public function reset(int$indentation=0):self
-    {   $this->lastLine=null;																											// Resetting the properties of the object
-        $this->source='';
-        $this->debugInfo=[];
-        $this->sourceOffset=0;
-        $this->sourceLine=1;																											// source code starts at 1 (as we then increment it when we encounter new lines)
-        $this->indentation=$indentation;
-        $this->varNameSalt=0;
-        return$this;}
-    public function compile(Node$node,int$indentation=0):self
+    public function reset(int$indentation=0)																							:self
+    {   $this->lastLine=null;																											// Reset the properties of the object stored in $lastLine
+        $this->source='';																												// Reset the properties of the object stored in $source
+        $this->debugInfo=[];																											// Reset the properties of the object stored in $debugInfo
+        $this->sourceOffset=0;																											// Reset the properties of the object stored in $lastLine
+        $this->sourceLine=1;																											// Reset the properties of the object stored in $sourceLine and the source code starts at 1 (as we then increment it when we encounter new lines)
+        $this->indentation=$indentation;																								// Reset the properties of the object stored in $indentation
+        $this->varNameSalt=0;																											// Reset the properties of the object stored in $varNameSalt
+        return$this;}																													// Return the current object for method chaining
+    public function compile(Node$node,int$indentation=0)																				:self
     {   $this->reset($indentation);																										// Reset the indentation level
         $node->compile($this);																											// Compile the given node
         return$this;}																													// Return the current instance for method chaining
-    public function subcompile(Node$node,bool$raw=true):self
+    public function subcompile(Node$node,bool$raw=true)																					:self
     {   if(false===$raw)$this->source.=\str_repeat(' ',$this->indentation*4);															// Add indentation if $raw is false
         $node->compile($this);																											// Compile the node
         return$this;}																													// Return the current object for method chaining
-    public function raw(string $string):self
+    public function raw(string $string)																									:self
     {   $this->source.=$string;																											// Append the given string to the source
         return$this;}																													// Return the current object for method chaining
-    public function write(...$strings):self
+    public function write(...$strings)																									:self
     {   $indentation=\str_repeat(' ',$this->indentation*4);																				// Concatenate the string with indentation
         $this->source.=\implode('',\array_map(fn($string)=>$indentation.$string,$strings));												// The array_map applys the indentation to each string. The resulting strings are then concatenated using the implode function.
-        return$this;}
-    public function string(string$value=''):self																						// By setting a default value of an empty string for the $value parameter, we can use it to be called without passing any arguments and reduce the need for additional checks.
+        return$this;}																													// Returns the current object instance
+    public function string(string$value='')																								:self
+    																																	// By setting a default value of an empty string for the $value parameter, we can use it to be called without passing any arguments and reduce the need for additional checks.
     {   																																// We appends the formatted string $value to the $source. The sprintf function is used to format the string with double quotes around the value
         $this->source.=\sprintf('"%s"',\addcslashes($value,"\0\t\"\$\\"));																// and escape any special characters within the value using addcslashes. This ensures that the value is properly formatted and escaped before appending it to the $source.
         return$this;}																													// By returning $this at the end of the method, we enable method chaining, allowing multiple method calls to be chained together in a fluent manner.
-    public function repr($value):self
+    public function repr($value)																										:self
     {   if(\is_int($value)||\is_float($value)){																							// Check if the value is an integer or float
             if(false!==$locale=\setlocale(\LC_NUMERIC,'0')){																			// Store the current locale
                 \setlocale(\LC_NUMERIC,'C');}																							// Set the locale to 'C' for consistent numeric representation
@@ -73,7 +80,7 @@ class Compiler
         elseif(\is_array($value)){																										// Check if the value is an array
             $this->raw('array(');																										// Display 'array(' to indicate the start of the array
             $first=true;																												// Iterate over each key-value pair in the array
-            foreach($value as$key=>$v){
+            foreach($value as$key=>$v){																									// Check if it's the first iteration of the loop
                 if(!$first)$this->raw(',');																								// Add a comma and space before each subsequent key-value pair
                 $first=\false;																											// Set the variable $first to false
                 $this->repr($key);																										// Recursively call the repr() function for the key and value
@@ -82,7 +89,7 @@ class Compiler
             $this->raw(')');}																											// Display ')' to indicate the end of the array
         else$this->string($value);																										// If none of the above conditions are met, treat the value as a string
         return$this;}																													// It returns an instance of the current class
-    public function addDebugInfo(Node $node):self
+    public function addDebugInfo(Node $node)																							:self
     {   if($node->getTemplateLine()!=$this->lastLine){																					// Check if the node's template line is different from the last line
             $this->write(\sprintf("// line %d\n",$node->getTemplateLine()));															// Add a comment indicating the line number
             $this->sourceLine+=\substr_count($this->source,"\n",$this->sourceOffset);													// Update the source line
@@ -90,17 +97,17 @@ class Compiler
             $this->debugInfo[$this->sourceLine]=$node->getTemplateLine();																// Store the debug information
             $this->lastLine=$node->getTemplateLine();}																					// Update the last line
         return$this;}																													// It returns an instance of the current class
-    public function getDebugInfo():array
+    public function getDebugInfo()																										:array
     {	\ksort($this->debugInfo,SORT_NATURAL|SORT_FLAG_CASE);																			// Sort the debugInfo array in ascending order based on the keys, and using the SORT_NATURAL | SORT_FLAG_CASE parameters,
     																																	// we can achieve a natural sorting order that is case-insensitive. This ensures that the keys are sorted in a more intuitive way.
         return$this->debugInfo;}																										// Return the sorted debugInfo array
     public function indent(int$step=1):self																								// Increases the indentation level by the specified step.
     {   $this->indentation+=$step;																										// The number of steps to increase the indentation level by
         return$this;}																													// It returns the current instance of the class
-    public function outdent(int $step = 1):self
+    public function outdent(int $step = 1)																								:self
     {   if($this->indentation<$step){																									// Check if the requested outdent step is greater than the current indentation level
             throw new \LogicException('Unable to call outdent() as the indentation would become negative.');}							// can't outdent by more steps than the current indentation level
         $this->indentation-=$step;																										// Decrease the indentation level by the specified number of steps
         return$this;}																													// Return the current object
-    public function getVarName():string
+    public function getVarName()																										:string
     {return \sprintf('__internal_compile_%d',$this->varNameSalt++);}}																	// Generate a unique variable name for internal compilation
