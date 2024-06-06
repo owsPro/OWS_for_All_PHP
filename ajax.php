@@ -43,7 +43,7 @@ if(\C('offline')!=='offline'){																											// Check if the applica
     catch(\Exception$e){
         $website->addFrontMessage(new \FrontMessage('error',\M('errorpage_title'),$e->getMessage()));									// Add error message to the front of the website
         $output['messages']=$e->getMessage();}}																							// Set the error message in the output array
-if(\R('contentonly'))echo$output['content'];																							// Check if the 'contentonly' parameter is present in the request
+if(\R('contentonly'))echo htmlentities($output['content']);																				// Check if the 'contentonly' parameter is present in the request
 else{
     $output['messages']=$viewHandler->renderBlock('messagesblock',\json_decode($block['messagesblock'],true));							// If 'contentonly' parameter is not present, render the 'messagesblock' and encode the output
-    echo \json_encode($output,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);}																// JSON_THROW_ON_ERROR throws an exception if an error occurs during JSON encoding, and JSON_UNESCAPED_UNICODE ensures that Unicode characters are not escaped.
+    echo htmlentities(\json_encode($output,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE));}												// JSON_THROW_ON_ERROR throws an exception if an error occurs during JSON encoding, and JSON_UNESCAPED_UNICODE ensures that Unicode characters are not escaped.
